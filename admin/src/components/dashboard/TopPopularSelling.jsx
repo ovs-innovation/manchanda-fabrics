@@ -33,13 +33,13 @@ const TopPopularSelling = ({ bestSeller = [], topBrands = [], goldCustomers = []
     bestSeller.slice(0, 6).map((m) => ({
       name: showingTranslateValue(m.title) || m.title,
       sold: m.count,
-      img: m.image?.[0] || "/rasaLogo.png",
+      img: m.image?.[0] || "/manchandalogo.png",
     }));
 
   const mostLovedProducts = bestSeller.slice(0, 6).map((m) => ({
     name: showingTranslateValue(m.title) || m.title,
     hearts: m.count || 0,
-    img: m.image?.[0] || "/rasaLogo.png",
+    img: m.image?.[0] || "/manchandalogo.png",
   }));
 
   return (
