@@ -18,20 +18,20 @@ const SignUp = () => {
     useLoginSubmit();
 
   return (
-    <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 h-full max-w-2xl mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <div className="flex items-center min-h-screen p-6 bg-store-50 dark:bg-store-900">
+      <div className="flex-1 h-full max-w-2xl mx-auto overflow-hidden bg-white rounded-lg shadow-md border border-store-200 dark:bg-store-900 dark:border-store-700/40">
         <div className="flex flex-col overflow-y-auto">
           <div className="w-full flex justify-center p-6">
             <img
               aria-hidden="true"
               className="object-contain h-20 w-20"
               src={ADMIN_BRAND_LOGO}
-              alt="RASA"
+              alt="Manchanda Fabrics"
             />
           </div>
           <main className="flex items-center justify-center p-6 sm:p-12">
             <div className="w-full max-w-sm">
-              <h1 className="mb-6 text-2xl font-semibold text-gray-700 dark:text-gray-200 text-center">
+              <h1 className="mb-6 text-2xl font-semibold text-store-800 dark:text-store-100 text-center">
                 {t("CreateAccount")}
               </h1>
               <form onSubmit={handleSubmit(onSubmit)}>

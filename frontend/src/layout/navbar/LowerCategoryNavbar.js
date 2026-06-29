@@ -128,10 +128,10 @@ export default function LowerCategoryNavbar({
         onMouseEnter={clearCloseTimer}
         onMouseLeave={scheduleClose}
       >
-        <div className="bg-[#0A0A0A] shadow-2xl shadow-black/60 rounded-none border border-neutral-800 py-2 overflow-hidden">
+        <div className="bg-white shadow-2xl shadow-black/60 rounded-none border border-[#E6D1CB]/60 py-2 overflow-hidden">
           <Link
             href={getUrl(activeCategory)}
-            className="px-5 py-3 text-xs font-black text-[#D4AF37] uppercase tracking-widest block border-b border-neutral-800 hover:bg-[#D4AF37] hover:text-black transition-colors"
+            className="px-5 py-3 text-xs font-black text-[#9C6A5A] uppercase tracking-widest block border-b border-[#E6D1CB]/60 hover:bg-[#9C6A5A] hover:text-black transition-colors"
             onClick={() => setActiveCategoryId(null)}
           >
             View All {getName(activeCategory)}
@@ -143,14 +143,14 @@ export default function LowerCategoryNavbar({
                   key={sub._id}
                   href={getUrl(sub)}
                   onClick={() => setActiveCategoryId(null)}
-                  className="block px-5 py-2.5 text-xs uppercase tracking-wider font-bold text-neutral-300 hover:bg-[#D4AF37] hover:text-black transition-colors"
+                  className="block px-5 py-2.5 text-xs uppercase tracking-wider font-bold text-[#3B2A25]/85 hover:bg-[#9C6A5A] hover:text-black transition-colors"
                 >
                   {getName(sub)}
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="px-5 py-2 text-[10px] uppercase tracking-wider font-bold text-neutral-500">Browse all products</p>
+            <p className="px-5 py-2 text-[10px] uppercase tracking-wider font-bold text-[#3B2A25]/60">Browse all products</p>
           )}
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function LowerCategoryNavbar({
 
   const wrapperClass = isInline
     ? "w-full min-w-0 relative"
-    : "w-full border-t border-b border-neutral-900 bg-[#050505] relative";
+    : "w-full border-t border-b border-[#E6D1CB]/60 bg-[#FAF7F5] relative";
 
   return (
     <div className={wrapperClass} ref={dropdownRef}>
@@ -200,11 +200,11 @@ export default function LowerCategoryNavbar({
                   }}
                   className={`flex items-center gap-1.5 font-black uppercase tracking-widest text-[11px] whitespace-nowrap rounded-none transition-all duration-300 border-b-2
                     ${isInline ? "px-2 py-1.5" : "px-3.5 py-3"}
-                    ${isActive ? "text-white border-[#D4AF37] bg-transparent" : "text-neutral-400 border-transparent hover:text-white hover:border-[#D4AF37] bg-transparent"}`}
+                    ${isActive ? "text-[#3B2A25] border-[#9C6A5A] bg-transparent" : "text-[#3B2A25]/70 border-transparent hover:text-[#3B2A25] hover:border-[#9C6A5A] bg-transparent"}`}
                 >
                   {getName(category)}
                   <IoChevronDown
-                    className={`text-[10px] transition-transform duration-300 ${isActive ? "rotate-180 text-white" : "text-neutral-500 group-hover:text-white"}`}
+                    className={`text-[10px] transition-transform duration-300 ${isActive ? "rotate-180 text-[#3B2A25]" : "text-[#3B2A25]/60 group-hover:text-[#3B2A25]"}`}
                   />
                 </button>
               </div>

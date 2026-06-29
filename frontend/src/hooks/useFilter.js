@@ -79,39 +79,33 @@ const useFilter = (data, allCategories = []) => {
     // Filter by Category
     if (selectedCategories.length > 0) {
       services = services.filter((product) => {
-        const catSlug = (product.categorySlug || "").toLowerCase().trim();
-        const titleLower = showingTranslateValue(product.title)?.toLowerCase() || "";
-        const descLower = showingTranslateValue(product.description)?.toLowerCase() || "";
-        const rawBrandName = product.brandName || (product.brand && typeof product.brand.name === 'object' ? showingTranslateValue(product.brand.name) : product.brand?.name) || "";
-        const brandName = typeof rawBrandName === 'string' ? rawBrandName.toLowerCase().trim() : "";
+        const productCategoryIdentifiers = new Set();
+        
+        if (product.category) {
+          const catId = (product.category._id || product.category).toString().toLowerCase().trim();
+          productCategoryIdentifiers.add(catId);
+          if (product.category.slug) {
+            productCategoryIdentifiers.add(product.category.slug.toLowerCase().trim());
+          }
+        }
+        
+        if (product.categorySlug) {
+          productCategoryIdentifiers.add(product.categorySlug.toLowerCase().trim());
+        }
+
+        if (product.categories && Array.isArray(product.categories)) {
+          product.categories.forEach(c => {
+            const id = (c._id || c).toString().toLowerCase().trim();
+            productCategoryIdentifiers.add(id);
+            if (c.slug) {
+              productCategoryIdentifiers.add(c.slug.toLowerCase().trim());
+            }
+          });
+        }
 
         return selectedCategories.some(selectedId => {
           const selId = selectedId.toLowerCase().trim();
-          
-          // Match main categories
-          if (selId === "footwear" && catSlug === "footwear") return true;
-          if (selId === "bags" && catSlug === "bags") return true;
-          if (selId === "slides" && (catSlug === "footwear" && (titleLower.includes("slide") || descLower.includes("slide")))) return true;
-          if (selId === "accessories" && catSlug === "accessories") return true;
-
-          // Match subcategory brand for Sneakers
-          if (catSlug === "footwear" && ["premium-sports", "urban-sports", "p-brand", "canvas-series", "balance-series", "street-series", "tiger-series"].includes(selId)) {
-            return brandName.includes(selId) || titleLower.includes(selId);
-          }
-
-          // Match subcategory bag type for Bags
-          if (catSlug === "bags" && ["tote", "shoulder", "crossbody", "backpack", "sling", "wallet"].includes(selId)) {
-            return titleLower.includes(selId) || descLower.includes(selId);
-          }
-
-          // Match direct ID or slug match as fallback
-          const productCategoryIds = [
-            (product.category?._id || product.category || "").toString().toLowerCase(),
-            ...(product.categories || []).map(c => (c._id || c || "").toString().toLowerCase())
-          ];
-          if (productCategoryIds.includes(selId)) return true;
-
-          return false;
+          return productCategoryIdentifiers.has(selId);
         });
       });
     }

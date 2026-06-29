@@ -1,12 +1,32 @@
 const fs = require("fs");
+const path = require("path");
 const PDFDocument = require("pdfkit");
 const fetch = require("node-fetch");
 
-const handleCreateInvoice = async (invoice, path) => {
+const handleCreateInvoice = async (invoice, pathName) => {
   let logoBuffer;
-  if (invoice?.company_info?.logo) {
+
+  // Attempt to load the logo locally first for sub-millisecond response
+  const possibleLogoPaths = [
+    path.join(__dirname, "../../../frontend/public/logo/logo.png"),
+    path.join(__dirname, "../../../frontend/public/logo.png"),
+    path.join(__dirname, "../../public/logo/logo.png")
+  ];
+  for (const p of possibleLogoPaths) {
+    if (fs.existsSync(p)) {
+      try {
+        logoBuffer = fs.readFileSync(p);
+        break;
+      } catch (e) {
+        console.error("Error reading local logo:", e);
+      }
+    }
+  }
+
+  // Fallback to fetching via URL if local read failed
+  if (!logoBuffer && companyInfo?.logo) {
     try {
-      const res = await fetch(invoice.company_info.logo);
+      const res = await fetch(companyInfo.logo);
       logoBuffer = await res.buffer();
     } catch (err) {
       console.error("Error fetching logo:", err);
@@ -16,20 +36,13 @@ const handleCreateInvoice = async (invoice, path) => {
   const pdfBuffer = await new Promise((resolve) => {
     let doc = new PDFDocument({ size: "A4", margin: 50 });
 
-    // doc.text('hello world', 100, 50);
-    // doc.end();
-    generateHeader(doc, invoice, logoBuffer);
+    generateHeader(doc, invoice, logoBuffer, companyInfo);
     generateCustomerInformation(doc, invoice);
-    generateInvoiceTable(doc, invoice);
-    // generateFooter(doc);
-
-    // console.log('doc', doc);
-
-    // doc.pipe(fs.createWriteStream(`invoices/${invoice.invoice}.pdf`));
+    generateInvoiceTable(doc, invoice, companyInfo);
+    generateFooter(doc);
 
     doc.end();
 
-    //Finalize document and convert to buffer array
     let buffers = [];
     doc.on("data", buffers.push.bind(buffers));
     doc.on("end", () => {
@@ -38,115 +51,121 @@ const handleCreateInvoice = async (invoice, path) => {
     });
   });
 
-  // fs.writeFile(pdfBuffer, 'test', function (err) {
-  //   if (err) {
-  //     return console.log('err when saving file', err);
-  //   }
-  //   console.log('The file was saved!');
-  // });
-
   return pdfBuffer;
 };
 
-const getImage = async (doc, invoice) => {
-  const res = await fetch(invoice.company_info.logo, { encoding: null });
-  const imageBuffer = await res.buffer();
-  const img = new Buffer.from(imageBuffer, "base64");
-  doc.image(img, (doc.page.width - 525) / 2, doc.y, {
-    align: "center",
-    width: 40,
-  });
-  // console.log('logo >>>>>', img);
-  return img;
-};
+const generateHeader = (doc, invoice, logoBuffer, companyInfo) => {
+  // Top Accent Colored Bar
+  doc.rect(0, 0, doc.page.width, 15).fill("#9C6A5A");
 
-const generateHeader = (doc, invoice, logoBuffer) => {
-  // const logo = getImage(doc, invoice);
-  // console.log('logooooo>>>', logo);
+  // Reset text color to dark brown
+  doc.fillColor("#3B2A25");
 
+  // Title
   doc
-    .fontSize(17)
+    .fontSize(22)
     .font("Helvetica-Bold")
-    .text("Invoice", 50, 50)
-    .fontSize(10)
-    .font("Helvetica")
-    .text("Status :", 50, 70)
-    .text(invoice.status, 100, 70)
-    .fontSize(10)
-    .font("Helvetica")
-    .text("VAT Number :", 50, 85)
-    .text(invoice?.company_info?.vat_number, 120, 85);
+    .fillColor("#9C6A5A")
+    .text("INVOICE", 50, 45)
+    .fillColor("#3B2A25");
 
-  if (logoBuffer) {
-    doc.image(logoBuffer, doc.page.width - 90, doc.y - 75, {
-      width: 40,
-    });
+  // Status and Details
+  doc
+    .fontSize(10)
+    .font("Helvetica-Bold")
+    .text("Status : ", 50, 75)
+    .font("Helvetica")
+    .text(invoice.status || "Order Placed", 95, 75);
+
+  if (companyInfo?.vat_number) {
+    doc
+      .font("Helvetica-Bold")
+      .text("GSTIN : ", 50, 90)
+      .font("Helvetica")
+      .text(companyInfo.vat_number, 95, 90);
   }
 
+  // Draw Logo
+  if (logoBuffer) {
+    try {
+      doc.image(logoBuffer, doc.page.width - 120, 35, {
+        width: 70,
+      });
+    } catch (err) {
+      console.error("Error rendering logo image in PDF:", err);
+    }
+  }
+
+  // Company Details (Right aligned)
+  const companyName = companyInfo?.company || "Manchanda Fabrics";
+  const companyAddress = companyInfo?.address || "Ludhiana, Punjab, India";
+  const companyPhone = companyInfo?.phone || "";
+  const companyEmail = companyInfo?.email || "support@manchandafabrics.com";
+  const companyWebsite = companyInfo?.website || "www.manchandafabrics.com";
+
   doc
-    // .fillColor('#4C4F54')
-    .fontSize(12)
+    .fontSize(11)
     .font("Helvetica-Bold")
-    .text(invoice?.company_info?.company, 200, 50, { align: "right" })
-    .fontSize(10)
+    .fillColor("#9C6A5A")
+    .text(companyName, 200, 45, { align: "right" })
+    .fillColor("#3B2A25")
+    .fontSize(9)
     .font("Helvetica")
-    .text(invoice?.company_info?.address, 200, 65, { align: "right" })
-    .text(invoice?.company_info?.phone, 200, 80, { align: "right" })
-    .text(invoice?.company_info?.email, 200, 95, { align: "right" })
-    .text(invoice?.company_info?.website, 200, 108, { align: "right" })
+    .text(companyAddress, 200, 60, { align: "right" });
+
+  if (companyPhone) {
+    doc.text(`Phone: ${companyPhone}`, 200, 72, { align: "right" });
+  }
+  doc
+    .text(companyEmail, 200, 84, { align: "right" })
+    .text(companyWebsite, 200, 96, { align: "right" })
     .moveDown();
 };
 
 function generateCustomerInformation(doc, invoice) {
-  // doc.fillColor('#444444').fontSize(20).text('Invoice', 50, 130);
+  const customerInformationTop = 135;
+  
+  // Section separator line
+  doc.strokeColor("#E6D1CB").lineWidth(1).moveTo(50, 120).lineTo(doc.page.width - 50, 120).stroke();
 
-  const customerInformationTop = 140;
-  doc.font("Helvetica-Bold");
-
-  generateTableRow(doc, customerInformationTop, "Date", "Invoice", "Method");
-  const customerInformationTopDetail = customerInformationTop + 20;
-  doc.font("Helvetica");
-  doc.fontSize(10);
+  // Invoice Details Table Headers
+  doc.font("Helvetica-Bold").fontSize(10).fillColor("#9C6A5A");
+  generateTableRow(doc, customerInformationTop, "Date", "Invoice No.", "Payment Method");
+  
+  const customerInformationTopDetail = customerInformationTop + 18;
+  doc.font("Helvetica").fontSize(10).fillColor("#3B2A25");
   generateTableRow(
     doc,
     customerInformationTopDetail,
-    invoice?.date,
+    invoice?.date || new Date(invoice.createdAt).toLocaleDateString(),
     "#" + invoice.invoice,
-    invoice?.paymentMethod
+    invoice?.paymentMethod || "Cash On Delivery"
   );
 
+  // Customer Info Box (Right aligned)
   doc
-
     .font("Helvetica-Bold")
-    .text("Invoice To", 200, 140, { align: "right" })
-    .font("Helvetica")
     .fontSize(10)
-    .text(invoice.user_info.name, 200, 155, { align: "right" })
-    .text(invoice.user_info.email, 200, 170, { align: "right" })
-    .text(invoice?.user_info?.phone, 200, 200, { align: "right" })
-    .text(invoice?.user_info?.address, 200, 185, { align: "right" });
+    .fillColor("#9C6A5A")
+    .text("Billed To :", 200, customerInformationTop, { align: "right" })
+    .font("Helvetica")
+    .fontSize(9.5)
+    .fillColor("#3B2A25")
+    .text(invoice.user_info.name, 200, customerInformationTop + 15, { align: "right" })
+    .text(invoice.user_info.email, 200, customerInformationTop + 28, { align: "right" });
 
-  // doc
-  //   .fontSize(10)
-  //   .text('Invoice Number:', 50, customerInformationTop)
-  //   .font('Helvetica-Bold')
-  //   .text(invoice.invoice, 150, customerInformationTop)
-  //   .font('Helvetica')
-  //   .text('Invoice Date:', 50, customerInformationTop + 15)
-  //   .text(invoice.date, 150, customerInformationTop + 15)
-  //   .text('Payment Method:', 50, customerInformationTop + 30)
-  //   .font('Helvetica-Bold')
-  //   .text(invoice.paymentMethod, 150, customerInformationTop + 30)
+  if (invoice?.user_info?.phone) {
+    doc.text(invoice.user_info.phone, 200, customerInformationTop + 41, { align: "right" });
+  }
+  if (invoice?.user_info?.address) {
+    doc.text(invoice.user_info.address, 200, customerInformationTop + 54, { align: "right", width: 250 });
+  }
 
-  //   .font('Helvetica-Bold')
-  //   .text(invoice.user_info.name, 300, customerInformationTop)
-  //   .font('Helvetica')
-  //   .text(invoice.user_info.email, 300, customerInformationTop + 15)
-
-  // .moveDown();
+  // Divider before items table
+  doc.strokeColor("#E6D1CB").lineWidth(1).moveTo(50, 220).lineTo(doc.page.width - 50, 220).stroke();
 }
 
-function generateInvoiceTable(doc, invoice) {
+function generateInvoiceTable(doc, invoice, companyInfo) {
   let i;
   const invoiceTableTop = 250;
 
@@ -174,8 +193,8 @@ function generateInvoiceTable(doc, invoice) {
       item.title.substring(0, 25),
       "",
       item.quantity,
-      formatCurrency(invoice.company_info.currency, item.price),
-      formatCurrency(invoice.company_info.currency, total)
+      formatCurrency(companyInfo.currency, item.price),
+      formatCurrency(companyInfo.currency, total)
     );
 
     generateHr(doc, position + 20);
@@ -197,11 +216,11 @@ function generateInvoiceTable(doc, invoice) {
     doc,
     paymentOptionPosition,
 
-    formatCurrency(invoice.company_info.currency, invoice.subTotal),
-    formatCurrency(invoice.company_info.currency, invoice.vat),
-    formatCurrency(invoice.company_info.currency, invoice.shippingCost),
-    formatCurrency(invoice.company_info.currency, invoice.discount),
-    formatCurrency(invoice.company_info.currency, invoice.total)
+    formatCurrency(companyInfo.currency, invoice.subTotal),
+    formatCurrency(companyInfo.currency, invoice.vat),
+    formatCurrency(companyInfo.currency, invoice.shippingCost),
+    formatCurrency(companyInfo.currency, invoice.discount),
+    formatCurrency(companyInfo.currency, invoice.total)
   );
 
   // const vatPosition = subtotalPosition + 20;
@@ -212,7 +231,7 @@ function generateInvoiceTable(doc, invoice) {
   //   '',
   //   'VAT',
   //   '',
-  //   formatCurrency(invoice.company_info.currency, invoice.vat)
+  //   formatCurrency(companyInfo.currency, invoice.vat)
   // );
   // const shippingPosition = vatPosition + 20;
   // generateTableRow(
@@ -222,7 +241,7 @@ function generateInvoiceTable(doc, invoice) {
   //   '',
   //   'Shipping Cost',
   //   '',
-  //   formatCurrency(invoice.company_info.currency, invoice.shippingCost)
+  //   formatCurrency(companyInfo.currency, invoice.shippingCost)
   // );
   // const discountPosition = shippingPosition + 20;
   // generateTableRow(
@@ -232,7 +251,7 @@ function generateInvoiceTable(doc, invoice) {
   //   '',
   //   'Discount',
   //   '',
-  //   formatCurrency(invoice.company_info.currency, invoice.discount)
+  //   formatCurrency(companyInfo.currency, invoice.discount)
   // );
 
   // doc
@@ -251,7 +270,7 @@ function generateInvoiceTable(doc, invoice) {
   //   '',
   //   'Total',
   //   '',
-  //   formatCurrency(invoice.company_info.currency, invoice.total)
+  //   formatCurrency(companyInfo.currency, invoice.total)
   // );
   // doc.font('Helvetica');
 }

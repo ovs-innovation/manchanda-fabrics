@@ -11,8 +11,8 @@ const createAdmin = async () => {
     });
     console.log("Connected to MongoDB...");
 
-    const email = "admin@rasastore.com";
-    const password = "RasaStore@123";
+    const email = "manchandafabrics@gmail.com";
+    const password = "ManchandaStoreSecure2026!";
 
     let admin = await Admin.findOne({ email });
     if (admin) {

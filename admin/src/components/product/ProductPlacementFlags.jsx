@@ -22,7 +22,7 @@ const ProductPlacementFlags = ({ tag = [], setTag }) => {
         Homepage Placement
       </h2>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-        Control where this product appears on the RASA storefront homepage.
+        Control where this product appears on the Manchanda Fabricsfront homepage.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {FLAGS.map(({ id, label }) => {

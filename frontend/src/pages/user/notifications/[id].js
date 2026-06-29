@@ -184,4 +184,10 @@ const NotificationDetailPage = () => {
   );
 };
 
+export const getServerSideProps = async ({ params }) => {
+  return {
+    props: { params },
+  };
+};
+
 export default NotificationDetailPage;

@@ -6,7 +6,7 @@ import ProductCard from "@components/product/ProductCard";
 
 const TrendingCollection = ({ products, attributes }) => {
   return (
-    <Layout title="Trending Collection" description="Shop the most wanted streetwear and footwear trending right now at Rasa Store.">
+    <Layout title="Trending Collection" description="Shop the most wanted streetwear and footwear trending right now at Manchanda Fabrics.">
       <div className="bg-white min-h-screen pb-16">
         {/* Editorial Banner */}
         <div className="relative bg-[#FAF9F6] py-16 px-4 border-b border-gray-100 mb-10 text-center">

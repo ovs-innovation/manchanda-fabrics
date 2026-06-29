@@ -135,7 +135,7 @@ const SliderCarousel = () => {
                     {/* Overlay content for premium fashion look */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[2] flex flex-col justify-end p-6 sm:p-8">
                       <span className="text-[10px] text-[#D4AF37] font-extrabold uppercase tracking-widest mb-1.5">
-                        {item.subtitle || "RASA EXCLUSIVE"}
+                        {item.subtitle || "Manchanda Fabrics EXCLUSIVE"}
                       </span>
                       <h3 className="text-white font-black text-lg sm:text-2xl uppercase tracking-tight mb-3">
                         {item.title || "Modern Apparel"}

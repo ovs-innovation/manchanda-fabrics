@@ -23,7 +23,7 @@ const FashionProductCoreFields = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
       <h2 className="text-lg font-black uppercase tracking-widest text-gray-800 dark:text-gray-200">
-        RASA Product Details
+        Manchanda Fabrics Product Details
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

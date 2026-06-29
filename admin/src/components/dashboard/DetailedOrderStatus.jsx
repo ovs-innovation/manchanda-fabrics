@@ -37,9 +37,9 @@ const DetailedOrderStatus = ({ dashboardOrderCount }) => {
     {
       title: "Accepted By Delivery Man",
       value: acceptedCount,
-      valueColor: "text-emerald-500",
-      iconBg: "bg-emerald-50 dark:bg-emerald-900/30",
-      iconColor: "text-emerald-500",
+      valueColor: "text-store-500",
+      iconBg: "bg-store-50 dark:bg-store-800/40",
+      iconColor: "text-store-500",
       Icon: FiSmartphone,
       link: "/orders/accepted"
     },
@@ -55,16 +55,16 @@ const DetailedOrderStatus = ({ dashboardOrderCount }) => {
     {
       title: "Out For Delivery",
       value: outForDeliveryCount,
-      valueColor: "text-emerald-500",
-      iconBg: "bg-teal-50 dark:bg-teal-900/30",
-      iconColor: "text-teal-500",
+      valueColor: "text-store-500",
+      iconBg: "bg-store-100 dark:bg-store-800/40",
+      iconColor: "text-store-500",
       Icon: FiTruck,
       link: "/orders/on-the-way"
     },
     {
       title: "Delivered",
       value: deliveredCount,
-      valueColor: "text-emerald-500",
+      valueColor: "text-store-600",
       iconBg: "bg-green-50 dark:bg-green-900/30",
       iconColor: "text-green-500",
       Icon: FiCheckCircle,
@@ -100,19 +100,19 @@ const DetailedOrderStatus = ({ dashboardOrderCount }) => {
   ];
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mt-6">
+    <div className="w-full bg-white dark:bg-store-900 p-6 md:p-8 rounded-3xl shadow-sm border border-store-200 dark:border-store-700/40 mt-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card, index) => (
           <Link 
             key={index} 
             to={card.link}
-            className="flex items-center justify-between p-4 bg-[#f8fafb] dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-600 hover:shadow-md hover:border-teal-200 dark:hover:border-teal-900 transition-all duration-300 group no-underline"
+            className="flex items-center justify-between p-4 bg-store-50 dark:bg-store-800/30 rounded-2xl border border-store-200 dark:border-store-700/40 hover:shadow-md hover:border-store-300 dark:hover:border-store-600 transition-all duration-300 group no-underline"
           >
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.iconBg} group-hover:scale-110 transition-transform duration-300`}>
                 <card.Icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 max-w-[120px] leading-tight group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+              <span className="text-sm font-semibold text-store-700 dark:text-store-200 max-w-[120px] leading-tight group-hover:text-store-600 dark:group-hover:text-store-300 transition-colors">
                 {card.title}
               </span>
             </div>

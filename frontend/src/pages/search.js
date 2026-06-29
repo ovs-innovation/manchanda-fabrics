@@ -24,7 +24,7 @@ import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
 
 const Search = ({ products, attributes }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { query } = router.query;
   const { isLoading, setIsLoading, toggleFilterDrawer } = useContext(SidebarContext);
@@ -143,12 +143,12 @@ const Search = ({ products, attributes }) => {
         console.error("Error fetching products:", err);
       } finally {
         setIsLoading(false);
-        isSidebarAction.current = false;
       }
     };
 
     if (router.isReady) {
-      // Initialize selectedCategories from URL on first load or URL changes (when not triggered by sidebar checkbox itself)
+      // Initialize selectedCategories from URL on first load or URL changes
+      // Skip this sync when the user is interacting with the sidebar (to avoid overwriting their selection)
       if (!isSidebarAction.current) {
         const catSlug = router.query.category;
         const id = router.query._id;
@@ -158,9 +158,12 @@ const Search = ({ products, attributes }) => {
         } else if (id) {
           setSelectedCategories([id]);
         } else {
+          // No category in URL → show ALL (empty selection = all products in useFilter)
           setSelectedCategories([]);
         }
       }
+      // Reset sidebar flag AFTER we've decided whether to sync categories
+      isSidebarAction.current = false;
       fetchByQuery();
     }
   }, [router.isReady, router.query._id, router.query.category, router.query.query, router.query.brand]);
@@ -206,9 +209,12 @@ const Search = ({ products, attributes }) => {
 
   const handleCategoryChange = (catIdOrIds) => {
     isSidebarAction.current = true;
-    
-    // Clear URL params but keep it shallow to maintain state stability
     clearSearchQuery();
+
+    if (catIdOrIds === "all") {
+      setSelectedCategories([]);
+      return;
+    }
 
     // Toggle logic
     if (Array.isArray(catIdOrIds)) {
@@ -308,182 +314,10 @@ const Search = ({ products, attributes }) => {
 
   return (
     <Layout title="Search" description="This is search page" hideMobileHeader={true}>
-      <style jsx global>{`
-        /* Search page layout dark theme */
-        body {
-          background-color: #050505 !important;
-          color: #ffffff !important;
-        }
-        
-        /* Mobile Header */
-        .lg\:hidden.sticky.top-0 {
-          background-color: #050505 !important;
-          border-bottom: 1px solid #141414 !important;
-        }
-        .lg\:hidden.sticky.top-0 form {
-          background-color: #0a0a0a !important;
-          border-color: #1a1a1a !important;
-        }
-        .lg\:hidden.sticky.top-0 input {
-          background-color: #0a0a0a !important;
-          color: #ffffff !important;
-        }
-        .lg\:hidden.sticky.top-0 button,
-        .lg\:hidden.sticky.top-0 h1 {
-          color: #ffffff !important;
-        }
-
-        /* Mobile Sort/Filter Bar */
-        .lg\:hidden.sticky.top-\[57px\] {
-          background-color: #050505 !important;
-          border-bottom: 1px solid #141414 !important;
-          divide-color: #141414 !important;
-        }
-        .lg\:hidden.sticky.top-\[57px\] button {
-          color: #a3a3a3 !important;
-        }
-        .lg\:hidden.sticky.top-\[57px\] button:hover {
-          color: #ffffff !important;
-        }
-
-        /* Desktop Filter Sidebar */
-        .hidden.lg\:block.w-1\/5 {
-          background-color: #0a0a0a !important;
-          border: 1px solid #141414 !important;
-          border-radius: 1rem !important;
-          padding: 20px !important;
-        }
-        .hidden.lg\:block.w-1\/5 h4,
-        .hidden.lg\:block.w-1\/5 h3,
-        .hidden.lg\:block.w-1\/5 h5 {
-          color: #ffffff !important;
-          font-weight: 800 !important;
-          text-transform: uppercase !important;
-          letter-spacing: 0.05em !important;
-        }
-        .hidden.lg\:block.w-1\/5 span,
-        .hidden.lg\:block.w-1\/5 label,
-        .hidden.lg\:block.w-1\/5 p {
-          color: #a3a3a3 !important;
-        }
-        .hidden.lg\:block.w-1\/5 input[type="checkbox"] {
-          background-color: #050505 !important;
-          border-color: #262626 !important;
-        }
-        .hidden.lg\:block.w-1\/5 input[type="checkbox"]:checked {
-          background-color: #d4af37 !important;
-          border-color: #d4af37 !important;
-        }
-
-        /* Sort Header Bar */
-        .bg-orange-100 {
-          background-color: #0a0a0a !important;
-          border-color: #141414 !important;
-          color: #ffffff !important;
-        }
-        .bg-orange-100 h6 {
-          color: #ffffff !important;
-        }
-        .bg-orange-100 select {
-          background-color: #050505 !important;
-          border: 1px solid #1a1a1a !important;
-          color: #ffffff !important;
-        }
-        .bg-orange-100 select:focus {
-          border-color: #d4af37 !important;
-          outline: none !important;
-        }
-
-        /* Load More Button */
-        button.bg-indigo-100 {
-          background-color: #0f0f0f !important;
-          border: 1px solid #1f1f1f !important;
-          color: #d4d4d4 !important;
-          font-weight: 700 !important;
-          transition: all 0.2s !important;
-        }
-        button.bg-indigo-100:hover {
-          background-color: #d4af37 !important;
-          color: #000000 !important;
-          border-color: #d4af37 !important;
-        }
-
-        /* Mobile Sort Modal */
-        .bg-white.w-full.rounded-t-2xl {
-          background-color: #0a0a0a !important;
-          border-top: 1px solid #141414 !important;
-        }
-        .bg-white.w-full.rounded-t-2xl h3 {
-          color: #ffffff !important;
-        }
-        .bg-white.w-full.rounded-t-2xl button[class*="text-gray-700"] {
-          color: #a3a3a3 !important;
-        }
-        .bg-white.w-full.rounded-t-2xl button[class*="text-gray-700"]:hover {
-          color: #ffffff !important;
-        }
-        .bg-white.w-full.rounded-t-2xl div.space-y-4 button {
-          background-color: #0f0f0f !important;
-          color: #d4d4d4 !important;
-          border: 1px solid #1f1f1f !important;
-          transition: all 0.2s !important;
-        }
-        .bg-white.w-full.rounded-t-2xl div.space-y-4 button:hover {
-          color: #d4af37 !important;
-          border-color: #d4af37 !important;
-        }
-        .bg-white.w-full.rounded-t-2xl div.space-y-4 button[class*="bg-store-100"] {
-          background-color: #d4af3715 !important;
-          color: #d4af37 !important;
-          border-color: #d4af3750 !important;
-        }
-
-        /* Filter Drawer for Mobile */
-        .rc-drawer-content {
-          background-color: #050505 !important;
-          color: #ffffff !important;
-        }
-        .rc-drawer-header {
-          background-color: #050505 !important;
-          border-bottom: 1px solid #141414 !important;
-          color: #ffffff !important;
-        }
-        .rc-drawer-title {
-          color: #ffffff !important;
-        }
-        .rc-drawer-body {
-          background-color: #050505 !important;
-        }
-        .rc-drawer-body h4,
-        .rc-drawer-body h3,
-        .rc-drawer-body h5 {
-          color: #ffffff !important;
-        }
-        .rc-drawer-body span,
-        .rc-drawer-body label {
-          color: #a3a3a3 !important;
-        }
-        .rc-drawer-body button.bg-store-600 {
-          background-color: #d4af37 !important;
-          color: #000000 !important;
-        }
-        .rc-drawer-body button.bg-store-600:hover {
-          background-color: #c29e2e !important;
-        }
-        .rc-drawer-body button.bg-gray-100 {
-          background-color: #141414 !important;
-          color: #ffffff !important;
-        }
-
-        /* Empty / No Result Text */
-        .mx-auto.p-5.my-5 h2 {
-          color: #a3a3a3 !important;
-        }
-      `}</style>
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-100 px-4 py-3">
+      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-[#E6D1CB]/50 px-4 py-3">
         {isSearchOpen ? (
-          <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-white border-2 border-gray-200 rounded-full shadow-sm overflow-visible">
+          <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-white border-2 border-[#E6D1CB]/60 rounded-full shadow-sm overflow-visible">
             <button 
               type="button" 
               onClick={() => {
@@ -505,7 +339,7 @@ const Search = ({ products, attributes }) => {
                 type="text"
                 value={searchText}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search sneakers, bags, brands..."
+                placeholder="Search sarees, suits, fabrics..."
                 className="w-full py-2.5 pl-4 pr-12 rounded-full bg-white focus:outline-none outline-none focus:ring-0 focus:border-transparent focus:shadow-none text-gray-700 text-sm"
                 onFocus={() => searchText.length > 0 && setShowSuggestions(true)}
                 onBlur={(e) => {
@@ -524,7 +358,7 @@ const Search = ({ products, attributes }) => {
               />
               <button 
                 type="submit" 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-store-600 transition-colors"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#9C6A5A] transition-colors"
               >
                 <IoSearchOutline className="text-lg" />
               </button>
@@ -549,7 +383,7 @@ const Search = ({ products, attributes }) => {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 relative">
                   <Image
-                    src="/rasaLogo.png"
+                    src="/logo.png"
                     alt="logo"
                     fill
                     className="object-contain"
@@ -568,7 +402,7 @@ const Search = ({ products, attributes }) => {
               <button onClick={() => router.push("/wishlist")} className="relative">
                 <FiHeart size={22} />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-store-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
@@ -576,7 +410,7 @@ const Search = ({ products, attributes }) => {
               <button onClick={() => router.push("/cart")} className="relative">
                 <FiShoppingCart size={22} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-store-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
@@ -590,24 +424,24 @@ const Search = ({ products, attributes }) => {
       </div>
 
       {/* Mobile Sort/Filter Bar */}
-      <div className="lg:hidden sticky top-[57px] z-40 bg-[#0D0D0D] border-b border-neutral-850 flex divide-x divide-neutral-850">
+      <div className="lg:hidden sticky top-[57px] z-40 bg-white border-b border-[#E6D1CB]/50 flex divide-x divide-neutral-850">
         <button
           onClick={() => setIsSortModalOpen(true)}
-          className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-white hover:text-[#D4AF37] transition-colors"
+          className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           <FiList size={18} />
           Sort
         </button>
         <button
           onClick={toggleFilterDrawer}
-          className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-white hover:text-[#D4AF37] transition-colors"
+          className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           <FiFilter size={18} />
           Filter
         </button>
       </div>
 
-      <div className="mx-auto max-w-screen-2xl px-3 md:px-0">
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-10">
         <div className="flex gap-6">
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block w-1/5 shrink-0">
@@ -644,38 +478,38 @@ const Search = ({ products, attributes }) => {
                     height={380}
                   />
                   <h2 className="text-lg md:text-xl lg:text-2xl xl:text-2xl text-center mt-2 font-medium font-serif text-gray-600">
-                    {t("sorryText")} 😞
+                    {t("sorryText") === "sorryText" ? "Sorry, we could not find any products matching your search" : t("sorryText")} 😞
                   </h2>
                 </div>
               ) : (
-                <div className="hidden lg:flex justify-between items-center my-3 bg-[#0D0D0D] border border-neutral-800 rounded-xl p-4 mb-6">
-                  <h6 className="text-sm font-sans text-white font-semibold">
+                <div className="hidden lg:flex justify-between items-center my-3 bg-white border border-[#E6D1CB]/60 rounded-xl p-4 mb-6">
+                  <h6 className="text-sm font-sans text-[#3B2A25] font-semibold">
                     {t("totalI")}{" "}
-                    <span className="font-bold text-[#D4AF37]">{productData?.length}</span>{" "}
+                    <span className="font-bold text-[#9C6A5A]">{productData?.length}</span>{" "}
                     {t("itemsFound")}
                   </h6>
                   <span className="text-sm font-sans">
                     <select
                       onChange={(e) => handleSortChange(e.target.value)}
                       value={sortedField}
-                      className="py-2 text-xs font-sans font-bold block w-full rounded-lg border border-neutral-800 bg-neutral-950 text-white pr-10 cursor-pointer focus:ring-[#D4AF37] focus:border-[#D4AF37] focus:outline-none"
+                      className="py-2 pl-3 pr-8 text-xs font-sans font-bold block w-full rounded-lg border border-[#E6D1CB] bg-white text-[#3B2A25] cursor-pointer focus:ring-[#9C6A5A] focus:border-[#9C6A5A] focus:outline-none"
                     >
-                      <option className="px-3 bg-neutral-950 text-white" value="All" defaultValue hidden>
+                      <option className="bg-white text-[#3B2A25]" value="All" defaultValue hidden>
                         {t("sortByPrice")}
                       </option>
-                      <option className="px-3 bg-neutral-950 text-white" value="Low">
+                      <option className="bg-white text-[#3B2A25]" value="Low">
                         {t("lowToHigh")}
                       </option>
-                      <option className="px-3 bg-neutral-950 text-white" value="High">
+                      <option className="bg-white text-[#3B2A25]" value="High">
                         {t("highToLow")}
                       </option>
-                      <option className="px-3 bg-neutral-950 text-white" value="newest">
+                      <option className="bg-white text-[#3B2A25]" value="newest">
                         Latest
                       </option>
-                      <option className="px-3 bg-neutral-950 text-white" value="best-selling">
+                      <option className="bg-white text-[#3B2A25]" value="best-selling">
                         Best Selling
                       </option>
-                      <option className="px-3 bg-neutral-950 text-white" value="most-discounted">
+                      <option className="bg-white text-[#3B2A25]" value="most-discounted">
                         Most Discounted
                       </option>
                     </select>
@@ -700,7 +534,7 @@ const Search = ({ products, attributes }) => {
                   {productData?.length > visibleProduct && (
                     <button
                       onClick={() => setVisibleProduct((pre) => pre + 10)}
-                      className={`w-auto mx-auto md:text-sm leading-5 flex items-center transition ease-in-out duration-300 font-medium text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none bg-indigo-100 text-gray-700 px-5 md:px-6 lg:px-8 py-2 md:py-3 lg:py-3 hover:text-white hover:bg-store-600 h-12 mt-6 text-sm lg:text-sm`}
+                      className={`w-auto mx-auto md:text-sm leading-5 flex items-center transition ease-in-out duration-300 font-medium text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none bg-[#FAF7F5] text-gray-700 px-5 md:px-6 lg:px-8 py-2 md:py-3 lg:py-3 hover:text-[#3B2A25] hover:bg-[#9C6A5A] h-12 mt-6 text-sm lg:text-sm`}
                     >
                       {t("loadMoreBtn")}
                     </button>
@@ -744,7 +578,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "Low" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "Low" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Price: Low to High
@@ -755,7 +589,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "High" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "High" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Price: High to Low
@@ -766,7 +600,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "newest" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "newest" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Latest
@@ -777,7 +611,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "best-selling" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "best-selling" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Best Selling
@@ -788,7 +622,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "most-discounted" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "most-discounted" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Most Discounted
@@ -799,7 +633,7 @@ const Search = ({ products, attributes }) => {
                   setIsSortModalOpen(false);
                 }}
                 className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "All" ? "bg-store-100 text-store-600 font-semibold" : "text-gray-700"
+                  sortedField === "All" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                 }`}
               >
                 Default

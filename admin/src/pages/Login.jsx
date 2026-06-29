@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@windmill/react-ui";
+import { Button, Input } from "@windmill/react-ui";
 import { ImFacebook, ImGoogle } from "react-icons/im";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 
 //internal import
@@ -11,7 +12,6 @@ import InputArea from "@/components/form/input/InputArea";
 import useLoginSubmit from "@/hooks/useLoginSubmit";
 import CMButton from "@/components/form/button/CMButton";
 import { SidebarContext } from "@/context/SidebarContext";
-import { useContext } from "react";
 import { ADMIN_BRAND_LOGO } from "@/utils/cloudinaryUrl";
 
 const Login = () => {
@@ -19,23 +19,24 @@ const Login = () => {
   const { globalSetting } = useContext(SidebarContext);
   const { onSubmit, register, handleSubmit, errors, loading } =
     useLoginSubmit();
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-        <div className="flex-1 h-full max-w-2xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
+      <div className="flex items-center min-h-screen p-6 bg-store-50 dark:bg-store-900">
+        <div className="flex-1 h-full max-w-2xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl border border-store-200 dark:bg-store-900 dark:border-store-700/40">
           <div className="flex flex-col overflow-y-auto">
             <div className="w-full flex justify-center p-6">
               <img
                 aria-hidden="true"
-                className="object-contain h-20 w-20"
+                className="object-contain h-32 w-auto max-w-[280px]"
                 src={ADMIN_BRAND_LOGO}
-                alt={globalSetting?.company_name || "RASA"}
+                alt={globalSetting?.company_name || "Manchanda Fabrics"}
               />
             </div>
             <main className="flex items-center justify-center p-6 sm:p-12">
               <div className="w-full max-w-sm">
-                <h1 className="mb-2 text-2xl font-semibold text-gray-700 dark:text-gray-200 text-center">
+                <h1 className="mb-2 text-2xl font-semibold text-store-800 dark:text-store-100 text-center">
                   Login
                 </h1>
                 <form onSubmit={handleSubmit(onSubmit)} className="text-left">
@@ -52,15 +53,30 @@ const Login = () => {
                   <Error errorName={errors.email} />
                   <div className="mt-6"></div>
                   <LabelArea label="Password" />
-                  <InputArea
-                    required={true}
-                    register={register}
-                    label="Password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="***************"
-                  />
+                  <div className="relative">
+                    <Input
+                      {...register("password", {
+                        required: "Password is required!",
+                      })}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="***************"
+                      name="password"
+                      autoComplete="current-password"
+                      className="mr-2 h-12 p-2 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <FiEyeOff className="h-5 w-5" />
+                      ) : (
+                        <FiEye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                   <Error errorName={errors.password} />
 
                   {loading ? (

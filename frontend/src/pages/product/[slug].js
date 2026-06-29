@@ -1112,7 +1112,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     const urlToShare =
       (typeof window !== "undefined" && window.location.href) ||
       shareUrl ||
-      `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`;
+      `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`;
 
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
@@ -1243,409 +1243,6 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
   return (
     <>
-      <style jsx global>{`
-        /* Breadcrumbs styling */
-        nav.text-sm.text-gray-500 {
-          color: #a3a3a3 !important;
-        }
-        nav.text-sm.text-gray-500 a {
-          color: #d4af37 !important;
-          background: #0f0f0f !important;
-          border: 1px solid #1f1f1f !important;
-          padding: 4px 12px !important;
-          border-radius: 9999px !important;
-          transition: all 0.2s !important;
-        }
-        nav.text-sm.text-gray-500 a:hover {
-          color: #ffffff !important;
-          border-color: #d4af37 !important;
-        }
-        nav.text-sm.text-gray-500 span.text-gray-900 {
-          color: #ffffff !important;
-        }
-
-        /* Main container background overrides */
-        .w-full.rounded-lg.bg-white {
-          background-color: #050505 !important;
-        }
-        
-        /* Gallery Action Buttons */
-        .absolute.left-4.top-4.z-20.flex.flex-col button {
-          background-color: #0f0f0f !important;
-          border-color: #1f1f1f !important;
-          color: #d4d4d4 !important;
-          transition: all 0.2s !important;
-        }
-        .absolute.left-4.top-4.z-20.flex.flex-col button:hover {
-          color: #d4af37 !important;
-          border-color: #d4af37 !important;
-        }
-        
-        /* Add to Cart Button */
-        button.border-store-500 {
-          border-color: #d4af37 !important;
-          color: #d4af37 !important;
-          background-color: transparent !important;
-        }
-        button.border-store-500:hover {
-          background-color: #d4af37 !important;
-          color: #000000 !important;
-        }
-        
-        /* Trust Features Box */
-        .bg-blue-50.border-blue-100 {
-          background-color: #0a0a0a !important;
-          border-color: #1a1a1a !important;
-        }
-        .bg-blue-50.border-blue-100 div.border-blue-200 {
-          border-color: #1a1a1a !important;
-        }
-        .bg-blue-50.border-blue-100 div.bg-white {
-          background-color: #141414 !important;
-          border-color: #262626 !important;
-        }
-        .bg-blue-50.border-blue-100 svg {
-          color: #d4af37 !important;
-        }
-        .bg-blue-50.border-blue-100 p {
-          color: #e5e5e5 !important;
-        }
-        
-        /* Product Details Right Side Header */
-        h1.leading-7.text-lg.md\:text-xl.lg\:text-2xl {
-          color: #ffffff !important;
-          font-weight: 900 !important;
-          letter-spacing: -0.025em !important;
-          text-transform: uppercase !important;
-        }
-        .text-sm.leading-6.text-gray-500 {
-          color: #a3a3a3 !important;
-        }
-        
-        /* Price Container */
-        .bg-gray-50\/50.rounded-2xl {
-          background-color: #0a0a0a !important;
-          border-color: #141414 !important;
-        }
-        .bg-gray-50\/50.rounded-2xl span {
-          color: #ffffff !important;
-        }
-        .bg-gray-50\/50.rounded-2xl .bg-green-100 {
-          background-color: #0f2e1a !important;
-          color: #4ade80 !important;
-          border: 1px solid #166534 !important;
-        }
-        
-        /* Expected Delivery */
-        .mt-4.rounded-md.flex.items-center.text-sm svg {
-          color: #d4af37 !important;
-        }
-        .mt-4.rounded-md.flex.items-center.text-sm span.text-gray-600 {
-          color: #737373 !important;
-        }
-        .mt-4.rounded-md.flex.items-center.text-sm span.text-store-700 {
-          color: #d4af37 !important;
-        }
-        .mt-4.flex.gap-4.items-center .text-gray-500 {
-          color: #a3a3a3 !important;
-        }
-        .mt-4.flex.gap-4.items-center select, 
-        .mt-4.flex.gap-4.items-center button {
-          background-color: #0a0a0a !important;
-          border-color: #1a1a1a !important;
-          color: #ffffff !important;
-        }
-        
-        /* Variant Title & Items */
-        h4.text-sm.font-semibold.text-gray-800 {
-          color: #ffffff !important;
-          text-transform: uppercase !important;
-          font-size: 0.75rem !important;
-          letter-spacing: 0.05em !important;
-        }
-        .text-xs.text-gray-500 {
-          color: #a3a3a3 !important;
-        }
-        
-        /* Variant Option Buttons */
-        .variant-button,
-        button[class*="variant"] {
-          background-color: #0f0f0f !important;
-          border-color: #1f1f1f !important;
-          color: #d4d4d4 !important;
-        }
-        .variant-button:hover,
-        button[class*="variant"]:hover {
-          border-color: #d4af37 !important;
-          color: #ffffff !important;
-        }
-        .variant-button.active,
-        button[class*="variant"][class*="active"],
-        button[class*="variant"][class*="border-store-500"],
-        button[class*="variant"][class*="text-store-600"] {
-          border-color: #d4af37 !important;
-          color: #d4af37 !important;
-          background-color: #d4af3710 !important;
-        }
-        
-        /* Category label */
-        .text-gray-800 {
-          color: #d4d4d4 !important;
-        }
-        button.text-gray-600.underline {
-          color: #d4af37 !important;
-        }
-        button.text-gray-600.underline:hover {
-          color: #ffffff !important;
-        }
-        
-        /* Product Highlights */
-        .border.border-gray-200.rounded-lg.bg-white {
-          background-color: #0a0a0a !important;
-          border-color: #141414 !important;
-        }
-        .border.border-gray-200.rounded-lg.bg-white h2 {
-          color: #ffffff !important;
-        }
-        .border.border-gray-200.rounded-lg.bg-white ul {
-          color: #a3a3a3 !important;
-        }
-        
-        /* Tab Navigation sticky background */
-        .sticky.bg-white\/80 {
-          background-color: #050505e6 !important;
-          border-bottom: 1px solid #141414 !important;
-        }
-        .sticky.bg-white\/80 button {
-          color: #737373 !important;
-        }
-        .sticky.bg-white\/80 button:hover {
-          color: #ffffff !important;
-        }
-        .sticky.bg-white\/80 button.text-store-600 {
-          color: #d4af37 !important;
-        }
-        .sticky.bg-white\/80 span.bg-store-500 {
-          background-color: #d4af37 !important;
-        }
-        
-        /* Description, Specification & Additional Info Boxes */
-        div[id="product-description"],
-        div[id="specification"],
-        div[id="additional-information"] {
-          background-color: #0a0a0a !important;
-          border-color: #141414 !important;
-        }
-        div[id="product-description"] h2,
-        div[id="specification"] h2,
-        div[id="additional-information"] h2 {
-          color: #ffffff !important;
-        }
-        div[id="product-description"] p,
-        div[id="specification"] ul,
-        div[id="additional-information"] ul {
-          color: #a3a3a3 !important;
-        }
-        div[id="additional-information"] .bg-gray-50 {
-          background-color: #0f0f0f !important;
-          border-color: #1a1a1a !important;
-        }
-        div[id="additional-information"] h3.text-store-600 {
-          color: #d4af37 !important;
-          background-color: #141414 !important;
-          border: 1px solid #262626 !important;
-        }
-        
-        /* FAQ Section */
-        div[id="faq"] {
-          background-color: #0a0a0a !important;
-          border-color: #141414 !important;
-        }
-        div[id="faq"] h3 {
-          color: #ffffff !important;
-        }
-        div[id="faq"] span.bg-store-500 {
-          background-color: #d4af37 !important;
-        }
-        div[id="faq"] .border-store-200.bg-store-50\/30 {
-          border-color: #d4af3750 !important;
-          background-color: #0f0f0f !important;
-        }
-        div[id="faq"] .border-gray-50.bg-gray-50\/50 {
-          border-color: #141414 !important;
-          background-color: #050505 !important;
-        }
-        div[id="faq"] .border-gray-50.bg-gray-50\/50:hover {
-          background-color: #0f0f0f !important;
-        }
-        div[id="faq"] button span.text-gray-800 {
-          color: #ffffff !important;
-        }
-        div[id="faq"] button span.text-store-600 {
-          color: #d4af37 !important;
-        }
-        div[id="faq"] .px-6.pb-6.text-gray-600 {
-          color: #a3a3a3 !important;
-          border-top-color: #141414 !important;
-        }
-        
-        /* Manufacturer details & Disclaimer */
-        .mt-8.p-6.bg-white,
-        .mt-2.p-6.bg-white {
-          background-color: #0a0a0a !important;
-          border: 1px solid #141414 !important;
-          border-radius: 0.5rem !important;
-        }
-        .mt-8.p-6.bg-white h3,
-        .mt-2.p-6.bg-white h3 {
-          color: #ffffff !important;
-        }
-        .mt-8.p-6.bg-white p,
-        .mt-8.p-6.bg-white div,
-        .mt-2.p-6.bg-white div {
-          color: #a3a3a3 !important;
-        }
-        
-        /* Sticky Bottom Bar (Mobile) */
-        .fixed.bottom-0.bg-white\/95 {
-          background-color: #0a0a0ae6 !important;
-          border-top: 1px solid #141414 !important;
-        }
-        .fixed.bottom-0.bg-white\/95 h3 {
-          color: #a3a3a3 !important;
-        }
-        .fixed.bottom-0.bg-white\/95 span.text-gray-900 {
-          color: #ffffff !important;
-        }
-        .fixed.bottom-0.bg-white\/95 button.bg-store-600 {
-          background-color: #d4af37 !important;
-          color: #000000 !important;
-        }
-        .fixed.bottom-0.bg-white\/95 button.bg-store-600:hover {
-          background-color: #c29e2e !important;
-        }
-        
-        /* Ratings & Reviews styling overrides */
-        #ratings-section {
-          background-color: #0a0a0a !important;
-          border: 1px solid #141414 !important;
-          border-radius: 1rem !important;
-          padding: 24px !important;
-        }
-        #ratings-section .bg-white {
-          background-color: #0f0f0f !important;
-          border-color: #1a1a1a !important;
-        }
-        #ratings-section .border-gray-100,
-        #ratings-section .border-b {
-          border-color: #1a1a1a !important;
-        }
-        #ratings-section .bg-gray-100 {
-          background-color: #141414 !important;
-        }
-        #ratings-section h2,
-        #ratings-section h3,
-        #ratings-section h4 {
-          color: #ffffff !important;
-        }
-        #ratings-section p,
-        #ratings-section span,
-        #ratings-section label {
-          color: #a3a3a3 !important;
-        }
-        /* Specific text visibility upgrades */
-        #ratings-section .text-gray-900,
-        #ratings-section .text-gray-800,
-        #ratings-section .text-gray-700,
-        #ratings-section span.text-gray-900,
-        #ratings-section span.text-gray-700,
-        #ratings-section p.text-gray-800 {
-          color: #ffffff !important;
-        }
-        #ratings-section span.text-gray-500,
-        #ratings-section span.text-gray-600 {
-          color: #d4d4d4 !important;
-        }
-        /* Hyperlink text visibility */
-        #ratings-section a,
-        #ratings-section a.text-store-600 {
-          color: #d4af37 !important;
-          text-decoration: underline !important;
-          font-weight: 700 !important;
-        }
-        #ratings-section a:hover,
-        #ratings-section a.text-store-600:hover {
-          color: #ffffff !important;
-        }
-        /* Filter buttons styling */
-        #ratings-section button.bg-white,
-        #ratings-section button[class*="bg-white"] {
-          background-color: #0f0f0f !important;
-          border-color: #1a1a1a !important;
-          color: #d4d4d4 !important;
-        }
-        #ratings-section button.bg-white:hover,
-        #ratings-section button[class*="bg-white"]:hover {
-          background-color: #141414 !important;
-          border-color: #d4af37 !important;
-          color: #ffffff !important;
-        }
-        #ratings-section button.bg-yellow-500,
-        #ratings-section button[class*="bg-yellow-500"] {
-          background-color: #d4af37 !important;
-          border-color: #d4af37 !important;
-          color: #000000 !important;
-        }
-        #ratings-section svg.text-store-500,
-        #ratings-section svg.text-yellow-400,
-        #ratings-section svg.text-yellow-500 {
-          color: #d4af37 !important;
-        }
-        #ratings-section .text-emerald-700.bg-emerald-50 {
-          color: #10b981 !important;
-          background-color: #10b98115 !important;
-          border: 1px solid #10b98130 !important;
-        }
-        #ratings-section textarea,
-        #ratings-section select,
-        #ratings-section input {
-          background-color: #050505 !important;
-          border: 1px solid #1a1a1a !important;
-          color: #ffffff !important;
-        }
-        #ratings-section textarea:focus,
-        #ratings-section select:focus,
-        #ratings-section input:focus {
-          border-color: #d4af37 !important;
-          outline: none !important;
-        }
-        #ratings-section button:not(.bg-white):not(.bg-gray-100) {
-          background-color: #d4af37 !important;
-          color: #000000 !important;
-          font-weight: 700 !important;
-        }
-        #ratings-section button:not(.bg-white):not(.bg-gray-100):hover {
-          background-color: #c29e2e !important;
-        }
-        #ratings-section button.bg-gray-100 {
-          background-color: #141414 !important;
-          color: #ffffff !important;
-        }
-        #ratings-section button.bg-gray-100:hover {
-          background-color: #1f1f1f !important;
-        }
-        
-        /* Call Us To Order block */
-        .mt-8.text-gray-700 {
-          color: #a3a3a3 !important;
-        }
-        .mt-8 a.text-store-500 {
-          color: #d4af37 !important;
-        }
-        .mt-8 a.text-store-500:hover {
-          color: #ffffff !important;
-        }
-      `}</style>
       {isLoading ? (
         <Loading loading={isLoading} />
       ) : (
@@ -1657,13 +1254,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
             <div className="mx-auto px-4 lg:px-12 max-w-screen-2xl">
               <div className="flex items-center pb-6 justify-between gap-4">
                 <nav className="flex items-center space-x-2 text-sm text-gray-500 font-medium">
-                  <Link href="/" className="hover:text-store-600 transition-colors flex items-center">
+                  <Link href="/" className="hover:text-[#9C6A5A] transition-colors flex items-center">
                     Home
                   </Link>
                   <FiChevronRight className="w-4 h-4 text-gray-400" />
                   <Link
                     href={`/search?category=${category_name}&_id=${product?.category?._id}`}
-                    className="hover:text-store-600 transition-colors bg-gray-50 px-3 py-1 rounded-full border border-gray-100"
+                    className="hover:text-[#9C6A5A] transition-colors bg-gray-50 px-3 py-1 rounded-full border border-[#E6D1CB]/50"
                   >
                     {category_name}
                   </Link>
@@ -1673,7 +1270,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   </span>
                 </nav>
               </div>
-              <div className="w-full rounded-lg  bg-white">
+              <div className="w-full bg-transparent">
                 <div className="flex flex-col lg:flex-row gap-10">
                   <div className="flex-shrink-0 w-full mx-auto md:w-5/12 lg:w-5/12 xl:w-5/12">
                     <div className="mt-1 lg:mt-2 lg:sticky lg:top-28 lg:space-y-4">
@@ -1690,7 +1287,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <button
                               type="button"
                               onClick={() => handleAddToWishlist(product)}
-                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-neutral-300 hover:text-red-500 border border-neutral-800/80 hover:border-red-500/30 rounded-full px-3.5 py-1.5 bg-black/60 backdrop-blur-md shadow-lg transition-all"
+                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#3B2A25]/85 hover:text-red-500 border border-[#E6D1CB]/60/80 hover:border-red-500/30 rounded-full px-3.5 py-1.5 bg-[#FAF7F5]/60 backdrop-blur-md shadow-lg transition-all"
                               aria-label="Add to wishlist"
                             >
                               <FiHeart className="w-4 h-4" />
@@ -1699,7 +1296,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <button
                               type="button"
                               onClick={() => handleAddToCompare(product)}
-                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-neutral-300 hover:text-purple-400 border border-neutral-800/80 hover:border-purple-400/30 rounded-full px-3.5 py-1.5 bg-black/60 backdrop-blur-md shadow-lg transition-all"
+                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#3B2A25]/85 hover:text-purple-400 border border-[#E6D1CB]/60/80 hover:border-purple-400/30 rounded-full px-3.5 py-1.5 bg-[#FAF7F5]/60 backdrop-blur-md shadow-lg transition-all"
                               aria-label="Add to compare"
                             >
                               <FiShuffle className="w-4 h-4" />
@@ -1708,7 +1305,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             <button
                               type="button"
                               onClick={handleShareCurrentVariant}
-                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-neutral-300 hover:text-[#D4AF37] border border-neutral-800/80 hover:border-[#D4AF37]/30 rounded-full px-3.5 py-1.5 bg-black/60 backdrop-blur-md shadow-lg transition-all"
+                              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#3B2A25]/85 hover:text-[#9C6A5A] border border-[#E6D1CB]/60/80 hover:border-[#9C6A5A]/30 rounded-full px-3.5 py-1.5 bg-[#FAF7F5]/60 backdrop-blur-md shadow-lg transition-all"
                               aria-label="Share this product"
                             >
                               <FiShare2 className="w-4 h-4" />
@@ -1724,7 +1321,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           <button
                             onClick={() => handleAddToCart(product)}
                             type="button"
-                            className="flex-1 h-14 rounded-xl text-base font-bold flex items-center justify-center border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transform hover:scale-[1.02] active:scale-95 transition-all duration-200 shadow-sm"
+                            className="flex-1 h-14 rounded-xl text-base font-bold flex items-center justify-center border-2 border-[#9C6A5A] text-[#9C6A5A] hover:bg-[#9C6A5A] hover:text-black transform hover:scale-[1.02] active:scale-95 transition-all duration-200 shadow-sm"
                           >
                             Add To Cart
                           </button>
@@ -1735,7 +1332,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               handleBuyNow(product);
                             }}
                             type="button"
-                            className="flex-1 h-14 rounded-xl text-base font-bold flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 transform hover:scale-[1.02] active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg lg:animate-pulse-subtle"
+                            className="flex-1 h-14 rounded-xl text-base font-bold flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 text-[#3B2A25] hover:from-orange-600 hover:to-orange-700 transform hover:scale-[1.02] active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg lg:animate-pulse-subtle"
                           >
                             Buy Now
                           </button>
@@ -1808,7 +1405,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           {/* Top summary rating row (like Flipkart) */}
                           {ratingSummary && (
                             <div className="flex items-center flex-wrap gap-2 mb-2">
-                              <div className="inline-flex items-center px-2 py-0.5 rounded-md text-white text-xs font-semibold" style={{ backgroundColor: '#006E44' }}>
+                              <div className="inline-flex items-center px-2 py-0.5 rounded-md text-[#3B2A25] text-xs font-semibold" style={{ backgroundColor: '#006E44' }}>
                                 <span className="mr-1">
                                   {ratingSummary.averageRating?.toFixed
                                     ? ratingSummary.averageRating.toFixed(1)
@@ -1853,7 +1450,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                       <br />
                                       <span
                                         onClick={() => setIsReadMore(!isReadMore)}
-                                        className="read-or-hide cursor-pointer text-store-600 hover:text-store-700"
+                                        className="read-or-hide cursor-pointer text-[#9C6A5A] hover:text-[#9C6A5A]"
                                       >
                                         {isReadMore
                                           ? t("moreInfo")
@@ -1872,7 +1469,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                          
                         </div>
-                        <div className="bg-gray-50/50 rounded-2xl p-6 mb-8 border border-gray-100">
+                        <div className="bg-gray-50/50 rounded-2xl p-6 mb-8 border border-[#E6D1CB]/50">
                           <Price
                             price={
                               price > 0
@@ -1969,7 +1566,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               Call Us To Order By Mobile Number :{" "}
                               <a 
                                 href={`tel:${(storeCustomizationSetting?.navbar?.phone || storeCustomizationSetting?.footer?.bottom_contact || globalSetting?.contact || "+0044235234").replace(/\s+/g, '')}`}
-                                className="text-store-500 font-semibold hover:text-store-600 hover:underline"
+                                className="text-store-500 font-semibold hover:text-[#9C6A5A] hover:underline"
                               >
                                 {storeCustomizationSetting?.navbar?.phone || storeCustomizationSetting?.footer?.bottom_contact || globalSetting?.contact || "+0044235234"}
                               </a>
@@ -1978,18 +1575,18 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                            {/* Expected Delivery Time */}
                           {expectedDeliveryTime ? (
                             <div className="mt-4    rounded-md    flex items-center gap-3 text-sm">
-                              <FiTruck className="w-5 h-5 text-store-600 flex-shrink-0" />
+                              <FiTruck className="w-5 h-5 text-[#9C6A5A] flex-shrink-0" />
                               <div className="flex flex-col">
                                 <span className="text-gray-600 text-xs">Expected Delivery</span>
-                                <span className="text-store-700 font-bold text-base">
+                                <span className="text-[#9C6A5A] font-bold text-base">
                                   {expectedDeliveryTime}
                                 </span>
                               </div>
                             </div>
                           ) : (
                             <div className="mt-4 flex gap-4 items-center">
-                              <div className="text-sm text-neutral-400 mb-1.5 font-medium">Check delivery time &amp; availability:</div>
-                              <LocationPickerDropdown className="w-30 !border !border-neutral-800 rounded-md py-2 px-3 bg-neutral-900/50 hover:bg-neutral-900 hover:!border-[#D4AF37] transition-all justify-between !h-auto !border-r" />
+                              <div className="text-sm text-[#3B2A25]/70 mb-1.5 font-medium">Check delivery time &amp; availability:</div>
+                              <LocationPickerDropdown className="w-30 !border !border-[#E6D1CB]/60 rounded-md py-2 px-3 bg-neutral-900/50 hover:bg-neutral-900 hover:!border-[#9C6A5A] transition-all justify-between !h-auto !border-r" />
                             </div>
                           )}
                           {/* social share
@@ -2001,39 +1598,39 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               {t("shareYourSocialText")}
                             </p>
                             <ul className="flex mt-4">
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-store-500  mr-2 transition ease-in-out duration-500">
+                              <li className="flex items-center text-center border border-[#E6D1CB]/50 rounded-full hover:bg-[#FAF7F5]  mr-2 transition ease-in-out duration-500">
                                 <FacebookShareButton
                                   url={
                                     shareUrl ||
                                     (typeof window !== "undefined"
                                       ? window.location.href
-                                      : `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`)
+                                      : `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`)
                                   }
                                   quote=""
                                 >
                                   <FacebookIcon size={32} round />
                                 </FacebookShareButton>
                               </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-store-500  mr-2 transition ease-in-out duration-500">
+                              <li className="flex items-center text-center border border-[#E6D1CB]/50 rounded-full hover:bg-[#FAF7F5]  mr-2 transition ease-in-out duration-500">
                                 <TwitterShareButton
                                   url={
                                     shareUrl ||
                                     (typeof window !== "undefined"
                                       ? window.location.href
-                                      : `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`)
+                                      : `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`)
                                   }
                                   quote=""
                                 >
                                   <TwitterIcon size={32} round />
                                 </TwitterShareButton>
                               </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-store-500  mr-2 transition ease-in-out duration-500">
+                              <li className="flex items-center text-center border border-[#E6D1CB]/50 rounded-full hover:bg-[#FAF7F5]  mr-2 transition ease-in-out duration-500">
                                 <a
                                   href={`https://www.instagram.com/?url=${
                                     shareUrl ||
                                     (typeof window !== "undefined"
                                       ? window.location.href
-                                      : `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`)
+                                      : `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`)
                                   }`}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -2043,26 +1640,26 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                   <FaInstagram size={32} style={{ color: '#E4405F' }} />
                                 </a>
                               </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-store-500  mr-2 transition ease-in-out duration-500">
+                              <li className="flex items-center text-center border border-[#E6D1CB]/50 rounded-full hover:bg-[#FAF7F5]  mr-2 transition ease-in-out duration-500">
                                 <WhatsappShareButton
                                   url={
                                     shareUrl ||
                                     (typeof window !== "undefined"
                                       ? window.location.href
-                                      : `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`)
+                                      : `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`)
                                   }
                                   quote=""
                                 >
                                   <WhatsappIcon size={32} round />
                                 </WhatsappShareButton>
                               </li>
-                              <li className="flex items-center text-center border border-gray-100 rounded-full hover:bg-store-500  mr-2 transition ease-in-out duration-500">
+                              <li className="flex items-center text-center border border-[#E6D1CB]/50 rounded-full hover:bg-[#FAF7F5]  mr-2 transition ease-in-out duration-500">
                                 <LinkedinShareButton
                                   url={
                                     shareUrl ||
                                     (typeof window !== "undefined"
                                       ? window.location.href
-                                      : `https://Rasa Store-store-nine.vercel.app/product/${router.query.slug}`)
+                                      : `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`)
                                   }
                                   quote=""
                                 >
@@ -2075,7 +1672,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Product Highlights Section */}
                           {product?.productHighlights?.enabled !== false && product?.productHighlights?.items?.length > 0 && (
-                            <div className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+                            <div className="mt-8 border border-[#E6D1CB]/60 rounded-lg p-6 bg-white">
                               <div className="flex items-center gap-3 mb-4">
                                 {product.productHighlights.icon && (
                                   <img src={product.productHighlights.icon} alt="" className="w-10 h-10" />
@@ -2095,7 +1692,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           )}
 
                           {/* Premium Tab Navigation */}
-                          <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-gray-100 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
+                          <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-[#E6D1CB]/50 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
                             <div className="max-w-screen-2xl mx-auto px-4 lg:px-12">
                               <div className="flex gap-6 overflow-x-auto tab-navigation-container">
                                 {product?.productDescription?.enabled !== false && (
@@ -2104,13 +1701,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     onClick={() => handleTabClick("product-description")}
                                     className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${
                                       activeTab === "product-description"
-                                        ? "text-store-600"
+                                        ? "text-[#9C6A5A]"
                                         : "text-gray-400 hover:text-gray-600"
                                     }`}
                                   >
                                     Description
                                     {activeTab === "product-description" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-store-500 rounded-full" />
+                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-[#FAF7F5] rounded-full" />
                                     )}
                                   </button>
                                 )}
@@ -2120,13 +1717,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     onClick={() => handleTabClick("specification")}
                                     className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${
                                       activeTab === "specification"
-                                        ? "text-store-600"
+                                        ? "text-[#9C6A5A]"
                                         : "text-gray-400 hover:text-gray-600"
                                     }`}
                                   >
                                     Specification
                                     {activeTab === "specification" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-store-500 rounded-full" />
+                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-[#FAF7F5] rounded-full" />
                                     )}
                                   </button>
                                 )}
@@ -2136,13 +1733,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     onClick={() => handleTabClick("faq")}
                                     className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${
                                       activeTab === "faq"
-                                        ? "text-store-600"
+                                        ? "text-[#9C6A5A]"
                                         : "text-gray-400 hover:text-gray-600"
                                     }`}
                                   >
                                     FAQs
                                     {activeTab === "faq" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-store-500 rounded-full" />
+                                      <span className="absolute bottom-0 left-0 w-full h-1 bg-[#FAF7F5] rounded-full" />
                                     )}
                                   </button>
                                 )}
@@ -2152,7 +1749,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Product Description Section */}
                           {product?.productDescription?.enabled !== false && product?.productDescription?.description && (
-                            <div id="product-description" className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+                            <div id="product-description" className="mt-8 py-6 bg-transparent">
                               <div className="flex items-center gap-3 mb-4">
                                 {product.productDescription.icon && (
                                   <img src={product.productDescription.icon} alt="" className="w-10 h-10" />
@@ -2169,7 +1766,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Specification Section */}
                           {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
-                            <div id="specification" className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+                            <div id="specification" className="mt-8 py-6 bg-transparent">
                               {product.dynamicSections
                                 .filter(s => s?.name?.toLowerCase().includes("specification"))
                                 .map((section, idx) => (
@@ -2195,7 +1792,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Additional Information Section */}
                           {product?.additionalInformation?.enabled !== false && product?.additionalInformation?.subsections?.length > 0 && (
-                            <div id="additional-information" className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+                            <div id="additional-information" className="mt-8 py-6 bg-transparent">
                               <div className="flex items-center gap-3 mb-4">
                                 {product.additionalInformation.icon && (
                                   <img src={product.additionalInformation.icon} alt="" className="w-10 h-10" />
@@ -2206,8 +1803,8 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                               </div>
                               <div className="space-y-6">
                                 {product.additionalInformation.subsections.map((subsection, idx) => (
-                                  <div key={idx} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    <h3 className="inline-block px-3 py-1 mb-3 text-sm font-semibold text-store-600 bg-store-50 rounded-full">
+                                  <div key={idx} className="bg-transparent py-4 border-b border-[#E6D1CB]/60 last:border-none">
+                                    <h3 className="inline-block px-3 py-1 mb-3 text-sm font-semibold text-[#9C6A5A] bg-[#FAF7F5] rounded-full">
                                       {subsection.label}
                                     </h3>
                                     <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
@@ -2234,9 +1831,9 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Modern FAQ Section */}
                           {productFaqs.length > 0 && (
-                            <div id="faq" className="mt-12 border border-gray-100 rounded-[2rem] p-8 bg-white shadow-sm">
+                            <div id="faq" className="mt-12 py-8 bg-transparent">
                               <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-store-500 rounded-full" />
+                                <span className="w-2 h-8 bg-[#9C6A5A] rounded-full" />
                                 {product?.faqs?.title || (product?.faqTitle && product.faqTitle.trim().length
                                   ? product.faqTitle
                                   : t("frequentlyAskedQuestions") ||
@@ -2246,7 +1843,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                 {productFaqs.map((faq, index) => {
                                   const isOpen = activeFaqIndex === index;
                                   return (
-                                    <div key={`${faq.question}-${index}`} className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-store-200 bg-store-50/30' : 'border-gray-50 bg-gray-50/50 hover:bg-gray-100/50'}`}>
+                                    <div key={`${faq.question}-${index}`} className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-store-200 bg-[#FAF7F5]/30' : 'border-gray-50 bg-gray-50/50 hover:bg-gray-100/50'}`}>
                                       <button
                                         type="button"
                                         onClick={() =>
@@ -2257,7 +1854,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                         <span className="text-base font-bold text-gray-800 pr-4">
                                           {faq.question}
                                         </span>
-                                        <span className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-store-600' : 'text-gray-400'}`}>
+                                        <span className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#9C6A5A]' : 'text-gray-400'}`}>
                                           <FiChevronDown className="w-5 h-5" />
                                         </span>
                                       </button>
@@ -2278,7 +1875,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           
                           {/* Manufacturer Details Section */}
                           {product?.manufacturerDetails?.enabled !== false && product?.manufacturerDetails?.items?.length > 0 && (
-                            <div className="mt-8 p-6 bg-white">
+                            <div className="mt-8 py-6 bg-transparent">
                               <h3 className="text-lg font-bold text-gray-900 mb-4">
                                 {product?.manufacturerDetails?.title || "Manufacturer details"}
                               </h3>
@@ -2294,7 +1891,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Disclaimer Section */}
                           {product?.disclaimer?.enabled !== false && product?.disclaimer?.description && (
-                            <div className="mt-2 p-6 bg-white">
+                            <div className="mt-2 py-6 bg-transparent">
                               <h3 className="text-lg font-bold text-gray-900 mb-4">
                                 {product?.disclaimer?.title || "Disclaimer"}
                               </h3>
@@ -2364,7 +1961,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
                           {/* Enhanced Sticky Bottom Bar (Mobile only) */}
                           {showStickyBottomBar && (
-                            <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] lg:hidden transition-all duration-300 slide-up">
+                            <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-md border-t border-[#E6D1CB]/50 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] lg:hidden transition-all duration-300 slide-up">
                               <div className="max-w-screen-2xl mx-auto px-5 py-4">
                                 <div className="flex items-center justify-between gap-6">
                                   <div className="flex-1 min-w-0">
@@ -2388,7 +1985,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                   <button
                                     onClick={() => handleAddToCart(product)}
                                     type="button"
-                                    className="flex-shrink-0 h-14 px-8 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center bg-store-600 text-white active:scale-95 transition-all shadow-lg shadow-store-100"
+                                    className="flex-shrink-0 h-14 px-8 rounded-2xl text-sm font-black uppercase tracking-widest flex items-center justify-center bg-[#9C6A5A] text-white active:scale-95 transition-all shadow-lg shadow-store-100"
                                   >
                                     Add To Cart
                                   </button>
@@ -2436,7 +2033,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                       {/* shipping description card */}
                       {/* <div className="w-full xl:w-5/12 lg:w-6/12 md:w-5/12">
                         <div
-                          className={`mt-6 md:mt-0 lg:mt-0 bg-gray-50 border border-gray-100 p-4 lg:p-8 rounded-lg`}
+                          className={`mt-6 md:mt-0 lg:mt-0 bg-gray-50 border border-[#E6D1CB]/50 p-4 lg:p-8 rounded-lg`}
                         >
                           <Card />
                         </div>

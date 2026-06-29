@@ -9,8 +9,8 @@ const DefaultSeo = () => {
   const { globalSetting, storeCustomizationSetting } = useGetSetting();
 
   // Get dynamic SEO values from settings
-  const metaTitle = storeCustomizationSetting?.seo?.meta_title || globalSetting?.shop_name || "Rasa Store";
-  const metaDescription = storeCustomizationSetting?.seo?.meta_description || "Authenticated sneakers, bags, and streetwear essentials.";
+  const metaTitle = storeCustomizationSetting?.seo?.meta_title || globalSetting?.shop_name || "Manchanda Fabrics";
+  const metaDescription = storeCustomizationSetting?.seo?.meta_description || "Premium ethnic fashion brand focused on sarees, suits, fabrics, and festive collections.";
   const metaUrl = storeCustomizationSetting?.seo?.meta_url || globalSetting?.website || "";
   const brandLogo = pickBrandLogo(
     storeCustomizationSetting?.navbar?.logo,

@@ -64,20 +64,20 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
     .filter(Boolean);
 
   return (
-    <div className={`flex flex-col h-full py-4 text-gray-500 dark:text-[#9fb1b1] ${collapsed ? "items-center" : ""}`}>
+    <div className={`flex flex-col h-full py-4 text-store-700/70 dark:text-store-200/70 ${collapsed ? "items-center" : ""}`}>
       <div className={`flex items-center ${collapsed ? "flex-col gap-3 px-2" : "justify-between px-6"} mb-2`}>
-        <a className="block text-gray-900 dark:text-gray-200 shrink-0" href="/dashboard">
+        <a className="block text-store-800 dark:text-store-100 shrink-0" href="/dashboard">
           <img
             src={ADMIN_BRAND_LOGO}
-            alt={globalSetting?.company_name || "RASA"}
-            className={`object-contain ${collapsed ? "h-10 w-10" : "h-14 w-14"}`}
+            alt={globalSetting?.company_name || "Manchanda Fabrics"}
+            className={`object-contain ${collapsed ? "h-14 w-14" : "h-24 w-auto max-w-[240px]"}`}
           />
         </a>
         {onToggleCollapse && (
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-emerald-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg text-store-400 hover:text-store-500 hover:bg-store-100 dark:hover:bg-white/5 transition-colors"
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <FiChevronsRight className="w-4 h-4" /> : <FiChevronsLeft className="w-4 h-4" />}
@@ -90,7 +90,7 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
           route.type === "title" ? (
             !collapsed && (
               <li className="px-6 py-3 mt-3 first:mt-0" key={route.name}>
-                <span className="text-[10px] font-bold tracking-[0.12em] text-gray-400 dark:text-gray-500 uppercase">
+                <span className="text-[10px] font-bold tracking-[0.12em] text-store-500/60 dark:text-store-300/50 uppercase">
                   {t(route.name)}
                 </span>
               </li>
@@ -103,10 +103,10 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
                 exact
                 to={route.path}
                 target={`${route?.outside ? "_blank" : "_self"}`}
-                className={`inline-flex items-center w-full text-sm font-semibold transition-all duration-150 rounded-xl hover:text-emerald-500 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 ${
+                className={`inline-flex items-center w-full text-sm font-semibold transition-all duration-150 rounded-xl hover:text-store-500 dark:hover:text-store-200 hover:bg-store-100/80 dark:hover:bg-white/5 ${
                   collapsed ? "justify-center px-3 py-3.5 mx-1" : "px-6 py-3.5 mx-2"
                 }`}
-                activeClassName="text-emerald-500 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-900/15"
+                activeClassName="text-store-600 dark:text-store-300 bg-store-100 dark:bg-store-800/60"
                 rel="noreferrer"
                 title={collapsed ? t(route.name) : undefined}
               >

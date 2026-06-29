@@ -72,7 +72,7 @@ const InvoiceLayout = ({ data, printRef, globalSetting, currency, getNumberTwo }
             {/* Bill From - from common settings */}
             <div className="flex-1 min-w-[0] items-start">
               <p className="text-semibold md:text-base font-semibold text-gray-900">
-                {globalSetting?.company_name || "AQOSU RASA PRIVATE LIMITED"}
+                {globalSetting?.company_name || "Manchanda Fabrics Private Limited"}
               </p>
               <p className="text-sm text-gray-600 leading-snug">
                 {globalSetting?.address ||
@@ -82,7 +82,7 @@ const InvoiceLayout = ({ data, printRef, globalSetting, currency, getNumberTwo }
                 <div className="flex gap-x-3">
                   <div className="flex gap-x-2 text-sm text-gray-600 leading-snug mt-0.5">
                     <div className="font-semibold">Email:</div>
-                    <div>{globalSetting?.email || "info@rasastore.com"}</div>
+                    <div>{globalSetting?.email || "info@Manchanda Fabrics.com"}</div>
                   </div>
                   <div className="flex gap-x-2 text-sm text-gray-600 leading-snug mt-0.5">
                     <div className="font-semibold">Phone No:</div>
@@ -272,7 +272,7 @@ const InvoiceLayout = ({ data, printRef, globalSetting, currency, getNumberTwo }
                   {globalSetting?.pharmacist_name || "Registered Pharmacist"}
                 </p>
                 <p className="text-[11px] text-gray-500 leading-snug">
-                  {globalSetting?.company_name || "RASA"}
+                  {globalSetting?.company_name || "Manchanda Fabrics"}
                 </p>
                 {globalSetting?.website && (
                   <p className="text-[11px] text-store-600 leading-snug">

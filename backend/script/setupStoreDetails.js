@@ -7,12 +7,12 @@ const mongoose = require("mongoose");
 const { connectDB } = require("../config/db");
 const Setting = require("../models/Setting");
 
-const STORE_NAME = "RASA";
-const COMPANY_NAME = "RASA Store Pvt Ltd";
+const STORE_NAME = "Manchanda Fabrics";
+const COMPANY_NAME = "Manchanda Fabrics Pvt Ltd";
 const ADDRESS = "Plot No. 12, Sector 4, Ghaziabad, Uttar Pradesh, 201012";
-const EMAIL = "contact@rasastore.com";
+const EMAIL = "manchandafabrics@gmail.com";
 const PHONE = "+91 98765 43210";
-const WEBSITE = "rasastore.com";
+const WEBSITE = "manchandafabrics.com";
 
 const run = async () => {
   await connectDB();

@@ -6,7 +6,7 @@ import ProductCard from "@components/product/ProductCard";
 
 const MenCollection = ({ products, attributes }) => {
   return (
-    <Layout title="Men Collection" description="Discover Rasa Store premium Men's collection - clothing, footwear, and accessories.">
+    <Layout title="Men Collection" description="Discover Manchanda Fabrics premium Men's collection - clothing, footwear, and accessories.">
       <div className="bg-white min-h-screen pb-16">
         {/* Editorial Banner */}
         <div className="relative bg-[#FAF9F6] py-16 px-4 border-b border-gray-100 mb-10 text-center">

@@ -86,7 +86,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
               <div className="flex-1 min-w-[0] items-start">
                 
                 <p className="text-semibold md:text-base font-semibold text-gray-900">
-                  {globalSetting?.company_name || "AQOSU Rasa Store PRIVATE LIMITED"}
+                  {globalSetting?.company_name || "AQOSU Manchanda Fabrics PRIVATE LIMITED"}
                 </p>
                 <p className=" text-sm text-gray-600 leading-snug">
                   {globalSetting?.address ||
@@ -96,7 +96,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
                <div  className="flex gap-x-3">
                   <div className="flex gap-x-2 text-sm text-gray-600 leading-snug mt-0.5">
                     <div className="font-semibold">Email:</div>
-                    <div>{globalSetting?.email || "Rasa Store@gmail.com"}</div>
+                    <div>{globalSetting?.email || "Manchanda Fabrics@gmail.com"}</div>
                   </div>
 
                   <div className="flex gap-x-2 text-sm text-gray-600 leading-snug mt-0.5">
@@ -336,7 +336,7 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
                 <div className="mt-3">
                   
                   <p className="leading-relaxed">
-                    This invoice is issued by RASA Store. Products once sold will not be
+                    This invoice is issued by Manchanda Fabrics. Products once sold will not be
                     taken back or exchanged unless required by law. Please verify the
                     product name, size, and quantity before accepting delivery.
                   </p>
@@ -349,10 +349,10 @@ const Invoice = ({ data, printRef, globalSetting, currency }) => {
             <div className="w-full md:w-64 flex flex-col items-start md:items-start text-xs md:text-sm space-y-0.5">
               <div className="w-24 md:ml-auto" />
               <p className="font-semibold text-gray-700 leading-snug">
-                {globalSetting?.authorized_signatory || "RASA Store"}
+                {globalSetting?.authorized_signatory || "Manchanda Fabrics"}
               </p>
               <p className="text-[11px] text-gray-500 leading-snug">
-                {globalSetting?.company_name || "Rasa Store"}
+                {globalSetting?.company_name || "Manchanda Fabrics"}
               </p>
               {globalSetting?.website && (
                 <p className="text-[11px] text-store-600 leading-snug">

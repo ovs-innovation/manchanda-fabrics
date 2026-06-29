@@ -32,7 +32,7 @@ export const geocodeAddress = async (address) => {
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
       {
         headers: {
-          'User-Agent': 'Rasa Store-App'
+          'User-Agent': 'Manchanda Fabrics-App'
         }
       }
     );

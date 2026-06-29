@@ -1,4 +1,4 @@
-const PLACEHOLDER_DOMAIN = "phone.Rasa Store.com";
+const PLACEHOLDER_DOMAIN = "phone.Manchanda Fabrics.com";
 
 export const isPlaceholderEmail = (email) =>
   !!email && String(email).toLowerCase().endsWith(`@${PLACEHOLDER_DOMAIN}`);

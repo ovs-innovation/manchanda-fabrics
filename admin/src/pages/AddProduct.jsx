@@ -133,11 +133,10 @@ const AddProduct = () => {
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     >
                       <option value="">Choose Type</option>
-                      <option value="Sneakers">Sneakers</option>
-                      <option value="Bags">Bags</option>
-                      <option value="Slides">Slides</option>
-                      <option value="Heels">Heels</option>
-                      <option value="Accessories">Accessories</option>
+                      <option value="Sarees">Sarees</option>
+                      <option value="Suits">Suits</option>
+                      <option value="Fabrics">Fabrics</option>
+                      <option value="Traditional Wear">Traditional Wear</option>
                     </Select>
                     <Error errorName={errors.productType} />
                   </div>
@@ -149,11 +148,76 @@ const AddProduct = () => {
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     >
                       <option value="">Choose Gender</option>
-                      <option value="Men">Men</option>
                       <option value="Women">Women</option>
+                      <option value="Men">Men</option>
                       <option value="Unisex">Unisex</option>
                     </Select>
                     <Error errorName={errors.gender} />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Occasion</label>
+                    <Input
+                      {...register("occasion")}
+                      placeholder="e.g. Wedding, Festive, Casual"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Fabric Type</label>
+                    <Input
+                      {...register("fabricType")}
+                      placeholder="e.g. Banarasi Silk, Cotton"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Work Type</label>
+                    <Input
+                      {...register("workType")}
+                      placeholder="e.g. Zari Weaving, Embroidered"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Blouse Included</label>
+                    <Select
+                      {...register("blouseIncluded")}
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    >
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Saree Length</label>
+                    <Input
+                      {...register("sareeLength")}
+                      placeholder="e.g. 5.5 m + 0.8 m blouse"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Color Family</label>
+                    <Input
+                      {...register("colorFamily")}
+                      placeholder="e.g. Red, Mustard Gold"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Collection</label>
+                    <Input
+                      {...register("collectionName")}
+                      placeholder="e.g. Wedding Edit, Festive Edit"
+                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
+                    />
                   </div>
 
                   <div className="md:col-span-2">

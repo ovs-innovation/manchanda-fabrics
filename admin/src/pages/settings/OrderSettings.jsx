@@ -958,7 +958,7 @@ const OrderSettings = () => {
 
                     <div className="bg-[#f8fafc] p-6 rounded-2xl dark:bg-gray-900/40">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {/* @deprecated — prescription orders removed for RASA (Phase 2A) */}
+                        {/* @deprecated — prescription orders removed for Manchanda Fabrics (Phase 2A) */}
                         {false && (
                         <div>
                           <div className="flex items-center gap-2 mb-3 text-[14px] font-bold text-[#42526b] dark:text-gray-100">

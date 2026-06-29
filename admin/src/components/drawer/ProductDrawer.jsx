@@ -1929,11 +1929,10 @@ const ProductDrawer = ({ id }) => {
                       className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
                     >
                       <option value="">Choose Type</option>
-                      <option value="Sneakers">Sneakers</option>
-                      <option value="Bags">Bags</option>
-                      <option value="Slides">Slides</option>
-                      <option value="Heels">Heels</option>
-                      <option value="Accessories">Accessories</option>
+                      <option value="Sarees">Sarees</option>
+                      <option value="Suits">Suits</option>
+                      <option value="Fabrics">Fabrics</option>
+                      <option value="Traditional Wear">Traditional Wear</option>
                     </select>
                     <Error errorName={errors.productType} />
                   </div>
@@ -1946,11 +1945,84 @@ const ProductDrawer = ({ id }) => {
                       className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
                     >
                       <option value="">Choose Gender</option>
-                      <option value="Men">Men</option>
                       <option value="Women">Women</option>
+                      <option value="Men">Men</option>
                       <option value="Unisex">Unisex</option>
                     </select>
                     <Error errorName={errors.gender} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Occasion" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("occasion")}
+                      placeholder="e.g. Wedding, Festive, Casual"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Fabric Type" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("fabricType")}
+                      placeholder="e.g. Banarasi Silk, Cotton"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Work Type" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("workType")}
+                      placeholder="e.g. Zari Weaving, Embroidered"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Blouse Included" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <select
+                      {...register("blouseIncluded")}
+                      className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
+                    >
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Saree Length" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("sareeLength")}
+                      placeholder="e.g. 5.5 m + 0.8 m blouse"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Color Family" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("colorFamily")}
+                      placeholder="e.g. Red, Mustard Gold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Collection" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <Input
+                      {...register("collectionName")}
+                      placeholder="e.g. Wedding Edit, Festive Edit"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">

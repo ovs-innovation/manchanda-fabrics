@@ -1,6 +1,6 @@
 // Scripts for firebase and firebase messaging
 // IMPORTANT: Keep in sync with NEXT_PUBLIC_FIREBASE_* in frontend/.env
-// Create a dedicated RASA Firebase project and paste values here (service workers cannot read .env at runtime).
+// Create a dedicated Manchanda Fabrics Firebase project and paste values here (service workers cannot read .env at runtime).
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
@@ -17,10 +17,10 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.notification?.title || payload.data?.title || 'RASA';
+  const notificationTitle = payload.notification?.title || payload.data?.title || 'Manchanda Fabrics';
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body || payload.data?.description || '',
-    icon: payload.notification?.image || payload.data?.image || '/rasaLogo.png',
+    icon: payload.notification?.image || payload.data?.image || '/logo.png',
     data: {
       url: payload.data?.click_action || '/',
     }

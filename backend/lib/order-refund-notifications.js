@@ -35,7 +35,7 @@ const sendRefundCompletedNotifications = async (order) => {
 
   const globalSetting = await Setting.findOne({ name: "globalSetting" });
   const settings = globalSetting?.setting || {};
-  const shopName = settings.shop_name || "RASA";
+  const shopName = settings.shop_name || "manchanda";
   const currency =
     order.company_info?.currency || settings.default_currency || "₹";
   const contactEmail = settings.email || undefined;

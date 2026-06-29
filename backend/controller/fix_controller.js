@@ -33,13 +33,13 @@ const verifyEmailAddress = async (req, res) => {
     const option = {
       name: req.body.name,
       email: req.body.email,
-      contact_email: globalSetting?.setting?.email || "support@RASA.com",
+      contact_email: globalSetting?.setting?.email || "support@manchanda.com",
       token: token,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
     const body = {
       to: \`\${req.body.email}\`,
-      subject: "RASA – Verify your email",
+      subject: "manchanda – Verify your email",
       html: customerRegisterBody(option),
     };
 

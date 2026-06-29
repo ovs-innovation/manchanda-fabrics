@@ -74,19 +74,19 @@ const NotificationsPage = () => {
       <div className="max-w-4xl">
         <div className="flex items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-white">
+            <h1 className="text-2xl font-serif font-bold text-store-900">
               Notifications
             </h1>
-            <p className="text-sm text-neutral-400 mt-1">
+            <p className="text-sm text-store-700 mt-1">
               Tap an image to view it full size. Offers and updates from
-              Rasa Store.
+              Manchanda Fabrics.
             </p>
           </div>
           {unreadCount > 0 && (
             <button
               type="button"
               onClick={handleMarkAll}
-              className="shrink-0 text-sm font-bold text-[#D4AF37] hover:text-white px-3 py-1.5 rounded-lg hover:bg-neutral-900 transition-all duration-200"
+              className="shrink-0 text-sm font-bold text-store-900 hover:text-store-700 px-3 py-1.5 rounded-lg hover:bg-store-100 transition-all duration-200"
             >
               Mark all read
             </button>
@@ -94,22 +94,22 @@ const NotificationsPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="rounded-2xl border border-neutral-900 bg-[#0A0A0A] p-12 text-center text-neutral-400 text-sm">
+          <div className="rounded-2xl border border-store-200 bg-white p-12 text-center text-store-700 text-sm">
             Loading...
           </div>
         ) : notifications.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-neutral-900 bg-neutral-950/20 text-center py-20 px-6">
-            <span className="inline-flex w-16 h-16 rounded-2xl bg-neutral-900 text-[#D4AF37] items-center justify-center mb-4 border border-neutral-800">
+          <div className="rounded-2xl border border-dashed border-store-200 bg-white text-center py-20 px-6">
+            <span className="inline-flex w-16 h-16 rounded-2xl bg-store-50 text-store-800 items-center justify-center mb-4 border border-store-200">
               <FiBell className="text-3xl" />
             </span>
-            <p className="font-bold text-white">No notifications yet</p>
-            <p className="text-sm text-neutral-400 mt-2 max-w-sm mx-auto">
+            <p className="font-bold text-store-900">No notifications yet</p>
+            <p className="text-sm text-store-700 mt-2 max-w-sm mx-auto">
               When admin sends offers or updates, they will show up here and in
               the bell icon.
             </p>
           </div>
         ) : (
-          <ul className="rounded-2xl border border-neutral-900 bg-[#0A0A0A] shadow-lg overflow-hidden divide-y divide-neutral-900">
+          <ul className="rounded-2xl border border-store-200 bg-white shadow-lg overflow-hidden divide-y divide-store-100">
             {notifications.map((item) => (
               <li key={item._id}>
                 <NotificationListItem

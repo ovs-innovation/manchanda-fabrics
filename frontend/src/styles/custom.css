@@ -1,22 +1,35 @@
+:root {
+  --store-color-50: #FAF7F5;
+  --store-color-100: #FAF7F5;
+  --store-color-200: #E6D1CB;
+  --store-color-300: #E6D1CB;
+  --store-color-400: #9C6A5A;
+  --store-color-500: #9C6A5A;
+  --store-color-600: #6F4A3D;
+  --store-color-700: #6F4A3D;
+  --store-color-800: #3B2A25;
+  --store-color-900: #3B2A25;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
-  background-color: #050505;
+  background-color: #FAF7F5;
 }
 
 body {
   overflow-x: hidden;
   width: 100%;
-  background-color: #050505;
-  color: #ffffff;
+  background-color: #FAF7F5;
+  color: #3B2A25;
   min-height: 100vh;
 }
 
 #__next {
   min-height: 100vh;
-  background-color: #050505;
+  background-color: #FAF7F5;
 }
 
 @layer utilities {

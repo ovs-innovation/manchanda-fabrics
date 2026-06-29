@@ -39,17 +39,17 @@ const MobileBottomNavigation = () => {
   }
 
   return (
-    <div className="lg:hidden fixed bottom-0 w-full bg-[#050505]/95 backdrop-blur-md z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] border-t border-neutral-900/80">
+    <div className="lg:hidden fixed bottom-0 w-full bg-[#FAF7F5]/95 backdrop-blur-md z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.8)] border-t border-[#E6D1CB]/60/80">
       <div className="flex justify-between items-center px-4 py-2 pt-3">
         {/* Notifications */}
         <Link
           href={isLoggedIn ? "/user/notifications" : "/auth/login"}
-          className={`flex flex-col items-center justify-center w-full relative ${isActive("/user/notifications") ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"}`}
+          className={`flex flex-col items-center justify-center w-full relative ${isActive("/user/notifications") ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}
         >
           <div className="relative">
             <FiBell className="w-6 h-6 mb-1" />
             {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 min-w-[16px] px-0.5 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-[#3B2A25] text-[10px] font-bold rounded-full h-4 min-w-[16px] px-0.5 flex items-center justify-center">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -58,7 +58,7 @@ const MobileBottomNavigation = () => {
         </Link>
 
         {/* My Orders */}
-        <Link href="/user/my-orders" className={`flex flex-col items-center justify-center w-full ${isActive("/user/my-orders") ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"}`}>
+        <Link href="/user/my-orders" className={`flex flex-col items-center justify-center w-full ${isActive("/user/my-orders") ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}>
           <FiFileText className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Orders</span>
         </Link>
@@ -66,12 +66,12 @@ const MobileBottomNavigation = () => {
         {/* Cart */}
         <button 
           onClick={toggleCartDrawer} 
-          className={`flex flex-col items-center justify-center w-full relative ${router.pathname === "/cart" ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"}`}
+          className={`flex flex-col items-center justify-center w-full relative ${router.pathname === "/cart" ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}
         >
           <div className="relative">
             <FiShoppingCart className="w-6 h-6 mb-1" />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-[#9C6A5A] text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                 {totalItems}
               </span>
             )}
@@ -82,18 +82,18 @@ const MobileBottomNavigation = () => {
         {/* Search */}
         <button 
           onClick={toggleSearch} 
-          className={`flex flex-col items-center justify-center w-full ${showSearch ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"}`}
+          className={`flex flex-col items-center justify-center w-full ${showSearch ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}
         >
           <FiSearch className="w-6 h-6 mb-1" />
           <span className="text-[10px] font-medium">Search</span>
         </button>
 
         {/* WishList */}
-        <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full ${isActive("/wishlist") ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"}`}>
+        <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full ${isActive("/wishlist") ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}>
           <div className="relative">
             <FiHeart className="w-6 h-6 mb-1" />
             {wishlistCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 bg-[#9C6A5A] text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}

@@ -19,7 +19,7 @@ const Login = () => {
         }
         badge={isCheckoutReturn ? "Checkout" : null}
         alternateLink={{
-          text: "New to Rasa Store?",
+          text: "New to Manchanda Fabrics?",
           label: "Create an account",
           href: { pathname: "/auth/signup", query: { ...router.query } },
         }}

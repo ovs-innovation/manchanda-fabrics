@@ -24,22 +24,22 @@ const FloatingWhatsApp = () => {
     <div className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-[99] flex items-end justify-end flex-col group">
       {/* Tooltip */}
       <div 
-        className={`bg-[#0d0d0d] text-white px-4 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-neutral-800 mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px]
+        className={`bg-white text-[#3B2A25] px-4 py-3 rounded-2xl shadow-xl border border-[#E6D1CB] mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px]
           ${showTooltip ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`}
       >
         <div className="relative">
-          <p className="text-sm font-semibold leading-snug">
-            Need styling help? 👟<br/>
-            <span className="text-neutral-400 font-normal text-xs">Chat with the RASA team!</span>
+          <p className="text-sm font-semibold leading-snug text-[#3B2A25]">
+            Need styling help? 🌸<br/>
+            <span className="text-[#3B2A25]/75 font-normal text-xs">Chat with Manchanda Fabrics!</span>
           </p>
           {/* Arrow pointing down right */}
-          <div className="absolute -bottom-5 right-2 w-3 h-3 bg-[#0d0d0d] border-b border-r border-neutral-800 transform rotate-45"></div>
+          <div className="absolute -bottom-5 right-2 w-3 h-3 bg-white border-b border-r border-[#E6D1CB] transform rotate-45"></div>
         </div>
       </div>
 
       {/* Button */}
       <a
-        href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent("Hello, I need some help with Rasa Store.")}`}
+        href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent("Hello Manchanda Fabrics, I would like to inquire about...")}`}
         target="_blank"
         rel="noopener noreferrer"
         className="relative flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-110 transition-all duration-300 hover:bg-[#128C7E] animate-bounce-slow"

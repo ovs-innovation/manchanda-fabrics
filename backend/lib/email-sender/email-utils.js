@@ -10,11 +10,11 @@ const getBrandDomain = () => {
   if (fromEmail.includes("@")) {
     return fromEmail.split("@")[1];
   }
-  const store = (process.env.STORE_URL || "https://rasastore.com").replace(
+  const store = (process.env.STORE_URL || "https://Manchanda Fabrics.com").replace(
     /^https?:\/\//,
     ""
   );
-  return store.split("/")[0].replace(/^www\./, "") || "rasastore.com";
+  return store.split("/")[0].replace(/^www\./, "") || "Manchanda Fabrics.com";
 };
 
 /** Always same domain as RESEND_FROM — never Gmail in headers/body for Resend sends. */
@@ -72,7 +72,7 @@ const prepareMailOptions = (body = {}) => {
 
   if (useResend && !process.env.RESEND_FROM) {
     throw new Error(
-      "RESEND_FROM is required (e.g. RASA <notify@rasastore.com>)"
+      "RESEND_FROM is required (e.g. manchanda <notify@Manchanda Fabrics.com>)"
     );
   }
 
@@ -82,7 +82,7 @@ const prepareMailOptions = (body = {}) => {
   if (useResend) {
     mail.from = process.env.RESEND_FROM;
   } else {
-    const fromName = process.env.EMAIL_FROM_NAME || "RASA";
+    const fromName = process.env.EMAIL_FROM_NAME || "manchanda";
     mail.from = `"${fromName}" <${process.env.EMAIL_USER}>`;
   }
 
@@ -92,6 +92,21 @@ const prepareMailOptions = (body = {}) => {
 
   if (!mail.text && mail.html) {
     mail.text = body.text || htmlToPlainText(mail.html);
+  }
+
+  if (!useResend) {
+    // Delete HTML part for SMTP/Gmail sends to ensure it is sent as plain text.
+    delete mail.html;
+
+    // Strip links and email addresses from the text body to prevent phishing/link-mismatch flagging
+    if (mail.text) {
+      mail.text = mail.text
+        .replace(/https?:\/\/[^\s]+/g, "")
+        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "")
+        .replace(/Support:\s*$/im, "")
+        .replace(/\n\s*\n\s*\n/g, "\n\n")
+        .trim();
+    }
   }
 
   if (!mail.text) {

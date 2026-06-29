@@ -55,7 +55,7 @@ const ProductCard = ({
       titleStr.toLowerCase().includes(b.toLowerCase())
     );
     if (matched) return matched;
-    return titleStr.split(" ")[0] || "Rasa";
+    return titleStr.split(" ")[0] || "Manchanda Fabrics";
   };
 
   // ── Size Variants ────────────────────────────────────────────────────────────
@@ -216,7 +216,7 @@ const ProductCard = ({
         />
       )}
 
-      <div className="group relative w-full flex flex-col bg-[#0D0D0D] border border-neutral-800 hover:border-[#D4AF37]/40 transition-all duration-300 rounded-xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.5)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.7)]">
+      <div className="group relative w-full flex flex-col bg-white border border-[#E6D1CB]/40 hover:border-[#9C6A5A]/50 transition-all duration-300 rounded-xl overflow-hidden shadow-sm hover:shadow-md">
 
         {/* ── Image Area ─────────────────────────────────────────────────────── */}
         <div
@@ -224,12 +224,12 @@ const ProductCard = ({
             router.push(`/product/${product.slug}`);
             handleLogEvent("product", `navigated to ${title} product page`);
           }}
-          className="relative w-full aspect-[4/5] bg-[#141414] overflow-hidden cursor-pointer flex-shrink-0"
+          className="relative w-full aspect-[4/5] bg-[#FAF7F5] overflow-hidden cursor-pointer flex-shrink-0"
         >
           {/* Sold Out Overlay */}
           {isSoldOut && (
-            <div className="absolute inset-0 bg-black/70 z-10 flex items-center justify-center backdrop-blur-[1px]">
-              <span className="bg-[#D4AF37] text-black text-[9px] font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-sm">
+            <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center backdrop-blur-[1px]">
+              <span className="bg-[#9C6A5A] text-white text-[9px] font-bold uppercase tracking-[0.25em] px-4 py-1.5 rounded-sm">
                 Sold Out
               </span>
             </div>
@@ -237,7 +237,7 @@ const ProductCard = ({
 
           {/* Discount % Badge */}
           {!hideDiscount && hasSale && (
-            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-black text-[#D4AF37] text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md">
+            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-white border border-[#E6D1CB] text-[#9C6A5A] text-[8px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
               -{discountPercent}%
             </div>
           )}
@@ -248,21 +248,19 @@ const ProductCard = ({
               onClick={handleAddToWishlist}
               id={`wishlist-${product._id}`}
               aria-label="Add to wishlist"
-              className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shadow-md border backdrop-blur-sm transition-all duration-200 ${
+              className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shadow-sm border backdrop-blur-sm transition-all duration-200 ${
                 wishlistActive
-                  ? "bg-[#D4AF37] border-[#D4AF37] text-black"
-                  : "bg-black/50 border-neutral-700 text-neutral-300 hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                  ? "bg-[#9C6A5A] border-[#9C6A5A] text-white"
+                  : "bg-white/70 border-[#E6D1CB]/80 text-[#3B2A25] hover:border-[#9C6A5A] hover:text-[#9C6A5A]"
               }`}
             >
               <FiHeart
                 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2] transition-all ${
-                  wishlistActive ? "fill-[#D4AF37] stroke-[#D4AF37]" : ""
+                  wishlistActive ? "fill-[#9C6A5A] stroke-[#9C6A5A]" : ""
                 }`}
               />
             </button>
           )}
-
-
 
           {/* Product Images */}
           <div className="w-full h-full relative">
@@ -301,17 +299,17 @@ const ProductCard = ({
         </div>
 
         {/* ── Info + Actions ──────────────────────────────────────────────────── */}
-        <div className="p-2.5 sm:p-4 flex flex-col gap-2 sm:gap-3 bg-[#0D0D0D] flex-grow">
+        <div className="p-2.5 sm:p-4 flex flex-col gap-2 sm:gap-3 bg-white flex-grow">
 
           {/* Brand + Title */}
           <div>
-            <span className="text-[8px] sm:text-[9px] font-black text-[#D4AF37]/70 uppercase tracking-[0.2em] block mb-0.5">
+            <span className="text-[8px] sm:text-[9px] font-bold text-[#9C6A5A] uppercase tracking-[0.2em] block mb-0.5">
               {getBrandName()}
             </span>
             <h4
               onClick={() => router.push(`/product/${product.slug}`)}
               title={title}
-              className="text-xs sm:text-sm font-black text-white uppercase tracking-tight leading-tight hover:text-[#D4AF37] transition-colors cursor-pointer line-clamp-2 min-h-[2rem] sm:min-h-[2.25rem]"
+              className="text-xs sm:text-sm font-medium text-[#3B2A25] uppercase tracking-tight leading-tight hover:text-[#9C6A5A] transition-colors cursor-pointer line-clamp-2 min-h-[2rem] sm:min-h-[2.25rem]"
             >
               {title}
             </h4>
@@ -319,11 +317,11 @@ const ProductCard = ({
 
           {/* Price Row */}
           <div className="flex items-baseline gap-1.5 sm:gap-2">
-            <span className="text-sm sm:text-lg font-black text-white leading-none">
+            <span className="text-sm sm:text-lg font-semibold text-[#3B2A25] leading-none">
               {currency}{getNumberTwo(Math.max(0, currentPrice))}
             </span>
             {hasSale && (
-              <span className="text-[10px] sm:text-xs text-neutral-500 line-through leading-none font-medium">
+              <span className="text-[10px] sm:text-xs text-[#3B2A25]/60 line-through leading-none font-medium">
                 {currency}{getNumberTwo(originalPriceValue)}
               </span>
             )}
@@ -341,10 +339,10 @@ const ProductCard = ({
                       e.stopPropagation();
                       setSelectedSizeId(isSelected ? null : sz.id);
                     }}
-                    className={`shrink-0 text-[9px] font-extrabold uppercase min-w-[2rem] px-2 py-1 border rounded-md transition-all duration-150 ${
+                    className={`shrink-0 text-[9px] font-bold uppercase min-w-[2rem] px-2 py-1 border rounded-md transition-all duration-150 ${
                       isSelected
-                        ? "bg-[#D4AF37] border-[#D4AF37] text-black shadow-sm"
-                        : "bg-transparent border-neutral-700 text-neutral-300 hover:border-[#D4AF37] hover:text-white"
+                        ? "bg-[#9C6A5A] border-[#9C6A5A] text-white shadow-sm"
+                        : "bg-transparent border-[#E6D1CB]/80 text-[#3B2A25]/80 hover:border-[#9C6A5A] hover:text-[#9C6A5A]"
                     }`}
                   >
                     {sz.name}
@@ -360,7 +358,7 @@ const ProductCard = ({
               {isSoldOut ? (
                 <button
                   disabled
-                  className="w-full h-9 sm:h-11 font-extrabold text-[8px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.2em] bg-neutral-800 text-neutral-500 cursor-not-allowed flex items-center justify-center rounded-lg sm:rounded-xl shadow-sm"
+                  className="w-full h-9 sm:h-11 font-bold text-[8px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.2em] bg-neutral-100 text-neutral-400 cursor-not-allowed flex items-center justify-center rounded-lg sm:rounded-xl shadow-sm"
                 >
                   Out of Stock
                 </button>
@@ -369,17 +367,17 @@ const ProductCard = ({
                   const item = getItem(activeItemId);
                   return (
                     item && (
-                      <div className="h-9 sm:h-11 w-full flex items-center justify-between bg-[#161616] border border-neutral-800 text-white px-2.5 sm:px-4 font-bold text-[10px] sm:text-xs rounded-lg sm:rounded-xl shadow-sm">
+                      <div className="h-9 sm:h-11 w-full flex items-center justify-between bg-[#FAF7F5] border border-[#E6D1CB]/60 text-[#3B2A25] px-2.5 sm:px-4 font-bold text-[10px] sm:text-xs rounded-lg sm:rounded-xl shadow-sm">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             updateItemQuantity(item.id, item.quantity - 1);
                           }}
-                          className="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                          className="p-1 sm:p-1.5 rounded-lg hover:bg-[#E6D1CB]/20 transition-colors"
                         >
                           <IoRemove className="text-sm sm:text-base" />
                         </button>
-                        <span className="font-mono text-xs sm:text-sm font-black tracking-wider text-[#D4AF37]">
+                        <span className="font-mono text-xs sm:text-sm font-bold tracking-wider text-[#9C6A5A]">
                           {item.quantity}
                         </span>
                         <button
@@ -392,7 +390,7 @@ const ProductCard = ({
                                   stock: product.stock,
                                 });
                           }}
-                          className="p-1 sm:p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                          className="p-1 sm:p-1.5 rounded-lg hover:bg-[#E6D1CB]/20 transition-colors"
                         >
                           <IoAdd className="text-sm sm:text-base" />
                         </button>
@@ -407,7 +405,7 @@ const ProductCard = ({
                       e.stopPropagation();
                       router.push(`/product/${product.slug}`);
                     }}
-                    className="flex-1 h-9 sm:h-11 font-extrabold text-[8px] sm:text-[9px] uppercase tracking-[0.1em] sm:tracking-[0.2em] bg-[#D4AF37] hover:bg-[#e3c456] text-black hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center rounded-lg sm:rounded-xl shadow-sm"
+                    className="flex-1 h-9 sm:h-11 font-bold text-[8px] sm:text-[9px] uppercase tracking-[0.1em] sm:tracking-[0.2em] bg-[#9C6A5A] hover:bg-[#6F4A3D] text-white hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center rounded-lg sm:rounded-xl shadow-sm"
                   >
                     Shop Now
                   </button>
@@ -418,7 +416,7 @@ const ProductCard = ({
                       handleAddItem(product);
                     }}
                     title="Add to Cart"
-                    className="w-9 h-9 sm:w-11 sm:h-11 bg-white/5 border border-neutral-800 text-white hover:border-[#D4AF37]/50 hover:text-[#D4AF37] transition-all flex items-center justify-center rounded-lg sm:rounded-xl shrink-0"
+                    className="w-9 h-9 sm:w-11 sm:h-11 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-[#3B2A25] hover:border-[#9C6A5A]/50 hover:text-[#9C6A5A] transition-all flex items-center justify-center rounded-lg sm:rounded-xl shrink-0"
                   >
                     <IoBagAddSharp className="text-sm sm:text-base" />
                   </button>
@@ -429,7 +427,7 @@ const ProductCard = ({
         </div>
 
         {/* ── Bottom accent line — appears on hover ────────────────────────────── */}
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#9C6A5A] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </>
   );

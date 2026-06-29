@@ -21,10 +21,10 @@ module.exports = {
 
   theme: {
     fontFamily: {
-      sans: ["Outfit", "sans-serif"],
-      serif: ["Montserrat", "sans-serif"], // Maps font-serif titles directly to Montserrat
-      title: ["Montserrat", "sans-serif"],
-      micro: ["Inter", "sans-serif"],
+      sans: ["Poppins", "sans-serif"],
+      serif: ["Cormorant Garamond", "serif"],
+      title: ["Cormorant Garamond", "serif"],
+      micro: ["Poppins", "sans-serif"],
       DejaVu: ["DejaVu Sans", "Arial", "sans-serif"],
     },
     extend: {

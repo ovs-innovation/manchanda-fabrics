@@ -356,7 +356,7 @@ const InvoiceForDownload = ({
               )}
 
               <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111827", marginBottom: 2 }}>
-                {globalSetting?.company_name || "Rasa Store Private Limited"}
+                {globalSetting?.company_name || "Manchanda Fabrics Private Limited"}
               </Text>
               <Text style={{ fontSize: 7, color: "#4b5563", lineHeight: 1.3, marginBottom: 3 }}>
                 {globalSetting?.address || "C-39, Basement, Block-5, Okhla Industrial Area-2, New Delhi, Delhi-110020"}
@@ -630,16 +630,16 @@ const InvoiceForDownload = ({
                 TERMS AND CONDITIONS
               </Text>
               <Text style={{ fontSize: 7, color: "#374151", lineHeight: 1.4, marginBottom: 3 }}>
-                This invoice is issued by RASA Store. Products once sold will not be taken back or exchanged unless required by law. Please verify the product name, size, and quantity before accepting delivery.
+                This invoice is issued by Manchanda Fabrics. Products once sold will not be taken back or exchanged unless required by law. Please verify the product name, size, and quantity before accepting delivery.
               </Text> */}
               <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937", marginBottom: 0 }}>
                 Registered Pharmacist
               </Text>
               <Text style={{ fontSize: 7, color: "#006E44", marginBottom: 0 }}>
-                {globalSetting?.company_name || "Rasa Store Private Limited"}
+                {globalSetting?.company_name || "Manchanda Fabrics Private Limited"}
               </Text>
               <Text style={{ fontSize: 7, color: "#006E44" }}>
-                {globalSetting?.website || "www.Rasa Store.com"}
+                {globalSetting?.website || "www.Manchanda Fabrics.com"}
               </Text>
             </View>
 

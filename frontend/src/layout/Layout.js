@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
 
@@ -17,6 +18,11 @@ import FloatingWhatsApp from "@components/common/FloatingWhatsApp";
 import { pickBrandLogo } from "@utils/brandAssets";
 
 const Layout = ({ title, description, children, hideMobileHeader }) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
   const palette = getPalette(storeColor);
@@ -25,63 +31,59 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
   useCartSync();
 
   // Get dynamic title and favicon from settings
-  const siteTitle = storeCustomizationSetting?.seo?.meta_title || globalSetting?.shop_name || "Rasa Store";
+  const siteTitle = storeCustomizationSetting?.seo?.meta_title || globalSetting?.shop_name || "Manchanda Fabrics";
   const favicon = pickBrandLogo(
     storeCustomizationSetting?.seo?.favicon,
     globalSetting?.logo,
     storeCustomizationSetting?.navbar?.logo
   );
-  const defaultDescription = storeCustomizationSetting?.seo?.meta_description || description || "Rasa Store defines modern premium streetwear. Minimalist silhouettes, heavyweight fabrics, and clean aesthetics designed for the digital generation.";
+  const defaultDescription = storeCustomizationSetting?.seo?.meta_description || description || "Manchanda Fabrics offers premium women's ethnic fashion. Curated Banarasi, silk, and cotton sarees, suits, and fabrics crafted for traditions and celebrations.";
 
   return (
     <>
-      <div className="font-sans">
-        <Head>
-          <style>
-            {`
-              :root {
-                --store-color-50: #F9F9F9;
-                --store-color-100: #FFFFFF;
-                --store-color-200: #F3F4F6;
-                --store-color-300: #111111;
-                --store-color-400: #1F2937;
-                --store-color-500: #111111;
-                --store-color-600: #111111;
-                --store-color-700: #000000;
-                --store-color-800: #111111;
-                --store-color-900: #000000;
-              }
-            `}
-          </style>
-          <title>
-            {title ? `${siteTitle} | ${title}` : siteTitle}
-          </title>
-          <meta name="description" content={description || defaultDescription} />
-          <link rel="icon" href={favicon} />
-          <link rel="shortcut icon" href={favicon} />
-          <link rel="apple-touch-icon" href={favicon} />
-        </Head>
+      <Head>
+        <title>{title ? `${siteTitle} | ${title}` : siteTitle}</title>
+        <meta name="description" content={description || defaultDescription} />
+        <link rel="icon" href={favicon} />
+        <link rel="shortcut icon" href={favicon} />
+        <link rel="apple-touch-icon" href={favicon} />
+      </Head>
+
+      <div className="font-sans text-[#3B2A25] bg-[#FAF7F5]">
         {/* Mobile header bar (fixed) */}
-        {!hideMobileHeader && <MobileFooter />}
+        <div>
+          {mounted && !hideMobileHeader && <MobileFooter />}
+        </div>
 
         {/* Mobile Bottom Navigation */}
-        {!hideMobileHeader && <MobileBottomNavigation />}
+        <div>
+          {mounted && !hideMobileHeader && <MobileBottomNavigation />}
+        </div>
 
         <div className={`${hideMobileHeader ? "pt-0" : "pt-16"} lg:pt-0 lg:mt-0 pb-16 lg:pb-0`}>
           {/* Desktop: one sticky header — top bar + navbar + categories shift on scroll */}
-          <div id="site-header" className="hidden lg:block sticky top-0 z-[70] bg-[#050505] shadow-lg shadow-black/40">
-            <NavBarTop />
-            <Navbar />
-          </div>
+          {mounted ? (
+            <div id="site-header" className="hidden lg:block sticky top-0 z-[70] bg-[#FAF7F5] border-b border-[#E6D1CB] shadow-sm">
+              <NavBarTop />
+              <Navbar />
+            </div>
+          ) : (
+            <div id="site-header" className="hidden lg:block sticky top-0 z-[70] bg-[#FAF7F5] border-b border-[#E6D1CB] shadow-sm h-20" />
+          )}
           {children}
         </div>
-        <div className="  w-full">
-          {/* <FooterTop  /> */}
-          <div className="w-full">
-            <Footer />
-          </div>
+        <div className="w-full">
+          {mounted ? (
+            <div className="w-full">
+              <Footer />
+            </div>
+          ) : (
+            <div className="w-full h-40 bg-[#FAF7F5]" />
+          )}
         </div>
-        <FloatingWhatsApp />
+        <div>
+          {mounted && <FloatingWhatsApp />}
+        </div>
       </div>
       <ToastContainer
         position="top-right"

@@ -23,14 +23,14 @@ const TrustedBrandsSection = ({ brands = [] }) => {
   const hasBrands = brandsWithLogos.length > 0;
 
   return (
-    <div className="bg-[#050505] border-t border-b border-neutral-900 py-16 overflow-hidden">
+    <div className="bg-[#FAF7F5] border-t border-b border-[#E6D1CB]/60 py-16 overflow-hidden">
       <div className="w-full">
         {/* Header Title */}
         <div className="text-center mb-12">
-          <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest px-4 py-1.5 bg-[#0F0F0F] border border-neutral-800 rounded-full">
+          <span className="text-[10px] font-black text-[#9C6A5A] uppercase tracking-widest px-4 py-1.5 bg-[#0F0F0F] border border-[#E6D1CB]/60 rounded-full">
             Collaborators
           </span>
-          <h2 className="text-xs font-black uppercase tracking-widest text-neutral-500 mt-6">
+          <h2 className="text-xs font-black uppercase tracking-widest text-[#3B2A25]/60 mt-6">
             {storeCustomizationSetting?.home?.brand_title || "CURATED BRANDS & COLLABORATORS"}
           </h2>
         </div>
@@ -54,7 +54,7 @@ const TrustedBrandsSection = ({ brands = [] }) => {
                       href={`/search?brand=${brand._id}`}
                       className="flex-shrink-0 group mx-6"
                     >
-                      <div className="bg-[#0F0F0F] rounded-none p-4 w-28 h-20 md:w-36 md:h-24 flex items-center justify-center border border-neutral-800 hover:border-[#D4AF37]/50 transition-all duration-300 relative overflow-hidden">
+                      <div className="bg-[#0F0F0F] rounded-none p-4 w-28 h-20 md:w-36 md:h-24 flex items-center justify-center border border-[#E6D1CB]/60 hover:border-[#9C6A5A]/50 transition-all duration-300 relative overflow-hidden">
                         <div className="relative w-full h-full opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500">
                           <Image
                             src={logoUrl}
@@ -78,7 +78,7 @@ const TrustedBrandsSection = ({ brands = [] }) => {
                       href={`/search?brand=${brand._id}`}
                       className="flex-shrink-0 group mx-6"
                     >
-                      <div className="bg-[#0F0F0F] rounded-none p-4 w-28 h-20 md:w-36 md:h-24 flex items-center justify-center border border-neutral-800 hover:border-[#D4AF37]/50 transition-all duration-300 relative overflow-hidden">
+                      <div className="bg-[#0F0F0F] rounded-none p-4 w-28 h-20 md:w-36 md:h-24 flex items-center justify-center border border-[#E6D1CB]/60 hover:border-[#9C6A5A]/50 transition-all duration-300 relative overflow-hidden">
                         <div className="relative w-full h-full opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500">
                           <Image
                             src={logoUrl}
@@ -101,7 +101,7 @@ const TrustedBrandsSection = ({ brands = [] }) => {
                 {fallbackBrands.map((brand) => (
                   <div
                     key={`fallback-1-${brand._id}`}
-                    className="flex-shrink-0 mx-10 text-neutral-600 hover:text-white transition-colors duration-300 font-extrabold text-2xl md:text-4xl uppercase tracking-[0.25em] cursor-default font-serif"
+                    className="flex-shrink-0 mx-10 text-[#3B2A25]/75 hover:text-[#3B2A25] transition-colors duration-300 font-extrabold text-2xl md:text-4xl uppercase tracking-[0.25em] cursor-default font-serif"
                   >
                     {brand.name}
                   </div>
@@ -110,7 +110,7 @@ const TrustedBrandsSection = ({ brands = [] }) => {
                 {fallbackBrands.map((brand) => (
                   <div
                     key={`fallback-2-${brand._id}`}
-                    className="flex-shrink-0 mx-10 text-neutral-600 hover:text-white transition-colors duration-300 font-extrabold text-2xl md:text-4xl uppercase tracking-[0.25em] cursor-default font-serif"
+                    className="flex-shrink-0 mx-10 text-[#3B2A25]/75 hover:text-[#3B2A25] transition-colors duration-300 font-extrabold text-2xl md:text-4xl uppercase tracking-[0.25em] cursor-default font-serif"
                   >
                     {brand.name}
                   </div>

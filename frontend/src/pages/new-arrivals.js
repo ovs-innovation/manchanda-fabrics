@@ -6,7 +6,7 @@ import ProductCard from "@components/product/ProductCard";
 
 const NewArrivals = ({ products, attributes }) => {
   return (
-    <Layout title="New Arrivals" description="Explore the latest drop of clothing, footwear, and accessories from Rasa Store.">
+    <Layout title="New Arrivals" description="Explore the latest drop of clothing, footwear, and accessories from Manchanda Fabrics.">
       <div className="bg-white min-h-screen pb-16">
         {/* Editorial Banner */}
         <div className="relative bg-[#FAF9F6] py-16 px-4 border-b border-gray-100 mb-10 text-center">

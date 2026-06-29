@@ -90,13 +90,13 @@ const WriteReviewForm = ({
   };
 
   return (
-    <div className="bg-[#0d0d0d] border border-neutral-900 rounded-xl p-4 md:p-5 shadow-sm">
-      <h3 className="text-base md:text-lg font-semibold text-white mb-1">
+    <div className="bg-transparent border border-[#E6D1CB]/60 rounded-xl p-4 md:p-5 shadow-sm">
+      <h3 className="text-base md:text-lg font-semibold text-[#3B2A25] mb-1">
         {isEditing ? "Update your review" : "Rate and review this product"}
       </h3>
-      <p className="text-xs md:text-sm text-neutral-400 mb-3">
+      <p className="text-xs md:text-sm text-[#3B2A25]/70 mb-3">
         Only customers who have actually purchased this product will be marked
-        as <span className="font-semibold text-white">Verified Buyer</span>.
+        as <span className="font-semibold text-[#3B2A25]">Verified Buyer</span>.
       </p>
       {isLoggedIn ? (
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -112,7 +112,7 @@ const WriteReviewForm = ({
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
               rows={3}
-              className="w-full text-sm bg-[#050505] text-white border border-neutral-800 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37] placeholder-neutral-500"
+              className="w-full text-sm bg-[#FAF7F5] text-[#3B2A25] border border-[#E6D1CB]/60 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#9C6A5A] focus:border-[#9C6A5A] placeholder-[#3B2A25]/40"
               placeholder="Share your experience with this product..."
               disabled={isSubmitting}
             />
@@ -121,7 +121,7 @@ const WriteReviewForm = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold text-black bg-[#D4AF37] hover:bg-[#bfa232] rounded-md transition-colors disabled:opacity-60"
+              className="px-4 py-2 text-sm font-semibold text-black bg-[#9C6A5A] hover:bg-[#bfa232] rounded-md transition-colors disabled:opacity-60"
             >
               {isSubmitting
                 ? "Submitting..."
@@ -132,11 +132,11 @@ const WriteReviewForm = ({
           </div>
         </form>
       ) : (
-        <div className="text-sm text-neutral-400">
+        <div className="text-sm text-[#3B2A25]/70">
           Please{" "}
           <a
             href="/auth/login"
-            className="text-[#D4AF37] hover:text-[#bfa232] hover:underline font-semibold"
+            className="text-[#9C6A5A] hover:text-[#bfa232] hover:underline font-semibold"
           >
             login
           </a>{" "}

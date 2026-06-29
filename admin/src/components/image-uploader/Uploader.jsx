@@ -55,7 +55,7 @@ const Uploader = ({
   setImageUrl,
   imageUrl,
   product,
-  folder = "rasa",
+  folder = "manchanda",
   targetWidth = 800, // Set default fixed width
   targetHeight = 800, // Set default fixed height
   useOriginalSize = false,

@@ -206,7 +206,7 @@ const readyToParentAndChildrenCategory = (categories, parentId = null) => {
   let cate;
   if (parentId == null) {
     // Build a set of all real category _id values so we can detect sentinel parentIds
-    // (e.g. "rasa-root") that don't refer to any actual category document.
+    // (e.g. "manchanda-root") that don't refer to any actual category document.
     const knownIds = new Set(categories.map((c) => String(c._id)));
     cate = categories.filter(
       (cat) => !cat.parentId || !knownIds.has(String(cat.parentId))

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCart } from "react-use-cart";
 import { IoSearchOutline } from "react-icons/io5";
-import { FiShoppingCart, FiHeart } from "react-icons/fi";
+import { FiShoppingCart, FiHeart, FiUser } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 
 import { getUserSession } from "@lib/auth";
@@ -21,11 +21,11 @@ import { pickBrandLogo } from "@utils/brandAssets";
 
 const NavbarLogo = () => {
   return (
-    <Link href="/" className="flex items-center shrink-0 relative ml-6 w-44 h-16" aria-label="The Rasa Store">
+    <Link href="/" className="flex items-center shrink-0 relative ml-6 w-44 h-16" aria-label="Manchanda Fabrics">
       <img
-        src="/rasaLogo.png"
-        alt="The Rasa Store"
-        className="absolute top-[65%] -translate-y-1/2 left-0 h-36 w-auto max-w-none object-contain select-none z-10"
+        src="/logo/logo.png"
+        alt="Manchanda Fabrics"
+        className="absolute top-[50%] -translate-y-1/2 left-0 h-10 w-auto object-contain select-none z-10"
         draggable="false"
       />
     </Link>
@@ -59,9 +59,9 @@ const Navbar = () => {
     return finalCategories;
   };
 
-  const NAVBAR_ALLOWED = ["footwear", "bags"];
+  const NAVBAR_ALLOWED = ["sarees", "suits", "fabrics"];
   const allCategories = getLevel1Categories(categoriesData);
-  // Only show top-level categories whose slug exactly matches footwear or bags
+  // Only show top-level categories whose slug exactly matches sarees, suits, fabrics
   const categories = allCategories.filter((cat) => {
     const slug = (cat?.slug || "").toLowerCase();
     const name = (showingTranslateValue ? showingTranslateValue(cat?.name) : (cat?.name?.en || cat?.name || "")).toLowerCase();
@@ -149,147 +149,150 @@ const Navbar = () => {
   return (
     <>
       <CartDrawer />
-      <header className="hidden lg:block bg-[#050505] text-white border-b border-neutral-900">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8">
-          <div
-            className={`flex items-center gap-4 transition-all duration-300 ${
-              showNavbarSearch ? "py-2.5" : "py-2"
-            }`}
-          >
-            <NavbarLogo />
+      {/* Promo Strip */}
+      <div className="bg-[#9C6A5A] text-white py-2.5 text-center text-xs font-bold uppercase tracking-[0.2em] z-50 relative">
+        Free Shipping on Orders Above ₹999 | COD Available
+      </div>
 
-            <div className="flex-1 min-w-0 flex items-center justify-center gap-2">
-              {showNavbarSearch ? (
-                <form
-                  onSubmit={handleSearchSubmit}
-                  className="navbar-search-form flex items-center w-full max-w-3xl rounded-none border border-neutral-800 bg-[#0F0F0F] p-0.5 hover:border-neutral-700 focus-within:border-neutral-700 focus-within:ring-0 focus-within:ring-offset-0 transition-all"
-                >
-                  <div className="flex-1 relative min-w-0 flex items-center min-h-[42px]">
-                    <IoSearchOutline className="absolute left-3 text-neutral-400 text-lg pointer-events-none z-10" />
-                    <input
-                      ref={searchInputRef}
-                      type="search"
-                      placeholder="Search for streetwear, footwear, accessories..."
-                      className="navbar-search-input w-full h-full py-2 pl-10 pr-2 text-xs font-black uppercase tracking-wider !bg-transparent !border-0 !border-none !shadow-none !ring-0 !outline-none focus:!ring-0 focus:!border-0 focus:!outline-none placeholder-neutral-500 text-white"
-                      value={searchText}
-                      onChange={(e) => handleSearchChange(e.target.value)}
-                      onFocus={() => searchText.length > 0 && setShowSuggestions(true)}
-                      onBlur={(e) => {
-                        const relatedTarget = e.relatedTarget;
-                        const box = document.querySelector(".search-suggestions-container");
-                        if (!relatedTarget || (box && !box.contains(relatedTarget))) {
-                          setTimeout(() => {
-                            const active = document.activeElement;
-                            if (!box || !box.contains(active)) setShowSuggestions(false);
-                          }, 200);
+      <header className="hidden lg:block bg-[#FAF7F5] text-[#3B2A25] border-b border-[#E6D1CB]/40 sticky top-0 z-50 shadow-sm">
+        {/* Main Row: Logo + Categories + Search & Utilities */}
+        <div className="max-w-screen-2xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
+          
+          {/* Logo (left) */}
+          <div className="flex items-center shrink-0 relative">
+            <Link href="/" className="relative block w-64 h-20 select-none z-50" aria-label="Manchanda Fabrics">
+              <img
+                src="/manchandalogo.png"
+                alt="Manchanda Fabrics"
+                className="absolute top-[56%] -translate-y-1/2 left-0 h-64 min-h-[256px] w-auto object-contain select-none drop-shadow-sm transition-transform duration-200 hover:scale-105"
+                draggable="false"
+              />
+            </Link>
+          </div>
+
+          {/* Centered Categories (center) */}
+          <nav className="flex items-center gap-3 lg:gap-4 xl:gap-6 mx-2 whitespace-nowrap">
+            <Link href="/search?category=sarees" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Sarees
+            </Link>
+            <Link href="/search?category=suits" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Suits
+            </Link>
+            <Link href="/search?category=fabrics" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Fabrics
+            </Link>
+            <Link href="/new-arrivals" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              New Arrivals
+            </Link>
+            <Link href="/trending" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Best Sellers
+            </Link>
+            <Link href="/search?q=wedding" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Wedding Edit
+            </Link>
+            <Link href="/about-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              About Us
+            </Link>
+            <Link href="/contact-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Contact
+            </Link>
+            <Link href="/search?discount=10" className="font-bold uppercase tracking-widest text-xs text-white bg-red-600 hover:bg-red-700 transition-colors px-2.5 py-1 rounded whitespace-nowrap">
+              Sale
+            </Link>
+          </nav>
+
+          {/* Right Section: Search & Utilities */}
+          <div className="flex items-center gap-4 shrink-0">
+            {/* Search Pill */}
+            <div className="w-36 lg:w-40 xl:w-48 relative">
+              <form onSubmit={handleSearchSubmit} className="relative w-full">
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  placeholder="Search..."
+                  className="w-full py-1.5 pl-8 pr-4 text-xs bg-white border border-[#E6D1CB]/80 rounded-full focus:outline-none focus:border-[#9C6A5A] text-[#3B2A25] placeholder-neutral-400 focus:ring-1 focus:ring-[#9C6A5A]/20 transition-all"
+                  value={searchText}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => searchText.trim().length > 0 && setShowSuggestions(true)}
+                  onBlur={(e) => {
+                    const relatedTarget = e.relatedTarget;
+                    const suggestionsContainer = document.querySelector('.search-suggestions-container');
+                    if (!relatedTarget || (suggestionsContainer && !suggestionsContainer.contains(relatedTarget))) {
+                      setTimeout(() => {
+                        const activeElement = document.activeElement;
+                        if (!suggestionsContainer || !suggestionsContainer.contains(activeElement)) {
+                          setShowSuggestions(false);
                         }
-                      }}
-                    />
-                    <SearchSuggestions
-                      searchText={searchText}
-                      showSuggestions={showSuggestions}
-                      onSelect={() => {
-                        setSearchText("");
-                        setShowSuggestions(false);
-                      }}
-                      onClose={() => setShowSuggestions(false)}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="shrink-0 rounded-none bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-black uppercase tracking-widest px-8 py-3.5 border-0 outline-none shadow-none transition-colors duration-200"
-                  >
-                    Search
-                  </button>
-                </form>
-              ) : isHome ? (
-                <LowerCategoryNavbar
-                  variant="inline"
-                  categories={categories}
-                  showingTranslateValue={showingTranslateValue}
+                      }, 200);
+                    }
+                  }}
                 />
-              ) : null}
+                <IoSearchOutline className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400 text-sm" />
+              </form>
+              <SearchSuggestions
+                searchText={searchText}
+                showSuggestions={showSuggestions}
+                onSelect={() => {
+                  setSearchText("");
+                  setShowSuggestions(false);
+                }}
+                onClose={() => setShowSuggestions(false)}
+              />
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <CustomerNotificationBell />
-              <Link
-                href="/wishlist"
-                className="relative p-2.5 text-neutral-300 hover:text-white rounded-none hover:bg-neutral-900/50 transition-colors"
-                aria-label="Wishlist"
-              >
+            {/* Utilities (Wishlist, Cart, Profile) */}
+            <div className="flex items-center gap-2.5">
+              <Link href="/wishlist" className="relative p-2 text-[#3B2A25] hover:text-[#9C6A5A] transition-colors" aria-label="Wishlist">
                 <FiHeart className="text-xl" />
-                {wishlistCount > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[16px] h-4 text-[8px] font-black text-black bg-[#D4AF37] rounded-none border border-black flex items-center justify-center px-1">
+                {mounted && wishlistCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[14px] h-3.5 text-[8px] font-bold text-white bg-[#9C6A5A] rounded-full border border-white flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
               </Link>
-              <button
-                type="button"
-                onClick={toggleCartDrawer}
-                className="relative p-2.5 text-neutral-300 hover:text-white rounded-none hover:bg-neutral-900/50 transition-colors"
-                aria-label="Cart"
-              >
+
+              <button type="button" onClick={toggleCartDrawer} className="relative p-2 text-[#3B2A25] hover:text-[#9C6A5A] transition-colors" aria-label="Cart">
                 <FiShoppingCart className="text-xl" />
-                {totalUniqueItems > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[16px] h-4 text-[8px] font-black text-black bg-[#D4AF37] rounded-none border border-black flex items-center justify-center px-1">
+                {mounted && totalUniqueItems > 0 && (
+                  <span className="absolute top-1.5 right-1.5 min-w-[14px] h-3.5 text-[8px] font-bold text-white bg-[#9C6A5A] rounded-full border border-white flex items-center justify-center">
                     {totalUniqueItems}
                   </span>
                 )}
               </button>
-              <div className="w-px h-8 bg-neutral-900 mx-1" />
+
+              <div className="w-px h-5 bg-[#E6D1CB]/50 mx-1" />
+
               {mounted && userInfo?.image ? (
                 <Link href="/user/dashboard">
                   <img
-                    width={36}
-                    height={36}
+                    width={32}
+                    height={32}
                     src={userInfo.image}
                     alt="Account"
-                    className="rounded-none w-9 h-9 border border-black object-cover"
+                    className="rounded-full w-8 h-8 border border-[#E6D1CB] object-cover"
                   />
                 </Link>
               ) : mounted && userInfo?.name ? (
                 <Link
                   href="/user/dashboard"
-                  className="flex h-9 w-9 items-center justify-center rounded-none border border-black bg-black text-white hover:bg-white hover:text-black transition-colors font-black text-sm"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-[#9C6A5A] text-white hover:bg-[#6F4A3D] transition-colors font-bold text-xs"
                 >
                   {userInfo.name[0].toUpperCase()}
                 </Link>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => router.push("/auth/login")}
-                  className="text-xs font-black uppercase tracking-widest text-black bg-[#D4AF37] hover:bg-[#b8952f] px-6 py-3.5 rounded-md transition-all duration-200"
+                <Link
+                  href="/auth/login"
+                  className="p-2 text-[#3B2A25] hover:text-[#9C6A5A] transition-colors flex items-center"
+                  aria-label="Login"
                 >
-                  Login
-                </button>
+                  <FiUser className="text-xl" />
+                </Link>
               )}
             </div>
           </div>
-        </div>
 
-        {showNavbarSearch && (
-          <LowerCategoryNavbar
-            variant="row"
-            categories={categories}
-            showingTranslateValue={showingTranslateValue}
-          />
-        )}
+        </div>
       </header>
-      <style jsx global>{`
-        .navbar-search-form .navbar-search-input {
-          border: none !important;
-          box-shadow: none !important;
-          outline: none !important;
-          --tw-ring-shadow: 0 0 #0000 !important;
-        }
-        .navbar-search-form .navbar-search-input:focus {
-          border: none !important;
-          box-shadow: none !important;
-          outline: none !important;
-        }
-      `}</style>
     </>
   );
 };

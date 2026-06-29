@@ -77,33 +77,29 @@ const MobileFooter = () => {
     <>
       {/* Drawer lives off-canvas; keep it mounted without forcing page layout/scroll */}
       <CategoryDrawer />
-      <footer className="lg:hidden fixed z-[60] top-0 bg-[#050505]/95 backdrop-blur-md flex items-center justify-between w-full h-16 px-3 sm:px-10 border-b border-neutral-900/60 shadow-md">
+      <footer className="lg:hidden fixed z-[60] top-0 bg-[#FAF7F5]/95 backdrop-blur-md flex items-center justify-between w-full h-20 px-3 sm:px-10 border-b border-[#E6D1CB]/60/60 shadow-md">
         <div className="flex items-center gap-3">
           <button
             aria-label="Bar"
             onClick={toggleCategoryDrawer}
             className="flex items-center justify-center flex-shrink-0 h-auto relative focus:outline-none"
           >
-            <span className="text-white hover:text-[#D4AF37] transition-colors duration-200">
+            <span className="text-[#3B2A25] hover:text-[#9C6A5A] transition-colors duration-200">
               <FiAlignLeft className="w-6 h-6" />
             </span>
           </button>
           <Link
             href="/"
-            className="flex items-center justify-center"
+            className="relative block w-72 h-20 select-none"
             rel="noreferrer"
             aria-label={t("Home") || "Home"}
           >
-            <div className="relative w-[56px] h-[56px]">
-              <Image
-                src="/rasaLogo.png"
-                alt="The Rasa Store"
-                fill
-                className="object-contain"
-                sizes="56px"
-                priority
-              />
-            </div>
+            <img
+              src="/manchandalogo.png"
+              alt="Manchanda Fabrics"
+              className="absolute top-[56%] -translate-y-1/2 left-0 h-32 w-auto object-contain select-none"
+              draggable="false"
+            />
           </Link>
 
         </div>
@@ -117,13 +113,13 @@ const MobileFooter = () => {
                   height={32}
                   src={userInfo.image}
                   alt="user"
-                  className="rounded-full object-cover w-8 h-8 border border-neutral-800"
+                  className="rounded-full object-cover w-8 h-8 border border-[#E6D1CB]/60"
                 />
               </Link>
             ) : mounted && userInfo?.name ? (
               <Link
                 href="/user/dashboard"
-                className="leading-none font-bold block px-3 py-2 border rounded-full border-[#D4AF37] text-[#D4AF37]"
+                className="leading-none font-bold block px-3 py-2 border rounded-full border-[#9C6A5A] text-[#9C6A5A]"
               >
                 {userInfo?.name[0]}
               </Link>
@@ -131,7 +127,7 @@ const MobileFooter = () => {
               <div className="relative">
                 <Link
                   href="/auth/login"
-                  className="bg-[#D4AF37] text-black w-9 h-9 sm:w-auto sm:px-4 sm:py-2 rounded-full flex items-center justify-center gap-1.5 font-extrabold text-xs uppercase tracking-wider hover:bg-[#c29e2e] transition-colors"
+                  className="bg-[#9C6A5A] text-black w-9 h-9 sm:w-auto sm:px-4 sm:py-2 rounded-full flex items-center justify-center gap-1.5 font-extrabold text-xs uppercase tracking-wider hover:bg-[#c29e2e] transition-colors"
                   title="Login"
                 >
                   <FiUser className="text-base" />
@@ -144,13 +140,13 @@ const MobileFooter = () => {
         </div>
       </footer>
       {showSearch && (
-        <div className="fixed z-50 top-16 left-0 w-full bg-[#050505]/95 backdrop-blur-md px-3 py-2.5 border-b border-neutral-900 shadow-xl" style={{ overflow: 'visible' }}>
+        <div className="fixed z-50 top-20 left-0 w-full bg-[#FAF7F5]/95 backdrop-blur-md px-3 py-2.5 border-b border-[#E6D1CB]/60 shadow-xl" style={{ overflow: 'visible' }}>
           <form
             onSubmit={handleSubmit}
-            className="relative bg-[#0d0d0d] border border-neutral-800 rounded-md w-full flex items-center overflow-visible"
+            className="relative bg-[#0d0d0d] border border-[#E6D1CB]/60 rounded-md w-full flex items-center overflow-visible"
           >
             {/* Location Button */}
-            <LocationButton className="h-10 flex-shrink-0 !bg-transparent text-neutral-300 hover:text-[#D4AF37]" />
+            <LocationButton className="h-10 flex-shrink-0 !bg-transparent text-[#3B2A25]/85 hover:text-[#9C6A5A]" />
 
             {/* Search Input */}
             <div className="flex-1 relative">
@@ -159,8 +155,8 @@ const MobileFooter = () => {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 value={searchText}
                 type="text"
-                placeholder="Search sneakers, bags, brands..."
-                className="w-full pl-3 pr-12 appearance-none transition ease-in-out text-sm font-sans rounded-md min-h-10 h-10 duration-200 bg-transparent text-white focus:outline-none placeholder-neutral-500"
+                placeholder="Search sarees, suits, fabrics..."
+                className="w-full pl-3 pr-12 appearance-none transition ease-in-out text-sm font-sans rounded-md min-h-10 h-10 duration-200 bg-transparent text-[#3B2A25] focus:outline-none placeholder-[#3B2A25]/40"
                 onFocus={() => searchText.trim().length > 0 && setShowSuggestions(true)}
                 onBlur={(e) => {
                   const relatedTarget = e.relatedTarget;
@@ -179,7 +175,7 @@ const MobileFooter = () => {
               <button
                 aria-label="Search"
                 type="submit"
-                className="outline-none text-xl text-neutral-400 absolute top-0 right-0 end-0 w-12 h-full flex items-center justify-center transition duration-200 ease-in-out hover:text-[#D4AF37] focus:outline-none z-10">
+                className="outline-none text-xl text-[#3B2A25]/70 absolute top-0 right-0 end-0 w-12 h-full flex items-center justify-center transition duration-200 ease-in-out hover:text-[#9C6A5A] focus:outline-none z-10">
                 <IoSearchOutline />
               </button>
               <SearchSuggestions

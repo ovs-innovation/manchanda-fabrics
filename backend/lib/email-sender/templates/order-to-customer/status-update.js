@@ -1,6 +1,6 @@
 const orderStatusUpdateBody = (option) => {
   const {
-    shop_name = "RASA",
+    shop_name = "manchanda",
     logo,
     name,
     invoice,
@@ -36,7 +36,7 @@ const orderStatusUpdateBody = (option) => {
       <div class="card">
         <div class="head">
           <div style="display:flex;align-items:center;gap:12px;">
-            <img class="logo" src="${logo || "https://rasastore.com/favicon.png"}" alt="${shop_name}" />
+            <img class="logo" src="${logo || "https://Manchanda Fabrics.com/favicon.png"}" alt="${shop_name}" />
             <div style="flex:1;min-width:0;">
               <div style="letter-spacing:.14em;text-transform:uppercase;font-weight:800;font-size:12px;">Order update</div>
               <div class="title">Order #${invoice}</div>

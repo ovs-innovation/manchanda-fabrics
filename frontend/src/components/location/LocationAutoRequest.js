@@ -83,7 +83,7 @@ const LocationAutoRequest = () => {
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
               {
                 headers: {
-                  'User-Agent': 'Rasa Store-App'
+                  'User-Agent': 'Manchanda Fabrics-App'
                 }
               }
             );

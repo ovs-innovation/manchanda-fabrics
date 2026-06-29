@@ -174,10 +174,44 @@ const productSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-    // RASA: Sneakers | Bags | Slides | Accessories
+    // Manchanda Fabrics product types
     productType: {
       type: String,
-      enum: ["Sneakers", "Bags", "Slides", "Accessories", ""],
+      enum: ["Sarees", "Suits", "Fabrics", "Traditional Wear", "Sneakers", "Bags", "Slides", "Accessories", ""],
+      default: "",
+      trim: true,
+    },
+    occasion: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    fabricType: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    workType: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    blouseIncluded: {
+      type: Boolean,
+      default: false,
+    },
+    sareeLength: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    colorFamily: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    collectionName: {
+      type: String,
       default: "",
       trim: true,
     },

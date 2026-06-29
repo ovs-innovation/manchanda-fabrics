@@ -5,19 +5,19 @@ const Loading = ({ loading, fullScreen = false }) => {
 
   const shell = (
     <div
-      className={`flex flex-col items-center justify-center bg-[#050505] ${
+      className={`flex flex-col items-center justify-center bg-[#FAF7F5] ${
         fullScreen ? "fixed inset-0 z-[9998]" : "min-h-[40vh] w-full py-16"
       }`}
     >
       <img
-        src="/rasaLogo.png"
+        src="/logo/logo.png"
         alt=""
         width={100}
         height={40}
         className="h-9 w-auto object-contain opacity-80 animate-pulse"
       />
       <div className="mt-4 h-0.5 w-16 overflow-hidden rounded-full bg-neutral-800">
-        <div className="h-full w-1/2 animate-[loadbar_1s_ease-in-out_infinite] rounded-full bg-[#D4AF37]" />
+        <div className="h-full w-1/2 animate-[loadbar_1s_ease-in-out_infinite] rounded-full bg-[#9C6A5A]" />
       </div>
     </div>
   );

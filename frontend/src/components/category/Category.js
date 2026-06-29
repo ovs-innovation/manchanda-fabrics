@@ -72,11 +72,11 @@ const Category = () => {
 
     const normalizedList = flatList.map(cat => {
       let parentId = cat.parentId;
-      if (parentId === 'rasa-footwear') {
+      if (parentId === 'manchanda-footwear') {
         parentId = footwearId;
-      } else if (parentId === 'rasa-bags') {
+      } else if (parentId === 'manchanda-bags') {
         parentId = bagsId;
-      } else if (parentId === 'rasa-root') {
+      } else if (parentId === 'manchanda-root') {
         parentId = homeId;
       }
       return { ...cat, parentId };
@@ -124,15 +124,15 @@ const Category = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#050505] text-white cursor-pointer scrollbar-hide border-r border-neutral-900/40">
+    <div className="flex flex-col w-full h-full bg-[#FAF7F5] text-[#3B2A25] cursor-pointer scrollbar-hide border-r border-[#E6D1CB]/60">
       {categoryDrawerOpen && (
-        <div className="w-full flex justify-between items-center h-16 px-6 py-4 bg-[#050505] border-b border-neutral-900/60">
+        <div className="w-full flex justify-between items-center h-16 px-6 py-4 bg-[#FAF7F5] border-b border-[#E6D1CB]/60">
           <h2 className="font-semibold text-lg m-0 flex items-center">
             <Link href="/" className="flex items-center">
               <Image
                 width={56}
                 height={56}
-                src="/rasaLogo.png"
+                src="/logo.png"
                 alt="logo"
                 className="object-contain"
               />
@@ -140,7 +140,7 @@ const Category = () => {
           </h2>
           <button
             onClick={closeCategoryDrawer}
-            className="flex text-xl items-center justify-center w-8 h-8 rounded-full bg-neutral-900 text-neutral-400 hover:text-[#D4AF37] p-2 focus:outline-none transition-all duration-200"
+            className="flex text-xl items-center justify-center w-8 h-8 rounded-full bg-store-100 text-[#3B2A25]/70 hover:text-[#9C6A5A] p-2 focus:outline-none transition-all duration-200"
             aria-label="close"
           >
             <IoClose />
@@ -149,23 +149,24 @@ const Category = () => {
       )}
       <div className="w-full max-h-full overflow-y-auto">
         {/* Tabs */}
-        <div className="flex border-b border-neutral-900 bg-[#0A0A0A]">
+        <div className="flex border-b border-[#E6D1CB]/60 bg-white">
           <button
             onClick={() => setActiveTab("category")}
             className={`flex-1 py-4 text-center font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${
               activeTab === "category"
-                ? `text-[#D4AF37] border-b-2 border-[#D4AF37]`
-                : "text-neutral-500 hover:text-neutral-300"
+                ? `text-[#9C6A5A] border-b-2 border-[#9C6A5A]`
+                : "text-[#3B2A25]/60 hover:text-[#3B2A25]/85"
             }`}
           >
             Category
           </button>
+
           <button
             onClick={() => setActiveTab("pages")}
             className={`flex-1 py-4 text-center font-bold text-xs uppercase tracking-widest transition-colors duration-300 ${
               activeTab === "pages"
-                ? `text-[#D4AF37] border-b-2 border-[#D4AF37]`
-                : "text-neutral-500 hover:text-neutral-300"
+                ? `text-[#9C6A5A] border-b-2 border-[#9C6A5A]`
+                : "text-[#3B2A25]/60 hover:text-[#3B2A25]/85"
             }`}
           >
             Pages
@@ -180,7 +181,7 @@ const Category = () => {
                   <Link
                     href={item.href}
                     onClick={closeCategoryDrawer}
-                    className="flex items-center rounded-md px-2 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-300 hover:bg-neutral-900 hover:text-[#D4AF37] transition-all duration-150"
+                    className="flex items-center rounded-md px-2 py-2 text-xs font-semibold uppercase tracking-wider text-[#3B2A25]/85 hover:bg-store-50 hover:text-[#9C6A5A] transition-all duration-150"
                   >
                     <item.icon className="flex-shrink-0 h-4 w-4 mr-3" />
                     <span>{item.title}</span>
@@ -203,11 +204,11 @@ const Category = () => {
                   <div key={mainCategory._id}>
                     {/* Main Categories - Direct display without parent */}
                     {mainCategory?.children?.length > 0 && (
-                      <div className="border-b border-neutral-900/60 last:border-b-0">
+                      <div className="border-b border-[#E6D1CB]/60 last:border-b-0">
                         {mainCategory.children.map((subcategory1) => (
                           <div key={subcategory1._id}>
                             <div 
-                              className="flex items-center gap-3 px-3 py-3 text-xs font-black uppercase tracking-widest text-neutral-200 hover:bg-neutral-900 hover:text-[#D4AF37] border-b border-neutral-900/30 transition-colors cursor-pointer"
+                              className="flex items-center gap-3 px-3 py-3 text-xs font-black uppercase tracking-widest text-[#3B2A25] hover:bg-store-50 hover:text-[#9C6A5A] border-b border-[#E6D1CB]/30 transition-colors cursor-pointer"
                               onClick={() => toggleCategoryExpansion(subcategory1._id)}
                             >
                               {subcategory1?.icon ? (
@@ -237,7 +238,7 @@ const Category = () => {
                             
                             {/* Subcategories Level 2 - Collapsible */}
                             {subcategory1?.children?.length > 0 && expandedCategories[subcategory1._id] && (
-                              <div className="bg-[#0A0A0A] rounded-md overflow-hidden my-1">
+                              <div className="bg-white rounded-md overflow-hidden my-1 border border-store-100">
                                 {subcategory1.children.map((subcategory2) => (
                                   <div
                                     key={subcategory2._id}
@@ -248,7 +249,7 @@ const Category = () => {
                                       router.push(`/search?category=${name}&_id=${subcategory2._id}`);
                                       closeCategoryDrawer();
                                     }}
-                                    className="flex items-center gap-3 px-6 py-2.5 text-xs text-neutral-400 hover:bg-neutral-900/60 hover:text-[#D4AF37] transition-colors cursor-pointer border-b border-neutral-900/20 last:border-b-0"
+                                    className="flex items-center gap-3 px-6 py-2.5 text-xs text-[#3B2A25]/70 hover:bg-store-50 hover:text-[#9C6A5A] transition-colors cursor-pointer border-b border-[#E6D1CB]/20 last:border-b-0"
                                   >
                                     {subcategory2?.icon ? (
                                       <Image

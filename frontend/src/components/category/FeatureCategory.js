@@ -27,7 +27,7 @@ const FeatureCategory = ({ categories = [] }) => {
       id: cat._id || cat.id || cat.slug,
       title: showingTranslateValue(cat.name) || cat.title || cat.slug,
       subtitle: cat.description || "Explore the collection",
-      img: getCategoryImage(cat) || "/rasaLogo.png",
+      img: getCategoryImage(cat) || "/logo.png",
       slug: cat.slug,
       gridClass: GRID_CLASSES[idx % GRID_CLASSES.length],
     }));

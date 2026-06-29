@@ -171,7 +171,7 @@ const contactData = [
     title: "contact-page-box1-title",
     info: "contact-page-box1-info",
     icon: FiMail,
-    contact: "Rasa Store@gmail.com",
+    contact: "Manchanda Fabrics@gmail.com",
     className: "bg-pink-100",
   },
   {

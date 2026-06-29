@@ -286,6 +286,10 @@ const routes = [
     component: RasaHomepage,
   },
   {
+    path: "/homepage/overview",
+    component: RasaHomepage,
+  },
+  {
     path: "/homepage/hero",
     component: RasaHomepage,
   },
@@ -307,6 +311,10 @@ const routes = [
   },
   {
     path: "/homepage/categories",
+    component: RasaHomepage,
+  },
+  {
+    path: "/homepage/order",
     component: RasaHomepage,
   },
   {

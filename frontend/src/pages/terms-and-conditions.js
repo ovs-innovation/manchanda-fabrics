@@ -56,7 +56,7 @@ const TermAndConditions = () => {
                     error={error}
                     loading={loading}
                     data={storeCustomizationSetting?.term_and_condition?.description || `<h2>1. Acceptance of Terms</h2>
-<p>By accessing Rasa Store, you agree to these Terms and Conditions. These terms govern your use of our platform for ordering premium sneakers, streetwear, bags, and fashion accessories.</p>
+<p>By accessing Manchanda Fabrics, you agree to these Terms and Conditions. These terms govern your use of our platform for ordering premium sarees, suits, fabrics, and traditional ethnic wear.</p>
 <h2>2. User Eligibility</h2>
 <p>You confirm that all registration and shipping information provided is accurate and truthful.</p>
 <h2>3. Pricing & Availability</h2>
@@ -67,7 +67,7 @@ const TermAndConditions = () => {
   <li>Delivery times are estimates and may vary based on your location.</li>
 </ul>
 <h2>5. Product Authenticity</h2>
-<p>Rasa Store guarantees 100% authenticity for all items curated on our platform. Each drop undergoes a multi-point verification process by our specialists before shipment.</p>`}
+<p>Manchanda Fabrics guarantees 100% authenticity for all items curated on our platform. Each saree, suit, and fabric undergoes a quality verification process by our specialists before shipment.</p>`}
                   />
                 </div>
               </div>

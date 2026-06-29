@@ -14,7 +14,7 @@ const {
 } = require("../lib/email-sender/simple-templates");
 const { sendVerificationCode } = require("../lib/phone-verification/sender");
 
-const PLACEHOLDER_EMAIL_DOMAIN = "phone.rasastore.com";
+const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 
 const normalizePhone = (phone) => {
   if (!phone) return "";
@@ -90,7 +90,7 @@ const verifyEmailAddress = async (req, res) => {
       name: req.body.name,
       email: req.body.email,
       token: token,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
     const { html, text } = simpleVerifyEmail(option);
     const body = {
@@ -230,7 +230,7 @@ const sendPhoneEmailOTP = async (req, res) => {
       name: user.name,
       email: user.email,
       otp: otp,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
 
     const otpMail = simpleOtpEmail({
@@ -629,7 +629,7 @@ const resendVerificationEmail = async (req, res) => {
       name: user.name,
       email: user.email,
       otp: otp,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
 
     const otpMail = simpleOtpEmail({
@@ -711,7 +711,7 @@ const deleteCloudinaryAsset = async (req, res) => {
 // Simple server-side upload endpoint that accepts a data URL (base64) and uploads to Cloudinary
 const cloudinaryUpload = async (req, res) => {
   try {
-    const { file, publicId, folder = 'rasa' } = req.body;
+    const { file, publicId, folder = 'manchanda' } = req.body;
     if (!file) return res.status(400).send({ message: 'file (data URL) is required' });
 
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -986,7 +986,7 @@ const sendProfileEmailOtp = async (req, res) => {
     await customer.save();
 
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
-    const shopName = globalSetting?.setting?.shop_name || "RASA";
+    const shopName = globalSetting?.setting?.shop_name || "manchanda";
     const otpMail = simpleOtpEmail({
       name: customer.name,
       email: normalizedEmail,
@@ -1152,7 +1152,7 @@ const forgetPassword = async (req, res) => {
       name: isAdded.name,
       email: req.body.email,
       token: token,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
 
     const { html, text } = simpleResetPasswordEmail(option);
@@ -2112,7 +2112,7 @@ const sendEmailOtpLogin = async (req, res) => {
       name: user.name,
       email: user.email,
       otp: otp,
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
 
     const otpMail = simpleOtpEmail({

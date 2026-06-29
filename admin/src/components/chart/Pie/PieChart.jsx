@@ -50,8 +50,8 @@ const PieChart = ({ data }) => {
           <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-none mb-2">Best Selling Products</h3>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Live sales distribution overview</p>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-100 dark:border-emerald-800/30">
-          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+        <div className="flex items-center gap-1.5 px-3 py-1 bg-store-50 dark:bg-store-800/40 text-store-600 dark:text-store-300 text-[10px] font-black uppercase tracking-widest rounded-full border border-store-200 dark:border-store-700/40">
+          <div className="w-1.5 h-1.5 bg-store-500 rounded-full animate-pulse" />
           Live
         </div>
       </div>

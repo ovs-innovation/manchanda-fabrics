@@ -66,29 +66,29 @@ const AuthAlert = ({ children, action }) => (
 );
 
 const StepIndicator = ({ step }) => (
-  <div className="mb-6 flex items-center justify-between rounded-xl bg-[#0A0A0A] px-4 py-3 ring-1 ring-neutral-800">
+  <div className="mb-6 flex items-center justify-between rounded-xl bg-white px-4 py-3 ring-1 ring-[#E6D1CB]/60">
     <div className="flex items-center gap-2.5">
       <span
         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
-          step === "email" ? "bg-[#D4AF37] text-black" : "bg-neutral-900 text-neutral-500 ring-1 ring-neutral-800"
+          step === "email" ? "bg-[#9C6A5A] text-white" : "bg-[#FAF7F5] text-[#3B2A25]/60 ring-1 ring-[#E6D1CB]/60"
         }`}
       >
         1
       </span>
-      <span className={`text-xs uppercase tracking-wider font-bold ${step === "email" ? "text-white" : "text-neutral-500"}`}>
+      <span className={`text-xs uppercase tracking-wider font-bold ${step === "email" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
         Email
       </span>
     </div>
-    <div className="h-px flex-1 mx-4 bg-neutral-800" />
+    <div className="h-px flex-1 mx-4 bg-[#E6D1CB]/60" />
     <div className="flex items-center gap-2.5">
       <span
         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
-          step === "otp" ? "bg-[#D4AF37] text-black" : "bg-neutral-900 text-neutral-500 ring-1 ring-neutral-800"
+          step === "otp" ? "bg-[#9C6A5A] text-white" : "bg-[#FAF7F5] text-[#3B2A25]/60 ring-1 ring-[#E6D1CB]/60"
         }`}
       >
         2
       </span>
-      <span className={`text-xs uppercase tracking-wider font-bold ${step === "otp" ? "text-white" : "text-neutral-500"}`}>
+      <span className={`text-xs uppercase tracking-wider font-bold ${step === "otp" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
         OTP
       </span>
     </div>
@@ -227,21 +227,21 @@ const EmailLoginForm = ({ variant = "login" }) => {
     showLoginLink ? (
       <Link
         href={loginHref}
-        className="inline-flex font-bold text-[#D4AF37] hover:underline"
+        className="inline-flex font-bold text-[#9C6A5A] hover:underline"
       >
         Go to Login →
       </Link>
     ) : showSignupLink ? (
       <Link
         href={signupHref}
-        className="inline-flex font-bold text-[#D4AF37] hover:underline"
+        className="inline-flex font-bold text-[#9C6A5A] hover:underline"
       >
         Create an account →
       </Link>
     ) : null;
 
   const primaryBtnClass =
-    "flex w-full items-center justify-center gap-2 rounded-xl bg-[#D4AF37] py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_30px_rgba(212,175,55,0.2)] transition hover:bg-[#c29e2e] active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-55 duration-200";
+    "flex w-full items-center justify-center gap-2 rounded-xl bg-[#9C6A5A] py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_30px_rgba(212,175,55,0.2)] transition hover:bg-[#c29e2e] active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-55 duration-200";
 
   return (
     <div className="w-full">
@@ -251,14 +251,14 @@ const EmailLoginForm = ({ variant = "login" }) => {
         <form onSubmit={handleSendOTP} className="space-y-5">
           {/* Avatar Selector Grid for Signups */}
           {isSignup && (
-            <div className="space-y-4 rounded-xl border border-neutral-800/80 bg-neutral-950 p-4 shadow-sm">
-              <label className="block text-xs font-black uppercase tracking-widest text-neutral-400">
+            <div className="space-y-4 rounded-xl border border-[#E6D1CB]/60 bg-[#FAF7F5] p-4 shadow-sm">
+              <label className="block text-xs font-black uppercase tracking-widest text-[#3B2A25]/70">
                 Choose Your Emoticon Profile
               </label>
               
               {/* Boys group */}
               <div className="space-y-2">
-                <div className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]/80">Boys</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Boys</div>
                 <div className="grid grid-cols-6 gap-2">
                   {STREETWEAR_AVATARS.boys.map((avatar) => {
                     const isSelected = selectedAvatar === avatar.url;
@@ -267,8 +267,8 @@ const EmailLoginForm = ({ variant = "login" }) => {
                         key={avatar.name}
                         type="button"
                         onClick={() => setSelectedAvatar(avatar.url)}
-                        className={`relative aspect-square rounded-full overflow-hidden bg-neutral-900 border transition-all p-1 hover:scale-105 active:scale-95 ${
-                          isSelected ? "border-[#D4AF37] ring-2 ring-[#D4AF37]/25" : "border-neutral-850"
+                        className={`relative aspect-square rounded-full overflow-hidden bg-white border transition-all p-1 hover:scale-105 active:scale-95 ${
+                          isSelected ? "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/25" : "border-[#E6D1CB]/50"
                         }`}
                       >
                         <img
@@ -277,7 +277,7 @@ const EmailLoginForm = ({ variant = "login" }) => {
                           className="w-full h-full object-contain"
                         />
                         {isSelected && (
-                          <div className="absolute inset-0 bg-[#D4AF37]/10 flex items-center justify-center" />
+                          <div className="absolute inset-0 bg-[#9C6A5A]/10 flex items-center justify-center" />
                         )}
                       </button>
                     );
@@ -287,7 +287,7 @@ const EmailLoginForm = ({ variant = "login" }) => {
 
               {/* Girls group */}
               <div className="space-y-2">
-                <div className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]/80">Girls</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Girls</div>
                 <div className="grid grid-cols-6 gap-2">
                   {STREETWEAR_AVATARS.girls.map((avatar) => {
                     const isSelected = selectedAvatar === avatar.url;
@@ -296,8 +296,8 @@ const EmailLoginForm = ({ variant = "login" }) => {
                         key={avatar.name}
                         type="button"
                         onClick={() => setSelectedAvatar(avatar.url)}
-                        className={`relative aspect-square rounded-full overflow-hidden bg-neutral-900 border transition-all p-1 hover:scale-105 active:scale-95 ${
-                          isSelected ? "border-[#D4AF37] ring-2 ring-[#D4AF37]/25" : "border-neutral-850"
+                        className={`relative aspect-square rounded-full overflow-hidden bg-white border transition-all p-1 hover:scale-105 active:scale-95 ${
+                          isSelected ? "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/25" : "border-[#E6D1CB]/50"
                         }`}
                       >
                         <img
@@ -306,7 +306,7 @@ const EmailLoginForm = ({ variant = "login" }) => {
                           className="w-full h-full object-contain"
                         />
                         {isSelected && (
-                          <div className="absolute inset-0 bg-[#D4AF37]/10 flex items-center justify-center" />
+                          <div className="absolute inset-0 bg-[#9C6A5A]/10 flex items-center justify-center" />
                         )}
                       </button>
                     );
@@ -319,12 +319,12 @@ const EmailLoginForm = ({ variant = "login" }) => {
           <div>
             <label
               htmlFor="auth-email"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-400"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#3B2A25]/70"
             >
               Email Address
             </label>
-            <div className="flex overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 shadow-md transition focus-within:border-[#D4AF37] focus-within:ring-2 focus-within:ring-[#D4AF37]/20">
-              <span className="flex items-center gap-1.5 bg-neutral-900/60 px-4 border-r border-neutral-900 text-neutral-400">
+            <div className="flex overflow-hidden rounded-xl border border-[#E6D1CB]/60 bg-[#FAF7F5] shadow-md transition focus-within:border-[#9C6A5A] focus-within:ring-2 focus-within:ring-[#9C6A5A]/20">
+              <span className="flex items-center gap-1.5 bg-white/60 px-4 border-r border-[#E6D1CB]/60 text-[#3B2A25]/70">
                 <FiMail className="h-4 w-4" />
               </span>
               <input
@@ -333,19 +333,19 @@ const EmailLoginForm = ({ variant = "login" }) => {
                 autoComplete="email"
                 value={emailAddress}
                 onChange={(e) => setEmailAddress(e.target.value)}
-                className="min-w-0 flex-1 px-4 py-3.5 text-sm font-semibold text-white outline-none placeholder:text-neutral-600 bg-transparent"
+                className="min-w-0 flex-1 px-4 py-3.5 text-sm font-semibold text-[#3B2A25] outline-none placeholder:text-[#3B2A25]/50 bg-transparent"
                 placeholder="name@example.com"
                 required
               />
             </div>
-            <p className="mt-2 text-[10px] text-neutral-500 font-medium">
+            <p className="mt-2 text-[10px] text-[#3B2A25]/60 font-medium">
               We’ll send a verification code to your email.
             </p>
           </div>
 
-          <div className="flex items-start gap-2 rounded-xl bg-[#111111] px-4 py-3 ring-1 ring-neutral-800">
-            <FiLock className="mt-0.5 h-4 w-4 text-[#D4AF37] shrink-0" />
-            <p className="text-[11px] leading-relaxed text-neutral-400">
+          <div className="flex items-start gap-2 rounded-xl bg-[#FAF7F5] px-4 py-3 ring-1 ring-[#E6D1CB]/60">
+            <FiLock className="mt-0.5 h-4 w-4 text-[#9C6A5A] shrink-0" />
+            <p className="text-[11px] leading-relaxed text-[#3B2A25]/70">
               By continuing, you agree to our Terms of Use and Privacy Policy.
             </p>
           </div>
@@ -374,17 +374,17 @@ const EmailLoginForm = ({ variant = "login" }) => {
           <button
             type="button"
             onClick={goBackToEmail}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400 transition hover:text-white"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/70 transition hover:text-[#3B2A25]"
           >
             <FiArrowLeft className="h-4 w-4" />
             Change email
           </button>
 
-          <div className="rounded-xl bg-neutral-950 px-4 py-4 text-center border border-neutral-800 shadow-inner">
-            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">
+          <div className="rounded-xl bg-[#FAF7F5] px-4 py-4 text-center border border-[#E6D1CB]/60 shadow-inner">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#3B2A25]/60">
               OTP sent to
             </p>
-            <p className="mt-1 text-sm font-extrabold tracking-wide text-[#D4AF37] break-all">
+            <p className="mt-1 text-sm font-extrabold tracking-wide text-[#9C6A5A] break-all">
               {emailAddress}
             </p>
           </div>
@@ -404,7 +404,7 @@ const EmailLoginForm = ({ variant = "login" }) => {
                 value={digit}
                 onChange={(e) => handleOtpChange(i, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                className="h-12 w-10 rounded-lg border border-neutral-800 bg-neutral-950 text-center text-xl font-extrabold text-white shadow-sm outline-none transition focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 sm:h-14 sm:w-12"
+                className="h-12 w-10 rounded-lg border border-[#E6D1CB]/60 bg-white text-center text-xl font-extrabold text-[#3B2A25] shadow-sm outline-none transition focus:border-[#9C6A5A] focus:ring-2 focus:ring-[#9C6A5A]/20 sm:h-14 sm:w-12"
                 autoFocus={i === 0}
                 aria-label={`Digit ${i + 1}`}
               />
@@ -438,14 +438,14 @@ const EmailLoginForm = ({ variant = "login" }) => {
                 type="button"
                 onClick={handleResendOTP}
                 disabled={emailLogin.loading}
-                className="font-bold text-[#D4AF37] hover:underline disabled:opacity-50"
+                className="font-bold text-[#9C6A5A] hover:underline disabled:opacity-50"
               >
                 Resend OTP
               </button>
             ) : (
-              <p className="text-neutral-500">
+              <p className="text-[#3B2A25]/60">
                 Resend in{" "}
-                <span className="font-bold tabular-nums text-[#D4AF37]">
+                <span className="font-bold tabular-nums text-[#9C6A5A]">
                   {formatted}
                 </span>
               </p>

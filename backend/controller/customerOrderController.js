@@ -25,7 +25,7 @@ const { newOrderAdminEmailBody } = require("../lib/email-sender/templates/order-
 const { sendSMS } = require("../lib/sms-sender/sender");
 const { populateCartTaxFields } = require("../utils/cartTaxUtils");
 
-const PLACEHOLDER_EMAIL_DOMAIN = "phone.rasastore.com";
+const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 const isPlaceholderEmail = (email) =>
   !!email && String(email).toLowerCase().endsWith(`@${PLACEHOLDER_EMAIL_DOMAIN}`);
 const getRealEmail = (email) => {
@@ -49,48 +49,59 @@ const getEmailLogoUrl = async () => {
   } catch (_) {}
 
   if (process.env.STORE_LOGO_URL) return process.env.STORE_LOGO_URL;
-  const base = (process.env.STORE_URL || "https://rasastore.com").replace(/\/$/, "");
+  const base = (process.env.STORE_URL || "https://Manchanda Fabrics.com").replace(/\/$/, "");
   return `${base}/favicon.png`;
 };
 
 const sendOrderNotifications = async (order) => {
   try {
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
-    const shopName = globalSetting?.setting?.shop_name || "RASA";
-    const contactEmail = globalSetting?.setting?.email || "support@rasastore.com";
+    const shopName = globalSetting?.setting?.shop_name || "manchanda";
+    const contactEmail = globalSetting?.setting?.email || "support@Manchanda Fabrics.com";
     const currency = order.company_info?.currency || "₹";
     const logo = await getEmailLogoUrl();
     const customerEmail = getRealEmail(order.user_info?.email);
 
-    // 1) Customer confirmation: Email if real email else SMS
-    if (customerEmail && !order.confirmationEmailSent) {
-      const emailOption = {
-        name: order.user_info.name,
-        invoice: order.invoice,
-        total: order.total,
-        currency: currency,
-        date: new Date(order.createdAt).toLocaleDateString(),
-        paymentStatus: order.paymentMethod === "Cash On Delivery" ? "Pending" : "Confirmed",
-        status: order.status || "Pending",
-        trackingUrl: `${process.env.STORE_URL}/user/dashboard`,
-        contact_email: contactEmail,
-        shop_name: shopName,
-        logo,
-      };
-
-      const emailBody = {
-        to: customerEmail,
-        replyTo: contactEmail,
-        subject: `${shopName} – Order #${order.invoice} confirmed`,
-        html: orderConfirmationBody(emailOption),
-        emailType: "order-confirmation",
-      };
-
+    // 1) Customer confirmation & Invoice: Send single combined email (with PDF attachment)
+    if (customerEmail && (!order.confirmationEmailSent || !order.invoiceEmailSent)) {
       try {
+        // Generate Invoice PDF (sub-millisecond load from local disk cache)
+        const pdf = await handleCreateInvoice(order, `${order.invoice}.pdf`);
+
+        const emailOption = {
+          name: order.user_info.name,
+          invoice: order.invoice,
+          total: order.total,
+          currency: currency,
+          date: new Date(order.createdAt).toLocaleDateString(),
+          paymentStatus: order.paymentMethod === "Cash On Delivery" ? "Pending" : "Confirmed",
+          status: order.status || "Pending",
+          trackingUrl: `${process.env.STORE_URL}/user/dashboard`,
+          contact_email: contactEmail,
+          shop_name: shopName,
+          logo,
+        };
+
+        const emailBody = {
+          to: customerEmail,
+          replyTo: contactEmail,
+          subject: `${shopName} – Order Confirmed & Invoice #${order.invoice}`,
+          html: orderConfirmationBody(emailOption),
+          attachments: [
+            {
+              filename: `${order.invoice}.pdf`,
+              content: pdf,
+              contentType: "application/pdf",
+            },
+          ],
+          emailType: "order-confirmation",
+        };
+
         await sendEmail(emailBody);
         order.confirmationEmailSent = true;
+        order.invoiceEmailSent = true;
       } catch (err) {
-        console.error("Order confirmation email failed:", err.message);
+        console.error("Order confirmation & invoice email failed:", err.message);
       }
     }
 
@@ -106,45 +117,6 @@ const sendOrderNotifications = async (order) => {
       const smsSent = await sendSMS(order.user_info.contact, smsMessage, variables);
       if (smsSent) {
         order.confirmationSmsSent = true;
-      }
-    }
-
-    // 2) Customer invoice: Email PDF if real email
-    if (customerEmail && !order.invoiceEmailSent) {
-      try {
-        const pdf = await handleCreateInvoice(order, `${order.invoice}.pdf`);
-        const option = {
-          name: order.user_info.name,
-          invoice: order.invoice,
-          total: order.total,
-          currency,
-          date: new Date(order.createdAt).toLocaleDateString(),
-          paymentStatus:
-            order.paymentMethod === "Cash On Delivery" ? "Pending" : "Confirmed",
-          status: order.status || "Order Placed",
-          trackingUrl: `${process.env.STORE_URL}/user/dashboard`,
-          contact_email: contactEmail,
-          shop_name: shopName,
-          logo,
-        };
-
-        await sendEmail({
-          to: customerEmail,
-          replyTo: contactEmail,
-          subject: `${shopName} – Invoice #${order.invoice}`,
-          html: customerInvoiceEmailBody(option),
-          attachments: [
-            {
-              filename: `${order.invoice}.pdf`,
-              content: pdf,
-              contentType: "application/pdf",
-            },
-          ],
-          emailType: "invoice",
-        });
-        order.invoiceEmailSent = true;
-      } catch (err) {
-        console.error("Invoice email failed:", err.message);
       }
     }
 
@@ -592,7 +564,7 @@ const sendEmailInvoiceToCustomer = async (req, res) => {
     // console.log("sendEmailInvoiceToCustomer");
     const pdf = await handleCreateInvoice(req.body, `${req.body.invoice}.pdf`);
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
-    const shopName = globalSetting?.setting?.shop_name || "RASA";
+    const shopName = globalSetting?.setting?.shop_name || "manchanda";
 
     const option = {
       date: req.body.date,
@@ -612,8 +584,8 @@ const sendEmailInvoiceToCustomer = async (req, res) => {
       vat_number: req.body?.company_info?.vat_number,
       name: user?.name,
       email: user?.email,
-      contact_email: globalSetting?.setting?.email || "support@rasastore.com",
-      shop_name: globalSetting?.setting?.shop_name || "RASA",
+      contact_email: globalSetting?.setting?.email || "support@Manchanda Fabrics.com",
+      shop_name: globalSetting?.setting?.shop_name || "manchanda",
       phone: user?.phone,
       address: user?.address,
       cart: req.body.cart,

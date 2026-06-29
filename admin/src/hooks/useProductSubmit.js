@@ -451,6 +451,15 @@ const useProductSubmit = (id) => {
         productHighlights,
         manufacturerDetails,
         disclaimer,
+
+        // Manchanda Fabrics custom fields
+        occasion: data.occasion || "",
+        fabricType: data.fabricType || "",
+        workType: data.workType || "",
+        blouseIncluded: data.blouseIncluded !== undefined ? Boolean(data.blouseIncluded) : false,
+        sareeLength: data.sareeLength || "",
+        colorFamily: data.colorFamily || "",
+        collectionName: data.collectionName || "",
       };
 
       // console.log("productData ===========>", productData, "data", data);
@@ -521,6 +530,13 @@ const useProductSubmit = (id) => {
           setValue("productId", res.productId);
           setValue("gender", res.gender || "");
           setValue("productType", res.productType || "");
+          setValue("occasion", res.occasion || "");
+          setValue("fabricType", res.fabricType || "");
+          setValue("workType", res.workType || "");
+          setValue("blouseIncluded", res.blouseIncluded !== undefined ? Boolean(res.blouseIncluded) : false);
+          setValue("sareeLength", res.sareeLength || "");
+          setValue("colorFamily", res.colorFamily || "");
+          setValue("collectionName", res.collectionName || "");
           setValue("metaTitle", res.metaTitle || "");
           setValue("metaDescription", res.metaDescription || "");
           setSeoImage(res.seoImage || "");
@@ -604,6 +620,13 @@ const useProductSubmit = (id) => {
       setValue("discountType", "flat");
       setValue("gender", "");
       setValue("productType", "");
+      setValue("occasion", "");
+      setValue("fabricType", "");
+      setValue("workType", "");
+      setValue("blouseIncluded", false);
+      setValue("sareeLength", "");
+      setValue("colorFamily", "");
+      setValue("collectionName", "");
       setValue("metaTitle", "");
       setValue("metaDescription", "");
       setSeoImage("");
@@ -701,6 +724,13 @@ const useProductSubmit = (id) => {
             setValue("discountType", res?.prices?.discountType || "flat");
             setValue("gender", res.gender || "");
             setValue("productType", res.productType || "");
+            setValue("occasion", res.occasion || "");
+            setValue("fabricType", res.fabricType || "");
+            setValue("workType", res.workType || "");
+            setValue("blouseIncluded", res.blouseIncluded !== undefined ? Boolean(res.blouseIncluded) : false);
+            setValue("sareeLength", res.sareeLength || "");
+            setValue("colorFamily", res.colorFamily || "");
+            setValue("collectionName", res.collectionName || "");
             setValue("metaTitle", res.metaTitle || "");
             setValue("metaDescription", res.metaDescription || "");
             setSeoImage(res.seoImage || "");

@@ -287,7 +287,7 @@ const { sendEmail } = require("../lib/email-sender/sender");
 const { sendSMS } = require("../lib/sms-sender/sender");
 const { orderStatusUpdateBody } = require("../lib/email-sender/templates/order-to-customer/status-update");
 
-const PLACEHOLDER_EMAIL_DOMAIN = "phone.rasastore.com";
+const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 const isPlaceholderEmail = (email) =>
   !!email && String(email).toLowerCase().endsWith(`@${PLACEHOLDER_EMAIL_DOMAIN}`);
 const getRealEmail = (email) => {
@@ -310,7 +310,7 @@ const getEmailLogoUrl = async () => {
   } catch (_) {}
 
   if (process.env.STORE_LOGO_URL) return process.env.STORE_LOGO_URL;
-  const base = (process.env.STORE_URL || "https://rasastore.com").replace(/\/$/, "");
+  const base = (process.env.STORE_URL || "https://Manchanda Fabrics.com").replace(/\/$/, "");
   return `${base}/favicon.png`;
 };
 
@@ -371,8 +371,8 @@ const updateOrder = async (req, res) => {
       (async () => {
         try {
           const globalSetting = await Setting.findOne({ name: "globalSetting" });
-          const shopName = globalSetting?.setting?.shop_name || "RASA";
-          const contactEmail = globalSetting?.setting?.email || "support@rasastore.com";
+          const shopName = globalSetting?.setting?.shop_name || "manchanda";
+          const contactEmail = globalSetting?.setting?.email || "support@Manchanda Fabrics.com";
           const logo = await getEmailLogoUrl();
 
           const customerEmail = getRealEmail(updatedOrder.user_info?.email);

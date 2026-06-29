@@ -37,7 +37,7 @@ const ModernStats = ({ dashboardOrderCount, timeFilter, setTimeFilter, dashboard
       title: "Total Sales",
       Icon: FiCreditCard,
       quantity: dashboardOrderAmount?.totalAmount || 0,
-      className: "text-emerald-600 bg-emerald-100",
+      className: "text-store-600 bg-store-100",
       isAmount: true,
       link: "/orders"
     },
@@ -74,7 +74,7 @@ const ModernStats = ({ dashboardOrderCount, timeFilter, setTimeFilter, dashboard
       title: "Processing",
       Icon: FiTruck,
       quantity: timeFilter === 'year' ? (dashboardOrderCount?.totalProcessingOrder || 0) : getStatusCount("Processing"),
-      className: "text-teal-600 bg-teal-100",
+      className: "text-store-600 bg-store-100",
       link: "/orders/processing"
     },
     {
@@ -94,20 +94,20 @@ const ModernStats = ({ dashboardOrderCount, timeFilter, setTimeFilter, dashboard
   ];
 
   return (
-    <div className="w-full space-y-6 bg-white dark:bg-gray-800 p-7 md:p-10 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <div className="w-full space-y-6 bg-white dark:bg-store-900 p-7 md:p-10 rounded-3xl shadow-sm border border-store-200 dark:border-store-700/40">
 
       {/* Period Filter Toggle */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-lg font-extrabold text-gray-800 dark:text-white tracking-tight">Overview</h2>
-        <div className="inline-flex bg-gray-50 dark:bg-gray-900 p-1.5 rounded-xl border border-gray-200/70 dark:border-gray-700">
+        <h2 className="text-lg font-extrabold text-store-800 dark:text-store-100 tracking-tight">Overview</h2>
+        <div className="inline-flex bg-store-50 dark:bg-store-900 p-1.5 rounded-xl border border-store-200 dark:border-store-700/40">
           {["week", "month", "year"].map((period) => (
             <button
               key={period}
               onClick={() => setTimeFilter(period)}
               className={`px-5 py-2 text-sm font-semibold rounded-lg capitalize transition-all duration-200 ${
                 timeFilter === period
-                  ? 'bg-teal-500 text-white shadow-sm shadow-teal-500/30'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  ? 'bg-store-500 text-white shadow-sm shadow-store-500/30'
+                  : 'text-store-600/70 hover:text-store-800 dark:text-store-300/70 dark:hover:text-store-100'
               }`}
             >
               {period}

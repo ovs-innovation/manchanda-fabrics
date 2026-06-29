@@ -21,9 +21,7 @@ const emailFooter = (shop) => {
 };
 
 const footerText = (shop) => {
-  const support = getSupportEmail();
-  const site = storeBaseUrl();
-  return `\n\n— ${shop}\n${site}\nSupport: ${support}`;
+  return `\n\n— ${shop}`;
 };
 
 const wrap = ({ title, preheader, bodyHtml, bodyText }) => ({
@@ -48,7 +46,7 @@ const wrap = ({ title, preheader, bodyHtml, bodyText }) => ({
 });
 
 const simpleOtpEmail = (option) => {
-  const shop = option.shop_name || "RASA";
+  const shop = option.shop_name || "manchanda";
   const support = getSupportEmail();
   const text = `Hello ${option.name || "there"},
 
@@ -71,7 +69,7 @@ If you did not request this, you can ignore this email.${footerText(shop)}`;
 };
 
 const simpleVerifyEmail = (option) => {
-  const shop = option.shop_name || "RASA";
+  const shop = option.shop_name || "manchanda";
   const link = `${storeBaseUrl()}/auth/email-verification/${option.token}`;
 
   const text = `Hello ${option.name || "there"},
@@ -99,7 +97,7 @@ If you did not create an account, ignore this email.${footerText(shop)}`;
 };
 
 const simpleResetPasswordEmail = (option) => {
-  const shop = option.shop_name || "RASA";
+  const shop = option.shop_name || "manchanda";
   const link = `${storeBaseUrl()}/auth/forget-password/${option.token}`;
 
   const text = `Hello,

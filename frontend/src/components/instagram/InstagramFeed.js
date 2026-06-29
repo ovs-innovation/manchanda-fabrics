@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { FaInstagram, FaHeart, FaRegHeart, FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { FiSend, FiMoreHorizontal } from "react-icons/fi";
 
-const INSTAGRAM_HANDLE = "kicksbyrasaa";
-const PROFILE_PICTURE = "/rasaLogo.png";
+const INSTAGRAM_HANDLE = "manchandafabrics";
+const PROFILE_PICTURE = "/logo/logo.png";
 
 const InstagramFeed = ({ posts = [] }) => {
   const [likedPosts, setLikedPosts] = useState({});
@@ -32,11 +32,11 @@ const InstagramFeed = ({ posts = [] }) => {
   };
 
   return (
-    <div className="bg-[#050505] py-28 border-t border-neutral-900 relative overflow-hidden">
+    <div className="bg-[#FAF7F5] py-20 border-t border-[#E6D1CB] relative overflow-hidden">
       {/* Background Soft Glows for Ambient Lighting */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] bg-[#D4AF37]/5" />
-        <div className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] rounded-full blur-[150px] bg-neutral-900/40" />
+        <div className="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] bg-[#9C6A5A]/5" />
+        <div className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] rounded-full blur-[150px] bg-[#E6D1CB]/10" />
       </div>
 
       <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
@@ -44,17 +44,17 @@ const InstagramFeed = ({ posts = [] }) => {
         {/* Section Title Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
           <div className="space-y-4 text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-sm">
-              <FaInstagram className="text-xs text-[#D4AF37]" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#D4AF37]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E6D1CB] rounded-full shadow-sm">
+              <FaInstagram className="text-xs text-[#9C6A5A]" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#9C6A5A]">
                 @{INSTAGRAM_HANDLE}
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white leading-none">
-              From Instagram
+            <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#3B2A25] leading-none">
+              From Our Instagram
             </h2>
-            <p className="text-neutral-500 text-xs font-semibold uppercase tracking-wider">
-              Explore featured drops and daily inspiration straight from our feed
+            <p className="text-[#3B2A25]/60 text-xs font-semibold uppercase tracking-wider">
+              Explore featured styling and daily inspiration straight from our feed
             </p>
           </div>
 
@@ -63,7 +63,7 @@ const InstagramFeed = ({ posts = [] }) => {
               href={`https://www.instagram.com/${INSTAGRAM_HANDLE}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-extrabold text-[10px] uppercase tracking-widest rounded-md hover:bg-[#D4AF37] hover:text-black transition-all duration-300 shadow-md hover:scale-105 active:scale-95 pointer-events-auto"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#9C6A5A] text-white font-extrabold text-[10px] uppercase tracking-widest rounded-md hover:bg-[#6F4A3D] transition-all duration-300 shadow-md hover:scale-105 active:scale-95 pointer-events-auto"
             >
               <span>Follow Us</span>
             </a>
@@ -79,13 +79,13 @@ const InstagramFeed = ({ posts = [] }) => {
             return (
               <div
                 key={post.id}
-                className="bg-[#080808] border border-neutral-900/70 hover:border-[#D4AF37]/30 rounded-2xl overflow-hidden flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.8)] hover:shadow-[0_20px_50px_rgba(212,175,55,0.08)] transition-all duration-500 hover:-translate-y-2 group"
+                className="bg-white border border-[#E6D1CB]/50 hover:border-[#9C6A5A]/30 rounded-2xl overflow-hidden flex flex-col justify-between shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2 group"
               >
                 {/* 1. POST HEADER */}
-                <div className="flex items-center justify-between p-4 border-b border-white/[0.03] bg-white/[0.01]">
+                <div className="flex items-center justify-between p-4 border-b border-[#E6D1CB]/30 bg-[#FAF7F5]/50">
                   <div className="flex items-center gap-3">
                     {/* Profile Avatar */}
-                    <div className="w-9 h-9 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0 p-[1.5px] bg-gradient-to-tr from-[#D4AF37]/40 to-neutral-700">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-[#E6D1CB] bg-[#FAF7F5] shrink-0 p-[1.5px]">
                       <img
                         src={PROFILE_PICTURE}
                         alt="Profile"
@@ -103,26 +103,18 @@ const InstagramFeed = ({ posts = [] }) => {
                           href={post.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs font-black text-white hover:underline tracking-tight"
+                          className="text-xs font-bold text-[#3B2A25] hover:underline tracking-tight"
                         >
                           {INSTAGRAM_HANDLE}
                         </a>
-                        {/* Verified Badge */}
-                        <svg
-                          className="w-3.5 h-3.5 text-[#3897f0] fill-current"
-                          viewBox="0 0 24 24"
-                          aria-label="Verified"
-                        >
-                          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                        </svg>
                       </div>
-                      <span className="text-[9px] font-bold text-neutral-500 tracking-wide">
+                      <span className="text-[9px] font-medium text-[#3B2A25]/50 tracking-wide">
                         {post.location}
                       </span>
                     </div>
                   </div>
 
-                  <button className="text-neutral-500 hover:text-white transition-colors duration-300">
+                  <button className="text-[#3B2A25]/50 hover:text-[#3B2A25] transition-colors duration-300">
                     <FiMoreHorizontal className="text-lg" />
                   </button>
                 </div>
@@ -150,8 +142,8 @@ const InstagramFeed = ({ posts = [] }) => {
                       {/* Like button */}
                       <button
                         onClick={() => toggleLike(post.id)}
-                        className={`transition-all duration-300 hover:scale-120 ${
-                          isLiked ? "text-red-500" : "text-neutral-400 hover:text-white"
+                        className={`transition-all duration-300 hover:scale-125 ${
+                          isLiked ? "text-red-500" : "text-[#3B2A25]/60 hover:text-[#9C6A5A]"
                         }`}
                       >
                         {isLiked ? <FaHeart /> : <FaRegHeart />}
@@ -162,7 +154,7 @@ const InstagramFeed = ({ posts = [] }) => {
                         href={post.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-neutral-400 hover:text-white transition-all duration-300 hover:scale-120"
+                        className="text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-all duration-300 hover:scale-125"
                       >
                         <FaRegComment />
                       </a>
@@ -172,7 +164,7 @@ const InstagramFeed = ({ posts = [] }) => {
                         href={post.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-neutral-400 hover:text-white transition-all duration-300 hover:scale-120"
+                        className="text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-all duration-300 hover:scale-125"
                       >
                         <FiSend />
                       </a>
@@ -181,8 +173,8 @@ const InstagramFeed = ({ posts = [] }) => {
                     {/* Bookmark button */}
                     <button
                       onClick={() => toggleBookmark(post.id)}
-                      className={`transition-all duration-300 hover:scale-120 text-lg ${
-                        isBookmarked ? "text-[#D4AF37]" : "text-neutral-400 hover:text-white"
+                      className={`transition-all duration-300 hover:scale-125 text-lg ${
+                        isBookmarked ? "text-[#9C6A5A]" : "text-[#3B2A25]/60 hover:text-[#9C6A5A]"
                       }`}
                     >
                       {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
@@ -190,18 +182,18 @@ const InstagramFeed = ({ posts = [] }) => {
                   </div>
 
                   {/* Likes count */}
-                  <div className="text-xs font-black text-white text-left tracking-wide">
+                  <div className="text-xs font-bold text-[#3B2A25] text-left tracking-wide">
                     {post.likes} likes
                   </div>
 
                   {/* Caption */}
-                  <div className="text-xs text-neutral-300 leading-relaxed font-sans text-left">
-                    <span className="font-black text-white mr-2">{INSTAGRAM_HANDLE}</span>
+                  <div className="text-xs text-[#3B2A25]/80 leading-relaxed font-sans text-left">
+                    <span className="font-bold text-[#3B2A25] mr-2">{INSTAGRAM_HANDLE}</span>
                     {post.caption}
                   </div>
 
                   {/* Timestamp */}
-                  <div className="text-[9px] font-bold text-neutral-600 tracking-wider text-left uppercase">
+                  <div className="text-[9px] font-bold text-[#3B2A25]/45 tracking-wider text-left uppercase">
                     {post.timeAgo}
                   </div>
                 </div>

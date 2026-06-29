@@ -133,18 +133,18 @@ const PrivacyPolicy = () => {
                         height={18}
                         error={error}
                         loading={loading}
-                        data={storeCustomizationSetting?.privacy_policy?.description || `<h2>1. Introduction</h2>
-<p>Welcome to Rasa Store. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
+                         data={storeCustomizationSetting?.privacy_policy?.description || `<h2>1. Introduction</h2>
+<p>Welcome to Manchanda Fabrics. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
 <h2>2. Information We Collect</h2>
 <ul>
   <li><strong>Personal Details:</strong> Name, contact number, email, and delivery address.</li>
-  <li><strong>Account Information:</strong> Profile preferences, order history, and sizing options.</li>
+  <li><strong>Account Information:</strong> Profile preferences, order history, and custom design options.</li>
   <li><strong>Payment Data:</strong> Securely processed via trusted payment gateways (we do not store card details).</li>
 </ul>
 <h2>3. How We Use Your Data</h2>
 <ul>
-  <li>To process and deliver your sneakers, apparel, and accessory orders.</li>
-  <li>To optimize your website experience, sizing recommendations, and cart retention.</li>
+  <li>To process and deliver your premium sarees, suits, and fabrics orders.</li>
+  <li>To optimize your website experience, draping/styling recommendations, and cart retention.</li>
   <li>To send order updates and promotional offers (opt-out available).</li>
 </ul>
 <h2>4. Data Security & Sharing</h2>

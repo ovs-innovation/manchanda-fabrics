@@ -8,8 +8,8 @@ const bcrypt = require("bcryptjs");
 const { connectDB } = require("../config/db");
 const Admin = require("../models/Admin");
 
-const NEW_ADMIN_EMAIL = "admin@rasastore.com";
-const NEW_ADMIN_PASSWORD = "RasaStoreSecure2026!";
+const NEW_ADMIN_EMAIL = "manchandafabrics@gmail.com";
+const NEW_ADMIN_PASSWORD = "ManchandaStoreSecure2026!";
 
 const access_list = [
   "dashboard",

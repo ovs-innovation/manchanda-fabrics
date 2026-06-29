@@ -90,9 +90,7 @@ export const UserProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  if (status === "loading" && !state.userInfo) {
-    return <LoadingForSession />;
-  }
+
 
   const value = { state, dispatch };
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -14,9 +14,9 @@ const Footer = () => {
 
   const block1Links = [
     { title: "New Arrivals", href: "/new-arrivals" },
-    { title: "Trending Drops", href: "/trending" },
-    { title: "Men's Collection", href: "/men" },
-    { title: "Women's Collection", href: "/women" },
+    { title: "Sarees", href: "/search?category=sarees" },
+    { title: "Suits", href: "/search?category=suits" },
+    { title: "Fabrics", href: "/search?category=fabrics" },
   ];
 
   const block2Links = [
@@ -33,41 +33,39 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black text-neutral-400 border-t border-neutral-900/80 relative overflow-hidden font-sans">
+    <footer className="bg-[#3B2A25] text-[#E6D1CB]/80 border-t border-[#6F4A3D]/40 relative overflow-hidden font-sans">
       {/* Premium Ambient Lighting Glow */}
-      <div className="absolute inset-x-0 bottom-0 h-64 bg-[#D4AF37]/5 blur-[120px] pointer-events-none z-0" />
+      <div className="absolute inset-x-0 bottom-0 h-64 bg-[#9C6A5A]/5 blur-[120px] pointer-events-none z-0" />
       <div className="absolute top-0 left-1/4 w-[300px] h-[300px] rounded-full bg-white/2 blur-[100px] pointer-events-none z-0" />
 
       <div className="mx-auto max-w-screen-2xl px-6 sm:px-10 lg:px-16 relative z-10">
         
-        {/* Top Feature Bar - Minimalist premium blocks */}
-
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-12 py-20">
           
           {/* Column 1: Brand Info (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <Link href="/" className="inline-block" rel="noreferrer">
-              <span className="font-black tracking-[0.2em] text-2xl uppercase text-white font-sans">
-                RASA<span className="text-[#D4AF37]">.</span>
+              <span className="font-serif tracking-[0.2em] text-2xl uppercase text-[#FAF7F5] font-sans">
+                MANCHANDA<span className="text-[#9C6A5A]">.</span>
               </span>
             </Link>
-            <p className="text-xs text-neutral-500 leading-relaxed max-w-sm">
-              Defining modern premium streetwear. Minimalist silhouettes, heavyweight fabrics, and clean aesthetics designed for the digital generation.
+            <p className="text-xs text-[#E6D1CB]/70 leading-relaxed max-w-sm">
+              Premium ethnic fashion brand focused on sarees, suits, fabrics and festive collections. Crafting timeless elegance for celebrations, traditions, and everyday grace.
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://www.instagram.com/kicksbyrasaa"
+                href="https://www.instagram.com/manchandafabrics"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-full border border-neutral-855 bg-neutral-900/20 flex items-center justify-center text-neutral-400 hover:text-[#D4AF37] hover:border-[#D4AF37]/40 hover:shadow-[0_0_10px_rgba(212,175,55,0.15)] transition-all duration-300"
+                className="w-8 h-8 rounded-full border border-[#6F4A3D]/50 bg-[#6F4A3D]/20 flex items-center justify-center text-[#E6D1CB] hover:text-[#FAF7F5] hover:border-[#9C6A5A]/40 hover:shadow-[0_0_10px_rgba(156,106,90,0.15)] transition-all duration-300"
               >
                 <FaInstagram className="w-4 h-4" />
               </a>
               <a
-                href="mailto:workwithrasa@gmail.com"
-                className="w-8 h-8 rounded-full border border-neutral-855 bg-neutral-900/20 flex items-center justify-center text-neutral-400 hover:text-[#D4AF37] hover:border-[#D4AF37]/40 hover:shadow-[0_0_10px_rgba(212,175,55,0.15)] transition-all duration-300"
+                href="mailto:info@manchandafabrics.com"
+                className="w-8 h-8 rounded-full border border-[#6F4A3D]/50 bg-[#6F4A3D]/20 flex items-center justify-center text-[#E6D1CB] hover:text-[#FAF7F5] hover:border-[#9C6A5A]/40 hover:shadow-[0_0_10px_rgba(156,106,90,0.15)] transition-all duration-300"
               >
                 <FiMail className="w-4 h-4" />
               </a>
@@ -76,14 +74,14 @@ const Footer = () => {
 
           {/* Column 2: Collections (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-[#FAF7F5]">
               {showingTranslateValue(storeCustomizationSetting?.footer?.block1_title) || "Collections"}
             </h4>
             <ul className="text-[10px] uppercase tracking-wider font-extrabold flex flex-col space-y-3.5">
               {block1Links.map((link, idx) => (
                 <li key={idx}>
-                  <Link href={link.href} className="text-neutral-400 hover:text-white transition-colors duration-300 flex items-center gap-1.5 group">
-                    <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#D4AF37] transition-all duration-300"></span>
+                  <Link href={link.href} className="text-[#E6D1CB]/70 hover:text-[#FAF7F5] transition-colors duration-300 flex items-center gap-1.5 group">
+                    <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#9C6A5A] transition-all duration-300"></span>
                     <span>{link.title}</span>
                   </Link>
                 </li>
@@ -93,7 +91,7 @@ const Footer = () => {
 
           {/* Column 3: Customer Care (3 cols) */}
           <div className="lg:col-span-3 space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-[#FAF7F5]">
               {showingTranslateValue(storeCustomizationSetting?.footer?.block2_title) || "Support & Info"}
             </h4>
             <ul className="text-[10px] uppercase tracking-wider font-extrabold flex flex-col space-y-3.5">
@@ -104,24 +102,24 @@ const Footer = () => {
                       href={link.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-neutral-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
+                      className="text-[#E6D1CB]/70 hover:text-[#FAF7F5] transition-colors duration-300 flex items-center gap-2 group"
                     >
                       {link.icon ? (
                         <span className="transition-transform duration-300 group-hover:scale-110">{link.icon}</span>
                       ) : (
-                        <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#D4AF37] transition-all duration-300"></span>
+                        <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#9C6A5A] transition-all duration-300"></span>
                       )}
                       <span>{link.title}</span>
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-neutral-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
+                      className="text-[#E6D1CB]/70 hover:text-[#FAF7F5] transition-colors duration-300 flex items-center gap-2 group"
                     >
                       {link.icon ? (
                         <span className="transition-transform duration-300 group-hover:scale-110">{link.icon}</span>
                       ) : (
-                        <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#D4AF37] transition-all duration-300"></span>
+                        <span className="w-0 group-hover:w-2.5 h-[1.5px] bg-[#9C6A5A] transition-all duration-300"></span>
                       )}
                       <span>{link.title}</span>
                     </Link>
@@ -133,17 +131,17 @@ const Footer = () => {
 
           {/* Column 4: Contact & Office (3 cols) */}
           <div className="lg:col-span-3 space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-white">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-[#FAF7F5]">
               Contact
             </h4>
-            <div className="space-y-4 text-xs">
-              <div className="flex items-center gap-3 text-neutral-450 hover:text-white transition-colors">
-                <FiMail className="w-4 h-4 text-[#D4AF37] shrink-0" />
+            <div className="space-y-4 text-xs text-[#E6D1CB]/70">
+              <div className="flex items-center gap-3 hover:text-[#FAF7F5] transition-colors">
+                <FiMail className="w-4 h-4 text-[#9C6A5A] shrink-0" />
                 <a
-                  href="mailto:workwithrasa@gmail.com"
+                  href="mailto:info@manchandafabrics.com"
                   className="text-[11px] hover:underline break-all"
                 >
-                  workwithrasa@gmail.com
+                  info@manchandafabrics.com
                 </a>
               </div>
             </div>
@@ -152,17 +150,17 @@ const Footer = () => {
         </div>
 
         {/* Bottom copyright declaration */}
-        <div className="flex flex-col md:flex-row justify-between items-center py-8 border-t border-neutral-900/60 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center py-8 border-t border-[#6F4A3D]/40 gap-4">
           <div className="flex flex-col gap-2 text-left md:w-2/3">
-            <p className="text-[9px] uppercase tracking-[0.2em] text-neutral-600 mb-0 font-extrabold">
-              © {new Date().getFullYear()} RASA STORE. ALL RIGHTS RESERVED.
+            <p className="text-[9px] uppercase tracking-[0.2em] text-[#E6D1CB]/50 mb-0 font-extrabold">
+              © {new Date().getFullYear()} MANCHANDA FABRICS. ALL RIGHTS RESERVED.
             </p>
-            <p className="text-[9px] tracking-[0.1em] text-neutral-600 leading-relaxed font-medium max-w-xl">
-              Disclaimer: All trademarks, logos and brand names belong to their respective owners. Product listings are presented for identification purposes only.
+            <p className="text-[9px] tracking-[0.1em] text-[#E6D1CB]/50 leading-relaxed font-medium max-w-xl">
+              Disclaimer: All sarees, suits, fabrics, and products shown are carefully curated premium Indian ethnic designs.
             </p>
           </div>
-          <p className="text-[9px] uppercase tracking-[0.2em] text-neutral-600 flex items-center gap-1 font-extrabold">
-            DESIGNED & DEVELOPED FOR THE DIGITAL GENERATION
+          <p className="text-[9px] uppercase tracking-[0.2em] text-[#E6D1CB]/50 flex items-center gap-1 font-extrabold">
+            TIMELESS ELEGANCE IN EVERY DRAPE
           </p>
         </div>
       </div>

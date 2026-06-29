@@ -553,7 +553,7 @@ const useCheckoutSubmit = (storeSetting) => {
         key: storeSetting.razorpay_id,
         amount: amount,
         currency: currency || "INR",
-        name: storeSetting?.store_name || "Rasa Store",
+        name: storeSetting?.store_name || "Manchanda Fabrics",
         description:
           storeSetting?.store_description ||
           "This is the total cost of your purchase",
@@ -651,12 +651,10 @@ const useCheckoutSubmit = (storeSetting) => {
     // console.log("handle default shipping", value);
     setUseExistingAddress(value);
     if (value) {
-      const address = data;
-      const nameParts = address?.name?.split(" "); // Split the name into parts
-      const firstName = nameParts[0]; // First name is the first element
-      const lastName =
-        nameParts?.length > 1 ? nameParts[nameParts?.length - 1] : ""; // Last name is the last element, if it exists
-      // console.log("address", address.name.split(" "), "value", value);
+      const address = data || {};
+      const nameParts = address?.name ? String(address.name).split(" ") : [];
+      const firstName = nameParts.length > 0 ? nameParts[0] : "";
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
       setValue("firstName", firstName);
       setValue("lastName", lastName);

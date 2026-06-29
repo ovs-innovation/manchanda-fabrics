@@ -62,12 +62,12 @@ const Faq = () => {
       answer: "Most orders are delivered within 24-48 hours. For certain locations, it may take up to 3-5 business days. You can track your order in the 'My Orders' section.",
     },
     {
-      question: "Are the products sold on Rasa Store authentic?",
-      answer: "Absolutely. We only source products directly from authorized distributors, verified collectors, and premium boutiques. Every single piece is fully authenticated.",
+      question: "Are the products sold on Manchanda Fabrics authentic?",
+      answer: "Absolutely. We source our fabrics, sarees, and suits directly from trusted weavers, artisans, and premium manufacturers across India. Quality is our highest priority.",
     },
     {
-      question: "How do you verify the authenticity of sneakers and bags?",
-      answer: "Every item goes through a rigorous multi-point physical inspection by our team of expert authenticators before it is shipped to you, ensuring 100% genuine products.",
+      question: "How do you verify the quality of fabrics and sarees?",
+      answer: "Every single piece undergoes a physical inspection for weave density, zari quality, fabric softness, and print perfection before being showcased or dispatched, ensuring premium quality.",
     },
     {
       question: "How do I return an item?",
@@ -83,28 +83,28 @@ const Faq = () => {
   const displayFaqs = faqs.length > 0 ? faqs : defaultFaqs;
 
   return (
-    <Layout title="FAQ" description="Frequently Asked Questions - Rasa Store">
+    <Layout title="FAQ" description="Frequently Asked Questions - Manchanda Fabrics">
       {/* Premium Header */}
-      <div className="bg-[#050505] py-16 lg:py-24 border-b border-neutral-900">
+      <div className="bg-[#E6D1CB] py-16 lg:py-24 border-b border-[#E6D1CB]">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-black text-white mb-6 uppercase tracking-tight flex items-center justify-center gap-3">
-            <span className="w-1.5 h-12 bg-[#D4AF37] rounded-full inline-block" />
+          <h1 className="text-4xl md:text-5xl font-serif font-light text-[#3B2A25] mb-6 uppercase tracking-tight flex items-center justify-center gap-3">
+            <span className="w-1.5 h-12 bg-[#9C6A5A] rounded-full inline-block" />
             Frequently Asked Questions
           </h1>
-          <p className="text-neutral-400 text-lg md:text-xl max-w-3xl mx-auto">
-            Find answers to common questions about ordering, delivery, authenticity, and more. We're here to help you.
+          <p className="text-[#3B2A25]/80 text-lg md:text-xl max-w-3xl mx-auto font-sans">
+            Find answers to common questions about ordering, delivery, quality, and more. We're here to help you.
           </p>
         </div>
       </div>
 
-      <div className="bg-black py-12 lg:py-20">
+      <div className="bg-[#FAF7F5] py-12 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-10">
-          <div className="bg-[#050505] rounded-3xl overflow-hidden border border-neutral-900 shadow-2xl">
+          <div className="bg-white rounded-3xl overflow-hidden border border-[#E6D1CB] shadow-sm">
             <div className="p-6 md:p-10 lg:p-16">
               {loadingFaqs ? (
                 <div className="space-y-4">
                   {[1, 2, 3, 4, 5].map((n) => (
-                    <div key={n} className="h-16 bg-neutral-900 rounded-2xl animate-pulse" />
+                    <div key={n} className="h-16 bg-[#FAF7F5] rounded-2xl animate-pulse" />
                   ))}
                 </div>
               ) : (
@@ -113,26 +113,26 @@ const Faq = () => {
                     <div 
                       key={faq._id || idx} 
                       className={`border rounded-2xl transition-all duration-300 ${
-                        openIndex === idx ? 'border-[#D4AF37]/30 bg-[#0A0A0A]' : 'border-neutral-900 bg-[#050505] hover:border-neutral-800'
+                        openIndex === idx ? 'border-[#9C6A5A]/55 bg-[#FAF7F5]/50' : 'border-[#E6D1CB]/50 bg-white hover:border-[#E6D1CB]'
                       }`}
                     >
                       <button
                         onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                         className="w-full flex justify-between items-center p-5 md:p-6 text-left focus:outline-none"
                       >
-                        <span className={`text-lg font-bold transition-colors ${openIndex === idx ? 'text-[#D4AF37]' : 'text-white'}`}>
+                        <span className={`text-lg font-bold transition-colors ${openIndex === idx ? 'text-[#6F4A3D]' : 'text-[#3B2A25]'}`}>
                           {faq.question}
                         </span>
                         <div className={`flex-shrink-0 ml-4 w-8 h-8 rounded-full flex items-center justify-center border transition-all ${
-                          openIndex === idx ? 'bg-[#D4AF37] border-[#D4AF37] text-black' : 'bg-neutral-950 border-neutral-800 text-neutral-400'
+                          openIndex === idx ? 'bg-[#9C6A5A] border-[#9C6A5A] text-white' : 'bg-[#FAF7F5] border-[#E6D1CB] text-[#3B2A25]'
                         }`}>
                           <span className="text-xl leading-none">{openIndex === idx ? "−" : "+"}</span>
                         </div>
                       </button>
                       {openIndex === idx && (
                         <div className="px-5 pb-6 md:px-6 md:pb-8 animate-fadeIn">
-                          <div className="h-px bg-neutral-800 mb-6 w-full" />
-                          <p className="text-neutral-300 leading-relaxed text-base md:text-lg">
+                          <div className="h-px bg-[#E6D1CB]/40 mb-6 w-full" />
+                          <p className="text-[#3B2A25]/90 leading-relaxed text-base md:text-lg">
                             {faq.answer}
                           </p>
                         </div>
@@ -146,9 +146,9 @@ const Faq = () => {
 
           {/* Still have questions? Section */}
           <div className="mt-12 text-center">
-            <div className="bg-[#0A0A0A] rounded-2xl p-8 border border-dashed border-neutral-850">
-              <h3 className="text-xl font-serif font-black uppercase text-white mb-2 tracking-wide">Still have questions?</h3>
-              <p className="text-neutral-400 mb-6 font-sans">If you couldn't find the answer you're looking for, please get in touch with our team.</p>
+            <div className="bg-[#FAF7F5] rounded-2xl p-8 border border-dashed border-[#E6D1CB]">
+              <h3 className="text-xl font-serif font-medium uppercase text-[#3B2A25] mb-2 tracking-wide">Still have questions?</h3>
+              <p className="text-[#3B2A25]/75 mb-6 font-sans">If you couldn't find the answer you're looking for, please get in touch with our team.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a 
                   href={storeCustomizationSetting?.footer?.social_whatsapp?.startsWith('http') 
@@ -162,7 +162,7 @@ const Faq = () => {
                 </a>
                 <a 
                   href="/contact-us" 
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#D4AF37] text-black rounded-xl font-bold hover:bg-yellow-600 transition-all shadow-md font-sans"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#9C6A5A] text-white rounded-xl font-bold hover:bg-[#6F4A3D] transition-all shadow-md font-sans"
                 >
                   Contact Support
                 </a>

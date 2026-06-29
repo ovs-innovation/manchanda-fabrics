@@ -106,8 +106,8 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
               key={`thumb-${index}-${mediaUrl}`}
               onClick={() => handleThumbnailClick(index)}
               className={`flex-shrink-0 relative w-16 h-16 lg:w-20 lg:h-20 rounded-xl border-2 overflow-hidden transition-all duration-300 transform ${index === activeIndex
-                ? "border-[#D4AF37] ring-2 ring-[#D4AF37]/20 shadow-md scale-105"
-                : "border-neutral-900 hover:border-neutral-800 hover:shadow-sm grayscale-[0.5] hover:grayscale-0"
+                ? "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/20 shadow-md scale-105"
+                : "border-[#E6D1CB]/60 hover:border-[#E6D1CB]/60 hover:shadow-sm grayscale-[0.5] hover:grayscale-0"
                 }`}
               type="button"
             >
@@ -140,7 +140,7 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
                   )} </>
               )}
               {index === activeIndex && (
-                <div className="absolute inset-0 border-2 border-[#D4AF37]" />
+                <div className="absolute inset-0 border-2 border-[#9C6A5A]" />
               )}
             </button>
           ))}
@@ -150,7 +150,7 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
       {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
       {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
       <div className="flex-1 order-1 lg:order-2 w-full">
-        <div className="relative w-full aspect-square bg-[#0A0A0A] border border-neutral-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+        <div className="relative w-full aspect-square bg-white border border-[#E6D1CB]/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
 
           {/* Buttons overlay */}
           {buttons}

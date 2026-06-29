@@ -1,39 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { IoStar, IoCheckmarkCircle } from "react-icons/io5";
-import { TbQuote } from "react-icons/tb";
 
 const REVIEWS = [
   {
     id: 1,
-    name: "Arjun M.",
-    location: "Mumbai",
-    initials: "AM",
+    name: "Sunita K.",
+    location: "Delhi",
+    initials: "SK",
     rating: 5,
-    date: "June 2025",
-    text: "Ordered the bag and it arrived in 2 days. Packaging was insane — felt like opening a luxury gift. Quality is 10/10, no complaints at all.",
-    product: "Soleste Tote Bag",
+    date: "June 2026",
+    text: "Ordered a Banarasi Silk Saree for my daughter's wedding. It arrived in 2 days. The packaging was beautiful and felt like a luxury gift. The fabric quality is absolutely premium.",
+    product: "Banarasi Silk Saree",
     verified: true,
   },
   {
     id: 2,
     name: "Priya S.",
-    location: "Delhi",
+    location: "Mumbai",
     initials: "PS",
     rating: 5,
-    date: "May 2025",
-    text: "The sneakers I got are exactly as shown — clean colourway, perfect fit. RASA Store has become my go-to for finding pieces that actually match the pictures.",
-    product: "Nikke Runner",
+    date: "May 2026",
+    text: "The georgette saree I got is exactly as shown — clean weave, perfect weight. Manchanda Fabrics has become my go-to for finding authentic ethnic pieces.",
+    product: "Georgette Designer Saree",
     verified: true,
   },
   {
     id: 3,
-    name: "Rahul K.",
-    location: "Bangalore",
-    initials: "RK",
+    name: "Meenakshi R.",
+    location: "Ludhiana",
+    initials: "MR",
     rating: 5,
-    date: "June 2025",
-    text: "Was skeptical at first but the unboxing video policy gave me confidence. Got exactly what I ordered. Will definitely shop again!",
-    product: "Pinnacle Crossbody",
+    date: "June 2026",
+    text: "Was skeptical at first to buy fabric online, but the pure cotton material exceeded my expectations. Breathable and gorgeous prints. Will definitely shop again!",
+    product: "Printed Cotton Fabric",
     verified: true,
   },
   {
@@ -42,9 +41,9 @@ const REVIEWS = [
     location: "Chennai",
     initials: "SR",
     rating: 5,
-    date: "April 2025",
-    text: "Customer service was super responsive. Had a small query about sizing and they replied within minutes. The bag is absolutely gorgeous.",
-    product: "Heritage Shoulder Bag",
+    date: "April 2026",
+    text: "Customer service was super responsive on WhatsApp. Had a small query about the blouse fabric and they replied with images in minutes. The suit set is gorgeous.",
+    product: "Festive Silk Suit",
     verified: true,
   },
   {
@@ -53,9 +52,9 @@ const REVIEWS = [
     location: "Hyderabad",
     initials: "VT",
     rating: 5,
-    date: "May 2025",
-    text: "These guys know their stuff. Every item is curated properly — no random filler products. My sneakers are absolutely fire!",
-    product: "Balanse Low-Top",
+    date: "May 2026",
+    text: "Ordered handloom cotton fabrics for my boutique. Every piece has authentic weave and rich color. Excellent quality at this price point.",
+    product: "Handloom Cotton Fabric",
     verified: true,
   },
   {
@@ -64,61 +63,61 @@ const REVIEWS = [
     location: "Pune",
     initials: "AD",
     rating: 5,
-    date: "June 2025",
-    text: "Bought a bag as a gift for my sister. She absolutely loved it. The quality exceeded expectations at this price point. Thank you RASA!",
-    product: "Equinox Evening Clutch",
+    date: "June 2026",
+    text: "Bought a designer saree as a gift for my mother. She absolutely loved the craftsmanship. Thank you Manchanda Fabrics!",
+    product: "Designer Silk Saree",
     verified: true,
   },
 ];
 
 const STATS = [
-  { value: "5,000+", label: "Happy Customers" },
-  { value: "5.0★", label: "Average Rating" },
-  { value: "2 Days", label: "Avg. Delivery" },
-  { value: "100%", label: "Verified Reviews" },
+  { value: "10,000+", label: "Happy Customers" },
+  { value: "4.9★", label: "Average Rating" },
+  { value: "Pan India", label: "Safe Shipping" },
+  { value: "100%", label: "Authentic Quality" },
 ];
 
 const Stars = () => (
-  <div className="flex gap-1">
+  <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((s) => (
-      <IoStar key={s} className="text-[#D4AF37] text-xs" />
+      <IoStar key={s} className="text-[#9C6A5A] text-xs" />
     ))}
   </div>
 );
 
 const ReviewCard = ({ review }) => (
-  <div className="relative flex flex-col justify-between gap-4 rounded-xl border border-neutral-800 bg-[#0F0F0F] p-6 hover:border-[#D4AF37]/50 transition-all duration-300 w-[350px] shrink-0">
+  <div className="relative flex flex-col justify-between gap-4 rounded-xl border border-[#E6D1CB] bg-white p-6 hover:border-[#9C6A5A]/50 transition-all duration-300 w-[350px] shrink-0 shadow-sm">
     {/* Top part */}
     <div>
       <div className="flex justify-between items-center mb-3">
         <Stars />
-        <span className="text-neutral-600 text-[10px]">{review.date}</span>
+        <span className="text-[#3B2A25]/60 text-[10px]">{review.date}</span>
       </div>
-      <p className="text-neutral-300 text-xs leading-relaxed italic">
+      <p className="text-[#3B2A25]/85 text-xs leading-relaxed italic">
         &ldquo;{review.text}&rdquo;
       </p>
     </div>
 
     {/* Bottom part */}
-    <div className="mt-4 pt-3 border-t border-neutral-900 flex flex-col gap-3">
+    <div className="mt-4 pt-3 border-t border-[#E6D1CB]/40 flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-[#D4AF37]/5 border border-[#D4AF37]/20 flex items-center justify-center shrink-0">
-          <span className="text-[#D4AF37] text-[10px] font-black">{review.initials}</span>
+        <div className="w-8 h-8 rounded-full bg-[#FAF7F5] border border-[#E6D1CB] flex items-center justify-center shrink-0">
+          <span className="text-[#9C6A5A] text-[10px] font-black">{review.initials}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
-            <span className="text-white text-xs font-black truncate">{review.name}</span>
+            <span className="text-[#3B2A25] text-xs font-black truncate">{review.name}</span>
             {review.verified && (
-              <IoCheckmarkCircle className="text-[#D4AF37] text-[12px] shrink-0" />
+              <IoCheckmarkCircle className="text-[#9C6A5A] text-[12px] shrink-0" />
             )}
           </div>
-          <p className="text-neutral-500 text-[9px] uppercase tracking-widest">{review.location}</p>
+          <p className="text-[#3B2A25]/60 text-[9px] uppercase tracking-widest">{review.location}</p>
         </div>
       </div>
 
-      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded-full w-fit">
-        <span className="w-1 h-1 rounded-full bg-[#D4AF37]" />
-        <span className="text-neutral-400 text-[8px] uppercase tracking-widest font-bold">{review.product}</span>
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#FAF7F5] border border-[#E6D1CB] rounded-full w-fit">
+        <span className="w-1 h-1 rounded-full bg-[#9C6A5A]" />
+        <span className="text-[#3B2A25]/75 text-[8px] uppercase tracking-widest font-bold">{review.product}</span>
       </div>
     </div>
   </div>
@@ -163,25 +162,25 @@ export default function CustomerReviewSection() {
   }, []);
 
   return (
-    <section className="py-8 md:py-16 bg-[#050505] border-t border-neutral-900 overflow-hidden font-sans">
+    <section className="py-12 md:py-20 bg-[#FAF7F5] border-t border-[#E6D1CB] overflow-hidden font-sans">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-8">
         {/* Header */}
-        <div className="text-center mb-6 md:mb-10">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">
+        <div className="text-center mb-10">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#9C6A5A] mb-2">
             Customer Reviews
           </p>
-          <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-[0.12em] text-white">
-            What Our Customers Say
+          <h2 className="text-2xl sm:text-3xl font-serif font-light text-[#3B2A25]">
+            Loved by Our Patrons
           </h2>
-          <div className="h-[2px] w-12 bg-[#D4AF37] mx-auto mt-4" />
+          <div className="h-[2px] w-12 bg-[#9C6A5A] mx-auto mt-4" />
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 md:mb-10 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 max-w-4xl mx-auto">
           {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center py-4 px-3 rounded-lg bg-[#0F0F0F] border border-neutral-800">
-              <span className="text-xl sm:text-2xl font-black text-white">{stat.value}</span>
-              <span className="text-[9px] uppercase tracking-widest text-neutral-500 mt-1">{stat.label}</span>
+            <div key={stat.label} className="flex flex-col items-center py-4 px-3 rounded-lg bg-white border border-[#E6D1CB] shadow-sm">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-[#3B2A25]">{stat.value}</span>
+              <span className="text-[9px] uppercase tracking-widest text-[#3B2A25]/60 mt-1">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -194,8 +193,8 @@ export default function CustomerReviewSection() {
         onMouseLeave={() => setPaused(false)}
       >
         {/* Left & Right Gradients for smooth fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#050505] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#050505] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#FAF7F5] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#FAF7F5] to-transparent z-10 pointer-events-none" />
 
         <div 
           ref={trackRef} 
@@ -237,7 +236,7 @@ export default function CustomerReviewSection() {
               className="h-1 rounded-full transition-all duration-300"
               style={{
                 width: idx === activeMobileIndex ? "18px" : "6px",
-                backgroundColor: idx === activeMobileIndex ? "#D4AF37" : "#333",
+                backgroundColor: idx === activeMobileIndex ? "#9C6A5A" : "#E6D1CB",
               }}
               aria-label={`Go to review ${idx + 1}`}
             />

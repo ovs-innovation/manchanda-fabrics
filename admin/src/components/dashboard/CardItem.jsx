@@ -41,6 +41,12 @@ const colorMap = {
     icon: "bg-emerald-500/10 text-emerald-500 dark:bg-emerald-400/20 dark:text-emerald-300",
     dot: "bg-emerald-400",
   },
+  store: {
+    gradient: "from-store-50 to-white dark:from-store-900/40 dark:to-store-900",
+    ring: "ring-store-200 dark:ring-store-700/40",
+    icon: "bg-store-500/10 text-store-500 dark:bg-store-400/20 dark:text-store-300",
+    dot: "bg-store-400",
+  },
   red: {
     gradient: "from-red-50 to-white dark:from-red-950/30 dark:to-gray-800",
     ring: "ring-red-200 dark:ring-red-800/40",
@@ -67,7 +73,7 @@ const CardItem = ({
   // Detect color from className string
   const colorKey = Object.keys(colorMap).find((key) =>
     className?.includes(key)
-  ) || "teal";
+  ) || "store";
   const colors = colorMap[colorKey];
 
   return (
@@ -104,7 +110,7 @@ const CardItem = ({
               <div className="flex gap-3 mt-1 mb-1">
                 <div className="flex flex-col">
                   <span className="text-[9px] text-gray-400 uppercase tracking-wider">Today</span>
-                  <span className="text-xs font-bold text-teal-600 dark:text-teal-400">
+                  <span className="text-xs font-bold text-store-600 dark:text-store-400">
                     {getNumberTwo(todayPending)}
                   </span>
                 </div>

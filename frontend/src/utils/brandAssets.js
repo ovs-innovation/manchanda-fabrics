@@ -1,6 +1,6 @@
-/** Rasa Store brand logo — prefer local asset for fast, reliable loads */
-export const DEFAULT_BRAND_LOGO = "/rasaLogo.png";
-export const PRODUCT_PLACEHOLDER = "/rasaLogo.png";
+/** Manchanda Fabrics brand logo */
+export const DEFAULT_BRAND_LOGO = "/logo/logo.png";
+export const PRODUCT_PLACEHOLDER = "/placeholder.png";
 
 const LEGACY_CLOUDS = ["dhqcwkpzp", "ahossain"];
 

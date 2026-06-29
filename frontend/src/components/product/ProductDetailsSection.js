@@ -158,8 +158,8 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
   return (
     <div className="mt-10 space-y-8">
       <div>
-        <h2 className="text-2xl font-black text-white mb-6 px-1 tracking-tight uppercase flex items-center gap-3">
-          <span className="w-1.5 h-8 bg-[#D4AF37] rounded-full inline-block" />
+        <h2 className="text-2xl font-black text-[#3B2A25] mb-6 px-1 tracking-tight uppercase flex items-center gap-3">
+          <span className="w-1.5 h-8 bg-[#9C6A5A] rounded-full inline-block" />
           In-Depth Features
         </h2>
       </div>
@@ -181,19 +181,19 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
         return (
           <div
             key={sectionKey}
-            className="bg-[#0A0A0A] border border-neutral-900 rounded-[2rem] overflow-hidden transition-all hover:border-neutral-800"
+            className="py-6 overflow-hidden transition-all"
           >
-            <div className="px-8 py-6 bg-[#0d0d0d] border-b border-neutral-900">
-              <h3 className="text-xl font-bold text-white">
+            <div className="pb-4 bg-transparent border-b border-[#E6D1CB]/60">
+              <h3 className="text-xl font-bold text-[#3B2A25]">
                 {section?.name || "Product Specification"}
               </h3>
               {section?.description && (
-                <p className="text-sm text-neutral-400 mt-2">
+                <p className="text-sm text-[#3B2A25]/70 mt-2">
                   {section.description}
                 </p>)} </div>
 
             {keyValueSubsections.length > 0 && (
-              <div className="px-5 md:px-6 py-2">
+              <div className="py-2">
                 {visibleRows.map((sub, idx) => {
                   const label = sub?.key || sub?.title || `Detail ${idx + 1}` || "";
                   const value = sub?.value || sub?.content || sub?.description || "—";
@@ -203,12 +203,12 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
 
                   return (
                 <div key={`${sectionKey}-row-${idx}`}
-                      className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-3.5 border-b border-neutral-900/60 last:border-none"
+                      className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-3.5 border-b border-[#E6D1CB]/50 last:border-none"
                     >
-                      <span className="text-sm text-neutral-400 font-medium">
+                      <span className="text-sm text-[#3B2A25]/70 font-medium">
                         {label}
                       </span>
-                      <span className="text-sm text-white font-semibold sm:col-span-2">
+                      <span className="text-sm text-[#3B2A25] font-semibold sm:col-span-2">
                         {value}
                       </span>
                     </div>
@@ -218,11 +218,11 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
             )}
 
             {keyValueSubsections.length > 6 && (
-              <div className="px-5 md:px-6 pb-4 pt-2">
+              <div className="pb-4 pt-2">
                 <button
                   type="button"
                   onClick={() => handleToggleSection(sectionKey)}
-                  className="text-sm font-semibold text-[#D4AF37] hover:text-white transition-colors"
+                  className="text-sm font-semibold text-[#9C6A5A] hover:text-[#3B2A25] transition-colors"
                 >
                   {isExpanded ? "Show Less" : "Read More"}
                 </button>
@@ -230,11 +230,11 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
             )}
 
             {paragraphSubsections.length > 0 && (
-              <div className="px-5 md:px-6 pb-6 pt-3 space-y-3">
+              <div className="pb-6 pt-3 space-y-3">
                 {paragraphSubsections.map((paragraph, idx) => (
                   <p
                     key={`${sectionKey}-paragraph-${idx}`}
-                    className="text-sm leading-relaxed text-neutral-300 text-justify"
+                    className="text-sm leading-relaxed text-[#3B2A25]/85 text-justify"
                   >
                     {paragraph?.content ||
                       paragraph?.value ||
@@ -251,28 +251,28 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
       {visibleMediaSections.map((section, sectionIndex) => (
         <div
           key={`${section?.name || "media"}-${sectionIndex}`}
-          className="bg-[#0A0A0A] border border-neutral-900 rounded-2xl overflow-hidden"
+          className="py-6 overflow-hidden"
         >
-          <div className="px-5 md:px-6 py-4 border-b border-neutral-900 bg-[#0d0d0d]">
-            <h3 className="text-lg font-bold text-white">
+          <div className="py-4 border-b border-[#E6D1CB]/60 bg-transparent">
+            <h3 className="text-lg font-bold text-[#3B2A25]">
               {section?.name || "Highlights"}
             </h3>
             {section?.description && (
-              <p className="text-sm text-neutral-400 mt-1 text-justify">
+              <p className="text-sm text-[#3B2A25]/70 mt-1 text-justify">
                 {section.description}
               </p>
             )}
           </div>
 
-          <div className=" flex flex-col gap-10 p-5 md:p-6">
+          <div className=" flex flex-col gap-10 py-6">
             {(section?.items || [])
               .filter((item) => item && item?.details)
               .map((item, idx) => (
                 <div
                   key={`${section?.name || "media"}-item-${idx}`}
-                  className="flex flex-col sm:flex-row sm:even:flex-row-reverse items-center sm:items-stretch gap-5 p-4 border border-neutral-900 bg-[#0d0d0d]/40 rounded-xl"
+                  className="flex flex-col sm:flex-row sm:even:flex-row-reverse items-center sm:items-stretch gap-5 p-4 border border-[#E6D1CB]/60 bg-transparent rounded-xl"
                 >
-                  <div className="w-44 sm:w-64 flex-shrink-0 rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950">
+                  <div className="w-44 sm:w-64 flex-shrink-0 rounded-lg overflow-hidden border border-[#E6D1CB]/60 bg-neutral-950">
                     <img
                       src={item?.image || placeholderImage}
                       alt={item?.details || section?.name || "Product highlight"}
@@ -284,7 +284,7 @@ const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selec
                       }}
                     />
                   </div>
-                  <p className="text-sm text-neutral-300 leading-relaxed text-justify">
+                  <p className="text-sm text-[#3B2A25]/85 leading-relaxed text-justify">
                     {item?.details}
                   </p>
                 </div>

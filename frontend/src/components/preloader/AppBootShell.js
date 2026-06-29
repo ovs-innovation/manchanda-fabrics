@@ -2,18 +2,18 @@ import React from "react";
 
 const AppBootShell = () => (
   <div
-    className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050505]"
+    className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAF7F5]"
     aria-hidden="true"
   >
     <img
-      src="/rasaLogo.png"
+      src="/logo/logo.png"
       alt=""
       width={120}
       height={48}
       className="h-10 w-auto object-contain opacity-90 animate-pulse"
     />
     <div className="mt-6 h-0.5 w-24 overflow-hidden rounded-full bg-neutral-800">
-      <div className="h-full w-1/2 animate-[shimmer_1.2s_ease-in-out_infinite] rounded-full bg-[#D4AF37]" />
+      <div className="h-full w-1/2 animate-[shimmer_1.2s_ease-in-out_infinite] rounded-full bg-[#9C6A5A]" />
     </div>
     <style jsx global>{`
       @keyframes shimmer {

@@ -429,83 +429,6 @@ const Checkout = () => {
   return (
     <>
       <Layout title="Checkout" description="this is checkout page">
-        <style jsx global>{`
-          /* Checkout page dark theme overrides */
-          body {
-            background-color: #050505 !important;
-            color: #ffffff !important;
-          }
-
-          /* Form sections wrapper */
-          .form-group h2 {
-            color: #ffffff !important;
-            font-weight: 800 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.05em !important;
-          }
-          
-          .bg-gray-50.border-gray-200 {
-            background-color: #0a0a0a !important;
-            border-color: #141414 !important;
-          }
-          
-          /* Select Delivery Address card */
-          div[class*="border-gray-200"] {
-            background-color: #0f0f0f !important;
-            border-color: #1a1a1a !important;
-          }
-          div[class*="border-gray-200"]:hover {
-            border-color: #d4af3730 !important;
-          }
-          
-          /* Deliver To badge */
-          .bg-blue-50.text-gray-700 {
-            background-color: #d4af3715 !important;
-            color: #d4af37 !important;
-            border: 1px solid #d4af3730 !important;
-          }
-          
-          /* Text overrides */
-          h3.text-gray-900,
-          p.text-gray-900,
-          span.text-gray-900,
-          p.text-base.font-bold {
-            color: #ffffff !important;
-          }
-          p.text-gray-500,
-          span.text-gray-500,
-          span.text-gray-600,
-          span.text-gray-700 {
-            color: #a3a3a3 !important;
-          }
-          
-          /* Selected address highlights */
-          .ring-2.ring-store-300 {
-            border-color: #d4af37 !important;
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2) !important;
-          }
-          
-          /* Input & Form field area styling */
-          input, select, textarea {
-            background-color: #050505 !important;
-            border-color: #1a1a1a !important;
-            color: #ffffff !important;
-          }
-          input:focus, select:focus, textarea:focus {
-            border-color: #d4af37 !important;
-            outline: none !important;
-          }
-          
-          /* Add Address button & Action buttons */
-          button.bg-store-500 {
-            background-color: #d4af37 !important;
-            color: #000000 !important;
-            font-weight: 700 !important;
-          }
-          button.bg-store-500:hover {
-            background-color: #c29e2e !important;
-          }
-        `}</style>
         <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-10">
           <div className="py-6 sm:py-10 lg:py-12 w-full flex flex-col lg:flex-row lg:gap-10 xl:gap-14">
             <div className="w-full lg:w-3/5 flex flex-col min-w-0">
@@ -527,13 +450,13 @@ const Checkout = () => {
                         storeCustomizationSetting?.checkout?.personal_details
                       )}
                     </h2>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+                    <div className="bg-gray-50 border border-[#E6D1CB]/60 rounded-lg p-4 sm:p-6">
                       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
                         <h3 className="text-sm font-medium text-gray-900">Select Delivery Address</h3>
                         <button
                           type="button"
                           onClick={handleAddAddress}
-                          className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-store-500 hover:bg-store-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-store-500 w-full sm:w-auto shrink-0"
+                          className="inline-flex items-center justify-center px-3 py-1.5 border border-[#E6D1CB] text-xs font-medium rounded-md text-[#3B2A25] bg-[#FAF7F5] hover:bg-[#E6D1CB]/50 focus:outline-none w-full sm:w-auto shrink-0 transition-colors"
                         >
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -571,8 +494,8 @@ const Checkout = () => {
                                 }}
                                 className={`border-2 rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
                                   isSelected
-                                    ? ' border-gray-200 ring-2 ring-store-300'
-                                    : 'border-gray-200 bg-white hover:border-store-300 hover:shadow-sm'
+                                    ? ' border-[#E6D1CB]/60 ring-2 ring-store-300'
+                                    : 'border-[#E6D1CB]/60 bg-white hover:border-store-300 hover:shadow-sm'
                                 }`}
                               >
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -597,7 +520,7 @@ const Checkout = () => {
                                           setValue("country", address.country || "India");
                                           setValue("zipCode", address.zipCode || "");
                                         }}
-                                        className="h-5 w-5 text-store-600 focus:ring-store-500 border-gray-300 cursor-pointer"
+                                        className="h-5 w-5 text-[#9C6A5A] focus:ring-store-500 border-gray-300 cursor-pointer"
                                       />
                                     </div>
                                     <div className="flex-1">
@@ -626,7 +549,7 @@ const Checkout = () => {
                                           e.stopPropagation();
                                           handleEditAddress(address);
                                         }}
-                                        className="text-gray-400 hover:text-store-600 p-1 transition-colors"
+                                        className="text-gray-400 hover:text-[#9C6A5A] p-1 transition-colors"
                                         title="Edit address"
                                       >
                                         <FiEdit className="w-4 h-4" />
@@ -679,7 +602,7 @@ const Checkout = () => {
                       ))}
 
                       {isEmpty && (
-                        <div className="text-center py-10 border border-gray-200 rounded-lg">
+                        <div className="text-center py-10 border border-[#E6D1CB]/60 rounded-lg">
                           <span className="flex justify-center my-auto text-gray-500 font-semibold text-4xl">
                             <IoBagHandle />
                           </span>
@@ -709,7 +632,7 @@ const Checkout = () => {
                       <button
                         type="submit"
                         disabled={isEmpty || isCheckoutSubmit}
-                        className={`bg-store-500 hover:bg-store-600 border border-store-500 transition-all rounded py-3 text-center text-sm font-serif font-medium text-white flex justify-center w-full`}
+                        className={`bg-[#FAF7F5] hover:bg-[#9C6A5A] border border-[#9C6A5A] transition-all rounded py-3 text-center text-sm font-serif font-medium text-[#3B2A25] flex justify-center w-full`}
                       >
                         {isCheckoutSubmit ? (
                           <span className="flex justify-center text-center">
@@ -770,7 +693,7 @@ const Checkout = () => {
                                 {couponInfo.couponCode}
                               </span>
                             </div>
-                            <div className="bg-emerald-500 text-white p-1.5 rounded-full shadow-sm mt-1">
+                            <div className="bg-emerald-500 text-[#3B2A25] p-1.5 rounded-full shadow-sm mt-1">
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                               </svg>
@@ -813,7 +736,7 @@ const Checkout = () => {
                               <select
                                 value={selectedCouponCode}
                                 onChange={(e) => setSelectedCouponCode(e.target.value)}
-                                className="form-select py-2 px-3 md:px-4 w-full appearance-none transition ease-in-out border text-input text-sm rounded-md h-12 duration-200 bg-white border-gray-200 focus:ring-0 focus:outline-none focus:border-store-500"
+                                className="form-select py-2 px-3 md:px-4 w-full appearance-none transition ease-in-out border text-input text-sm rounded-md h-12 duration-200 bg-white border-[#E6D1CB]/60 focus:ring-0 focus:outline-none focus:border-[#9C6A5A]"
                               >
                                 <option value="">
                                   {t("Select a coupon")}
@@ -831,7 +754,7 @@ const Checkout = () => {
                                   <button
                                     disabled
                                     type="button"
-                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border border-gray-200 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 bg-gray-100 h-12 text-sm lg:text-base w-full sm:w-auto`}
+                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border border-[#E6D1CB]/60 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 bg-gray-100 h-12 text-sm lg:text-base w-full sm:w-auto`}
                                   >
                                     <img
                                       src="/loader/spinner.gif"
@@ -845,7 +768,7 @@ const Checkout = () => {
                                   <button
                                     disabled={isCouponAvailable || !selectedCouponCode}
                                     onClick={handleCouponCode}
-                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer bg-store-600 transition ease-in-out duration-300 font-semibold text-center justify-center border border-gray-200 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 hover:text-white hover:bg-store-500 h-12 text-sm text-white lg:text-base w-full sm:w-auto ${
+                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer bg-[#9C6A5A] transition ease-in-out duration-300 font-semibold text-center justify-center border border-[#E6D1CB]/60 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 hover:text-[#3B2A25] hover:bg-[#FAF7F5] h-12 text-sm text-[#3B2A25] lg:text-base w-full sm:w-auto ${
                                       !selectedCouponCode ? "opacity-60 cursor-not-allowed" : ""
                                     }`}
                                   >
@@ -978,7 +901,7 @@ const Checkout = () => {
                 <div className="mt-6 bg-gray-50 rounded-lg p-4">
                   {/* Payment Method Selection */}
                   <div className="mb-4">
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white rounded-lg p-3 border border-gray-200">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 bg-white rounded-lg p-3 border border-[#E6D1CB]/60">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
                           <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -991,7 +914,7 @@ const Checkout = () => {
                               {...register("paymentMethod", {
                                 required: "Payment Method is required!",
                               })}
-                              className="w-full px-2 py-1 pr-8 bg-transparent border-none focus:ring-0 focus:outline-none text-sm font-medium text-store-600 cursor-pointer appearance-none"
+                              className="w-full px-2 py-1 pr-8 bg-transparent border-none focus:ring-0 focus:outline-none text-sm font-medium text-[#9C6A5A] cursor-pointer appearance-none"
                               defaultValue=""
                             >
                               <option value="" disabled>
@@ -1009,7 +932,7 @@ const Checkout = () => {
                               )}
                             </select>
                             <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
-                              <svg className="w-4 h-4 text-store-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 text-[#9C6A5A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                               </svg>
                             </div>
@@ -1040,10 +963,10 @@ const Checkout = () => {
                       }
                     }}
                     disabled={isEmpty || isCheckoutSubmit || !agreeToTerms}
-                    className={`w-full py-4 rounded-lg text-base font-semibold text-white transition-all ${
+                    className={`w-full py-4 rounded-lg text-base font-semibold text-[#3B2A25] transition-all ${
                       isEmpty || isCheckoutSubmit || !agreeToTerms
                         ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-store-500 hover:bg-store-600 shadow-md hover:shadow-lg'
+                        : 'bg-[#FAF7F5] hover:bg-[#9C6A5A] shadow-md hover:shadow-lg'
                     }`}
                   >
                     {isCheckoutSubmit ? (
@@ -1073,15 +996,15 @@ const Checkout = () => {
                       id="agreeToTerms"
                       checked={agreeToTerms}
                       onChange={(e) => setAgreeToTerms(e.target.checked)}
-                      className="mt-1 h-4 w-4 text-store-600 focus:ring-store-500 border-gray-300 rounded cursor-pointer"
+                      className="mt-1 h-4 w-4 text-[#9C6A5A] focus:ring-store-500 border-gray-300 rounded cursor-pointer"
                     />
                     <label htmlFor="agreeToTerms" className="text-xs sm:text-sm text-gray-900 font-semibold cursor-pointer leading-relaxed">
                       By placing the order, you agree to our{" "}
-                      <Link href="/terms" className="text-store-700 hover:text-store-800 hover:underline font-bold">
+                      <Link href="/terms" className="text-[#9C6A5A] hover:text-store-800 hover:underline font-bold">
                         Terms & Conditions
                       </Link>
                       {" "}and{" "}
-                      <Link href="/privacy" className="text-store-700 hover:text-store-800 hover:underline font-bold">
+                      <Link href="/privacy" className="text-[#9C6A5A] hover:text-store-800 hover:underline font-bold">
                         Privacy Policy
                       </Link>
                     </label>
@@ -1106,7 +1029,7 @@ const Checkout = () => {
           <div className="absolute right-0 w-full sm:max-w-md lg:max-w-lg flex flex-col top-16 h-[calc(100dvh-4rem)] lg:top-[148px] lg:h-[calc(100dvh-148px)]">
             <div className="flex flex-col flex-1 min-h-0 bg-white shadow-xl">
               {/* Header */}
-              <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+              <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E6D1CB]/60">
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 pr-2">
                   {editingAddress ? "Edit Shipping Address" : "Add Shipping Address"}
                 </h3>
@@ -1270,7 +1193,7 @@ const Checkout = () => {
                         name="isDefault"
                         checked={addressForm.isDefault}
                         onChange={handleAddressChange}
-                        className="h-4 w-4 text-store-600 focus:ring-store-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-[#9C6A5A] focus:ring-store-500 border-gray-300 rounded"
                       />
                       <label className="ml-2 block text-sm text-gray-700">
                         Set as default address
@@ -1281,7 +1204,7 @@ const Checkout = () => {
                 </div>
 
                 {/* Footer Buttons - always visible */}
-                <div className="flex-shrink-0 border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                <div className="flex-shrink-0 border-t border-[#E6D1CB]/60 px-4 sm:px-6 py-3 sm:py-4 bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:space-x-3 sm:gap-0">
                   <button
                     type="button"
@@ -1292,7 +1215,7 @@ const Checkout = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2.5 border border-transparent rounded-md text-sm font-medium text-white bg-store-500 hover:bg-store-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-store-500"
+                    className="flex-1 px-4 py-2.5 border border-transparent rounded-md text-sm font-medium text-[#3B2A25] bg-[#FAF7F5] hover:bg-[#9C6A5A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-store-500"
                   >
                     {editingAddress ? "Update Address" : "Save Address"}
                   </button>

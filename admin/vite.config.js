@@ -59,9 +59,9 @@ export default defineConfig({
         scope: ".",
         start_url: ".",
         id: ".",
-        short_name: "RASA Admin",
-        name: "RASA | Fashion Store Admin",
-        description: "RASA — Premium Sneakers & Streetwear Admin Dashboard",
+        short_name: "Manchanda Fabrics Admin",
+        name: "Manchanda Fabrics | Store Admin",
+        description: "Manchanda Fabrics — Premium Sarees, Suits & Ethnic Wear Admin Dashboard",
         icons: [
           {
             src: "/favicon-transparent.png",

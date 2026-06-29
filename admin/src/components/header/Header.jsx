@@ -320,7 +320,7 @@ const Header = () => {
         </div>
       )}
 
-      <header className="z-30 py-4 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-50 dark:border-gray-700">
+      <header className="z-30 py-4 bg-white dark:bg-store-900 shadow-sm border-b border-store-200 dark:border-store-700/40">
         <div className="container flex items-center justify-between h-full px-6 mx-auto text-store-500 dark:text-gray-300">
           <button
             type="button"

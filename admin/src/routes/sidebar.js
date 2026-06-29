@@ -14,7 +14,7 @@ import {
 } from "react-icons/fi";
 
 /**
- * RASA Admin — premium fashion store navigation.
+ * Manchanda Fabrics Admin — premium fashion store navigation.
  * Phase 1: Orders, Catalog, Inventory, Homepage Manager submenus.
  */
 const sidebar = [
@@ -44,7 +44,6 @@ const sidebar = [
       { path: "/products", name: "Products" },
       { path: "/categories", name: "Categories" },
       { path: "/sub-categories", name: "Sub Categories" },
-      { path: "/brands", name: "Brands" },
       { path: "/attributes", name: "Attributes" },
       { path: "/reviews", name: "Reviews" },
     ],
@@ -62,11 +61,10 @@ const sidebar = [
     icon: FiHome,
     name: "Homepage Manager",
     routes: [
-      { path: "/homepage", name: "Overview" },
+      { path: "/homepage/overview", name: "Overview" },
       { path: "/homepage/hero", name: "Hero Banners" },
       { path: "/homepage/trending", name: "Trending Products" },
       { path: "/homepage/new-arrivals", name: "New Arrivals" },
-      { path: "/homepage/brands", name: "Shop By Brand" },
       { path: "/homepage/categories", name: "Shop By Category" },
       { path: "/homepage/instagram", name: "Instagram Feed" },
       { path: "/homepage/order", name: "Section Ordering" },

@@ -41,7 +41,7 @@ const buildItemsHtml = (cart = [], currency = "₹") => {
 
 const newOrderAdminEmailBody = (option) => {
   const {
-    shop_name = "RASA",
+    shop_name = "manchanda",
     logo,
     invoice,
     currency = "₹",

@@ -71,7 +71,7 @@ const TestimonialsSection = () => {
     {
       _id: "fb1",
       title: "GRAIL STATUS COAT",
-      text: "The heavyweight wool blend on the drop-shoulder overcoat is exceptional. Perfect minimalist styling, clean stitching, and a structure that holds its shape. RASA has set a new benchmark.",
+      text: "The heavyweight wool blend on the drop-shoulder overcoat is exceptional. Perfect minimalist styling, clean stitching, and a structure that holds its shape. Manchanda Fabrics has set a new benchmark.",
       author: "Julian R.",
       role: "Verified Collector",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop",
@@ -89,7 +89,7 @@ const TestimonialsSection = () => {
     {
       _id: "fb3",
       title: "PREMIUM FINISHES",
-      text: "The hardware on the utility zip cargo pants feels solid, and the seams are reinforced. Delivered in under 3 days to my doorstep. RASA is easily my best pick of the season.",
+      text: "The hardware on the utility zip cargo pants feels solid, and the seams are reinforced. Delivered in under 3 days to my doorstep. Manchanda Fabrics is easily my best pick of the season.",
       author: "Sofia M.",
       role: "Stylist",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&auto=format&fit=crop",
@@ -120,7 +120,7 @@ const TestimonialsSection = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#1A1A1A] text-[#D4AF37] text-[9px] font-black uppercase tracking-widest border border-neutral-800 mb-4 rounded-none">
-                <span>Rasa Society</span>
+                <span>Manchanda Fabrics Society</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-black font-serif uppercase tracking-widest text-white leading-none">
                 {storeCustomizationSetting?.home?.testimonial_title || "Verified Stories"}

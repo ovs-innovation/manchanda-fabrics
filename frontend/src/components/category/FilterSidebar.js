@@ -77,12 +77,12 @@ const FilterSidebar = ({
   const discounts = [50, 40, 30, 20, 10];
 
   return (
-    <div className="bg-[#0D0D0D] border border-neutral-800 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.35)] overflow-hidden font-sans">
-      <div className="p-4 border-b border-neutral-800 flex justify-between items-center bg-[#050505]/40">
-        <h2 className="text-sm font-black uppercase tracking-widest text-white">Filters</h2>
+    <div className="font-sans">
+      <div className="pb-4 border-b border-[#E6D1CB]/60 flex justify-between items-center">
+        <h2 className="text-base font-bold uppercase tracking-widest text-[#3B2A25]">Filters</h2>
         <button
           onClick={onClearAll}
-          className="text-[#D4AF37] text-xs font-black uppercase hover:underline"
+          className="text-[#9C6A5A] text-xs font-bold uppercase hover:underline"
         >
           Clear All
         </button>
@@ -95,18 +95,18 @@ const FilterSidebar = ({
         selectedDiscount > 0 ||
         priceRange.min > 0 ||
         priceRange.max < 100000) && (
-        <div className="p-4 flex flex-wrap gap-2 border-b border-neutral-850 bg-[#050505]/20">
+        <div className="py-3 flex flex-wrap gap-2 border-b border-[#E6D1CB]/50">
           {selectedBrands.map((brandId) => {
             const brand = brands.find((b) => b._id === brandId);
             if (!brand) return null;
             return (
               <span
                 key={brandId}
-                className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300"
+                className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium"
               >
                 {showingTranslateValue(brand.name)}
                 <IoClose
-                  className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                  className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                   onClick={() => handleBrandChange(brandId)}
                 />
               </span>
@@ -147,10 +147,10 @@ const FilterSidebar = ({
               }
 
               return tags.map((t) => (
-                <span key={t.id} className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300">
+                <span key={t.id} className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
                   {showingTranslateValue(t.name)}
                   <IoClose
-                    className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                    className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                     onClick={() => {
                       if (t.isParent) {
                         const parent = categories.find((c) => c._id === t.id);
@@ -166,19 +166,19 @@ const FilterSidebar = ({
             })()
           }
           {priceRange.min > 0 && (
-            <span className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300">
+            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
               Min: {priceRange.min}
               <IoClose
-                className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setPriceRange((prev) => ({ ...prev, min: 0 }))}
               />
             </span>
           )}
           {priceRange.max < 100000 && (
-            <span className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300">
+            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
               Max: {priceRange.max}
               <IoClose
-                className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() =>
                   setPriceRange((prev) => ({ ...prev, max: 100000 }))
                 }
@@ -186,19 +186,19 @@ const FilterSidebar = ({
             </span>
           )}
           {selectedRating > 0 && (
-            <span className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300">
+            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
               {selectedRating}★ & above
               <IoClose
-                className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedRating(0)}
               />
             </span>
           )}
           {selectedDiscount > 0 && (
-            <span className="inline-flex items-center px-2 py-1 bg-neutral-900 border border-neutral-800 text-xs rounded-lg text-neutral-300">
+            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
               {selectedDiscount}%+ Off
               <IoClose
-                className="ml-1.5 cursor-pointer text-neutral-500 hover:text-white"
+                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedDiscount(0)}
               />
             </span>
@@ -207,16 +207,32 @@ const FilterSidebar = ({
       )}
 
       {/* Categories */}
-      <div className="border-b border-neutral-850">
+      <div className="border-b border-[#E6D1CB]/50">
         <button
           onClick={() => toggleSection("category")}
-          className="w-full p-4 flex justify-between items-center text-xs font-black uppercase text-neutral-200 hover:bg-neutral-900/60 transition-colors"
+          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           Categories
-          {openSections.category ? <FiChevronUp className="text-neutral-400" /> : <FiChevronDown className="text-neutral-400" />}
+          {openSections.category ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.category && (
-          <div className="px-4 pb-4 max-h-96 overflow-y-auto">
+          <div className="pb-4 max-h-96 overflow-y-auto">
+            {/* All Categories option */}
+            <div className="flex items-center mb-3">
+              <input
+                type="checkbox"
+                id="cat-all"
+                checked={selectedCategories.length === 0}
+                onChange={() => setSelectedCategories("all")}
+                className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4 cursor-pointer"
+              />
+              <label
+                htmlFor="cat-all"
+                className="ml-2 text-sm font-bold text-[#3B2A25]/85 cursor-pointer flex-1 hover:text-[#9C6A5A] transition-colors"
+              >
+                All Categories
+              </label>
+            </div>
             {categories.map((cat) => {
               const hasChildren = cat?.children && cat.children.length > 0;
               const isExpanded = expandedCategories[cat._id];
@@ -236,11 +252,11 @@ const FilterSidebar = ({
                           const ids = (cat.children && cat.children.length > 0) ? [cat._id, ...cat.children.map(c => c._id)] : [cat._id];
                           handleCategoryChange(ids);
                         }}
-                        className="rounded border-neutral-800 text-[#D4AF37] bg-neutral-950 focus:ring-[#D4AF37] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                        className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                       />
                       <label
                         htmlFor={`cat-${cat._id}`}
-                        className="ml-2 text-sm font-medium text-neutral-300 cursor-pointer flex-1 hover:text-[#D4AF37] transition-colors"
+                        className="ml-2 text-sm font-medium text-[#3B2A25]/85 cursor-pointer flex-1 hover:text-[#9C6A5A] transition-colors"
                       >
                         {showingTranslateValue(cat.name)}
                       </label>
@@ -251,7 +267,7 @@ const FilterSidebar = ({
                           e.stopPropagation();
                           toggleCategory(cat._id);
                         }}
-                        className="ml-2 p-1 text-neutral-500 hover:text-[#D4AF37] transition-colors"
+                        className="ml-2 p-1 text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-colors"
                         aria-label={isExpanded ? "Collapse" : "Expand"}
                       >
                         {isExpanded ? (
@@ -264,7 +280,7 @@ const FilterSidebar = ({
                   </div>
                   
                   {hasChildren && isExpanded && (
-                    <div className="ml-6 mt-2 mb-3 border-l-2 border-neutral-800 pl-4 space-y-2">
+                    <div className="ml-6 mt-2 mb-3 border-l-2 border-[#E6D1CB]/60 pl-4 space-y-2">
                       {cat.children.map((subCat) => (
                         <div key={subCat._id} className="flex items-center">
                           <input
@@ -272,11 +288,11 @@ const FilterSidebar = ({
                             id={`subcat-${subCat._id}`}
                             checked={selectedCategories.includes(subCat._id)}
                             onChange={() => handleCategoryChange(subCat._id)}
-                            className="rounded border-neutral-800 text-[#D4AF37] bg-neutral-950 focus:ring-[#D4AF37] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                            className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                           />
                           <label
                             htmlFor={`subcat-${subCat._id}`}
-                            className="ml-2 text-sm text-neutral-450 cursor-pointer hover:text-[#D4AF37] transition-colors"
+                            className="ml-2 text-sm text-[#3B2A25]/75 font-medium cursor-pointer hover:text-[#9C6A5A] transition-colors"
                           >
                             {showingTranslateValue(subCat.name)}
                           </label>
@@ -292,13 +308,13 @@ const FilterSidebar = ({
       </div>
 
       {/* Price */}
-      <div className="border-b border-neutral-850 p-4">
-        <h3 className="text-xs font-black uppercase text-neutral-200 mb-4">Price</h3>
+      <div className="border-b border-[#E6D1CB]/50 py-4">
+        <h3 className="text-sm font-bold uppercase text-[#3B2A25] mb-4">Price</h3>
         <div className="flex items-center gap-2">
           <select
             value={priceRange.min}
             onChange={(e) => handlePriceChange(e, "min")}
-            className="w-full text-xs bg-neutral-950 text-white border border-neutral-800 rounded-lg p-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] focus:outline-none"
+            className="w-full text-xs bg-white text-[#3B2A25] border border-[#E6D1CB]/60 rounded-lg p-2 focus:ring-[#9C6A5A] focus:border-[#9C6A5A] focus:outline-none"
           >
             <option value="0">0 {currency}</option>
             <option value="500">500 {currency}</option>
@@ -307,11 +323,11 @@ const FilterSidebar = ({
             <option value="10000">10000 {currency}</option>
             <option value="50000">50000 {currency}</option>
           </select>
-          <span className="text-neutral-500 text-xs">to</span>
+          <span className="text-[#3B2A25]/60 text-xs">to</span>
           <select
             value={priceRange.max}
             onChange={(e) => handlePriceChange(e, "max")}
-            className="w-full text-xs bg-neutral-950 text-white border border-neutral-800 rounded-lg p-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] focus:outline-none"
+            className="w-full text-xs bg-white text-[#3B2A25] border border-[#E6D1CB]/60 rounded-lg p-2 focus:ring-[#9C6A5A] focus:border-[#9C6A5A] focus:outline-none"
           >
             <option value={priceRange.max}>
               {priceRange.max >= 100000 ? "Max" : `${priceRange.max} ${currency}`}
@@ -330,26 +346,26 @@ const FilterSidebar = ({
           step="500"
           value={priceRange.max}
           onChange={(e) => handlePriceChange(e, "max")}
-          className="w-full mt-4 h-1.5 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]"
+          className="w-full mt-4 h-1.5 rounded-lg appearance-none cursor-pointer accent-[#9C6A5A]"
           style={{
-            background: `linear-gradient(to right, #D4AF37 0%, #D4AF37 ${
+            background: `linear-gradient(to right, #9C6A5A 0%, #9C6A5A ${
               (priceRange.max / 100000) * 100
-            }%, #262626 ${(priceRange.max / 100000) * 100}%, #262626 100%)`,
+            }%, #E6D1CB/30 ${(priceRange.max / 100000) * 100}%, #E6D1CB/30 100%)`,
           }}
         />
       </div>
 
       {/* Brand */}
-      <div className="border-b border-neutral-850">
+      <div className="border-b border-[#E6D1CB]/50">
         <button
           onClick={() => toggleSection("brand")}
-          className="w-full p-4 flex justify-between items-center text-xs font-black uppercase text-neutral-200 hover:bg-neutral-900/60 transition-colors"
+          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           Brand
-          {openSections.brand ? <FiChevronUp className="text-neutral-400" /> : <FiChevronDown className="text-neutral-400" />}
+          {openSections.brand ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.brand && (
-          <div className="px-4 pb-4 max-h-60 overflow-y-auto">
+          <div className="pb-4 max-h-60 overflow-y-auto">
             {brands.map((brand) => (
               <div key={brand._id} className="flex items-center mb-2">
                 <input
@@ -357,11 +373,11 @@ const FilterSidebar = ({
                   id={`brand-${brand._id}`}
                   checked={selectedBrands.includes(brand._id)}
                   onChange={() => handleBrandChange(brand._id)}
-                  className="rounded border-neutral-800 text-[#D4AF37] bg-neutral-950 focus:ring-[#D4AF37] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                  className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                 />
                 <label
                   htmlFor={`brand-${brand._id}`}
-                  className="ml-2 text-sm text-neutral-350 cursor-pointer hover:text-[#D4AF37] transition-colors"
+                  className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer hover:text-[#9C6A5A] transition-colors"
                 >
                   {showingTranslateValue(brand.name)}
                 </label>
@@ -372,16 +388,16 @@ const FilterSidebar = ({
       </div>
 
       {/* Customer Ratings */}
-      <div className="border-b border-neutral-850">
+      <div className="border-b border-[#E6D1CB]/50">
         <button
           onClick={() => toggleSection("rating")}
-          className="w-full p-4 flex justify-between items-center text-xs font-black uppercase text-neutral-200 hover:bg-neutral-900/60 transition-colors"
+          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           Customer Ratings
-          {openSections.rating ? <FiChevronUp className="text-neutral-400" /> : <FiChevronDown className="text-neutral-400" />}
+          {openSections.rating ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.rating && (
-          <div className="px-4 pb-4">
+          <div className="pb-4">
             {ratings.map((rating) => (
               <div
                 key={rating}
@@ -393,10 +409,10 @@ const FilterSidebar = ({
                   name="rating"
                   checked={selectedRating === rating}
                   onChange={() => setSelectedRating(rating)}
-                  className="text-[#D4AF37] bg-neutral-950 border-neutral-800 focus:ring-[#D4AF37] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                  className="text-[#9C6A5A] bg-white border-[#E6D1CB]/60 focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                 />
-                <div className="ml-2 flex items-center text-sm text-neutral-350 group-hover:text-[#D4AF37] transition-colors">
-                  {rating} <IoStar className="text-[#D4AF37] ml-1 mr-1" /> & above
+                <div className="ml-2 flex items-center text-sm text-[#3B2A25]/80 font-medium group-hover:text-[#9C6A5A] transition-colors">
+                  {rating} <IoStar className="text-[#9C6A5A] ml-1 mr-1" /> & above
                 </div>
               </div>
             ))}
@@ -405,16 +421,16 @@ const FilterSidebar = ({
       </div>
 
       {/* Discount */}
-      <div className="border-b border-neutral-850">
+      <div className="border-b border-[#E6D1CB]/50">
         <button
           onClick={() => toggleSection("discount")}
-          className="w-full p-4 flex justify-between items-center text-xs font-black uppercase text-neutral-200 hover:bg-neutral-900/60 transition-colors"
+          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           Discount
-          {openSections.discount ? <FiChevronUp className="text-neutral-400" /> : <FiChevronDown className="text-neutral-400" />}
+          {openSections.discount ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.discount && (
-          <div className="px-4 pb-4">
+          <div className="pb-4">
             {discounts.map((discount) => (
               <div
                 key={discount}
@@ -426,9 +442,9 @@ const FilterSidebar = ({
                   name="discount"
                   checked={selectedDiscount === discount}
                   onChange={() => setSelectedDiscount(discount)}
-                  className="text-[#D4AF37] bg-neutral-950 border-neutral-800 focus:ring-[#D4AF37] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                  className="text-[#9C6A5A] bg-white border-[#E6D1CB]/60 focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                 />
-                <label className="ml-2 text-sm text-neutral-350 cursor-pointer group-hover:text-[#D4AF37] transition-colors">
+                <label className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer group-hover:text-[#9C6A5A] transition-colors">
                   {discount}% or more
                 </label>
               </div>
