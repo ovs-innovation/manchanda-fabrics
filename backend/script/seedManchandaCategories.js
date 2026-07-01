@@ -73,11 +73,11 @@ const MANCHANDA_CATEGORIES = [
   },
   {
     status: "show",
-    name: { en: "Gorgette" },
+    name: { en: "Georgette" },
     parentId: "sarees",
     parentName: "Sarees",
-    slug: "gorgette",
-    description: { en: "Premium Gorgette sarees." },
+    slug: "georgette",
+    description: { en: "Premium Georgette sarees." },
   },
   {
     status: "show",

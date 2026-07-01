@@ -99,7 +99,7 @@ const run = async () => {
 <p>Returns and exchanges are subject to our Return & Refund Policy.</p>
 <h2>6. Contact Us</h2>
 <p>For any queries, please reach out to us via email or WhatsApp support.</p>
-<p>Social media: @itsallaboutrasa</p>` }
+<p>Social media: @manchandafabrics</p>` }
     };
 
     customSet.markModified("setting");

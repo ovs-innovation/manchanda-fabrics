@@ -255,7 +255,7 @@ const Dashboard = () => {
       <PageTitle>{t("DashboardOverview")}</PageTitle>
 
       <AnimatedContent>
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Modern Main Stats UI - Based on exact image request */}
           <ModernStats 
             dashboardOrderCount={dashboardOrderCount} 
@@ -268,8 +268,8 @@ const Dashboard = () => {
           <DetailedOrderStatus dashboardOrderCount={dashboardOrderCount} />
 
           {/* Charts area */}
-          <section className="mt-8 space-y-8">
-            {/* Row 1: Gross Sale & User Statistics - 2:1 Ratio */}
+          <section className="mt-8">
+            {/* Gross Sale & User Statistics - 2:1 Ratio */}
             <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <GrossSaleChart 
@@ -284,15 +284,6 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-
-            {/* Top Selling & Popular Section - New Image UI */}
-            <TopPopularSelling 
-               bestSeller={bestSellerProductChart?.bestSellingProduct} 
-               topBrands={dashboardOrderCount?.topBrands}
-            />
-            {/* <BottomPopularSelling 
-               goldCustomers={dashboardOrderCount?.goldCustomers}
-            /> */}
           </section>
         </div>
       </AnimatedContent>

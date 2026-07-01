@@ -1,6 +1,6 @@
-# Customer Model Migration — Legacy B2B → RASA B2C
+# Customer Model Migration — Legacy B2B → Manchanda B2C
 
-## Target schema (RASA customer)
+## Target schema (Manchanda customer)
 
 ```js
 {

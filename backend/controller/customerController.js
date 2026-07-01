@@ -6,6 +6,7 @@ const Order = require("../models/Order");
 const Setting = require("../models/Setting");
 const { signInToken, tokenForVerify } = require("../config/auth");
 const { sendEmail } = require("../lib/email-sender/sender");
+const { validateEmail, normalizeEmail } = require("../lib/email-sender/validateEmail");
 const { sendSMS, sendLoginOtpSms } = require("../lib/sms-sender/sender");
 const {
   simpleOtpEmail,
@@ -25,6 +26,42 @@ const normalizePhone = (phone) => {
 const buildPlaceholderEmail = (phone) => {
   const p = normalizePhone(phone);
   return `${p || Date.now()}@${PLACEHOLDER_EMAIL_DOMAIN}`;
+};
+
+
+const normalizeOtpCode = (otp) => String(otp ?? "").trim().replace(/\D/g, "");
+
+const generateLoginOtp = () => Math.floor(1000 + Math.random() * 9000).toString();
+
+const isLoginOtpExpired = (expiresAt) => {
+  if (!expiresAt) return true;
+  const expiry = expiresAt instanceof Date ? expiresAt : new Date(expiresAt);
+  return Number.isNaN(expiry.getTime()) || Date.now() > expiry.getTime();
+};
+
+const persistLoginOtp = async (userId) => {
+  const otp = generateLoginOtp();
+  const hashedOtp = bcrypt.hashSync(otp, 10);
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  const updated = await Customer.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        loginOtp: hashedOtp,
+        loginOtpExpires: otpExpires,
+        loginOtpAttempts: 0,
+        lastLoginOtpSentAt: new Date(),
+      },
+    },
+    { new: true }
+  );
+
+  if (!updated?.loginOtp || !updated?.loginOtpExpires) {
+    throw new Error("Failed to save OTP. Please try again.");
+  }
+
+  return { user: updated, otp, otpExpires };
 };
 
 const isPlaceholderEmail = (email) =>
@@ -213,16 +250,8 @@ const sendPhoneEmailOTP = async (req, res) => {
       });
     }
 
-    // Generate 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const hashedOtp = bcrypt.hashSync(otp, 10);
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    user.loginOtp = hashedOtp;
-    user.loginOtpExpires = otpExpires;
-    user.loginOtpAttempts = 0; // Reset attempts on new OTP request
-    user.lastLoginOtpSentAt = new Date();
-    await user.save();
+    const { user: userWithOtp, otp } = await persistLoginOtp(user._id);
+    user = userWithOtp;
 
     // Send OTP to registered email
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
@@ -311,9 +340,20 @@ const verifyPhoneEmailOTP = async (req, res) => {
 
     const wasVerified = !!user.phoneVerified;
 
+    const otpNorm = normalizeOtpCode(otp);
+    if (!otpNorm) {
+      return res.status(400).send({ message: "OTP is required." });
+    }
+
     // Check if OTP exists and is not expired
-    if (!user.loginOtp || !user.loginOtpExpires || new Date() > user.loginOtpExpires) {
-      return res.status(400).send({ message: "OTP has expired or not found. Please request a new one." });
+    if (!user.loginOtp || !user.loginOtpExpires) {
+      return res.status(400).send({
+        message: "No active OTP found. Tap Resend and enter the latest code from your email.",
+      });
+    }
+
+    if (isLoginOtpExpired(user.loginOtpExpires)) {
+      return res.status(400).send({ message: "OTP has expired. Please request a new one." });
     }
 
     // Check attempt limits
@@ -322,21 +362,20 @@ const verifyPhoneEmailOTP = async (req, res) => {
     }
 
     // Verify OTP
-    const isMatch = bcrypt.compareSync(otp, user.loginOtp);
+    const isMatch = bcrypt.compareSync(otpNorm, user.loginOtp);
 
     if (!isMatch) {
-      user.loginOtpAttempts += 1;
-      await user.save();
+      await Customer.findByIdAndUpdate(user._id, { $inc: { loginOtpAttempts: 1 } });
       return res.status(400).send({ message: "Invalid OTP code." });
     }
 
     // Success! Clear OTP fields
-    user.loginOtp = undefined;
-    user.loginOtpExpires = undefined;
-    user.loginOtpAttempts = 0;
+    await Customer.findByIdAndUpdate(user._id, {
+      $unset: { loginOtp: "", loginOtpExpires: "" },
+      $set: { loginOtpAttempts: 0, phoneVerified: true, lastLogin: new Date() },
+    });
     user.phoneVerified = true;
     user.lastLogin = new Date();
-    await user.save();
 
     const isNewUser = !wasVerified;
     await sendCustomerAuthResponse(
@@ -986,7 +1025,7 @@ const sendProfileEmailOtp = async (req, res) => {
     await customer.save();
 
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
-    const shopName = globalSetting?.setting?.shop_name || "manchanda";
+    const shopName = globalSetting?.setting?.shop_name || "Manchanda Fabrics";
     const otpMail = simpleOtpEmail({
       name: customer.name,
       email: normalizedEmail,
@@ -2049,10 +2088,11 @@ const sendEmailOtpLogin = async (req, res) => {
       return res.status(400).send({ message: "Email is required." });
     }
 
-    const emailNorm = String(email).toLowerCase().trim();
-    if (!emailNorm || !emailNorm.includes("@")) {
-      return res.status(400).send({ message: "Valid email address is required." });
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.ok) {
+      return res.status(400).send({ message: emailCheck.message });
     }
+    const emailNorm = emailCheck.email;
 
     let user = await Customer.findOne({ email: emailNorm });
 
@@ -2080,11 +2120,9 @@ const sendEmailOtpLogin = async (req, res) => {
         profileComplete: false,
       });
       await user.save();
-    } else if (user && intent === "signup" && !user.emailVerified) {
-      if (avatar) {
-        user.image = avatar;
-        await user.save();
-      }
+    } else if (user && intent === "signup" && !user.emailVerified && avatar) {
+      user.image = avatar;
+      await user.save();
     }
 
     // Check resend cooldown (60 seconds)
@@ -2095,23 +2133,15 @@ const sendEmailOtpLogin = async (req, res) => {
       });
     }
 
-    // Generate 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const hashedOtp = bcrypt.hashSync(otp, 10);
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    user.loginOtp = hashedOtp;
-    user.loginOtpExpires = otpExpires;
-    user.loginOtpAttempts = 0; // Reset attempts on new OTP request
-    user.lastLoginOtpSentAt = new Date();
-    await user.save();
+    const { user: userWithOtp, otp } = await persistLoginOtp(user._id);
+    user = userWithOtp;
 
     // Send OTP to email
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
     const option = {
       name: user.name,
       email: user.email,
-      otp: otp,
+      otp,
       shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
 
@@ -2129,9 +2159,11 @@ const sendEmailOtpLogin = async (req, res) => {
     };
 
     await sendEmail(body);
+    console.log(`[email] Login OTP sent → ${user.email}`);
     res.send({
       message: `4-digit OTP sent to your email: ${user.email}`,
       email: user.email,
+      intent,
       resendAfter: 60,
     });
 
@@ -2146,11 +2178,16 @@ const verifyEmailOtpLogin = async (req, res) => {
     const { email, otp, intent: rawIntent, avatar } = req.body;
     const intent = rawIntent === "signup" ? "signup" : "login";
 
-    if (!email || !otp) {
+    if (!email || otp === undefined || otp === null || otp === "") {
       return res.status(400).send({ message: "Email and OTP are required." });
     }
 
-    const emailNorm = String(email).toLowerCase().trim();
+    const emailNorm = normalizeEmail(email);
+    const otpNorm = normalizeOtpCode(otp);
+    if (!otpNorm) {
+      return res.status(400).send({ message: "OTP is required." });
+    }
+
     const user = await Customer.findOne({ email: emailNorm });
 
     if (!user) {
@@ -2165,9 +2202,14 @@ const verifyEmailOtpLogin = async (req, res) => {
 
     const wasVerified = !!user.emailVerified;
 
-    // Check if OTP exists and is not expired
-    if (!user.loginOtp || !user.loginOtpExpires || new Date() > user.loginOtpExpires) {
-      return res.status(400).send({ message: "OTP has expired or not found. Please request a new one." });
+    if (!user.loginOtp || !user.loginOtpExpires) {
+      return res.status(400).send({
+        message: "No active OTP found. Tap Resend and enter the latest code from your email.",
+      });
+    }
+
+    if (isLoginOtpExpired(user.loginOtpExpires)) {
+      return res.status(400).send({ message: "OTP has expired. Please request a new one." });
     }
 
     // Check attempt limits
@@ -2176,24 +2218,31 @@ const verifyEmailOtpLogin = async (req, res) => {
     }
 
     // Verify OTP
-    const isMatch = bcrypt.compareSync(otp, user.loginOtp);
+    const isMatch = bcrypt.compareSync(otpNorm, user.loginOtp);
 
     if (!isMatch) {
-      user.loginOtpAttempts += 1;
-      await user.save();
+      await Customer.findByIdAndUpdate(user._id, { $inc: { loginOtpAttempts: 1 } });
       return res.status(400).send({ message: "Invalid OTP code." });
     }
 
     // Success! Clear OTP fields
-    user.loginOtp = undefined;
-    user.loginOtpExpires = undefined;
-    user.loginOtpAttempts = 0;
+    const update = {
+      $unset: { loginOtp: "", loginOtpExpires: "" },
+      $set: {
+        loginOtpAttempts: 0,
+        emailVerified: true,
+        lastLogin: new Date(),
+      },
+    };
+    if (avatar) {
+      update.$set.image = avatar;
+    }
+    await Customer.findByIdAndUpdate(user._id, update);
     user.emailVerified = true;
     user.lastLogin = new Date();
     if (avatar) {
       user.image = avatar;
     }
-    await user.save();
 
     const isNewUser = !wasVerified;
     await sendCustomerAuthResponse(

@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import CustomerServices from "@services/CustomerServices";
 
+const normalizeEmail = (email) => String(email || "").toLowerCase().trim();
+
 const parseAuthError = (err, fallback) => {
   const data = err?.response?.data;
   const message = data?.message || err?.message || fallback;
@@ -10,15 +12,19 @@ const parseAuthError = (err, fallback) => {
   return error;
 };
 
-export default function useEmailLogin(authIntent = "login") {
+export default function useEmailLogin(authIntent = "login", options = {}) {
+  const { allowCheckoutSignup = false } = options;
   const intent = authIntent === "signup" ? "signup" : "login";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [errorCode, setErrorCode] = useState(null);
+  const [activeIntent, setActiveIntent] = useState(intent);
 
-  const assertEmailIntent = useCallback(
+  const resolveSendIntent = useCallback(
     async (email) => {
-      const check = await CustomerServices.checkEmailRegistered(email);
+      const normalized = normalizeEmail(email);
+      const check = await CustomerServices.checkEmailRegistered(normalized);
+
       if (intent === "signup" && check?.exists) {
         const err = new Error(
           "This email is already registered. Please login instead."
@@ -26,15 +32,21 @@ export default function useEmailLogin(authIntent = "login") {
         err.code = "EMAIL_ALREADY_REGISTERED";
         throw err;
       }
+
       if (intent === "login" && !check?.exists) {
+        if (allowCheckoutSignup) {
+          return "signup";
+        }
         const err = new Error(
           "No account found with this email. Please sign up first."
         );
         err.code = "EMAIL_NOT_REGISTERED";
         throw err;
       }
+
+      return intent;
     },
-    [intent]
+    [intent, allowCheckoutSignup]
   );
 
   const sendOtp = useCallback(
@@ -43,13 +55,20 @@ export default function useEmailLogin(authIntent = "login") {
       setError("");
       setErrorCode(null);
       try {
-        await assertEmailIntent(email);
+        const normalized = normalizeEmail(email);
+        const effectiveIntent = await resolveSendIntent(normalized);
+        setActiveIntent(effectiveIntent);
+
         const response = await CustomerServices.sendEmailOtp({
-          email,
-          intent,
+          email: normalized,
+          intent: effectiveIntent,
           avatar,
         });
-        return { ...response, otpLength: 4 };
+        return {
+          ...response,
+          otpLength: 4,
+          intent: response?.intent || effectiveIntent,
+        };
       } catch (err) {
         const parsed =
           err?.code && err?.message
@@ -62,19 +81,20 @@ export default function useEmailLogin(authIntent = "login") {
         setLoading(false);
       }
     },
-    [intent, assertEmailIntent]
+    [resolveSendIntent]
   );
 
   const verifyOtp = useCallback(
-    async (email, otpCode, avatar = "") => {
+    async (email, otpCode, avatar = "", intentOverride = null) => {
       setLoading(true);
       setError("");
       setErrorCode(null);
       try {
+        const verifyIntent = intentOverride || activeIntent || intent;
         return await CustomerServices.verifyEmailOtp({
-          email,
-          otp: otpCode,
-          intent,
+          email: normalizeEmail(email),
+          otp: String(otpCode || "").trim(),
+          intent: verifyIntent,
           avatar,
         });
       } catch (err) {
@@ -86,13 +106,14 @@ export default function useEmailLogin(authIntent = "login") {
         setLoading(false);
       }
     },
-    [intent]
+    [intent, activeIntent]
   );
 
   const resetSession = useCallback(() => {
     setError("");
     setErrorCode(null);
-  }, []);
+    setActiveIntent(intent);
+  }, [intent]);
 
   return {
     sendOtp,
@@ -104,5 +125,6 @@ export default function useEmailLogin(authIntent = "login") {
     resetOtpSession: resetSession,
     otpLength: 4,
     intent,
+    activeIntent,
   };
 }

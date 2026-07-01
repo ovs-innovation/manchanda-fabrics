@@ -1,5 +1,5 @@
 /**
- * Sets RASA logo on store settings.
+ * Sets Manchanda logo on store settings.
  * Usage: node script/applyBrandLogo.js
  */
 require("../config/env");

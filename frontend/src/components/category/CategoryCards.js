@@ -14,6 +14,7 @@ import "swiper/css/pagination";
 import useGetSetting from "@hooks/useGetSetting";
 import { getPalette } from "@utils/themeColors";
 import SectionHeader from "@components/common/SectionHeader";
+import { CATEGORY_DEPT_CARDS } from "@utils/traditionalImagery";
 
 const CategoryCards = () => {
   const router = useRouter();
@@ -21,44 +22,12 @@ const CategoryCards = () => {
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
   const palette = getPalette(storeColor);
 
-  const categories = [
-    {
-      id: 1,
-      title: "Oversized Fit",
-      description: "Heavyweight hoodies, relaxed loopbacks, and daily drop tees.",
-      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=400&auto=format&fit=crop",
-      searchQuery: "unisex-clothing",
-      accent: "bg-black",
-      lightAccent: "bg-neutral-50",
-    },
-    {
-      id: 2,
-      title: "Signature Denim",
-      description: "Distressed denim overjackets and rugged vintage layers.",
-      image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=400&auto=format&fit=crop",
-      searchQuery: "unisex-clothing",
-      accent: "bg-black",
-      lightAccent: "bg-neutral-50",
-    },
-    {
-      id: 3,
-      title: "Luxe Footwear",
-      description: "Minimalist Italian leather sneakers and high-top trainers.",
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=400&auto=format&fit=crop",
-      searchQuery: "footwear",
-      accent: "bg-black",
-      lightAccent: "bg-neutral-50",
-    },
-    {
-      id: 4,
-      title: "Minimal Accessories",
-      description: "Gold dial chronographs, corduroy caps, and acetate shades.",
-      image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=400&auto=format&fit=crop",
-      searchQuery: "accessories",
-      accent: "bg-black",
-      lightAccent: "bg-neutral-50",
-    },
-  ];
+  const categories = CATEGORY_DEPT_CARDS.map((cat, id) => ({
+    id: id + 1,
+    ...cat,
+    accent: "bg-[#93614E]",
+    lightAccent: "bg-[#F5ECE8]",
+  }));
 
   return (
     <div className="relative py-12 sm:py-20 overflow-hidden bg-[#FAF9F6] my-4">
@@ -76,7 +45,7 @@ const CategoryCards = () => {
               <span className="w-1.5 h-1.5 rounded-none bg-[#D4AF37] animate-pulse" />
               <span>Signature Concept</span>
             </div>
-            <SectionHeader title="Shop by Departments" subtitle="Explore our curated lifestyle concepts designed for the modern Gen-Z aesthetic." align="left" />
+            <SectionHeader title="Shop Suit Collections" subtitle="Straight sets, anarkalis & festive suits — inspired by classic Indian ethnic wear." align="left" />
           </div>
 
           {/* Custom Navigation buttons for Desktop */}

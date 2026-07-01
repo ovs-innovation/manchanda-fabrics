@@ -18,14 +18,22 @@ import SearchSuggestions from "@components/search/SearchSuggestions";
 import LowerCategoryNavbar from "./LowerCategoryNavbar";
 import CustomerNotificationBell from "@components/notification/CustomerNotificationBell";
 import { pickBrandLogo } from "@utils/brandAssets";
+import { NAV_MEGA_BANNERS } from "@utils/traditionalImagery";
 
 const NavbarLogo = () => {
+  const { storeCustomizationSetting, globalSetting } = useGetSetting();
+  const logo = pickBrandLogo(
+    globalSetting?.logo,
+    storeCustomizationSetting?.navbar?.logo,
+    storeCustomizationSetting?.seo?.favicon
+  );
+
   return (
-    <Link href="/" className="flex items-center shrink-0 relative ml-6 w-44 h-16" aria-label="Manchanda Fabrics">
+    <Link href="/" className="flex items-center shrink-0 relative ml-2 w-36 h-16" aria-label="Manchanda Fabrics">
       <img
-        src="/logo/logo.png"
+        src={logo}
         alt="Manchanda Fabrics"
-        className="absolute top-[50%] -translate-y-1/2 left-0 h-10 w-auto object-contain select-none z-10"
+        className="absolute top-[58%] -translate-y-1/2 left-0 h-7 w-auto object-contain select-none z-10"
         draggable="false"
       />
     </Link>
@@ -150,50 +158,123 @@ const Navbar = () => {
     <>
       <CartDrawer />
       {/* Promo Strip */}
-      <div className="bg-[#9C6A5A] text-white py-2.5 text-center text-xs font-bold uppercase tracking-[0.2em] z-50 relative">
+      <div className="bg-[#9C6A5A] text-white py-2 lg:py-2.5 text-center text-[9px] sm:text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.2em] z-50 relative px-2">
         Free Shipping on Orders Above ₹999 | COD Available
       </div>
 
-      <header className="hidden lg:block bg-[#FAF7F5] text-[#3B2A25] border-b border-[#E6D1CB]/40 sticky top-0 z-50 shadow-sm">
-        {/* Main Row: Logo + Categories + Search & Utilities */}
-        <div className="max-w-screen-2xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
-          
-          {/* Logo (left) */}
-          <div className="flex items-center shrink-0 relative">
-            <Link href="/" className="relative block w-64 h-20 select-none z-50" aria-label="Manchanda Fabrics">
+      <header className="bg-[#FAF7F5] text-[#3B2A25] border-b border-[#E6D1CB]/40">
+        <div className="max-w-screen-2xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
+          {/* Logo */}
+          <div className="flex items-center shrink-0">
+            <Link href="/" className="flex items-center select-none" aria-label="Manchanda Fabrics">
               <img
                 src="/manchandalogo.png"
                 alt="Manchanda Fabrics"
-                className="absolute top-[56%] -translate-y-1/2 left-0 h-64 min-h-[256px] w-auto object-contain select-none drop-shadow-sm transition-transform duration-200 hover:scale-105"
+                className="h-32 w-auto object-contain select-none drop-shadow-sm transition-transform duration-200 hover:scale-105"
                 draggable="false"
               />
             </Link>
           </div>
 
-          {/* Centered Categories (center) */}
+          {/* Nav links */}
           <nav className="flex items-center gap-3 lg:gap-4 xl:gap-6 mx-2 whitespace-nowrap">
-            <Link href="/search?category=sarees" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
-              Sarees
+            <Link href="/" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-4 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+              Home
             </Link>
-            <Link href="/search?category=suits" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
-              Suits
-            </Link>
-            <Link href="/search?category=fabrics" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
-              Fabrics
-            </Link>
-            <Link href="/new-arrivals" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+
+            {/* Suits Hover Mega Menu */}
+            <div className="group/mega relative py-4">
+              <Link href="/search?category=suits" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors border-b-2 border-transparent group-hover/mega:border-[#9C6A5A] whitespace-nowrap">
+                Suits
+              </Link>
+              {/* Mega Dropdown Container */}
+              <div className="absolute top-full left-1/2 -translate-x-[40%] hidden lg:group-hover/mega:grid grid-cols-12 gap-8 bg-white border border-[#D5BBB4]/50 shadow-[0_15px_50px_rgba(43,33,30,0.15)] rounded-[24px] p-8 w-[800px] z-50 transition-all duration-300">
+                {/* Column 1: Sub-categories */}
+                <div className="col-span-3 text-left space-y-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9C6A5A]">Category</h4>
+                  <ul className="space-y-2.5 text-xs text-[#2B211E]/80">
+                    <li><Link href="/search?category=suits" className="hover:text-[#9C6A5A] transition-colors">Shop All</Link></li>
+                    <li><Link href="/search?q=anarkali" className="hover:text-[#9C6A5A] transition-colors">Anarkali Sets</Link></li>
+                    <li><Link href="/search?q=straight" className="hover:text-[#9C6A5A] transition-colors">Straight Kurta Sets</Link></li>
+                    <li><Link href="/search?q=sharara" className="hover:text-[#9C6A5A] transition-colors">Sharara & Gharara Sets</Link></li>
+                    <li><Link href="/search?q=palazzo" className="hover:text-[#9C6A5A] transition-colors">Palazzo Suit Sets</Link></li>
+                  </ul>
+                </div>
+                {/* Column 2: Collections */}
+                <div className="col-span-3 text-left space-y-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9C6A5A]">Collection</h4>
+                  <ul className="space-y-2.5 text-xs text-[#2B211E]/80">
+                    <li><Link href="/search?category=suits" className="hover:text-[#9C6A5A] transition-colors">Shop All</Link></li>
+                    <li><Link href="/search?tag=new-arrival" className="hover:text-[#9C6A5A] transition-colors">Classic Solids</Link></li>
+                    <li><Link href="/search?tag=trending" className="hover:text-[#9C6A5A] transition-colors">Festive Collection</Link></li>
+                    <li><Link href="/search?tag=featured" className="hover:text-[#9C6A5A] transition-colors">Daily Elegance</Link></li>
+                  </ul>
+                </div>
+                {/* Column 3: Banner Image (6 cols) */}
+                <div className="col-span-6 relative aspect-[16/9] w-full overflow-hidden rounded-[16px] border border-[#D5BBB4]/30 shadow-inner">
+                  <img
+                    src={NAV_MEGA_BANNERS.suits}
+                    alt="Elevated Essentials Suit Collection"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2B211E]/90 via-[#2B211E]/20 to-transparent flex flex-col justify-end p-4">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-[#D5BBB4] block mb-0.5">Elevated Essentials</span>
+                    <h5 className="text-white text-sm font-semibold tracking-wider uppercase">Straight & anarkali suit sets.</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Fabrics Hover Mega Menu */}
+            <div className="group/mega relative py-4">
+              <Link href="/search?category=fabrics" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors border-b-2 border-transparent group-hover/mega:border-[#9C6A5A] whitespace-nowrap">
+                Fabrics
+              </Link>
+              {/* Mega Dropdown Container */}
+              <div className="absolute top-full left-1/2 -translate-x-[40%] hidden lg:group-hover/mega:grid grid-cols-12 gap-8 bg-white border border-[#D5BBB4]/50 shadow-[0_15px_50px_rgba(43,33,30,0.15)] rounded-[24px] p-8 w-[800px] z-50 transition-all duration-300">
+                {/* Column 1: Sub-categories */}
+                <div className="col-span-3 text-left space-y-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9C6A5A]">Material</h4>
+                  <ul className="space-y-2.5 text-xs text-[#2B211E]/80">
+                    <li><Link href="/search?category=fabrics" className="hover:text-[#9C6A5A] transition-colors">Shop All</Link></li>
+                    <li><Link href="/search?q=cotton" className="hover:text-[#9C6A5A] transition-colors">Pure Cotton</Link></li>
+                    <li><Link href="/search?q=silk" className="hover:text-[#9C6A5A] transition-colors">Heritage Silk</Link></li>
+                    <li><Link href="/search?q=organza" className="hover:text-[#9C6A5A] transition-colors">Sheer Organza</Link></li>
+                    <li><Link href="/search?q=muslin" className="hover:text-[#9C6A5A] transition-colors">Luxury Muslin</Link></li>
+                  </ul>
+                </div>
+                {/* Column 2: Collections */}
+                <div className="col-span-3 text-left space-y-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#9C6A5A]">Weaves</h4>
+                  <ul className="space-y-2.5 text-xs text-[#2B211E]/80">
+                    <li><Link href="/search?category=fabrics" className="hover:text-[#9C6A5A] transition-colors">Shop All</Link></li>
+                    <li><Link href="/search?q=handblock" className="hover:text-[#9C6A5A] transition-colors">Handblock Prints</Link></li>
+                    <li><Link href="/search?q=banarasi" className="hover:text-[#9C6A5A] transition-colors">Banarasi Brocades</Link></li>
+                    <li><Link href="/search?q=embroidery" className="hover:text-[#9C6A5A] transition-colors">Chikankari Material</Link></li>
+                  </ul>
+                </div>
+                {/* Column 3: Banner Image (6 cols) */}
+                <div className="col-span-6 relative aspect-[16/9] w-full overflow-hidden rounded-[16px] border border-[#D5BBB4]/30 shadow-inner">
+                  <img
+                    src={NAV_MEGA_BANNERS.fabrics}
+                    alt="Premium Unstitched Suit Fabrics"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2B211E]/90 via-[#2B211E]/20 to-transparent flex flex-col justify-end p-4">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-[#D5BBB4] block mb-0.5">Heritage Weaves</span>
+                    <h5 className="text-white text-sm font-semibold tracking-wider uppercase">Unstitched suit fabrics & weaves.</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Link href="/new-arrivals" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-4 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
               New Arrivals
             </Link>
-            <Link href="/trending" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
-              Best Sellers
-            </Link>
-            <Link href="/search?q=wedding" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
-              Wedding Edit
-            </Link>
-            <Link href="/about-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+            <Link href="/about-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-4 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
               About Us
             </Link>
-            <Link href="/contact-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-2 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
+            <Link href="/contact-us" className="font-bold uppercase tracking-widest text-xs text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors py-4 border-b-2 border-transparent hover:border-[#9C6A5A] whitespace-nowrap">
               Contact
             </Link>
             <Link href="/search?discount=10" className="font-bold uppercase tracking-widest text-xs text-white bg-red-600 hover:bg-red-700 transition-colors px-2.5 py-1 rounded whitespace-nowrap">
@@ -201,9 +282,8 @@ const Navbar = () => {
             </Link>
           </nav>
 
-          {/* Right Section: Search & Utilities */}
-          <div className="flex items-center gap-4 shrink-0">
-            {/* Search Pill */}
+          {/* Search + utilities */}
+          <div className="flex items-center gap-3 shrink-0">
             <div className="w-36 lg:w-40 xl:w-48 relative">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
@@ -216,7 +296,7 @@ const Navbar = () => {
                   onFocus={() => searchText.trim().length > 0 && setShowSuggestions(true)}
                   onBlur={(e) => {
                     const relatedTarget = e.relatedTarget;
-                    const suggestionsContainer = document.querySelector('.search-suggestions-container');
+                    const suggestionsContainer = document.querySelector(".search-suggestions-container");
                     if (!relatedTarget || (suggestionsContainer && !suggestionsContainer.contains(relatedTarget))) {
                       setTimeout(() => {
                         const activeElement = document.activeElement;
@@ -240,7 +320,6 @@ const Navbar = () => {
               />
             </div>
 
-            {/* Utilities (Wishlist, Cart, Profile) */}
             <div className="flex items-center gap-2.5">
               <Link href="/wishlist" className="relative p-2 text-[#3B2A25] hover:text-[#9C6A5A] transition-colors" aria-label="Wishlist">
                 <FiHeart className="text-xl" />
@@ -290,7 +369,6 @@ const Navbar = () => {
               )}
             </div>
           </div>
-
         </div>
       </header>
     </>

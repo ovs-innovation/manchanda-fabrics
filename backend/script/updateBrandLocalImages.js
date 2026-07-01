@@ -6,7 +6,7 @@
 const mongoose = require("mongoose");
 
 const MONGO_URI =
-  "mongodb+srv://Rasa:Rasa%40123@therasastore.vg5tubj.mongodb.net/?appName=theRasaStore";
+  "mongodb+srv://Manchanda:Manchanda%40123@themanchandafabrics.vg5tubj.mongodb.net/?appName=theManchandaStore";
 
 // Assign local shoe images cycling through shoes1-4
 const BRAND_IMAGE_MAP = [

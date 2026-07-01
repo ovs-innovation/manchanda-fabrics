@@ -39,6 +39,7 @@ const createAdmin = async () => {
         "currencies",
         "store",
         "customization",
+        "homepage",
         "store-settings",
         "notifications",
         "edit-profile",
@@ -46,7 +47,7 @@ const createAdmin = async () => {
         "customer-order",
       ];
       await admin.save();
-      console.log("Admin user admin@rasastore.com updated with password RasaStore@123");
+      console.log("Admin user admin@manchandafabrics.com updated with password ManchandaStore@123");
     } else {
       admin = new Admin({
         name: { en: "Super Admin" },
@@ -76,6 +77,7 @@ const createAdmin = async () => {
           "currencies",
           "store",
           "customization",
+        "homepage",
           "store-settings",
           "notifications",
           "edit-profile",
@@ -84,7 +86,7 @@ const createAdmin = async () => {
         ]
       });
       await admin.save();
-      console.log("Admin user admin@rasastore.com created with password RasaStore@123");
+      console.log("Admin user admin@manchandafabrics.com created with password ManchandaStore@123");
     }
     process.exit(0);
   } catch (error) {

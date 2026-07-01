@@ -7,8 +7,8 @@ const DesktopSidebar = () => {
 
   return (
     <aside
-      className={`z-30 flex-shrink-0 hidden overflow-y-auto bg-white dark:bg-store-900 border-r border-store-200 dark:border-store-700/40 lg:block transition-all duration-300 ease-in-out ${
-        sidebarCollapsed ? "w-[76px]" : "w-64"
+      className={`z-30 flex-shrink-0 hidden h-full overflow-hidden bg-[#FFFCFA] dark:bg-store-900 border-r border-store-200/80 dark:border-store-700/40 lg:block transition-all duration-300 ease-in-out ${
+        sidebarCollapsed ? "w-[72px]" : "w-60"
       }`}
     >
       <SidebarContent

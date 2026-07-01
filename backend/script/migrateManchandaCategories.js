@@ -1,8 +1,8 @@
 /**
- * Resets categories collection to RASA fashion taxonomy.
+ * Resets categories collection to Manchanda fashion taxonomy.
  *
  * Usage (from repo root):
- *   node backend/script/migrateRasaCategories.js
+ *   node backend/script/migrateManchandaCategories.js
  *
  * WARNING: Deletes ALL existing categories. Run only when intentional.
  */
@@ -10,7 +10,7 @@ require("../config/env");
 const mongoose = require("mongoose");
 const { connectDB } = require("../config/db");
 const Category = require("../models/Category");
-const rasaCategories = require("../utils/rasaCategories");
+const manchandaCategories = require("../utils/manchandaCategories");
 
 const run = async () => {
   await connectDB();
@@ -19,9 +19,9 @@ const run = async () => {
   console.log(`Removed ${deleted.deletedCount} legacy categories.`);
 
   const inserted = await Category.insertMany(
-    rasaCategories.map(({ _id, ...rest }) => rest)
+    manchandaCategories.map(({ _id, ...rest }) => rest)
   );
-  console.log(`Inserted ${inserted.length} RASA categories:`);
+  console.log(`Inserted ${inserted.length} Manchanda categories:`);
   inserted.forEach((c) => console.log(`  - ${c.name?.en || c.name}`));
 
   await mongoose.connection.close();

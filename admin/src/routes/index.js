@@ -29,6 +29,7 @@ const Languages = lazy(() => import("@/pages/Languages"));
 const Currencies = lazy(() => import("@/pages/Currencies"));
 const Setting = lazy(() => import("@/pages/Setting"));
 const StoreHome = lazy(() => import("@/pages/StoreHome"));
+const ManchandaHomepage = lazy(() => import("@/pages/ManchandaHomepage"));
 const StoreSetting = lazy(() => import("@/pages/StoreSetting"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
 const Taxes = lazy(() => import("@/pages/Taxes"));
@@ -51,7 +52,6 @@ const RefundSettings = lazy(() => import("@/pages/settings/RefundSettings"));
 const Faqs = lazy(() => import("@/pages/Faqs"));
 const PushNotification = lazy(() => import("@/pages/PushNotification"));
 const Testimonials = lazy(() => import("@/pages/Testimonials"));
-const RasaHomepage = lazy(() => import("@/pages/RasaHomepage"));
 /*
 //  * ⚠ These are internal routes!
 //  * They will be rendered inside the app, using the default `containers/Layout`.
@@ -270,6 +270,34 @@ const routes = [
     component: StoreHome,
   },
   {
+    path: "/store/homepage",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/overview",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/hero",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/trending",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/new-arrivals",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/categories",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/order",
+    component: ManchandaHomepage,
+  },
+  {
     path: "/store/store-settings",
     component: StoreSetting,
   },
@@ -281,42 +309,6 @@ const routes = [
   //   path: "/coming-soon",
   //   component: ComingSoon,
   // },
-  {
-    path: "/homepage",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/overview",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/hero",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/brands",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/instagram",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/trending",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/new-arrivals",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/categories",
-    component: RasaHomepage,
-  },
-  {
-    path: "/homepage/order",
-    component: RasaHomepage,
-  },
   {
     path: "/edit-profile",
     component: EditProfile,
@@ -341,13 +333,13 @@ const routeAccessList = [
   { label: "Customers", value: "customers" },
   { label: "Orders", value: "orders" },
   { label: "Inventory", value: "inventory" },
-  { label: "Homepage Manager", value: "homepage" },
   { label: "Staff", value: "our-staff" },
   { label: "Settings", value: "settings" },
   { label: "Languages", value: "languages" },
   { label: "Currencies", value: "currencies" },
   { label: "ViewStore", value: "store" },
   { label: "StoreCustomization", value: "customization" },
+  { label: "Homepage Manager", value: "homepage" },
   { label: "StoreSettings", value: "store-settings" },
   { label: "Product Details", value: "product" },
   { label: "Order Invoice", value: "order" },

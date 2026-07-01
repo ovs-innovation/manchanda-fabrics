@@ -1544,8 +1544,52 @@ input[type="number"]::-webkit-outer-spin-button {
 .hover\:border-pink-400:hover {
   border-color: var(--brand-400) !important;
 }
-.focus\:border-pink-300:focus {
-  border-color: var(--brand-300) !important;
+.admin-shell {
+  background: var(--store-color-50);
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid var(--store-color-200);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(59, 42, 37, 0.04);
+}
+
+.dark .admin-card {
+  background: var(--store-color-900);
+  border-color: rgba(230, 209, 203, 0.15);
+}
+
+.admin-page-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--store-color-800);
+  letter-spacing: -0.02em;
+}
+
+.dark .admin-page-title {
+  color: var(--store-color-100);
+}
+
+.admin-muted {
+  color: rgba(59, 42, 37, 0.55);
+  font-size: 0.875rem;
+}
+
+.admin-nav-item {
+  border-radius: 0.75rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-nav-item.is-active {
+  background: var(--store-color-100);
+  color: var(--store-color-700);
+  box-shadow: inset 3px 0 0 var(--store-color-500);
+}
+
+.dark .admin-nav-item.is-active {
+  background: rgba(111, 74, 61, 0.25);
+  color: var(--store-color-100);
 }
 .focus\:border-pink-400:focus {
   border-color: var(--brand-400) !important;

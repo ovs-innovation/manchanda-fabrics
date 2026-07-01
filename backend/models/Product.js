@@ -167,7 +167,7 @@ const productSchema = new mongoose.Schema(
       ref: "Brand",
       required: false,
     },
-    // RASA: Men | Women | Unisex
+    // Manchanda: Men | Women | Unisex
     gender: {
       type: String,
       enum: ["Men", "Women", "Unisex", ""],

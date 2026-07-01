@@ -6,7 +6,7 @@ import { IoCloudDownloadOutline } from "react-icons/io5";
 import { Button } from "@windmill/react-ui";
 import { WindmillContext } from "@windmill/react-ui";
 import { useTranslation } from "react-i18next";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { useQuery } from "@tanstack/react-query";
 
 //internal import
 import useAsync from "@/hooks/useAsync";
@@ -15,13 +15,14 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
 import OrderServices from "@/services/OrderServices";
+import SettingServices from "@/services/SettingServices";
 import InvoiceLayout from "@/components/invoice/InvoiceLayout";
 import Loading from "@/components/preloader/Loading";
 import PageTitle from "@/components/Typography/PageTitle";
 import spinnerLoadingImage from "@/assets/img/spinner.gif";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import useDisableForDemo from "@/hooks/useDisableForDemo";
-import InvoiceForDownload from "@/components/invoice/InvoiceForDownload";
+import downloadInvoicePdf from "@/utils/downloadInvoicePdf";
 import SelectStatus from "@/components/form/selectOption/SelectStatus";
 
 const OrderInvoice = () => {
@@ -33,6 +34,7 @@ const OrderInvoice = () => {
   const history = useHistory();
   const printRef = useRef();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
 
   const { data, loading, error } = useAsync(() =>
     OrderServices.getOrderById(id)
@@ -43,8 +45,14 @@ const OrderInvoice = () => {
 
   // console.log("data", data);
 
-  const { currency, globalSetting, showDateFormat, getNumberTwo } =
+  const { currency, globalSetting, showDateFormat, getNumberTwo, showingTranslateValue } =
     useUtilsFunction();
+
+  const { data: storeCustomizationSetting } = useQuery({
+    queryKey: ["storeCustomizationSetting"],
+    queryFn: async () => await SettingServices.getStoreCustomizationSetting(),
+    staleTime: 20 * 60 * 1000,
+  });
 
   const handleEmailInvoice = async (inv) => {
     // console.log("inv", inv);
@@ -84,6 +92,21 @@ const OrderInvoice = () => {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    if (!printRef.current) return;
+    try {
+      setPdfDownloading(true);
+      await downloadInvoicePdf(
+        printRef.current,
+        `Invoice-${data?.invoice || id}.pdf`
+      );
+    } catch (err) {
+      notifyError(err?.message || "Could not download invoice");
+    } finally {
+      setPdfDownloading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center gap-2 mb-4 mt-2">
@@ -99,37 +122,20 @@ const OrderInvoice = () => {
 
       <PageTitle> {t("InvoicePageTittle")} </PageTitle>
 
-      <div
-        ref={printRef}
-        className="bg-white dark:bg-gray-800 mb-4 p-6 lg:p-8 rounded-xl shadow-sm overflow-hidden"
-      >
+      <div className="bg-white dark:bg-gray-800 mb-4 p-6 lg:p-8 rounded-xl shadow-sm overflow-hidden">
         {!loading && !error && (
           <div className="mb-8 flex md:flex-row flex-col items-center justify-between border-b pb-4 border-gray-100">
-            <PDFDownloadLink
-              document={
-                <InvoiceForDownload
-                  data={data}
-                  currency={currency}
-                  globalSetting={globalSetting}
-                  getNumberTwo={getNumberTwo}
-                  logo={globalSetting?.logo}
-                />
-              }
-              fileName="Invoice"
+            <button
+              type="button"
+              disabled={pdfDownloading}
+              onClick={handleDownloadInvoice}
+              className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-store-500 border border-transparent active:bg-store-600 hover:bg-store-600 w-auto cursor-pointer disabled:opacity-60"
             >
-              {({ blob, url, loading, error }) =>
-                loading ? (
-                  "Loading..."
-                ) : (
-                  <button className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-store-500 border border-transparent active:bg-store-600 hover:bg-store-600  w-auto cursor-pointer">
-                    Download Invoice
-                    <span className="ml-2 text-base">
-                      <IoCloudDownloadOutline />
-                    </span>
-                  </button>
-                )
-              }
-            </PDFDownloadLink>
+              {pdfDownloading ? "Preparing..." : "Download Invoice"}
+              <span className="ml-2 text-base">
+                <IoCloudDownloadOutline />
+              </span>
+            </button>
 
             <div className="flex md:mt-0 mt-3 gap-4 md:w-auto w-full">
               {globalSetting?.email_to_customer && (
@@ -207,6 +213,8 @@ const OrderInvoice = () => {
               currency={currency}
               globalSetting={globalSetting}
               getNumberTwo={getNumberTwo}
+              storeCustomizationSetting={storeCustomizationSetting}
+              showingTranslateValue={showingTranslateValue}
               printRef={printRef} />
           </>
         )}

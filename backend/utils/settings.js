@@ -911,13 +911,13 @@ const setting = [
         favicon:
           "https://res.cloudinary.com/ahossain/image/upload/v1700903173/undefined/favicon.png",
         meta_description:
-          "Premium Sneakers & Streetwear Store e-commerce Template",
+          "Manchanda Fabrics - Premium Indian Ethnic Wear & Salwar Suits Boutique",
         meta_img:
           "https://res.cloudinary.com/ahossain/image/upload/v1636729752/facebook-page_j7alju.png",
-        meta_keywords: "e-commerce, online store",
+        meta_keywords: "salwar suits, designer suits, unstitched dress material, boutique, ethnic wear",
         meta_title:
-          "Manchanda Fabrics - Premium Sneakers & Streetwear Store e-commerce Template",
-        meta_url: "https://Manchanda Fabrics.com/",
+          "Manchanda Fabrics - Luxury Indian Ethnic Boutique",
+        meta_url: "https://manchanda-store-nine.vercel.app/",
       },
     },
     name: "storeCustomizationSetting",

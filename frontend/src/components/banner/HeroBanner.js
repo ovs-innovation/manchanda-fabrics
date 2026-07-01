@@ -8,6 +8,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
+import { LOCAL_BANNERS, traditionalPhoto } from "@utils/traditionalImagery";
 
 const HeroBanner = ({ slides: dynamicSlides }) => {
   const [mounted, setMounted] = React.useState(false);
@@ -18,44 +19,44 @@ const HeroBanner = ({ slides: dynamicSlides }) => {
   const defaultSlides = [
     {
       style: "layout-left-framed",
-      badge: "Signature Collection",
-      title: "Exquisite Gaji Silk",
-      subtitle: "Handloomed pure satin-silk heritage weaves with intricate golden borders and luxurious drapes.",
-      highlight: "Hit Product • Pure Silk",
-      btnText: "Shop Gaji Silk",
+      badge: "Straight Suit Sets",
+      title: "Gaji Silk Suit Collection",
+      subtitle: "Biba-inspired straight kurta sets with rich silk weaves, zari borders & graceful dupattas.",
+      highlight: "Festive • Pure Silk Suits",
+      btnText: "Shop Gaji Silk Suits",
       btnLink: "/search?category=gaji-silk",
-      bgImage: "/banners/gaji-silk.jpg",
+      bgImage: LOCAL_BANNERS.gajiSilk,
     },
     {
       style: "layout-right-split",
-      badge: "Bestseller Heritage",
-      title: "Bangalori Silk Pure",
-      subtitle: "Rich traditional textures, premium resham embroidery, and structured royal falls.",
-      highlight: "100% Authentic Handloom",
-      btnText: "Explore Collection",
+      badge: "Wedding Edit",
+      title: "Bangalori Silk Suit Sets",
+      subtitle: "Embroidered salwar suits with premium resham work — perfect for receptions & celebrations.",
+      highlight: "Heritage Ethnic Wear",
+      btnText: "Explore Silk Suits",
       btnLink: "/search?category=bangalori-silk-pure",
-      bgImage: "/banners/bangalori-silk.jpg",
+      bgImage: LOCAL_BANNERS.bangaloriSilk,
     },
     {
       style: "layout-center-minimal",
-      badge: "Artisanal Highlight",
-      title: "Applique Work Suits",
-      subtitle: "Stunning handcrafted applique embroidery on premium, breathable cotton-silk ensembles.",
-      highlight: "Limited Craft Edition",
-      btnText: "Discover Applique",
+      badge: "Artisan Craft",
+      title: "Applique Work Suit Sets",
+      subtitle: "Handcrafted applique on cotton-silk suits — traditional elegance for mehendi & festivals.",
+      highlight: "Limited Edition Suits",
+      btnText: "Shop Applique Suits",
       btnLink: "/search?category=applique-work",
-      bgImage: "/banners/applique-suit.jpg",
+      bgImage: LOCAL_BANNERS.appliqueSuit,
     },
     {
       style: "layout-offset-box",
-      badge: "Summer Luxury Fabrics",
-      title: "Mul Cotton & Muslin",
-      subtitle: "Feather-light unstitched boutique fabrics in handblock prints and soft pastel shades.",
-      highlight: "Premium Summer Edit",
-      btnText: "Browse Fabrics",
+      badge: "Daily Elegance",
+      title: "Mul Cotton Suit Fabrics",
+      subtitle: "Soft pastel suit fabrics in handblock prints — breathable comfort for everyday ethnic style.",
+      highlight: "Summer Suit Edit",
+      btnText: "Browse Cotton Suits",
       btnLink: "/search?category=mul-cotton",
-      bgImage: "/banners/mul-cotton.jpg",
-    }
+      bgImage: LOCAL_BANNERS.mulCotton,
+    },
   ];
 
   let slides = [];
@@ -69,34 +70,34 @@ const HeroBanner = ({ slides: dynamicSlides }) => {
         subtitle: s.subtitle || fallback.subtitle,
         highlight: s.highlight || fallback.highlight,
         btnText: s.btnText || fallback.btnText,
-        btnLink: s.link || fallback.btnLink,
-        bgImage: s.image || s.bgImage || fallback.bgImage
+        btnLink: s.link || s.btnLink || fallback.btnLink,
+        bgImage: s.image || s.bgImage || fallback.bgImage || traditionalPhoto("straightSuit", 1600),
       };
     });
-    
-    if (slides.length < 4) {
-      const needed = 4 - slides.length;
-      for (let i = 0; i < needed; i++) {
-        const fallbackIndex = (slides.length + i) % defaultSlides.length;
-        slides.push(defaultSlides[fallbackIndex]);
-      }
-    }
   } else {
     slides = defaultSlides;
   }
 
   if (!mounted) {
-    return <div className="relative w-full h-[460px] md:h-[540px] lg:h-[620px] bg-[#FAF7F5] font-sans hero-slider-container" />;
+    return (
+      <div
+        id="hero-section"
+        className="relative w-full h-[min(72vh,420px)] sm:h-[480px] md:h-[540px] lg:h-[600px] bg-[#FAF7F5] font-sans hero-slider-container animate-pulse"
+      />
+    );
   }
 
   return (
-    <div className="relative w-full h-[460px] md:h-[540px] lg:h-[620px] bg-[#FAF7F5] font-sans group hero-slider-container">
+    <div
+      id="hero-section"
+      className="relative w-full h-[min(72vh,420px)] sm:h-[480px] md:h-[540px] lg:h-[600px] bg-[#FAF7F5] font-sans group hero-slider-container"
+    >
       <Swiper
         modules={[Autoplay, Pagination, Navigation, EffectFade]}
         
         spaceBetween={0}
         slidesPerView={1}
-        loop={true}
+        loop={slides.length >= 2}
         pagination={{ clickable: true, el: ".swiper-pagination-custom" }}
         navigation={{
           nextEl: ".swiper-button-next-custom",
@@ -131,17 +132,17 @@ const HeroBanner = ({ slides: dynamicSlides }) => {
               </div>
               
               {/* Flat Typographic Content (No Cards, No Borders) */}
-              <div className={`absolute inset-0 max-w-screen-2xl mx-auto px-6 sm:px-16 lg:px-24 flex items-center z-10 text-white ${alignmentClass}`}>
-                <div className="w-full max-w-xl space-y-4">
-                  <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] text-[#E6D1CB]">
+              <div className={`absolute inset-0 max-w-screen-2xl mx-auto px-4 sm:px-10 lg:px-16 flex items-center z-10 text-white ${alignmentClass}`}>
+                <div className="w-full max-w-xl space-y-3 sm:space-y-4">
+                  <span className="inline-block text-[9px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[#E6D1CB]">
                     {slide.badge}
                   </span>
                   
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight leading-[1.1] text-white">
+                  <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight leading-[1.15] text-white">
                     {slide.title}
                   </h2>
                   
-                  <p className="text-xs sm:text-sm md:text-base text-neutral-200/90 font-light leading-relaxed max-w-lg mx-auto lg:mx-0">
+                  <p className="text-xs sm:text-sm md:text-base text-neutral-200/90 font-light leading-relaxed max-w-lg mx-auto lg:mx-0 line-clamp-3 sm:line-clamp-none">
                     {slide.subtitle}
                   </p>
                   
@@ -152,10 +153,10 @@ const HeroBanner = ({ slides: dynamicSlides }) => {
                     </span>
                   </div>
                   
-                  <div className="pt-2">
+                  <div className="pt-1 sm:pt-2">
                     <Link
                       href={slide.btnLink}
-                      className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#9C6A5A] hover:bg-[#6F4A3D] text-white font-bold text-xs uppercase tracking-widest transition-all duration-300 rounded shadow-md hover:shadow-lg"
+                      className="inline-flex items-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 bg-[#9C6A5A] hover:bg-[#6F4A3D] text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 rounded shadow-md"
                     >
                       <span>{slide.btnText}</span>
                       <IoChevronForward className="text-xs" />
@@ -176,8 +177,8 @@ const HeroBanner = ({ slides: dynamicSlides }) => {
         <FiChevronRight className="text-xl" />
       </button>
 
-      {/* Custom pagination positioning */}
-      <div className="swiper-pagination-custom absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2" />
+      {/* Custom pagination — always visible on mobile */}
+      <div className="swiper-pagination-custom absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2" />
 
       <style jsx global>{`
         .hero-slider-container .swiper-pagination-custom .swiper-pagination-bullet {

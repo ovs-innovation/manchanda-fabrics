@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 // internal import
@@ -8,7 +8,11 @@ import { storeCustomization } from "@utils/storeCustomizationSetting";
 
 // Stateless hook: derive settings directly from react-query results
 const useGetSetting = () => {
-  const lang = Cookies.get("_lang");
+  const [lang, setLang] = useState("en");
+
+  useEffect(() => {
+    setLang(Cookies.get("_lang") || "en");
+  }, []);
 
   const {
     data: globalSetting,

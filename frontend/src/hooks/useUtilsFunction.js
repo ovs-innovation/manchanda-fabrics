@@ -1,9 +1,14 @@
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import Cookies from "js-cookie";
 import useGetSetting from "./useGetSetting";
 
 const useUtilsFunction = () => {
-  const lang = Cookies.get("_lang");
+  const [lang, setLang] = useState("en");
+
+  useEffect(() => {
+    setLang(Cookies.get("_lang") || "en");
+  }, []);
 
   const { globalSetting } = useGetSetting();
 

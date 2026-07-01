@@ -1,5 +1,5 @@
 /**
- * End-to-end API smoke test for RASA storefront flows.
+ * End-to-end API smoke test for Manchanda storefront flows.
  * Run: node backend/script/flowSmokeTest.js
  */
 require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
@@ -44,9 +44,9 @@ async function testApi() {
   if (trending.length > 0) pass("Trending section", `${trending.length} products`);
   else fail("Trending section", "empty — wire IDs in Homepage Manager");
 
-  const hp = store.data?.rasaHomepage;
+  const hp = store.data?.manchandaHomepage;
   if (hp) pass("Homepage CMS payload", `hero: ${hp.heroSlides?.length || 0}, categories: ${hp.categoryBanners?.length || 0}`);
-  else fail("Homepage CMS payload", "missing rasaHomepage");
+  else fail("Homepage CMS payload", "missing manchandaHomepage");
 
   const sample = visible[0] || store.data?.products?.[0];
   if (!sample?.slug) {
@@ -144,7 +144,7 @@ async function testStockLogic() {
 }
 
 async function run() {
-  console.log("\n=== RASA Flow Smoke Test ===\n");
+  console.log("\n=== Manchanda Flow Smoke Test ===\n");
   try {
     await testApi();
   } catch (err) {

@@ -7,7 +7,7 @@
 const mongoose = require("mongoose");
 
 const MONGO_URI =
-  "mongodb+srv://Rasa:Rasa%40123@therasastore.vg5tubj.mongodb.net/?appName=theRasaStore";
+  "mongodb+srv://Manchanda:Manchanda%40123@themanchandafabrics.vg5tubj.mongodb.net/?appName=theManchandaStore";
 
 // Copyright-safe brand names + shoe images (Unsplash free images)
 // Slug stays the same so existing product links don't break

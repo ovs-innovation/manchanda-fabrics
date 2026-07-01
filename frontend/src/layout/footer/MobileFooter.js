@@ -77,21 +77,18 @@ const MobileFooter = () => {
     <>
       {/* Drawer lives off-canvas; keep it mounted without forcing page layout/scroll */}
       <CategoryDrawer />
-      <footer className="lg:hidden fixed z-[60] top-0 bg-[#FAF7F5]/95 backdrop-blur-md flex items-center justify-between w-full h-20 px-3 sm:px-10 border-b border-[#E6D1CB]/60/60 shadow-md">
+      <footer className="lg:hidden fixed z-[60] top-0 left-0 right-0 bg-[#FAF7F5]/98 backdrop-blur-md flex items-center justify-between w-full h-20 px-3 sm:px-10 border-b border-[#E6D1CB]/60 shadow-md">
         <div className="flex items-center gap-3">
           <button
-            aria-label="Bar"
+            aria-label="Menu"
             onClick={toggleCategoryDrawer}
-            className="flex items-center justify-center flex-shrink-0 h-auto relative focus:outline-none"
+            className="flex items-center justify-center flex-shrink-0 focus:outline-none"
           >
-            <span className="text-[#3B2A25] hover:text-[#9C6A5A] transition-colors duration-200">
-              <FiAlignLeft className="w-6 h-6" />
-            </span>
+            <FiAlignLeft className="w-6 h-6 text-[#3B2A25] hover:text-[#9C6A5A] transition-colors" />
           </button>
           <Link
             href="/"
             className="relative block w-72 h-20 select-none"
-            rel="noreferrer"
             aria-label={t("Home") || "Home"}
           >
             <img
@@ -101,9 +98,8 @@ const MobileFooter = () => {
               draggable="false"
             />
           </Link>
-
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <CustomerNotificationBell />
           <div className="flex items-center justify-center relative">
             {mounted && userInfo?.image ? (
@@ -140,7 +136,7 @@ const MobileFooter = () => {
         </div>
       </footer>
       {showSearch && (
-        <div className="fixed z-50 top-20 left-0 w-full bg-[#FAF7F5]/95 backdrop-blur-md px-3 py-2.5 border-b border-[#E6D1CB]/60 shadow-xl" style={{ overflow: 'visible' }}>
+        <div className="fixed z-50 top-20 left-0 w-full bg-[#FAF7F5]/98 backdrop-blur-md px-3 py-2.5 border-b border-[#E6D1CB]/60 shadow-xl" style={{ overflow: "visible" }}>
           <form
             onSubmit={handleSubmit}
             className="relative bg-[#0d0d0d] border border-[#E6D1CB]/60 rounded-md w-full flex items-center overflow-visible"

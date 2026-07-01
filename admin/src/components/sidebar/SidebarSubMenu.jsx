@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  IoChevronDownOutline,
-  IoChevronForwardOutline,
-} from "react-icons/io5";
+import { IoChevronDownOutline, IoChevronForwardOutline } from "react-icons/io5";
 
 const SidebarSubMenu = ({ route, collapsed = false }) => {
   const { t } = useTranslation();
@@ -28,26 +25,22 @@ const SidebarSubMenu = ({ route, collapsed = false }) => {
     return (
       <li className="relative group" key={route.name}>
         <div
-          className={`px-4 py-3.5 flex items-center justify-center rounded-xl mx-2 transition-colors ${
-            isChildActive
-              ? "bg-store-500/15 text-store-500"
-              : "text-store-700/70 dark:text-store-200/70 hover:bg-store-100 dark:hover:bg-white/5"
+          className={`admin-nav-item px-2 py-2.5 flex items-center justify-center ${
+            isChildActive ? "is-active" : "text-store-700/80 dark:text-store-200/80"
           }`}
           title={t(route.name)}
         >
-          <route.icon className="w-6 h-6" aria-hidden="true" />
+          <route.icon className="w-5 h-5" aria-hidden="true" />
         </div>
         <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
-          <div className="min-w-[200px] py-2 bg-white dark:bg-store-900 rounded-xl shadow-xl border border-store-200 dark:border-store-700/40">
-            <p className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-              {t(route.name)}
-            </p>
+          <div className="min-w-[210px] py-2 admin-card">
+            <p className="px-3 py-2 text-xs font-semibold text-store-500/70">{t(route.name)}</p>
             {route.routes?.map((child, index) => (
               <NavLink
                 key={index}
                 to={child.path}
-                className="block px-4 py-2 text-sm text-store-700 dark:text-store-200 hover:bg-store-50 dark:hover:bg-store-800/40 hover:text-store-600 transition-colors"
-                activeClassName="text-store-600 bg-store-50 dark:bg-store-800/40 font-semibold"
+                className="block px-3 py-2 text-sm text-store-700 dark:text-store-200 hover:bg-store-50 dark:hover:bg-store-800/40 rounded-lg mx-1"
+                activeClassName="bg-store-100 dark:bg-store-800/50 font-semibold text-store-700"
               >
                 {t(child.name)}
               </NavLink>
@@ -62,28 +55,23 @@ const SidebarSubMenu = ({ route, collapsed = false }) => {
     <li className="relative" key={route.name}>
       <button
         type="button"
-        className={`inline-flex items-center justify-between focus:outline-none w-full text-sm font-semibold transition-colors duration-150 px-6 py-3.5 rounded-xl mx-2 ${
+        className={`admin-nav-item inline-flex items-center justify-between w-full text-sm font-medium px-3 py-2.5 ${
           isChildActive
-            ? "text-store-500 dark:text-store-300"
-            : "text-store-700/80 dark:text-store-200/70 hover:text-store-500 dark:hover:text-store-100"
+            ? "text-store-700 dark:text-store-200"
+            : "text-store-700/80 dark:text-store-200/80 hover:bg-store-100/70 dark:hover:bg-white/5"
         }`}
         onClick={() => setOpen(!open)}
         aria-haspopup="true"
         aria-expanded={open}
       >
         <span className="inline-flex items-center">
-          <route.icon className="w-6 h-6" aria-hidden="true" />
-          <span className="ml-4">{t(route.name)}</span>
+          <route.icon className="w-5 h-5" aria-hidden="true" />
+          <span className="ml-3">{t(route.name)}</span>
         </span>
-        <span className="ml-2 opacity-70">
-          {open ? <IoChevronDownOutline className="w-4 h-4" /> : <IoChevronForwardOutline className="w-4 h-4" />}
-        </span>
+        {open ? <IoChevronDownOutline className="w-4 h-4 opacity-60" /> : <IoChevronForwardOutline className="w-4 h-4 opacity-60" />}
       </button>
       {open && route.routes && (
-        <ul
-          className="mt-1 mb-2 ml-4 mr-2 space-y-0.5 overflow-hidden text-sm font-medium border-l-2 border-store-500/20 pl-3"
-          aria-label="submenu"
-        >
+        <ul className="mt-1 mb-1 ml-3 mr-1 space-y-0.5 border-l border-store-200/80 pl-2" aria-label="submenu">
           {route.routes.map((child, index) => (
             <li key={index}>
               {child.outside ? (
@@ -91,15 +79,15 @@ const SidebarSubMenu = ({ route, collapsed = false }) => {
                   href={child.path}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center py-2.5 px-3 rounded-lg text-sm transition-colors duration-150 text-store-600/80 dark:text-store-200/70 hover:text-store-600 hover:bg-store-50/80 dark:hover:bg-store-800/30"
+                  className="block py-2 px-2 rounded-lg text-sm text-store-600/80 dark:text-store-200/70 hover:bg-store-50 dark:hover:bg-store-800/30"
                 >
                   {t(child.name)}
                 </a>
               ) : (
                 <NavLink
                   to={child.path}
-                  className="flex items-center py-2.5 px-3 rounded-lg text-sm transition-colors duration-150 text-store-600/80 dark:text-store-200/70 hover:text-store-600 hover:bg-store-50/80 dark:hover:bg-store-800/30"
-                  activeClassName="text-store-600 dark:text-store-300 bg-store-50 dark:bg-store-800/40 font-semibold"
+                  className="block py-2 px-2 rounded-lg text-sm text-store-600/80 dark:text-store-200/70 hover:bg-store-50 dark:hover:bg-store-800/30"
+                  activeClassName="bg-store-100 dark:bg-store-800/40 font-semibold text-store-700 dark:text-store-200"
                   rel="noreferrer"
                 >
                   {t(child.name)}

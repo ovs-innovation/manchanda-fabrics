@@ -6,6 +6,7 @@ import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { SLIDER_DEFAULTS } from "@utils/traditionalImagery";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -57,20 +58,7 @@ const SliderCarousel = () => {
     img: showingImage(item.img)
   }));
 
-  const defaultSliderData = [
-    {
-      img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop",
-      title: "Essential Streetwear",
-      subtitle: "Season Drop 2026",
-      link: "/search?category=unisex-clothing"
-    },
-    {
-      img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop",
-      title: "Urban Sneaker Line",
-      subtitle: "New Footwear Arrivals",
-      link: "/search?category=footwear"
-    },
-  ];
+  const defaultSliderData = SLIDER_DEFAULTS;
 
   const sliderData = backendSliderData.length > 0 ? backendSliderData : defaultSliderData;
 

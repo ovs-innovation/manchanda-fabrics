@@ -1,9 +1,9 @@
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import dynamic from "next/dynamic";
+import useTranslation from "next-translate/useTranslation";
 import { useRef, useEffect, useState } from "react";
 import { IoCloudDownloadOutline, IoPrintOutline, IoCopyOutline } from "react-icons/io5";
 import { FiTruck, FiExternalLink } from "react-icons/fi";
-import { notifySuccess } from "@utils/toast";
+import { notifySuccess, notifyError } from "@utils/toast";
 import ReactToPrint from "react-to-print";
 import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
@@ -17,10 +17,11 @@ import Loading from "@components/preloader/Loading";
 import OrderServices from "@services/OrderServices";
 import RefundServices from "@services/RefundServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import InvoiceForDownload from "@components/invoice/InvoiceForDownload";
+import downloadInvoicePdf from "@utils/downloadInvoicePdf";
 import OrderTracking from "@components/order/OrderTracking";
 import { setToken } from "@services/httpServices";
 const Order = ({ params }) => {
+  const { t } = useTranslation("common");
   const printRef = useRef();
   const orderId = params.id;
 
@@ -40,6 +41,7 @@ const Order = ({ params }) => {
   const [refundMode, setRefundMode] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
   const [refundNote, setRefundNote] = useState("");
+  const [pdfDownloading, setPdfDownloading] = useState(false);
 
   useEffect(() => {
     RefundServices.getRefundData().then((res) => {
@@ -81,6 +83,21 @@ const Order = ({ params }) => {
     notifySuccess("Tracking number copied!");
   };
 
+  const handleDownloadInvoice = async () => {
+    if (!printRef.current) return;
+    try {
+      setPdfDownloading(true);
+      await downloadInvoicePdf(
+        printRef.current,
+        `Invoice-${data?.invoice || orderId}.pdf`
+      );
+    } catch (err) {
+      notifyError(err?.message || "Could not download invoice");
+    } finally {
+      setPdfDownloading(false);
+    }
+  };
+
   return (
     <Layout title="Invoice" description="order confirmation page">
       {isLoading ? (
@@ -106,7 +123,30 @@ const Order = ({ params }) => {
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8">
             <div className="flex flex-wrap gap-3 mb-8">
+              <button
+                type="button"
+                disabled={pdfDownloading}
+                onClick={handleDownloadInvoice}
+                className="flex items-center justify-center bg-store-500 text-white transition-all text-sm font-semibold h-10 py-2 px-5 rounded-md hover:bg-store-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ fontFamily: "Arial, sans-serif" }}
+              >
+                {pdfDownloading ? "Preparing..." : t("downloadInvoice")}
+                <IoCloudDownloadOutline className="ml-2 text-lg" />
+              </button>
 
+              <ReactToPrint
+                trigger={() => (
+                  <button
+                    type="button"
+                    className="flex items-center justify-center bg-gray-800 text-white transition-all text-sm font-semibold h-10 py-2 px-5 rounded-md hover:bg-gray-900 shadow-sm"
+                    style={{ fontFamily: "Arial, sans-serif" }}
+                  >
+                    {t("printInvoice")}
+                    <IoPrintOutline className="ml-2 text-lg" />
+                  </button>
+                )}
+                content={() => printRef.current}
+              />
 
                {data.trackingNumber && (
                  <>
@@ -159,6 +199,7 @@ const Order = ({ params }) => {
               printRef={printRef}
               currency={currency}
               globalSetting={globalSetting}
+              storeCustomizationSetting={storeCustomizationSetting}
             />
           </div>
 

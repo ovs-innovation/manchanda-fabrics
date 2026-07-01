@@ -39,11 +39,15 @@ const useAddToCart = () => {
 
     const effectivePrice =
       product.prices?.price ||
-      product.prices?.originalPrice ||
+      product.prices?.salePrice ||
       product.price ||
       0;
+    const originalPrice =
+      product.prices?.originalPrice || effectivePrice;
 
     updatedProduct.price = effectivePrice;
+    updatedProduct.originalPrice = originalPrice;
+    updatedProduct.mrp = originalPrice;
     updatedProduct.stock =
       product?.stock !== undefined
         ? product.stock

@@ -21,10 +21,11 @@ module.exports = {
 
   theme: {
     fontFamily: {
-      sans: ["Poppins", "sans-serif"],
+      sans: ["Inter", "Manrope", "sans-serif"],
       serif: ["Cormorant Garamond", "serif"],
       title: ["Cormorant Garamond", "serif"],
-      micro: ["Poppins", "sans-serif"],
+      playfair: ["Playfair Display", "serif"],
+      micro: ["Inter", "sans-serif"],
       DejaVu: ["DejaVu Sans", "Arial", "sans-serif"],
     },
     extend: {

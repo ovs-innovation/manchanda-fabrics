@@ -193,6 +193,7 @@ const ProductModal = ({
         variant: selectVariant || {},
         price: priceToUse,
         originalPrice: originalToUse,
+        mrp: originalToUse,
       };
 
       // console.log("newItem", newItem);

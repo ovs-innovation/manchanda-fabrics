@@ -95,14 +95,19 @@ const StepIndicator = ({ step }) => (
   </div>
 );
 
-const EmailLoginForm = ({ variant = "login" }) => {
+const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
   const isSignup = variant === "signup";
   const router = useRouter();
   const { dispatch } = useContext(UserContext);
-  const emailLogin = useEmailLogin(isSignup ? "signup" : "login");
+  const emailLogin = useEmailLogin(isSignup ? "signup" : "login", {
+    allowCheckoutSignup,
+  });
   const { startTimer, resetTimer, canResend, formatted } = useResendTimer(60);
 
   const [step, setStep] = useState("email");
+  const [activeIntent, setActiveIntent] = useState(
+    isSignup ? "signup" : "login"
+  );
   const [otpLength, setOtpLength] = useState(emailLogin.otpLength);
   const [otp, setOtp] = useState(Array(emailLogin.otpLength).fill(""));
   const otpInputRefs = useRef([]);
@@ -123,6 +128,8 @@ const EmailLoginForm = ({ variant = "login" }) => {
     emailLogin.setError("");
     const response = await emailLogin.sendOtp(trimmed, selectedAvatar);
     const len = response?.otpLength || emailLogin.otpLength;
+    const nextIntent = response?.intent || emailLogin.intent;
+    setActiveIntent(nextIntent);
     resetOtpInputs(len);
     setStep("otp");
     startTimer();
@@ -156,7 +163,12 @@ const EmailLoginForm = ({ variant = "login" }) => {
     }
     emailLogin.setError("");
     try {
-      const response = await emailLogin.verifyOtp(emailAddress.trim(), otpCode, selectedAvatar);
+      const response = await emailLogin.verifyOtp(
+        emailAddress.trim(),
+        otpCode,
+        selectedAvatar,
+        activeIntent
+      );
       if (response?.token) {
         saveAuthSession(response, dispatch);
         notifySuccess(
@@ -210,6 +222,7 @@ const EmailLoginForm = ({ variant = "login" }) => {
   const goBackToEmail = () => {
     setStep("email");
     resetOtpInputs(emailLogin.otpLength);
+    setActiveIntent(isSignup ? "signup" : "login");
     emailLogin.setError("");
     resetTimer();
   };

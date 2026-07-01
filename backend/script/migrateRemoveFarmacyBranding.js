@@ -8,13 +8,13 @@ const { connectDB } = require("../config/db");
 const Setting = require("../models/Setting");
 
 const REPLACEMENTS = [
-  [/farmacykart/gi, "RASA"],
-  [/farmacy kart/gi, "RASA"],
-  [/farmcykart/gi, "RASA"],
-  [/farmcy kart/gi, "RASA"],
-  [/farmcy_kart/gi, "rasa_store"],
-  [/AQOSU FARMACYKART PRIVATE LIMITED/gi, "AQOSU RASA PRIVATE LIMITED"],
-  [/farmacykart\.com/gi, "rasastore.com"],
+  [/farmacykart/gi, "Manchanda Fabrics"],
+  [/farmacy kart/gi, "Manchanda Fabrics"],
+  [/farmcykart/gi, "Manchanda Fabrics"],
+  [/farmcy kart/gi, "Manchanda Fabrics"],
+  [/farmcy_kart/gi, "manchanda_fabrics"],
+  [/AQOSU FARMACYKART PRIVATE LIMITED/gi, "Manchanda Fabrics Private Limited"],
+  [/farmacykart\.com/gi, "manchandafabrics.com"],
 ];
 
 const scrubValue = (value) => {

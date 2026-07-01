@@ -13,7 +13,7 @@ cloudinary.config({
 // A tiny 1x1 transparent pixel base64 image
 const testFile = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-cloudinary.uploader.upload(testFile, { folder: 'test_rasa' })
+cloudinary.uploader.upload(testFile, { folder: 'test_manchanda' })
   .then(result => {
     console.log('Upload Success!');
     console.log('URL:', result.secure_url);

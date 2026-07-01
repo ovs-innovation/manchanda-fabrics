@@ -1,4 +1,4 @@
-# Product Model Migration — Pharmacy → RASA Fashion
+# Product Model Migration — Pharmacy → Manchanda Fashion
 
 ## Removed fields (Phase 2A.5)
 

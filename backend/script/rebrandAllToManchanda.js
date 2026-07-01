@@ -7,18 +7,15 @@ const Category = require("../models/Category");
 const Product = require("../models/Product");
 
 const REPLACEMENTS = [
-  [/Rasa Store/gi, "Manchanda Fabrics"],
-  [/RasaStore/gi, "Manchanda Fabrics"],
-  [/rasastore\.com/gi, "manchandafabrics.com"],
-  [/rasa_store/gi, "manchanda_fabrics"],
-  [/RASA/g, "Manchanda Fabrics"],
-  [/Rasa/g, "Manchanda Fabrics"],
   [/Farmacykart/gi, "Manchanda Fabrics"],
   [/Farmacy kart/gi, "Manchanda Fabrics"],
   [/Farmcykart/gi, "Manchanda Fabrics"],
   [/Farmcy kart/gi, "Manchanda Fabrics"],
   [/Farmacy/gi, "Manchanda Fabrics"],
 ];
+
+const isLegacyHomepageKey = (key) =>
+  key.endsWith("Homepage") && key !== "manchandaHomepage";
 
 const scrubValue = (value) => {
   if (value instanceof mongoose.Types.ObjectId) return value;
@@ -33,7 +30,8 @@ const scrubValue = (value) => {
   if (value && typeof value === "object") {
     const out = {};
     for (const [k, v] of Object.entries(value)) {
-      out[k] = scrubValue(v);
+      const nextKey = isLegacyHomepageKey(k) ? "manchandaHomepage" : k;
+      out[nextKey] = scrubValue(v);
     }
     return out;
   }
@@ -43,7 +41,6 @@ const scrubValue = (value) => {
 const run = async () => {
   await connectDB();
 
-  // 1. Clean settings
   console.log("Cleaning settings...");
   const settingsDocs = await Setting.find({});
   for (const doc of settingsDocs) {
@@ -56,7 +53,6 @@ const run = async () => {
     }
   }
 
-  // 2. Clean admins
   console.log("Cleaning admins...");
   const adminDocs = await Admin.find({});
   for (const doc of adminDocs) {
@@ -80,7 +76,6 @@ const run = async () => {
     }
   }
 
-  // 3. Clean categories
   console.log("Cleaning categories...");
   const categoryDocs = await Category.find({});
   for (const doc of categoryDocs) {
@@ -107,7 +102,6 @@ const run = async () => {
     }
   }
 
-  // 4. Clean products
   console.log("Cleaning products...");
   const productDocs = await Product.find({});
   for (const doc of productDocs) {

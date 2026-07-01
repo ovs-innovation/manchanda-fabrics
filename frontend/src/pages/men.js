@@ -6,15 +6,15 @@ import ProductCard from "@components/product/ProductCard";
 
 const MenCollection = ({ products, attributes }) => {
   return (
-    <Layout title="Men Collection" description="Discover Manchanda Fabrics premium Men's collection - clothing, footwear, and accessories.">
-      <div className="bg-white min-h-screen pb-16">
+    <Layout title="Men Collection" description="Discover Manchanda Fabrics premium Men's collection - clothing, kurtas, and heritage wear.">
+      <div className="bg-[#F5ECE8]/20 min-h-screen pb-16">
         {/* Editorial Banner */}
-        <div className="relative bg-[#FAF9F6] py-16 px-4 border-b border-gray-100 mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-black mb-3">
-            Men Collection
+        <div className="relative bg-[#F5ECE8] py-16 px-4 border-b border-[#D5BBB4]/30 mb-10 text-center">
+          <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[#2B211E] mb-3">
+            Men's Collection
           </h1>
-          <p className="text-gray-500 text-sm max-w-lg mx-auto font-medium">
-            Curated streetwear essentials, technical cargo pants, heavyweight tees, and minimalist leather sneakers crafted for the modern man.
+          <p className="text-[#2B211E]/70 text-sm max-w-lg mx-auto font-medium font-sans">
+            Curated premium men's ethnic wear, royal bandhgalas, handcrafted kurtas, and traditional jackets designed for the modern gentleman.
           </p>
         </div>
 

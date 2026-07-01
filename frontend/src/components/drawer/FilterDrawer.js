@@ -7,8 +7,6 @@ import FilterSidebar from "@components/category/FilterSidebar";
 import { SidebarContext } from "@context/SidebarContext";
 
 const FilterDrawer = ({
-  selectedBrands,
-  setSelectedBrands,
   priceRange,
   setPriceRange,
   selectedCategories,
@@ -39,8 +37,6 @@ const FilterDrawer = ({
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           <FilterSidebar
-            selectedBrands={selectedBrands}
-            setSelectedBrands={setSelectedBrands}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
             selectedCategories={selectedCategories}

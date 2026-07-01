@@ -8,7 +8,6 @@ const useFilter = (data, allCategories = []) => {
   const [processing, setProcessing] = useState([]);
   const [delivered, setDelivered] = useState([]);
   const [sortedField, setSortedField] = useState("");
-  const [selectedBrands, setSelectedBrands] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100000 });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
@@ -33,17 +32,13 @@ const useFilter = (data, allCategories = []) => {
   const productData = useMemo(() => {
     let services = data || [];
 
-    // Filter by Search Query (Brand Name, Category Name, or Product Title)
+    // Filter by Search Query (Category Name or Product Title)
     if (searchQuery && searchQuery.trim()) {
       const query = searchQuery.trim().toLowerCase();
       services = services.filter((product) => {
         // Search in product title
         const productTitle = showingTranslateValue(product?.title)?.toLowerCase() || "";
         if (productTitle.includes(query)) return true;
-
-        // Search in brand name
-        const brandName = showingTranslateValue(product?.brand?.name)?.toLowerCase() || "";
-        if (brandName.includes(query)) return true;
 
         // Search in category name
         const categoryName = showingTranslateValue(product?.category?.name)?.toLowerCase() || "";
@@ -59,20 +54,6 @@ const useFilter = (data, allCategories = []) => {
         }
 
         return false;
-      });
-    }
-
-    // Filter by Brand
-    if (selectedBrands.length > 0) {
-      services = services.filter((product) => {
-        const pBrand = product.brand?._id || product.brand;
-        const rawBrandName = product.brandName || (product.brand && typeof product.brand.name === 'object' ? showingTranslateValue(product.brand.name) : product.brand?.name) || "";
-        const brandName = typeof rawBrandName === 'string' ? rawBrandName.toLowerCase().trim() : "";
-        return selectedBrands.some(selectedId => {
-          const selId = selectedId.toLowerCase().trim();
-          return (pBrand && pBrand.toString().toLowerCase() === selId) || 
-                 (brandName && (brandName.includes(selId) || selId.includes(brandName)));
-        });
       });
     }
 
@@ -176,7 +157,6 @@ const useFilter = (data, allCategories = []) => {
   }, [
     sortedField,
     data,
-    selectedBrands,
     priceRange,
     selectedCategories,
     selectedRating,
@@ -190,8 +170,6 @@ const useFilter = (data, allCategories = []) => {
     processing,
     delivered,
     setSortedField,
-    selectedBrands,
-    setSelectedBrands,
     priceRange,
     setPriceRange,
     selectedCategories,

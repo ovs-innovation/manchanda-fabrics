@@ -11,13 +11,13 @@ const run = async () => {
   if (globalSet) {
     globalSet.setting = {
       ...globalSet.setting,
-      company_name: "RASA Store Pvt Ltd",
+      company_name: "Manchanda Fabrics Pvt Ltd",
       address: "Plot No. 12, Sector 4, Ghaziabad, Uttar Pradesh, 201012",
-      email: "contact@rasastore.com",
-      website: "rasastore.com",
+      email: "contact@manchandafabrics.com",
+      website: "manchandafabrics.com",
       contact: "+91 98765 43210",
       gstin: "09AAZCA5886C1ZV",
-      authorized_signatory: "For RASA Store Pvt Ltd",
+      authorized_signatory: "For Manchanda Fabrics Pvt Ltd",
       cin: "U74999UP2026PTC123456",
       dl_number: "UP14200002337"
     };

@@ -59,8 +59,6 @@ const Search = ({ products, attributes }) => {
   const {
     setSortedField,
     productData,
-    selectedBrands,
-    setSelectedBrands,
     priceRange,
     setPriceRange,
     selectedCategories,
@@ -76,7 +74,7 @@ const Search = ({ products, attributes }) => {
   // This useEffect must come AFTER useFilter call
   useEffect(() => {
     setVisibleProduct(18);
-  }, [sortedField, selectedBrands, selectedCategories, router.query]);
+  }, [sortedField, selectedCategories, router.query]);
 
   // Sync sort state from URL when route is ready or query changes
   useEffect(() => {
@@ -103,7 +101,7 @@ const Search = ({ products, attributes }) => {
     // This triggers useFilter to recalculate productData
     setSortedField(value);
     
-    // Build query object preserving all existing params (id, brand, query, etc.)
+    // Build query object preserving all existing params (id, query, etc.)
     const newQuery = { ...router.query };
     if (value === "All" || value === "") {
       delete newQuery.sort;
@@ -127,13 +125,11 @@ const Search = ({ products, attributes }) => {
       setIsLoading(true);
       try {
         const q = router.query.query;
-        const brand = router.query.brand;
 
         // Fetch products without category constraint so client-side filters work on all items
         const response = await ProductServices.getShowingStoreProducts({
           category: "", 
           title: q ? encodeURIComponent(q) : "",
-          brand: brand ? brand : "",
         });
 
         if (response?.products) {
@@ -166,7 +162,7 @@ const Search = ({ products, attributes }) => {
       isSidebarAction.current = false;
       fetchByQuery();
     }
-  }, [router.isReady, router.query._id, router.query.category, router.query.query, router.query.brand]);
+  }, [router.isReady, router.query._id, router.query.category, router.query.query]);
 
   // Clear search query and URL filters when sidebar filters are applied
   const clearSearchQuery = () => {
@@ -174,8 +170,7 @@ const Search = ({ products, attributes }) => {
     if (
       router.query.query || 
       router.query._id || 
-      router.query.category || 
-      router.query.brand
+      router.query.category
     ) {
       const newQuery = { ...router.query };
       
@@ -183,7 +178,6 @@ const Search = ({ products, attributes }) => {
       delete newQuery.query;
       delete newQuery._id;
       delete newQuery.category;
-      delete newQuery.brand;
       
       router.push(
         {
@@ -197,16 +191,6 @@ const Search = ({ products, attributes }) => {
   };
 
   // Wrapper functions that clear search query before applying filters
-  const handleBrandChange = (brandId) => {
-    isSidebarAction.current = true;
-    clearSearchQuery();
-    if (selectedBrands.includes(brandId)) {
-      setSelectedBrands(selectedBrands.filter((id) => id !== brandId));
-    } else {
-      setSelectedBrands([...selectedBrands, brandId]);
-    }
-  };
-
   const handleCategoryChange = (catIdOrIds) => {
     isSidebarAction.current = true;
     clearSearchQuery();
@@ -256,7 +240,6 @@ const Search = ({ products, attributes }) => {
 
   const handleClearAll = () => {
     isSidebarAction.current = true;
-    setSelectedBrands([]);
     setPriceRange({ min: 0, max: 100000 });
     setSelectedCategories([]);
     setSelectedRating(0);
@@ -383,7 +366,7 @@ const Search = ({ products, attributes }) => {
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 relative">
                   <Image
-                    src="/logo.png"
+                    src="/manchandalogo.png"
                     alt="logo"
                     fill
                     className="object-contain"
@@ -446,8 +429,6 @@ const Search = ({ products, attributes }) => {
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block w-1/5 shrink-0">
             <FilterSidebar
-              selectedBrands={selectedBrands}
-              setSelectedBrands={handleBrandChange}
               priceRange={priceRange}
               setPriceRange={handlePriceRangeChange}
               selectedCategories={selectedCategories}
@@ -521,7 +502,7 @@ const Search = ({ products, attributes }) => {
                 <Loading loading={isLoading} />
               ) : (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2 md:gap-3 lg:gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
                     {productData?.slice(0, visibleProduct).map((product, i) => (
                       <ProductCard
                         key={i + 1}
@@ -548,8 +529,6 @@ const Search = ({ products, attributes }) => {
 
       {/* Filter Drawer for Mobile */}
       <FilterDrawer
-        selectedBrands={selectedBrands}
-        setSelectedBrands={handleBrandChange}
         priceRange={priceRange}
         setPriceRange={handlePriceRangeChange}
         selectedCategories={selectedCategories}
@@ -649,13 +628,12 @@ const Search = ({ products, attributes }) => {
 export default Search;
 
 export const getServerSideProps = async (context) => {
-  const { query, brand } = context.query;
+  const { query } = context.query;
 
   const [dataResult, attributesResult] = await Promise.allSettled([
     ProductServices.getShowingStoreProducts({
-      category: "", // Fetch all products to support full client-side category filtering
+      category: "",
       title: query ? encodeURIComponent(query) : "",
-      brand: brand ? brand : "",
     }),
     AttributeServices.getShowingAttributes({}),
   ]);

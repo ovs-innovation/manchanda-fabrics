@@ -1,5 +1,5 @@
 /**
  * Manchanda Fabrics categories — fashion & streetwear taxonomy.
- * See also: backend/utils/rasaCategories.js
+ * See also: backend/utils/manchandaCategories.js
  */
-module.exports = require("./rasaCategories");
+module.exports = require("./manchandaCategories");

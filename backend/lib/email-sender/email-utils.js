@@ -95,17 +95,21 @@ const prepareMailOptions = (body = {}) => {
   }
 
   if (!useResend) {
-    // Delete HTML part for SMTP/Gmail sends to ensure it is sent as plain text.
-    delete mail.html;
+    const hasAttachments =
+      Array.isArray(mail.attachments) && mail.attachments.length > 0;
 
-    // Strip links and email addresses from the text body to prevent phishing/link-mismatch flagging
-    if (mail.text) {
-      mail.text = mail.text
-        .replace(/https?:\/\/[^\s]+/g, "")
-        .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "")
-        .replace(/Support:\s*$/im, "")
-        .replace(/\n\s*\n\s*\n/g, "\n\n")
-        .trim();
+    // Order invoice emails: keep HTML + attachments for readable confirmation mail.
+    if (!hasAttachments) {
+      delete mail.html;
+
+      if (mail.text) {
+        mail.text = mail.text
+          .replace(/https?:\/\/[^\s]+/g, "")
+          .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "")
+          .replace(/Support:\s*$/im, "")
+          .replace(/\n\s*\n\s*\n/g, "\n\n")
+          .trim();
+      }
     }
   }
 

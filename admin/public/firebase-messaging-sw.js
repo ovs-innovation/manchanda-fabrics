@@ -15,7 +15,7 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   const notificationTitle =
-    payload.notification?.title || payload.data?.title || "RASA Admin";
+    payload.notification?.title || payload.data?.title || "Manchanda Admin";
   const notificationOptions = {
     body:
       payload.notification?.body ||

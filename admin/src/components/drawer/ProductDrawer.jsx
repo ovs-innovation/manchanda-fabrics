@@ -1904,7 +1904,7 @@ const ProductDrawer = ({ id }) => {
                   <div className="col-span-8 sm:col-span-4">
                     <Input
                       {...register("title", { required: "Product Name is required!" })}
-                      placeholder="e.g. Nike Air Max 90"
+                      placeholder="e.g. Floral Embroidered Anarkali Suit"
                       onBlur={(e) => handleProductSlug(e.target.value)}
                     />
                     <Error errorName={errors.title} />
@@ -1916,7 +1916,7 @@ const ProductDrawer = ({ id }) => {
                     <Input
                       {...register("slug", { required: "Slug is required!" })}
                       defaultValue={slug}
-                      placeholder="nike-air-max-90"
+                      placeholder="e.g. floral-embroidered-anarkali-suit"
                     />
                     <Error errorName={errors.slug} />
                   </div>
@@ -1929,10 +1929,9 @@ const ProductDrawer = ({ id }) => {
                       className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
                     >
                       <option value="">Choose Type</option>
-                      <option value="Sarees">Sarees</option>
-                      <option value="Suits">Suits</option>
-                      <option value="Fabrics">Fabrics</option>
-                      <option value="Traditional Wear">Traditional Wear</option>
+                      <option value="Suits">Suit Sets</option>
+                      <option value="Fabrics">Unstitched Dress Material</option>
+                      <option value="Dupattas">Dupattas</option>
                     </select>
                     <Error errorName={errors.productType} />
                   </div>
@@ -1944,10 +1943,7 @@ const ProductDrawer = ({ id }) => {
                       {...register("gender", { required: "Gender is required!" })}
                       className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
                     >
-                      <option value="">Choose Gender</option>
                       <option value="Women">Women</option>
-                      <option value="Men">Men</option>
-                      <option value="Unisex">Unisex</option>
                     </select>
                     <Error errorName={errors.gender} />
                   </div>
@@ -1958,7 +1954,7 @@ const ProductDrawer = ({ id }) => {
                   <div className="col-span-8 sm:col-span-4">
                     <Input
                       {...register("occasion")}
-                      placeholder="e.g. Wedding, Festive, Casual"
+                      placeholder="e.g. Wedding, Festive, Daily Wear"
                     />
                   </div>
                 </div>
@@ -1968,7 +1964,7 @@ const ProductDrawer = ({ id }) => {
                   <div className="col-span-8 sm:col-span-4">
                     <Input
                       {...register("fabricType")}
-                      placeholder="e.g. Banarasi Silk, Cotton"
+                      placeholder="e.g. Cotton, Organza, Silk, Muslin"
                     />
                   </div>
                 </div>
@@ -1978,40 +1974,7 @@ const ProductDrawer = ({ id }) => {
                   <div className="col-span-8 sm:col-span-4">
                     <Input
                       {...register("workType")}
-                      placeholder="e.g. Zari Weaving, Embroidered"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
-                  <LabelArea label="Blouse Included" />
-                  <div className="col-span-8 sm:col-span-4">
-                    <select
-                      {...register("blouseIncluded")}
-                      className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
-                    >
-                      <option value="false">No</option>
-                      <option value="true">Yes</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
-                  <LabelArea label="Saree Length" />
-                  <div className="col-span-8 sm:col-span-4">
-                    <Input
-                      {...register("sareeLength")}
-                      placeholder="e.g. 5.5 m + 0.8 m blouse"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
-                  <LabelArea label="Color Family" />
-                  <div className="col-span-8 sm:col-span-4">
-                    <Input
-                      {...register("colorFamily")}
-                      placeholder="e.g. Red, Mustard Gold"
+                      placeholder="e.g. Chikankari, Banarasi Weave, Printed"
                     />
                   </div>
                 </div>
@@ -2233,7 +2196,7 @@ const ProductDrawer = ({ id }) => {
                   <div className="col-span-8 sm:col-span-4">
                     <Input
                       {...register("sku")}
-                      placeholder="e.g. NIKE-AM90-BLK"
+                      placeholder="e.g. MAN-SUIT-001"
                     />
                   </div>
                 </div>

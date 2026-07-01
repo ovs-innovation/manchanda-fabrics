@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaInstagram, FaHeart, FaRegHeart, FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { FiSend, FiMoreHorizontal } from "react-icons/fi";
+import { INSTAGRAM_FALLBACK } from "@utils/traditionalImagery";
 
 const INSTAGRAM_HANDLE = "manchandafabrics";
 const PROFILE_PICTURE = "/logo/logo.png";
@@ -91,7 +92,7 @@ const InstagramFeed = ({ posts = [] }) => {
                         alt="Profile"
                         className="w-full h-full object-cover rounded-full"
                         onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=150";
+                          e.target.src = INSTAGRAM_FALLBACK;
                         }}
                       />
                     </div>

@@ -11,6 +11,7 @@ const Product = require("../models/Product");
 const Setting = require("../models/Setting");
 const Brand = require("../models/Brand");
 const { sendEmail } = require("../lib/email-sender/sender");
+const { validateEmail, normalizeEmail } = require("../lib/email-sender/validateEmail");
 const { formatAmountForStripe } = require("../lib/stripe/stripe");
 const { handleCreateInvoice } = require("../lib/email-sender/create");
 const {
@@ -49,34 +50,51 @@ const getEmailLogoUrl = async () => {
   } catch (_) {}
 
   if (process.env.STORE_LOGO_URL) return process.env.STORE_LOGO_URL;
-  const base = (process.env.STORE_URL || "https://Manchanda Fabrics.com").replace(/\/$/, "");
-  return `${base}/favicon.png`;
+  const base = (process.env.STORE_URL || "https://manchandafabrics.com").replace(/\/$/, "");
+  return `${base}/manchandalogo.png`;
 };
 
 const sendOrderNotifications = async (order) => {
   try {
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
-    const shopName = globalSetting?.setting?.shop_name || "manchanda";
-    const contactEmail = globalSetting?.setting?.email || "support@Manchanda Fabrics.com";
+    const shopName = globalSetting?.setting?.shop_name || "Manchanda Fabrics";
+    const contactSettingCheck = globalSetting?.setting?.email
+      ? validateEmail(globalSetting.setting.email)
+      : { ok: false };
+    const contactEmail = contactSettingCheck.ok
+      ? contactSettingCheck.email
+      : process.env.EMAIL_REPLY_TO || process.env.EMAIL_USER || "info@manchandafabrics.com";
     const currency = order.company_info?.currency || "₹";
     const logo = await getEmailLogoUrl();
-    const customerEmail = getRealEmail(order.user_info?.email);
+    const customerEmailRaw = getRealEmail(order.user_info?.email);
+    const customerCheck = customerEmailRaw ? validateEmail(customerEmailRaw) : { ok: false };
+    const customerEmail = customerCheck.ok ? customerCheck.email : "";
 
-    // 1) Customer confirmation & Invoice: Send single combined email (with PDF attachment)
-    if (customerEmail && (!order.confirmationEmailSent || !order.invoiceEmailSent)) {
+    if (customerEmailRaw && !customerCheck.ok) {
+      console.error(
+        `Order #${order.invoice}: invalid customer email "${customerEmailRaw}" — ${customerCheck.message}`
+      );
+    }
+
+    // Always send one combined confirmation + invoice email per order
+    if (customerEmail && !order.confirmationEmailSent) {
       try {
-        // Generate Invoice PDF (sub-millisecond load from local disk cache)
-        const pdf = await handleCreateInvoice(order, `${order.invoice}.pdf`);
+        const pdf = await handleCreateInvoice(order);
 
         const emailOption = {
           name: order.user_info.name,
           invoice: order.invoice,
           total: order.total,
           currency: currency,
-          date: new Date(order.createdAt).toLocaleDateString(),
-          paymentStatus: order.paymentMethod === "Cash On Delivery" ? "Pending" : "Confirmed",
+          date: new Date(order.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          paymentStatus:
+            order.paymentMethod === "Cash On Delivery" ? "Pending (COD)" : "Confirmed",
           status: order.status || "Pending",
-          trackingUrl: `${process.env.STORE_URL}/user/dashboard`,
+          trackingUrl: `${(process.env.STORE_URL || "").replace(/\/$/, "")}/user/dashboard`,
           contact_email: contactEmail,
           shop_name: shopName,
           logo,
@@ -85,11 +103,12 @@ const sendOrderNotifications = async (order) => {
         const emailBody = {
           to: customerEmail,
           replyTo: contactEmail,
-          subject: `${shopName} – Order Confirmed & Invoice #${order.invoice}`,
+          subject: `${shopName} – Thank you! Order #${order.invoice} confirmed (Invoice attached)`,
           html: orderConfirmationBody(emailOption),
+          text: `Hi ${order.user_info.name}, your order #${order.invoice} is confirmed. Invoice PDF is attached. Track: ${emailOption.trackingUrl}`,
           attachments: [
             {
-              filename: `${order.invoice}.pdf`,
+              filename: `Invoice-${order.invoice}.pdf`,
               content: pdf,
               contentType: "application/pdf",
             },
@@ -100,8 +119,12 @@ const sendOrderNotifications = async (order) => {
         await sendEmail(emailBody);
         order.confirmationEmailSent = true;
         order.invoiceEmailSent = true;
+        console.log(`[email] Order confirmation + invoice sent → ${customerEmail} | #${order.invoice}`);
       } catch (err) {
-        console.error("Order confirmation & invoice email failed:", err.message);
+        console.error(
+          `Order confirmation & invoice email failed (#${order.invoice} → ${customerEmail}):`,
+          err.message
+        );
       }
     }
 
@@ -145,8 +168,12 @@ const sendOrderNotifications = async (order) => {
         };
         await sendEmail(adminBody);
         order.adminNewOrderEmailSent = true;
+        console.log(`[email] Admin new-order notification → ${contactEmail} | #${order.invoice}`);
       } catch (err) {
-        console.error("Admin order email failed:", err.message);
+        console.error(
+          `Admin order email failed (#${order.invoice} → ${contactEmail}):`,
+          err.message
+        );
       }
     }
 
@@ -562,7 +589,7 @@ const sendEmailInvoiceToCustomer = async (req, res) => {
       });
     }
     // console.log("sendEmailInvoiceToCustomer");
-    const pdf = await handleCreateInvoice(req.body, `${req.body.invoice}.pdf`);
+    const pdf = await handleCreateInvoice(req.body);
     const globalSetting = await Setting.findOne({ name: "globalSetting" });
     const shopName = globalSetting?.setting?.shop_name || "manchanda";
 
@@ -584,8 +611,8 @@ const sendEmailInvoiceToCustomer = async (req, res) => {
       vat_number: req.body?.company_info?.vat_number,
       name: user?.name,
       email: user?.email,
-      contact_email: globalSetting?.setting?.email || "support@Manchanda Fabrics.com",
-      shop_name: globalSetting?.setting?.shop_name || "manchanda",
+      shop_name: globalSetting?.setting?.shop_name || "Manchanda Fabrics",
+      contact_email: globalSetting?.setting?.email || "info@manchandafabrics.com",
       phone: user?.phone,
       address: user?.address,
       cart: req.body.cart,

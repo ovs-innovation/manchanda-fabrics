@@ -572,6 +572,15 @@ const useStoreHomeSubmit = () => {
               ...resData?.contact_us?.address_box_address_three,
               [language]: data.address_box_address_three || "",
             }),
+            whatsapp_group_link: data.whatsapp_group_link || "",
+            whatsapp_group_title: handleRemoveEmptyKey({
+              ...resData?.contact_us?.whatsapp_group_title,
+              [language]: data.whatsapp_group_title || "",
+            }),
+            whatsapp_group_text: handleRemoveEmptyKey({
+              ...resData?.contact_us?.whatsapp_group_text,
+              [language]: data.whatsapp_group_text || "",
+            }),
             form_title: handleRemoveEmptyKey({
               ...resData?.contact_us?.form_title,
               [language]: data.contact_form_title || "",
@@ -2011,6 +2020,15 @@ const useStoreHomeSubmit = () => {
           setValue(
             "address_box_address_three",
             res?.contact_us?.address_box_address_three[language || "en"]
+          );
+          setValue("whatsapp_group_link", res?.contact_us?.whatsapp_group_link || "");
+          setValue(
+            "whatsapp_group_title",
+            res?.contact_us?.whatsapp_group_title?.[language || "en"] || ""
+          );
+          setValue(
+            "whatsapp_group_text",
+            res?.contact_us?.whatsapp_group_text?.[language || "en"] || ""
           );
           setValue(
             "contact_form_title",

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { IoStar, IoCheckmarkCircle } from "react-icons/io5";
+import TestimonialServices from "@services/TestimonialServices";
 
-const REVIEWS = [
+const FALLBACK_REVIEWS = [
   {
     id: 1,
     name: "Sunita K.",
@@ -9,8 +11,8 @@ const REVIEWS = [
     initials: "SK",
     rating: 5,
     date: "June 2026",
-    text: "Ordered a Banarasi Silk Saree for my daughter's wedding. It arrived in 2 days. The packaging was beautiful and felt like a luxury gift. The fabric quality is absolutely premium.",
-    product: "Banarasi Silk Saree",
+    text: "Ordered an embroidered silk suit set for my daughter's wedding. Beautiful packaging and premium fabric — truly Biba-level quality.",
+    product: "Festive Silk Suit Set",
     verified: true,
   },
   {
@@ -20,8 +22,8 @@ const REVIEWS = [
     initials: "PS",
     rating: 5,
     date: "May 2026",
-    text: "The georgette saree I got is exactly as shown — clean weave, perfect weight. Manchanda Fabrics has become my go-to for finding authentic ethnic pieces.",
-    product: "Georgette Designer Saree",
+    text: "The straight cotton suit I received is exactly as shown — soft fabric, elegant print, perfect for daily wear. Manchanda is my go-to for ethnic suits.",
+    product: "Cotton Straight Suit",
     verified: true,
   },
   {
@@ -31,41 +33,8 @@ const REVIEWS = [
     initials: "MR",
     rating: 5,
     date: "June 2026",
-    text: "Was skeptical at first to buy fabric online, but the pure cotton material exceeded my expectations. Breathable and gorgeous prints. Will definitely shop again!",
-    product: "Printed Cotton Fabric",
-    verified: true,
-  },
-  {
-    id: 4,
-    name: "Sneha R.",
-    location: "Chennai",
-    initials: "SR",
-    rating: 5,
-    date: "April 2026",
-    text: "Customer service was super responsive on WhatsApp. Had a small query about the blouse fabric and they replied with images in minutes. The suit set is gorgeous.",
-    product: "Festive Silk Suit",
-    verified: true,
-  },
-  {
-    id: 5,
-    name: "Vikram T.",
-    location: "Hyderabad",
-    initials: "VT",
-    rating: 5,
-    date: "May 2026",
-    text: "Ordered handloom cotton fabrics for my boutique. Every piece has authentic weave and rich color. Excellent quality at this price point.",
-    product: "Handloom Cotton Fabric",
-    verified: true,
-  },
-  {
-    id: 6,
-    name: "Ananya D.",
-    location: "Pune",
-    initials: "AD",
-    rating: 5,
-    date: "June 2026",
-    text: "Bought a designer saree as a gift for my mother. She absolutely loved the craftsmanship. Thank you Manchanda Fabrics!",
-    product: "Designer Silk Saree",
+    text: "Bought unstitched suit fabric online — pure cotton with rich handblock prints. Tailored into a gorgeous salwar set for Karwa Chauth.",
+    product: "Handblock Cotton Suit Fabric",
     verified: true,
   },
 ];
@@ -78,172 +47,112 @@ const STATS = [
 ];
 
 const Stars = () => (
-  <div className="flex gap-0.5">
-    {[1, 2, 3, 4, 5].map((s) => (
-      <IoStar key={s} className="text-[#9C6A5A] text-xs" />
+  <div className="flex gap-0.5 text-[#C7A46A]">
+    {[...Array(5)].map((_, i) => (
+      <IoStar key={i} className="w-4 h-4" />
     ))}
   </div>
 );
 
-const ReviewCard = ({ review }) => (
-  <div className="relative flex flex-col justify-between gap-4 rounded-xl border border-[#E6D1CB] bg-white p-6 hover:border-[#9C6A5A]/50 transition-all duration-300 w-[350px] shrink-0 shadow-sm">
-    {/* Top part */}
-    <div>
-      <div className="flex justify-between items-center mb-3">
-        <Stars />
-        <span className="text-[#3B2A25]/60 text-[10px]">{review.date}</span>
-      </div>
-      <p className="text-[#3B2A25]/85 text-xs leading-relaxed italic">
-        &ldquo;{review.text}&rdquo;
-      </p>
-    </div>
+const mapApiReview = (item, index) => ({
+  id: item._id || index,
+  name: item.name || item.customer_name || "Customer",
+  location: item.city || item.location || "India",
+  initials: (item.name || "C").slice(0, 2).toUpperCase(),
+  rating: Number(item.rating) || 5,
+  date: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-IN", { month: "long", year: "numeric" }) : "",
+  text: item.description || item.review || item.comment || "",
+  product: item.product_name || item.designation || "Manchanda Fabrics",
+  verified: true,
+});
 
-    {/* Bottom part */}
-    <div className="mt-4 pt-3 border-t border-[#E6D1CB]/40 flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-[#FAF7F5] border border-[#E6D1CB] flex items-center justify-center shrink-0">
-          <span className="text-[#9C6A5A] text-[10px] font-black">{review.initials}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1">
-            <span className="text-[#3B2A25] text-xs font-black truncate">{review.name}</span>
-            {review.verified && (
-              <IoCheckmarkCircle className="text-[#9C6A5A] text-[12px] shrink-0" />
-            )}
-          </div>
-          <p className="text-[#3B2A25]/60 text-[9px] uppercase tracking-widest">{review.location}</p>
-        </div>
-      </div>
+const CustomerReviewSection = () => {
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#FAF7F5] border border-[#E6D1CB] rounded-full w-fit">
-        <span className="w-1 h-1 rounded-full bg-[#9C6A5A]" />
-        <span className="text-[#3B2A25]/75 text-[8px] uppercase tracking-widest font-bold">{review.product}</span>
-      </div>
-    </div>
-  </div>
-);
+  const { data: apiReviews } = useQuery({
+    queryKey: ["publicTestimonials"],
+    queryFn: () => TestimonialServices.getPublicTestimonials(),
+    staleTime: 5 * 60 * 1000,
+  });
 
-export default function CustomerReviewSection() {
-  const trackRef = useRef(null);
-  const [paused, setPaused] = useState(false);
-  const posRef = useRef(0);
-  const rafRef = useRef(null);
-  const SPEED = 0.5;
-  const doubledReviews = [...REVIEWS, ...REVIEWS, ...REVIEWS];
-
-  // Mobile slideshow state
-  const [activeMobileIndex, setActiveMobileIndex] = useState(0);
+  const reviews =
+    Array.isArray(apiReviews) && apiReviews.length > 0
+      ? apiReviews.filter((r) => r.status !== "hide").map(mapApiReview)
+      : FALLBACK_REVIEWS;
 
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const animate = () => {
-      if (!paused) {
-        posRef.current += SPEED;
-        const totalW = track.scrollWidth;
-        const singleW = totalW / 3;
-        if (posRef.current >= singleW) {
-          posRef.current = 0;
-        }
-        track.style.transform = `translateX(-${posRef.current}px)`;
-      }
-      rafRef.current = requestAnimationFrame(animate);
+    const el = scrollRef.current;
+    if (!el || reviews.length < 2) return;
+
+    const scrollToCard = (index) => {
+      const card = el.children[index];
+      if (!card) return;
+      const left = card.offsetLeft - (el.clientWidth - card.clientWidth) / 2;
+      el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
     };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [paused]);
 
-  // Mobile slideshow auto-play timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveMobileIndex((prev) => (prev + 1) % REVIEWS.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % reviews.length;
+        scrollToCard(next);
+        return next;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [reviews.length]);
 
   return (
-    <section className="py-12 md:py-20 bg-[#FAF7F5] border-t border-[#E6D1CB] overflow-hidden font-sans">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#9C6A5A] mb-2">
-            Customer Reviews
-          </p>
-          <h2 className="text-2xl sm:text-3xl font-serif font-light text-[#3B2A25]">
-            Loved by Our Patrons
-          </h2>
-          <div className="h-[2px] w-12 bg-[#9C6A5A] mx-auto mt-4" />
-        </div>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 max-w-4xl mx-auto">
-          {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center py-4 px-3 rounded-lg bg-white border border-[#E6D1CB] shadow-sm">
-              <span className="text-xl sm:text-2xl font-serif font-bold text-[#3B2A25]">{stat.value}</span>
-              <span className="text-[9px] uppercase tracking-widest text-[#3B2A25]/60 mt-1">{stat.label}</span>
-            </div>
-          ))}
-        </div>
+    <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-16">
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[#93614E] mb-2">Patron Stories</p>
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-light text-[#2B211E] font-serif">Loved by Our Customers</h2>
+        <div className="h-[1px] w-12 bg-[#C7A46A] mx-auto mt-3 sm:mt-4" />
       </div>
 
-      {/* Desktop View: Scrolling Marquee Row */}
-      <div 
-        className="hidden md:block relative overflow-hidden py-2"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mb-8 sm:mb-12">
+        {STATS.map((stat) => (
+          <div key={stat.label} className="text-center p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-[#D5BBB4]/30">
+            <p className="text-lg sm:text-2xl font-semibold text-[#93614E]">{stat.value}</p>
+            <p className="text-[10px] sm:text-xs uppercase tracking-wider text-[#2B211E]/60 mt-1 leading-tight">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div
+        ref={scrollRef}
+        className="flex gap-3 sm:gap-6 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide -mx-1 px-1"
       >
-        {/* Left & Right Gradients for smooth fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#FAF7F5] to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#FAF7F5] to-transparent z-10 pointer-events-none" />
-
-        <div 
-          ref={trackRef} 
-          className="flex gap-4" 
-          style={{ willChange: "transform", width: "max-content" }}
-        >
-          {doubledReviews.map((r, i) => (
-            <ReviewCard key={`${r.id}-${i}`} review={r} />
-          ))}
-        </div>
-      </div>
-
-      {/* Mobile View: 1 Card Slide Show */}
-      <div className="block md:hidden px-6">
-        <div className="relative overflow-hidden w-full min-h-[220px] flex items-center justify-center">
-          {REVIEWS.map((review, idx) => {
-            const isCurrent = idx === activeMobileIndex;
-            return (
-              <div
-                key={review.id}
-                className={`absolute w-full max-w-[340px] transition-all duration-500 ease-in-out ${
-                  isCurrent
-                    ? "opacity-100 scale-100 translate-x-0 relative z-10"
-                    : "opacity-0 scale-95 translate-x-12 absolute pointer-events-none z-0"
-                }`}
-              >
-                <ReviewCard review={review} />
+        {reviews.map((review) => (
+          <div
+            key={review.id}
+            className="snap-center shrink-0 w-[min(88vw,300px)] sm:w-[340px] bg-white border border-[#D5BBB4]/40 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-[#F5ECE8] text-[#93614E] font-semibold flex items-center justify-center">
+                {review.initials}
               </div>
-            );
-          })}
-        </div>
-
-        {/* Slide Indicators */}
-        <div className="flex justify-center gap-1.5 mt-5">
-          {REVIEWS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveMobileIndex(idx)}
-              className="h-1 rounded-full transition-all duration-300"
-              style={{
-                width: idx === activeMobileIndex ? "18px" : "6px",
-                backgroundColor: idx === activeMobileIndex ? "#9C6A5A" : "#E6D1CB",
-              }}
-              aria-label={`Go to review ${idx + 1}`}
-            />
-          ))}
-        </div>
+              <div>
+                <p className="font-medium text-[#2B211E]">{review.name}</p>
+                <p className="text-xs text-[#2B211E]/50">{review.location}</p>
+              </div>
+            </div>
+            <Stars />
+            <p className="text-sm text-[#2B211E]/80 mt-3 leading-relaxed line-clamp-4">{review.text}</p>
+            <div className="mt-4 flex items-center justify-between text-xs text-[#2B211E]/50">
+              <span>{review.product}</span>
+              {review.verified && (
+                <span className="inline-flex items-center gap-1 text-[#93614E]">
+                  <IoCheckmarkCircle /> Verified
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
-
-    </section>
+    </div>
   );
-}
+};
+
+export default CustomerReviewSection;

@@ -1,8 +1,8 @@
 /**
  * Manchanda Fabrics — canonical category seed data.
- * manchanda fashion category definitions.
+ * Manchanda fashion category definitions.
  */
-const rasaCategories = [
+const manchandaCategories = [
   {
     _id: "manchanda-root",
     status: "show",
@@ -158,4 +158,4 @@ const rasaCategories = [
   }
 ];
 
-module.exports = rasaCategories;
+module.exports = manchandaCategories;

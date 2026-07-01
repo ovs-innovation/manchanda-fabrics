@@ -1,6 +1,6 @@
 /**
- * Seeds RASA fashion color variants (non-destructive).
- * Usage: node backend/script/migrateRasaAttributes.js
+ * Seeds Manchanda fashion color variants (non-destructive).
+ * Usage: node backend/script/migrateManchandaAttributes.js
  */
 require("../config/env");
 const mongoose = require("mongoose");

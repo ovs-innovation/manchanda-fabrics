@@ -46,7 +46,7 @@ const CustomerTable = ({ customers }) => {
 
             <TableCell className="py-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 shadow-sm border border-teal-100 dark:border-teal-800/20 group-hover:scale-110 transition-transform">
+                <div className="w-9 h-9 rounded-full bg-[#F5ECE8] dark:bg-gray-700 flex items-center justify-center text-[#93614E] dark:text-[#D5BBB4] shadow-sm border border-[#E6D1CB]/40 group-hover:scale-110 transition-transform">
                   <FiUser size={16} />
                 </div>
                 <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{user.name}</span>
@@ -61,12 +61,9 @@ const CustomerTable = ({ customers }) => {
             </TableCell>
 
             <TableCell className="py-4">
-              <Badge 
-                type="success"
-                className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-              >
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#F5ECE8] text-[#93614E] border border-[#E6D1CB]/40">
                 {user.role || "Customer"}
-              </Badge>
+              </span>
             </TableCell>
 
             <TableCell className="py-4 text-center">
@@ -80,13 +77,13 @@ const CustomerTable = ({ customers }) => {
               <div className="flex justify-end items-center gap-2">
                 <Link 
                   to={`/customer-order/${user._id}`}
-                  className="p-2.5 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-500 hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all shadow-sm"
+                  className="p-2.5 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-500 hover:text-[#93614E] hover:border-[#E6D1CB] hover:bg-[#F5ECE8] transition-all shadow-sm"
                 >
                   <Tooltip
                     id="view"
                     Icon={FiZoomIn}
                     title={t("ViewOrder")}
-                    bgColor="#0e7473"
+                    bgColor="#93614E"
                   />
                 </Link>
 

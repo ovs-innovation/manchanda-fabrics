@@ -2,10 +2,23 @@ import React from "react";
 import Link from "next/link";
 import { FiShield, FiTrendingUp, FiTruck, FiRefreshCw, FiArrowRight, FiUsers, FiPackage, FiAward } from "react-icons/fi";
 
-//internal import
 import Layout from "@layout/Layout";
+import useGetSetting from "@hooks/useGetSetting";
+import useUtilsFunction from "@hooks/useUtilsFunction";
+import { ABOUT_IMAGES } from "@utils/traditionalImagery";
 
 const AboutUs = () => {
+  const { storeCustomizationSetting } = useGetSetting();
+  const { showingTranslateValue } = useUtilsFunction();
+  const about = storeCustomizationSetting?.about_us || {};
+
+  const heroTitle =
+    showingTranslateValue(about?.top_title) ||
+    "WEAVE YOUR STORY WITH TIMELESS ELEGANCE.";
+  const heroDescription =
+    showingTranslateValue(about?.top_description) ||
+    "At Manchanda Fabrics, we believe ethnic wear is more than fabric—it is heritage, culture, and personal expression. We curate exquisite salwar suits, anarkali sets, and handloom fabrics from India's finest weaving centers.";
+
   return (
     <Layout title="About Us" description="Our Heritage & Story - Manchanda Fabrics">
       
@@ -20,12 +33,10 @@ const AboutUs = () => {
                 ABOUT MANCHANDA
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight leading-[1.05] text-[#3B2A25]">
-                WEAVE YOUR STORY<br />
-                WITH TIMELESS<br />
-                ELEGANCE.
+                {heroTitle}
               </h1>
               <p className="text-[#3B2A25]/85 text-base md:text-lg font-sans leading-relaxed">
-                At Manchanda Fabrics, we believe a saree is more than just six yards of fabric—it is a canvas of Indian heritage, culture, and personal expression. We curate exquisite sarees, suits, and handloom fabrics from India's finest weaving centers to bring timeless grace to your wardrobe.
+                {heroDescription}
               </p>
               <p className="text-[#3B2A25]/60 text-sm font-sans tracking-wide">
                 With over 10,000+ happy patrons across India, our mission is to deliver authentic, premium quality textiles directly from master weavers.
@@ -45,8 +56,8 @@ const AboutUs = () => {
             <div className="lg:col-span-7 flex justify-center">
               <div className="w-full relative overflow-hidden rounded-t-[180px] rounded-b-[20px] border-4 border-white shadow-xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800" 
-                  alt="Manchanda Fabrics Traditional Collection"
+                  src={ABOUT_IMAGES.hero}
+                  alt="Manchanda Fabrics Traditional Suit Collection"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -85,27 +96,15 @@ const AboutUs = () => {
 
             {/* Right Side Lookbook Column Cards */}
             <div className="lg:col-span-7 grid grid-cols-3 gap-3 md:gap-4">
-              <div className="rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30">
+              {ABOUT_IMAGES.lookbook.map((src, i) => (
+              <div key={i} className={`rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30 ${i === 1 ? "mt-6 lg:mt-8" : ""}`}>
                 <img 
-                  src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=400&h=660&q=80" 
-                  alt="Banarasi Weaving Details" 
+                  src={src}
+                  alt={`Traditional suit lookbook ${i + 1}`}
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
                 />
               </div>
-              <div className="rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30 mt-6 lg:mt-8">
-                <img 
-                  src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=400&h=660&q=80" 
-                  alt="Silk Saree Border" 
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                />
-              </div>
-              <div className="rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30">
-                <img 
-                  src="https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=400&h=660&q=80" 
-                  alt="Cotton Handloom Texture" 
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                />
-              </div>
+              ))}
             </div>
 
           </div>
@@ -132,23 +131,23 @@ const AboutUs = () => {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 font-sans max-w-4xl mx-auto">
             
-            {/* Sarees Card */}
+            {/* Suit Sets Card */}
             <div className="bg-white rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm hover:shadow-md transition-all group text-left">
               <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100 border-b border-[#E6D1CB]">
                 <img 
-                  src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=600&h=450&q=80" 
-                  alt="Premium Sarees" 
+                  src={ABOUT_IMAGES.suitsCard}
+                  alt="Premium Suit Sets" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 flex justify-between items-center">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">SAREES</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">SUIT SETS</span>
                   </div>
-                  <p className="text-[#3B2A25]/60 text-xs leading-relaxed">Pure Silk, Banarasi, Cotton, and Designer drapes.</p>
+                  <p className="text-[#3B2A25]/60 text-xs leading-relaxed">Straight, anarkali & festive salwar kameez sets.</p>
                 </div>
-                <Link href="/search?category=sarees" className="w-8 h-8 rounded-full bg-[#9C6A5A] text-white flex items-center justify-center font-bold text-xs hover:bg-[#6F4A3D] transition-all">
+                <Link href="/search?category=suits" className="w-8 h-8 rounded-full bg-[#9C6A5A] text-white flex items-center justify-center font-bold text-xs hover:bg-[#6F4A3D] transition-all">
                   &rarr;
                 </Link>
               </div>
@@ -158,8 +157,8 @@ const AboutUs = () => {
             <div className="bg-white rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm hover:shadow-md transition-all group text-left">
               <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100 border-b border-[#E6D1CB]">
                 <img 
-                  src="https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=600&h=450&q=80" 
-                  alt="Premium Fabrics" 
+                  src={ABOUT_IMAGES.fabricsCard}
+                  alt="Premium Suit Fabrics" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>

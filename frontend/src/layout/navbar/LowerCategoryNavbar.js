@@ -107,8 +107,7 @@ export default function LowerCategoryNavbar({
     if (slug === "new-arrivals") return "/new-arrivals";
     if (slug.startsWith("search?")) return `/${slug}`;
     if (slug.startsWith("footwear?brand=")) {
-      const brandName = slug.split("=")[1];
-      return `/search?category=footwear&brand=${brandName}`;
+      return `/search?category=footwear`;
     }
     if (slug.startsWith("bags?type=")) {
       const bagType = slug.split("=")[1];

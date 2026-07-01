@@ -20,6 +20,7 @@ import { isProfileComplete, getDisplayEmail } from "@utils/profileAuth";
 import NotificationServices from "@services/NotificationServices";
 import ShiprocketServices from "@services/ShiprocketServices";
 import useCartDB from "@hooks/useCartDB";
+import { normalizeCartItemPricing } from "@utils/invoicePricing";
 
 const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
@@ -286,7 +287,7 @@ const useCheckoutSubmit = (storeSetting) => {
         shippingOption: data.shippingOption,
         paymentMethod: data.paymentMethod,
         status: "Pending",
-        cart: items,
+        cart: items.map((item) => normalizeCartItemPricing(item)),
         subTotal: cartTotal,
         shippingCost: shippingCost,
         discount: discountAmount,
@@ -366,14 +367,7 @@ const useCheckoutSubmit = (storeSetting) => {
         },
       };
 
-      if (globalSetting?.email_to_customer) {
-        // Trigger email in the background
-        OrderServices.sendEmailInvoiceToCustomer(updatedData).catch(
-          (emailErr) => {
-            console.error("Failed to send email invoice:", emailErr.message);
-          }
-        );
-      }
+      // Order confirmation + invoice PDF is sent automatically by the backend.
 
       // Trigger Shiprocket order asynchronously
       syncOrderWithShiprocket(orderResponse);

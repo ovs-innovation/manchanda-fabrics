@@ -9,6 +9,7 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Brand = require("../models/Brand");
 const Setting = require("../models/Setting");
+const { withManchandaHomepage } = require("../lib/homepage-settings");
 
 const LAUNCH_PRODUCTS = [
   {
@@ -21,7 +22,7 @@ const LAUNCH_PRODUCTS = [
     discount: 1500,
     stock: 42,
     sales: 28,
-    sku: "RASA-SAMBA-001",
+    sku: "MANCHANDA-SAMBA-001",
     tag: ["new-arrival", "trending", "featured"],
   },
   {
@@ -34,7 +35,7 @@ const LAUNCH_PRODUCTS = [
     discount: 1500,
     stock: 55,
     sales: 120,
-    sku: "RASA-AF1-001",
+    sku: "MANCHANDA-AF1-001",
     tag: ["trending", "featured"],
   },
   {
@@ -47,7 +48,7 @@ const LAUNCH_PRODUCTS = [
     discount: 1000,
     stock: 38,
     sales: 45,
-    sku: "RASA-PUMA-SUE-001",
+    sku: "MANCHANDA-PUMA-SUE-001",
     tag: ["new-arrival"],
   },
   {
@@ -60,7 +61,7 @@ const LAUNCH_PRODUCTS = [
     discount: 1000,
     stock: 60,
     sales: 72,
-    sku: "RASA-CHUCK-001",
+    sku: "MANCHANDA-CHUCK-001",
     tag: ["new-arrival", "trending"],
   },
   {
@@ -73,7 +74,7 @@ const LAUNCH_PRODUCTS = [
     discount: 2000,
     stock: 34,
     sales: 88,
-    sku: "RASA-NB550-001",
+    sku: "MANCHANDA-NB550-001",
     tag: ["trending", "featured"],
   },
 ];
@@ -84,7 +85,7 @@ const run = async () => {
   const root = await Category.findOne({ "name.en": "Home" });
   const footwear = await Category.findOne({ slug: "footwear" });
   if (!root || !footwear) {
-    console.error("Categories missing. Run: node backend/script/migrateRasaCategories.js");
+    console.error("Categories missing. Run: node backend/script/migrateManchandaCategories.js");
     process.exit(1);
   }
 
@@ -107,7 +108,7 @@ const run = async () => {
     const payload = {
       title: { en: item.title },
       description: {
-        en: `${item.title} — premium RASA drop. Authentic style, fast delivery across India.`,
+        en: `${item.title} — premium Manchanda drop. Authentic style, fast delivery across India.`,
       },
       slug: item.slug,
       category: footwear._id,
@@ -152,15 +153,10 @@ const run = async () => {
 
   let settingDoc = await Setting.findOne({ name: "storeCustomizationSetting" });
   if (settingDoc) {
-    const hp = settingDoc.setting?.rasaHomepage || {};
-    settingDoc.setting = {
-      ...settingDoc.setting,
-      rasaHomepage: {
-        ...hp,
-        newArrivalProductIds: newArrivalIds,
-        trendingProductIds: trendingIds,
-      },
-    };
+    settingDoc.setting = withManchandaHomepage(settingDoc.setting, {
+      newArrivalProductIds: newArrivalIds,
+      trendingProductIds: trendingIds,
+    });
     settingDoc.markModified("setting");
     await settingDoc.save();
     console.log("Homepage wired with launch product IDs.");

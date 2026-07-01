@@ -1,47 +1,43 @@
 import {
   Document,
   Font,
-  Image,
   Page,
   StyleSheet,
   Text,
   View,
 } from "@react-pdf/renderer";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { getStoreAddress, getStoreCompanyName } from "@utils/storeBrand";
 
 Font.register({
-  family: "Open Sans",
+  family: "Arial",
   fonts: [
     {
-      src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-regular.ttf",
+      src: "https://cdn.jsdelivr.net/npm/@canvas-fonts/arial@1.0.4/Arial.ttf",
     },
     {
-      src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf",
-      fontWeight: 600,
+      src: "https://cdn.jsdelivr.net/npm/@canvas-fonts/arial-bold@1.0.4/Arial-Bold.ttf",
+      fontWeight: "bold",
     },
   ],
 });
-Font.register({
-  family: "DejaVu Sans",
-  fonts: [
-    {
-      src: "https://kendo.cdn.telerik.com/2017.2.621/styles/fonts/DejaVu/DejaVuSans.ttf",
-    },
-    {
-      src: "https://kendo.cdn.telerik.com/2017.2.621/styles/fonts/DejaVu/DejaVuSans-Bold.ttf",
-    },
-  ],
-});
+
+const INVOICE_FONT = "Arial";
+
+const BRAND = "#9C6A5A";
+const INK = "#3B2A25";
+const MUTED = "#6B5B55";
+const LINE = "#E6D1CB";
+const BG = "#FAF7F5";
+
 const styles = StyleSheet.create({
   page: {
-    marginRight: 10,
-    marginBottom: 20,
-    marginLeft: 10,
-    paddingTop: 10,
-    paddingLeft: 10,
-    paddingRight: 29,
-    lineHeight: 1.5,
+    margin: 36,
+    paddingTop: 8,
+    fontFamily: INVOICE_FONT,
+    fontSize: 9,
+    color: INK,
+    lineHeight: 1.45,
   },
   table: {
     display: "table",
@@ -70,14 +66,13 @@ const styles = StyleSheet.create({
   },
   tableRowHeder: {
     flexDirection: "row",
-    backgroundColor: "#006E44",
-    paddingBottom: 1,
-    paddingTop: 1,
-    paddingLeft: 0,
-    borderBottomWidth: 0.8,
-    borderColor: "#006E44",
+    backgroundColor: "#f3f4f6",
+    paddingBottom: 4,
+    paddingTop: 4,
+    paddingLeft: 6,
+    borderBottomWidth: 1,
+    borderColor: "#222222",
     borderStyle: "solid",
-    textTransform: "uppercase",
     textAlign: "left",
   },
   tableCol: {
@@ -112,6 +107,7 @@ const styles = StyleSheet.create({
     margin: "auto",
     marginTop: 1,
     fontSize: 6,
+    fontFamily: INVOICE_FONT,
     paddingLeft: "0",
     paddingRight: "0",
     marginLeft: "8",
@@ -126,7 +122,7 @@ const styles = StyleSheet.create({
     paddingRight: "0",
     marginLeft: "8",
     marginRight: "8",
-    fontFamily: "DejaVu Sans",
+    fontFamily: INVOICE_FONT,
     whiteSpace: "nowrap",
   },
 
@@ -192,7 +188,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "right",
     color: "#4b5563",
-    fontFamily: "Open Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
     fontSize: 10.3,
 
@@ -201,7 +197,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#2f3032",
-    fontFamily: "Open Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
     fontSize: 8.1,
     textTransform: "uppercase",
@@ -239,13 +235,13 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 10,
     color: "#1f2937",
-    fontFamily: "Open Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
     textTransform: "uppercase",
     textAlign: "right",
   },
   status: {
-    color: "#006E44",
+    color: "#9C6A5A",
   },
   quantity: {
     color: "#1f2937",
@@ -258,14 +254,14 @@ const styles = StyleSheet.create({
   header: {
     color: "#6b7280",
     fontSize: 4,
-    fontFamily: "DejaVu Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
     textTransform: "uppercase",
     textAlign: "left",
   },
 
   thanks: {
-    color: "#006E44",
+    color: "#9C6A5A",
   },
   infoRight: {
     textAlign: "right",
@@ -273,12 +269,12 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     width: "25%",
     marginRight: "39%",
-    fontFamily: "Open Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
   },
   titleRight: {
     textAlign: "right",
-    fontFamily: "Open Sans",
+    fontFamily: INVOICE_FONT,
     fontWeight: "bold",
     fontSize: 8.1,
     width: "25%",
@@ -299,7 +295,7 @@ const InvoiceForDownload = ({
   currency,
   globalSetting,
   getNumberTwo,
-  logo,
+  storeCustomizationSetting,
 }) => {
   // Calculate discount same as Invoice.js
   const mrpTotal = data?.cart?.reduce((sum, item) => {
@@ -328,14 +324,20 @@ const InvoiceForDownload = ({
   // Ensure total GST is always positive
   const totalGst = Math.abs(totalGstRaw);
 
+  const companyName = getStoreCompanyName();
+  const companyAddress = getStoreAddress({
+    storeCustomizationSetting,
+    globalSetting,
+  });
+
   const formatInvoiceNumber = (invoice, createdAt) => {
     if (!invoice) return "-";
     const invStr = String(invoice).trim();
-    if (invStr.startsWith("FK/")) return invStr;
+    if (invStr.startsWith("MF/") || invStr.startsWith("FK/")) return invStr;
     const year = createdAt
       ? dayjs(createdAt).format("YYYY")
       : dayjs().format("YYYY");
-    return `FK/${year}/${invStr}`;
+    return `MF/${year}/${invStr}`;
   };
 
 
@@ -343,142 +345,67 @@ const InvoiceForDownload = ({
     <>
       <Document>
         <Page size="A4" style={styles.page}>
-          {/* Top Section: Logo + Company (Left), Invoice Details + Bill To + QR (Right) */}
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 2, borderBottom: 1, borderColor: "#e5e7eb", marginBottom:0 }}>
-            {/* Left - Logo and Company Info */}
-            <View style={{ width: "34%", paddingRight: 10 }}>
-              {/* Original Logo */}
-              {logo && (
-                <Image
-                  src={logo}
-                  style={{ width: 90, height: 35, marginBottom: 4, objectFit: "contain" }}
-                />
-              )}
+          <View style={{ borderWidth: 1.5, borderColor: "#222", padding: 10 }}>
+            <Text style={{ fontSize: 12, fontWeight: "bold", textAlign: "center", marginBottom: 8 }}>
+              Invoice
+            </Text>
+            <View style={{ borderTopWidth: 1, borderColor: "#222", marginBottom: 8 }} />
 
-              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111827", marginBottom: 2 }}>
-                {globalSetting?.company_name || "Manchanda Fabrics Private Limited"}
-              </Text>
-              <Text style={{ fontSize: 7, color: "#4b5563", lineHeight: 1.3, marginBottom: 3 }}>
-                {globalSetting?.address || "C-39, Basement, Block-5, Okhla Industrial Area-2, New Delhi, Delhi-110020"}
-              </Text>
-
-              {/* Email & Phone - Side by Side */}
-              {(globalSetting?.email || globalSetting?.contact) && (
-                <View style={{ flexDirection: "row", gap: 3, marginBottom: 1}}>
-                  {globalSetting?.email && (
-                    <View style={{ flexDirection: "row", gap: 2 }}>
-                      <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937" }}>Email:</Text>
-                      <Text style={{ fontSize: 7, color: "#4b5563" }}>{globalSetting.email}</Text>
-                    </View>
-                  )}
-                  {globalSetting?.contact && (
-                    <View style={{ flexDirection: "row", gap: 2 }}>
-                      <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937" }}>Phone No:</Text>
-                      <Text style={{ fontSize: 7, color: "#4b5563" }}>{globalSetting.contact}</Text>
-                    </View>
-                  )}
-                </View>
-              )}
-
-              {/* GST & CIN - Side by Side */}
-              {(globalSetting?.gstin || globalSetting?.cin) && (
-                <View style={{ flexDirection: "column", gap:0, marginTop: 1 }}>
-                  {globalSetting?.gstin && (
-                    <View style={{ flexDirection: "row", gap: 1 }}>
-                      <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937" }}>GST NO.:</Text>
-                      <Text style={{ fontSize: 7, color: "#374151" }}>{globalSetting.gstin}</Text>
-                    </View>
-                  )}
-                  {globalSetting?.cin && (
-                    <View style={{ flexDirection: "row", gap: 1 }}>
-                      <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937" }}>CIN:</Text>
-                      <Text style={{ fontSize: 7, color: "#374151" }}>{globalSetting.cin}</Text>
-                    </View>
-                  )}
-                </View>
-              )}
-              
-              {/* DL No - Separate line */}
-              {globalSetting?.dl_number && (
-                <View style={{ flexDirection: "row", gap: 1, marginTop: 1 }}>
-                  <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937" }}>DL No:</Text>
-                  <Text style={{ fontSize: 7, color: "#374151" }}>{globalSetting.dl_number}</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Right - Invoice Details, Bill To, and QR Code */}
-            <View style={{ width: "62%", flexDirection: "column" }}>
-              {/* Top Row: Invoice Details */}
-              <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
-                {/* Invoice No - Smaller width */}
-                <View style={{ width: "25%", borderLeft: 1, borderColor: "#006E44", paddingLeft: 10, paddingRight: 5 }}>
-                  <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111827", marginBottom: 1 }}>Invoice No :</Text>
-                  <Text style={{ fontSize: 9, color: "#4b5563" }}>
-                    {formatInvoiceNumber(data?.invoice, data?.createdAt)}
-                  </Text>
-                </View>
-
-                {/* Order ID - Larger width */}
-                <View style={{ width: "50%", borderLeft: 1, borderColor: "#006E44", paddingLeft: 10, paddingRight: 5 }}>
-                  <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111827", marginBottom: 1 }}>Order ID :</Text>
-                  <Text style={{ fontSize: 9, color: "#4b5563" }}>
-                    {data?._id || data?.orderId || "-"}
-                  </Text>
-                </View>
-
-                {/* Date - Smaller width */}
-                <View style={{ width: "25%", borderLeft: 1, borderColor: "#006E44", paddingLeft: 10, paddingRight: 5 }}>
-                  <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111827", marginBottom: 1 }}>Date:</Text>
-                  <Text style={{ fontSize: 9, color: "#4b5563" }}>
-                    {data?.createdAt ? dayjs(data.createdAt).format("DD MMM YYYY") : "-"}
-                  </Text>
-                </View>
+            <View style={{ flexDirection: "row", borderWidth: 1, borderColor: "#222" }}>
+              <View style={{ width: "52%", padding: 8, borderRightWidth: 1, borderColor: "#222" }}>
+                <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>Sold By</Text>
+                <Text style={{ fontSize: 10, fontWeight: "bold", color: "#111", marginBottom: 3 }}>
+                  {companyName}
+                </Text>
+                <Text style={{ fontSize: 8, color: "#444", lineHeight: 1.35, marginBottom: 4 }}>
+                  {companyAddress}
+                </Text>
+                {globalSetting?.gstin ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>GSTIN: {globalSetting.gstin}</Text>
+                ) : null}
+                {globalSetting?.contact ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Phone: {globalSetting.contact}</Text>
+                ) : null}
+                {globalSetting?.email ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Email: {globalSetting.email}</Text>
+                ) : null}
               </View>
-
-              {/* Bottom Row: Bill To and QR Code */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between",borderTop: 1, borderLeft:1, borderColor: "#006E44" }}>
-                {/* Bill To */}
-                <View style={{ width: "75%", paddingRight: 10, paddingLeft: 10 , paddingTop:5 }}>
-                  <Text style={{ fontSize: 6, fontWeight: "bold", color: "#006E44", textTransform: "uppercase", marginBottom: 3 }}>
-                    BILL TO:
-                  </Text>
-                  <View style={{ fontSize: 8, color: "#374151" }}>
-                    <View style={{ marginBottom: 2 }}>
-                      <Text>
-                        <Text style={{ fontWeight: "bold", color: "#1f2937" }}>Order Placed By: </Text>
-                        <Text>{data?.user_info?.name || "-"}</Text>
-                      </Text>
-                    </View>
-                    <View style={{ marginBottom: 2 }}>
-                      <Text>
-                        <Text style={{ fontWeight: "bold", color: "#1f2937" }}>Email: </Text>
-                        <Text>{data?.user_info?.email || "-"}</Text>
-                        {data?.user_info?.contact && (
-                          <>
-                            <Text style={{ fontWeight: "bold", color: "#1f2937" }}>  Phone: </Text>
-                            <Text>{data.user_info.contact}</Text>
-                          </>
-                        )}
-                      </Text>
-                    </View>
-                    {(data?.user_info?.address || data?.user_info?.city || data?.user_info?.country || data?.user_info?.zipCode) && (
-                      <View style={{ marginBottom: 2 }}>
-                        <Text>
-                          <Text style={{ fontWeight: "bold", color: "#1f2937" }}>Address: </Text>
-                          {data?.user_info?.address && `${data.user_info.address}${data?.user_info?.city ? ", " : ""}`}
-                          {data?.user_info?.city && `${data.user_info.city}${data?.user_info?.country ? ", " : ""}`}
-                          {data?.user_info?.country && `${data.user_info.country}${data?.user_info?.zipCode ? ", " : ""}`}
-                          {data?.user_info?.zipCode && data.user_info.zipCode}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-
+              <View style={{ width: "48%", padding: 8 }}>
+                <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>Invoice Details</Text>
+                <Text style={{ fontSize: 8, color: "#444", marginBottom: 2 }}>
+                  <Text style={{ fontWeight: "bold" }}>Invoice No: </Text>
+                  {formatInvoiceNumber(data?.invoice, data?.createdAt)}
+                </Text>
+                <Text style={{ fontSize: 8, color: "#444", marginBottom: 2 }}>
+                  <Text style={{ fontWeight: "bold" }}>Date: </Text>
+                  {data?.createdAt ? dayjs(data.createdAt).format("DD MMM YYYY, hh:mm A") : "-"}
+                </Text>
+                <Text style={{ fontSize: 8, color: "#444", marginBottom: 2 }}>
+                  <Text style={{ fontWeight: "bold" }}>Payment: </Text>
+                  {data?.paymentMethod || "-"}
+                </Text>
+                <Text style={{ fontSize: 8, color: "#444" }}>
+                  <Text style={{ fontWeight: "bold" }}>Status: </Text>
+                  {data?.status || "Processing"}
+                </Text>
               </View>
             </View>
-          </View>
+
+            <View style={{ borderWidth: 1, borderTopWidth: 0, borderColor: "#222", padding: 8 }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>Bill To</Text>
+              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111" }}>{data?.user_info?.name || "-"}</Text>
+              {data?.user_info?.email ? (
+                <Text style={{ fontSize: 8, color: "#444", marginTop: 2 }}>Email: {data.user_info.email}</Text>
+              ) : null}
+              {data?.user_info?.contact ? (
+                <Text style={{ fontSize: 8, color: "#444" }}>Phone: {data.user_info.contact}</Text>
+              ) : null}
+              {(data?.user_info?.address || data?.user_info?.city) ? (
+                <Text style={{ fontSize: 8, color: "#444" }}>
+                  Address: {[data?.user_info?.address, data?.user_info?.city, data?.user_info?.country, data?.user_info?.zipCode].filter(Boolean).join(", ")}
+                </Text>
+              ) : null}
+            </View>
 
           {/* Product Table */}
           <View style={{ marginTop: 0 }}>
@@ -486,7 +413,7 @@ const InvoiceForDownload = ({
               <View style={styles.tableRowHeder}>
                 <View style={{ width: "100%", paddingLeft: "3px", paddingRight: "3px", paddingTop:"2px" }}>
                   <Text  >
-                    <Text style={[styles.header,{color:"#fff"}]}>product details:</Text>
+                    <Text style={[styles.header,{color:"#111"}]}>Item Details</Text>
                   </Text>
                 </View>
               </View>
@@ -626,20 +553,11 @@ const InvoiceForDownload = ({
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 0, paddingHorizontal: 5 }}>
             {/* Left: Terms and Conditions */}
             <View style={{ width: "55%", paddingRight: 10 }}>
-              {/* <Text style={{ fontSize: 5, fontWeight: "bold", color: "#006E44", textTransform: "uppercase", marginBottom: 2, borderBottom: 2, borderColor: "#006E44", paddingBottom: 2 }}>
-                TERMS AND CONDITIONS
+              <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>
+                Terms & Conditions
               </Text>
-              <Text style={{ fontSize: 7, color: "#374151", lineHeight: 1.4, marginBottom: 3 }}>
-                This invoice is issued by Manchanda Fabrics. Products once sold will not be taken back or exchanged unless required by law. Please verify the product name, size, and quantity before accepting delivery.
-              </Text> */}
-              <Text style={{ fontSize: 7, fontWeight: "bold", color: "#1f2937", marginBottom: 0 }}>
-                Registered Pharmacist
-              </Text>
-              <Text style={{ fontSize: 7, color: "#006E44", marginBottom: 0 }}>
-                {globalSetting?.company_name || "Manchanda Fabrics Private Limited"}
-              </Text>
-              <Text style={{ fontSize: 7, color: "#006E44" }}>
-                {globalSetting?.website || "www.Manchanda Fabrics.com"}
+              <Text style={{ fontSize: 8, color: "#444", lineHeight: 1.4 }}>
+                Computer-generated invoice. Goods once sold are not returnable except as per store policy.
               </Text>
             </View>
 
@@ -648,7 +566,7 @@ const InvoiceForDownload = ({
               {/* MRP Total */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
                 <Text style={{ fontSize: 7, color: "#374151" }}>MRP Total</Text>
-                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
                   {currency}{getNumberTwo(Math.abs(mrpTotal))}
                 </Text>
               </View>
@@ -656,18 +574,18 @@ const InvoiceForDownload = ({
               {/* Total Discount */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
                 <Text style={{ fontSize: 7, color: "#374151" }}>Total Discount</Text>
-                <Text style={{ fontSize: 7, color: "#16a34a", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+                <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
                   -{currency}{getNumberTwo(Math.abs(totalDiscount))}
                 </Text>
               </View>
               
               {/* Coupon Applied */}
               {data?.coupon?.couponCode && (
-                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0, backgroundColor: "#f0fdf4", padding: 2, borderRadius: 1 }}>
-                  <Text style={{ fontSize: 7, color: "#15803d" }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                  <Text style={{ fontSize: 7, color: "#444" }}>
                     Coupon: <Text style={{ fontWeight: "bold" }}>{data.coupon.couponCode}</Text>
                   </Text>
-                  <Text style={{ fontSize: 7, color: "#16a34a", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+                  <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
                     -{currency}{getNumberTwo(Math.abs(data?.coupon?.discountAmount || data?.discount || 0))}
                   </Text>
                 </View>
@@ -676,7 +594,7 @@ const InvoiceForDownload = ({
               {/* GST */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
                 <Text style={{ fontSize: 7, color: "#374151" }}>GST</Text>
-                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
                   {currency}{getNumberTwo(Math.abs(totalGst))}
                 </Text>
               </View>
@@ -684,23 +602,28 @@ const InvoiceForDownload = ({
               {/* Shipping Cost */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
                 <Text style={{ fontSize: 7, color: "#374151" }}>Shipping Cost</Text>
-                <Text style={{ fontSize: 7, color: (data?.shippingCost || 0) > 0 ? "#374151" : "#16a34a", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+                <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
                   {(data?.shippingCost || 0) > 0 ? `${currency}${getNumberTwo(Math.abs(data.shippingCost))}` : "FREE"}
                 </Text>
               </View>
               
               {/* Estimated Payable */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "#f3f4f6", padding: 4, borderRadius: 2 }}>
-                <Text style={{ fontSize: 8, color: "#1f2937", fontWeight: "bold" }}>Estimated Payable</Text>
-                <Text style={{ fontSize: 8, color: "#1f2937", fontWeight: "bold", fontFamily: "DejaVu Sans" }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "#f3f4f6", padding: 4, borderRadius: 2, borderWidth: 1, borderColor: "#222" }}>
+                <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold" }}>Grand Total</Text>
+                <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold", fontFamily: "Arial" }}>
                   {currency}{getNumberTwo(Math.abs(data.total || 0))}
                 </Text>
               </View>
+              <Text style={{ fontSize: 8, fontWeight: "bold", color: "#111", textAlign: "right", marginTop: 16 }}>
+                For {companyName}
+              </Text>
+              <Text style={{ fontSize: 7, color: "#555", textAlign: "right", marginTop: 4 }}>
+                Authorised Signatory
+              </Text>
             </View>
           </View>
           <View style={styles.lightLine} />
-
-          
+          </View>
         </Page>
       </Document>
     </>

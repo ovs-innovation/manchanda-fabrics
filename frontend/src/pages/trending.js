@@ -6,18 +6,18 @@ import ProductCard from "@components/product/ProductCard";
 
 const TrendingCollection = ({ products, attributes }) => {
   return (
-    <Layout title="Trending Collection" description="Shop the most wanted streetwear and footwear trending right now at Manchanda Fabrics.">
-      <div className="bg-white min-h-screen pb-16">
+    <Layout title="Trending Collection" description="Shop the most wanted ethnic wear and sarees trending right now at Manchanda Fabrics.">
+      <div className="bg-[#F5ECE8]/20 min-h-screen pb-16">
         {/* Editorial Banner */}
-        <div className="relative bg-[#FAF9F6] py-16 px-4 border-b border-gray-100 mb-10 text-center">
-          <span className="text-[10px] bg-[#D4AF37] text-black px-3 py-1 font-extrabold uppercase tracking-widest inline-block mb-3">
+        <div className="relative bg-[#F5ECE8] py-16 px-4 border-b border-[#D5BBB4]/30 mb-10 text-center">
+          <span className="text-[10px] bg-[#C7A46A] text-white px-3 py-1 font-extrabold uppercase tracking-widest inline-block mb-3">
             Best Sellers
           </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-black mb-3">
+          <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[#2B211E] mb-3">
             Trending Collection
           </h1>
-          <p className="text-gray-500 text-sm max-w-lg mx-auto font-medium">
-            Explore the styles everyone is talking about. High-conversion streetwear fits, iconic gold-accent sneakers, and accessories worn by the community.
+          <p className="text-[#2B211E]/70 text-sm max-w-lg mx-auto font-medium font-sans">
+            Explore the styles everyone is talking about. Handcrafted sarees, premium designer suits, and gold-accented ethnic ensembles.
           </p>
         </div>
 

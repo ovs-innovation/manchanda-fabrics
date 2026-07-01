@@ -189,7 +189,7 @@ const Orders = () => {
       <PageTitle>{t("Orders")}</PageTitle>
 
       <AnimatedContent>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5 items-stretch mb-5 bg-white border border-gray-100 rounded-3xl dark:bg-gray-800 shadow-sm p-7 md:p-10">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 items-stretch mb-5 bg-white border border-gray-100 rounded-3xl dark:bg-gray-800 shadow-sm p-5 md:p-7">
           <CardItem
             title="Total Order"
             Icon={FiShoppingCart}

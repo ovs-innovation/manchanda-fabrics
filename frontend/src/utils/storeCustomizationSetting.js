@@ -322,20 +322,29 @@ export const storeCustomization = {
       de: "Distinctively disseminate focused solutions clicks-and-mortar ministate.",
     },
     address_box_title: {
-      en: "Location ",
-      de: "Ort",
+      en: "Visit Us",
+      de: "Visit Us",
     },
     address_box_address_one: {
-      en: "Boho One, Bridge Street West, Middlesbrough, North Yorkshire, TS2 1AE.",
-      de: "Cecilia Chapman",
+      en: "12-A, Krishna Market, Chandni Chowk, Delhi - 110006",
+      de: "12-A, Krishna Market, Chandni Chowk, Delhi - 110006",
     },
     address_box_address_two: {
-      en: "561-4535 Nulla LA ",
-      de: "561-4535 Nulla LA",
+      en: "",
+      de: "",
     },
     address_box_address_three: {
-      en: "United States 96522. ",
-      de: "United States 96522",
+      en: "",
+      de: "",
+    },
+    whatsapp_group_link: "",
+    whatsapp_group_title: {
+      en: "Join Our WhatsApp Group",
+      de: "Join Our WhatsApp Group",
+    },
+    whatsapp_group_text: {
+      en: "Get new arrivals, offers and updates directly on WhatsApp.",
+      de: "Get new arrivals, offers and updates directly on WhatsApp.",
     },
     form_title: {
       en: "For any suppoort just send your query ",
@@ -479,7 +488,7 @@ export const storeCustomization = {
     second_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
     second_title: {
-      en: "Best Sneakers & Streetwear",
+      en: "Best Sarees & Ethnic Wear",
       de: "Bestes anderes Lebensmittelgeschäft",
     },
     second_description: {
@@ -523,7 +532,7 @@ export const storeCustomization = {
     five_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
     five_title: {
-      en: "Best Sneakers & Streetwear",
+      en: "Best Sarees & Ethnic Wear",
       de: "Bestes anderes Lebensmittelgeschäft",
     },
     five_description: {

@@ -1,8 +1,11 @@
 import React from 'react'
 
-const PageTitle = ({ children }) => {
+const PageTitle = ({ children, subtitle }) => {
   return (
-    <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">{children}</h1>
+    <div className="mb-6">
+      <h1 className="admin-page-title">{children}</h1>
+      {subtitle ? <p className="admin-muted mt-1">{subtitle}</p> : null}
+    </div>
   )
 }
 

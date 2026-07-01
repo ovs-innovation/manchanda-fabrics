@@ -21,7 +21,7 @@ const FloatingWhatsApp = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-[99] flex items-end justify-end flex-col group">
+    <div className="fixed bottom-4 lg:bottom-8 right-3 sm:right-8 z-[45] flex items-end justify-end flex-col group">
       {/* Tooltip */}
       <div 
         className={`bg-white text-[#3B2A25] px-4 py-3 rounded-2xl shadow-xl border border-[#E6D1CB] mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px]
@@ -42,16 +42,16 @@ const FloatingWhatsApp = () => {
         href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent("Hello Manchanda Fabrics, I would like to inquire about...")}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-110 transition-all duration-300 hover:bg-[#128C7E] animate-bounce-slow"
+        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:bg-[#128C7E] lg:animate-bounce-slow"
         aria-label="Chat on WhatsApp"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
         {/* Pulse rings */}
-        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-30 animate-ping"></span>
-        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-20" style={{ animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', animationDelay: '0.5s' }}></span>
+        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-20 animate-ping hidden sm:inline-flex" />
+        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-10 hidden sm:inline-flex" style={{ animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', animationDelay: '0.5s' }} />
         
-        <FaWhatsapp className="w-8 h-8 relative z-10" />
+        <FaWhatsapp className="w-6 h-6 sm:w-8 sm:h-8 relative z-10" />
       </a>
 
       <style dangerouslySetInnerHTML={{

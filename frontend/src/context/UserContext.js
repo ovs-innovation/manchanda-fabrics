@@ -7,19 +7,11 @@ import LoadingForSession from "@components/preloader/LoadingForSession";
 
 export const UserContext = createContext();
 
-const getInitialState = () => {
-  const userInfoCookie = Cookies.get("userInfo");
-  const shippingAddressCookie = Cookies.get("shippingAddress");
-  const couponInfoCookie = Cookies.get("couponInfo");
-
-  return {
-    userInfo: userInfoCookie ? JSON.parse(userInfoCookie) : null,
-    shippingAddress: shippingAddressCookie
-      ? JSON.parse(shippingAddressCookie)
-      : {},
-    couponInfo: couponInfoCookie ? JSON.parse(couponInfoCookie) : {},
-  };
-};
+const getInitialState = () => ({
+  userInfo: null,
+  shippingAddress: {},
+  couponInfo: {},
+});
 
 function reducer(state, action) {
   switch (action.type) {
@@ -38,6 +30,13 @@ function reducer(state, action) {
     case "SAVE_COUPON":
       return { ...state, couponInfo: action.payload };
 
+    case "HYDRATE_SESSION":
+      return {
+        ...state,
+        shippingAddress: action.payload?.shippingAddress || state.shippingAddress,
+        couponInfo: action.payload?.couponInfo || state.couponInfo,
+      };
+
     default:
       return state;
   }
@@ -49,6 +48,20 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const cookieUserInfo = Cookies.get("userInfo");
+    const shippingAddressCookie = Cookies.get("shippingAddress");
+    const couponInfoCookie = Cookies.get("couponInfo");
+
+    if (shippingAddressCookie || couponInfoCookie) {
+      dispatch({
+        type: "HYDRATE_SESSION",
+        payload: {
+          shippingAddress: shippingAddressCookie
+            ? JSON.parse(shippingAddressCookie)
+            : {},
+          couponInfo: couponInfoCookie ? JSON.parse(couponInfoCookie) : {},
+        },
+      });
+    }
     
     if (cookieUserInfo) {
       const parsedUser = JSON.parse(cookieUserInfo);

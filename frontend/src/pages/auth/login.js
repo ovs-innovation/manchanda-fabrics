@@ -29,7 +29,7 @@ const Login = () => {
           </p>
         }
       >
-        <EmailLoginForm variant="login" />
+        <EmailLoginForm variant="login" allowCheckoutSignup={isCheckoutReturn} />
       </AuthPageShell>
     </Layout>
   );

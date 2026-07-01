@@ -96,7 +96,7 @@ replacements = [
     ("text-store-700", "text-[#9C6A5A]"),
     
     # Old brand names and strings
-    ("rasaLogo.png", "logo.png"),
+    ("legacyLogo.png", "logo.png"),
     ("sneakers, bags, brands", "sarees, suits, fabrics"),
     ("Shop Streetwear", "Shop Collections"),
 ]

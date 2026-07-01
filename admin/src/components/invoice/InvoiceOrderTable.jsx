@@ -1,62 +1,51 @@
 import React from "react";
+import { resolveLineItemPricing } from "@/utils/invoicePricing";
 
 const InvoiceOrderTable = ({ data, currency, getNumberTwo }) => {
   return (
-    <tbody className="bg-white text-serif text-sm print:bg-white">
+    <tbody
+      className="bg-white text-sm print:bg-white"
+      style={{ fontFamily: "Arial, sans-serif" }}
+    >
       {data?.cart?.map((item, i) => {
-        const quantity = item.quantity || 1;
-        const mrpForCalc = Math.abs(Number(item.mrp)) || Math.abs(Number(item.originalPrice)) || Math.abs(Number(item.price)) || 0;
-        const itemPrice = Math.abs(Number(item.price)) || 0;
-        const hasValidPrice = !isNaN(itemPrice) && itemPrice > 0;
-
-        let discountPerItem = 0;
-        if (hasValidPrice) {
-          discountPerItem = mrpForCalc - itemPrice;
-        } else if (typeof item.discount === "number") {
-          discountPerItem = (mrpForCalc * item.discount) / 100;
-        }
-
-        const gstRateVal = Math.abs(Number(item.taxRate || item.gstRate || item.gstPercentage || 0)) || 0;
-        const sellingPrice = Math.abs(Number(item.price)) || 0;
-        const gstAmt = Math.abs(((sellingPrice * quantity * gstRateVal) / 100) || 0);
-        const lineTotal = Math.abs(Number(item.itemTotal)) || Math.abs((sellingPrice * quantity) + gstAmt) || 0;
+        const line = resolveLineItemPricing(item);
 
         return (
           <tr
             key={i}
-            className={`${
-              i % 2 === 0 ? "bg-white" : "bg-gray-50"
-            } border-t border-gray-100 print:bg-white print:border-gray-300`}
+            className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50"} border-b border-[#ccc] print:bg-white`}
           >
-            <th className="px-2 py-1 whitespace-nowrap font-normal text-gray-700 text-left border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
+            <th className="px-2 py-1.5 whitespace-nowrap font-normal text-left border-r border-[#ccc]">
               {i + 1}
             </th>
-            <td className="product-column px-2 py-1 font-normal text-gray-700 border-r border-gray-200 print:px-1 print:py-1 print:text-xs print:break-words">
+            <td className="product-column px-2 py-1.5 font-normal border-r border-[#ccc]">
               {item.title}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap font-normal text-gray-700 text-center border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
+            <td className="px-2 py-1.5 whitespace-nowrap font-normal text-center border-r border-[#ccc]">
               {item.hsn || "-"}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap font-bold text-center border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
-              {item.quantity}
+            <td className="px-2 py-1.5 whitespace-nowrap font-normal text-center border-r border-[#ccc]">
+              {line.quantity}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap font-bold text-center font-DejaVu border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
+            <td className="px-2 py-1.5 whitespace-nowrap font-normal text-center border-r border-[#ccc]">
               {currency}
-              {getNumberTwo(mrpForCalc)}
+              {getNumberTwo(line.rate)}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap text-center font-normal border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
-              {discountPerItem > 0
-                ? `${currency}${getNumberTwo(discountPerItem * quantity)}`
-                : `${currency}0.00`}
+            <td className="px-2 py-1.5 whitespace-nowrap text-center font-normal border-r border-[#ccc]">
+              {line.discountTotal > 0
+                ? `${currency}${getNumberTwo(line.discountTotal)}`
+                : `${currency}${getNumberTwo(0)}`}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap text-center font-normal border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
-              {gstRateVal}%
+            <td className="px-2 py-1.5 whitespace-nowrap text-center font-normal border-r border-[#ccc]">
+              {line.gstRate}%
             </td>
-            <td className="px-2 py-1 whitespace-nowrap text-center font-normal border-r border-gray-200 print:px-1 print:py-1 print:text-xs">
-              {currency}{getNumberTwo(gstAmt)}
+            <td className="px-2 py-1.5 whitespace-nowrap text-center font-normal border-r border-[#ccc]">
+              {currency}
+              {getNumberTwo(line.gstAmount)}
             </td>
-            <td className="px-2 py-1 whitespace-nowrap text-right font-bold font-DejaVu text-gray-600 print:px-1 print:py-1 print:text-xs">
-              {currency}{getNumberTwo(lineTotal)}
+            <td className="px-2 py-1.5 whitespace-nowrap text-right font-normal border-[#ccc]">
+              {currency}
+              {getNumberTwo(line.lineTotal)}
             </td>
           </tr>
         );

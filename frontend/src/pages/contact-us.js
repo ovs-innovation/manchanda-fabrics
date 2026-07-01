@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import Layout from "@layout/Layout";
+import useGetSetting from "@hooks/useGetSetting";
+import useUtilsFunction from "@hooks/useUtilsFunction";
 import {
   FiPhone,
   FiMail,
@@ -8,40 +10,92 @@ import {
   FiClock,
   FiSend,
 } from "react-icons/fi";
-import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
+import { FaWhatsapp, FaInstagram, FaFacebookF, FaUsers } from "react-icons/fa";
 
-const CONTACT_INFO = [
-  {
-    icon: <FiPhone className="text-xl" />,
-    title: "Call / WhatsApp",
-    value: "+91 98765 43210",
-    sub: "Mon–Sat, 10 AM – 7 PM",
-    href: "tel:+919876543210",
-  },
-  {
-    icon: <FiMail className="text-xl" />,
-    title: "Email Us",
-    value: "support@manchandafabrics.com",
-    sub: "We reply within 24 hours",
-    href: "mailto:support@manchandafabrics.com",
-  },
-  {
-    icon: <FiMapPin className="text-xl" />,
-    title: "Visit Our Store",
-    value: "Manchanda Fabrics, Chandni Chowk",
-    sub: "Delhi – 110006, India",
-    href: "https://maps.google.com",
-  },
-  {
-    icon: <FiClock className="text-xl" />,
-    title: "Store Hours",
-    value: "Mon – Sat: 10 AM – 8 PM",
-    sub: "Sunday: 11 AM – 6 PM",
-    href: null,
-  },
-];
+import {
+  getStoreAddress,
+  STORE_DEFAULT_ADDRESS,
+} from "@utils/storeBrand";
+
+const MAPS_URL =
+  "https://www.google.com/maps/search/?api=1&query=12-A+Krishna+Market+Chandni+Chowk+Delhi+110006";
+
+const getWhatsAppChatUrl = (raw, message = "Hello Manchanda Fabrics! I have a query.") => {
+  if (!raw) return null;
+  const value = String(raw).trim();
+  if (!value) return null;
+  if (value.startsWith("http")) return value;
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+};
 
 export default function ContactUs() {
+  const { globalSetting, storeCustomizationSetting } = useGetSetting();
+  const { showingTranslateValue } = useUtilsFunction();
+  const contact = storeCustomizationSetting?.contact_us || {};
+  const footer = storeCustomizationSetting?.footer || {};
+
+  const phone =
+    showingTranslateValue(contact?.call_box_phone) ||
+    globalSetting?.contact ||
+    "+91 98765 43210";
+  const email =
+    showingTranslateValue(contact?.email_box_email) ||
+    globalSetting?.email ||
+    "support@manchandafabrics.com";
+  const address =
+    [
+      showingTranslateValue(contact?.address_box_address_one),
+      showingTranslateValue(contact?.address_box_address_two),
+      showingTranslateValue(contact?.address_box_address_three),
+    ]
+      .filter(Boolean)
+      .join(", ") ||
+    getStoreAddress({ storeCustomizationSetting, globalSetting, showingTranslateValue }) ||
+    STORE_DEFAULT_ADDRESS;
+
+  const whatsappChatUrl =
+    getWhatsAppChatUrl(footer?.social_whatsapp) ||
+    getWhatsAppChatUrl(phone);
+
+  const whatsappGroupLink = (contact?.whatsapp_group_link || "").trim();
+  const whatsappGroupTitle =
+    showingTranslateValue(contact?.whatsapp_group_title) || "Join Our WhatsApp Group";
+  const whatsappGroupText =
+    showingTranslateValue(contact?.whatsapp_group_text) ||
+    "Get new arrivals, offers and updates directly on WhatsApp.";
+
+  const CONTACT_INFO = [
+    {
+      icon: <FiPhone className="text-xl" />,
+      title: showingTranslateValue(contact?.call_box_title) || "Call / WhatsApp",
+      value: phone,
+      sub: showingTranslateValue(contact?.call_box_text) || "Mon–Sat, 10 AM – 7 PM",
+      href: `tel:${phone.replace(/\s/g, "")}`,
+    },
+    {
+      icon: <FiMail className="text-xl" />,
+      title: showingTranslateValue(contact?.email_box_title) || "Email Us",
+      value: email,
+      sub: "We reply within 24 hours",
+      href: `mailto:${email.trim()}`,
+    },
+    {
+      icon: <FiMapPin className="text-xl" />,
+      title: showingTranslateValue(contact?.address_box_title) || "Visit Us",
+      value: address,
+      sub: "Tap for Google Maps directions",
+      href: MAPS_URL,
+    },
+    {
+      icon: <FiClock className="text-xl" />,
+      title: "Store Hours",
+      value: "Mon – Sat: 10 AM – 8 PM",
+      sub: "Sunday: 11 AM – 6 PM",
+      href: null,
+    },
+  ];
   const [formState, setFormState] = React.useState({
     name: "",
     email: "",
@@ -192,7 +246,7 @@ export default function ContactUs() {
 
           {/* Right Panel */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* WhatsApp CTA */}
+            {/* WhatsApp Chat */}
             <div className="rounded-2xl bg-[#25D366] p-7 text-white flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <FaWhatsapp className="text-3xl" />
@@ -202,16 +256,49 @@ export default function ContactUs() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed text-white/90">
-                For quick saree/suit queries, styling advice, or order tracking — just ping us on WhatsApp.
+                For quick suit queries, styling advice, or order tracking — message us directly on WhatsApp.
               </p>
-              <a
-                href="https://wa.me/919876543210?text=Hello%20Manchanda%20Fabrics!%20I%20have%20a%20query."
-                target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white text-[#25D366] font-black text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-[#f0fdf4] transition-colors w-fit">
-                <FaWhatsapp />
-                Open WhatsApp
-              </a>
+              {whatsappChatUrl ? (
+                <a
+                  href={whatsappChatUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-white text-[#25D366] font-black text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-[#f0fdf4] transition-colors w-fit"
+                >
+                  <FaWhatsapp />
+                  Open WhatsApp
+                </a>
+              ) : (
+                <p className="text-xs text-white/80">WhatsApp number coming soon.</p>
+              )}
             </div>
+
+            {/* WhatsApp Group — admin updated link */}
+            {whatsappGroupLink && (
+              <div className="rounded-2xl border-2 border-[#25D366]/30 bg-[#FAF7F5] p-7 flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center text-white">
+                    <FaUsers className="text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm uppercase tracking-widest text-[#3B2A25]">
+                      {whatsappGroupTitle}
+                    </h3>
+                    <p className="text-[#3B2A25]/55 text-xs">Community updates & offers</p>
+                  </div>
+                </div>
+                <p className="text-sm leading-relaxed text-[#3B2A25]/75">{whatsappGroupText}</p>
+                <a
+                  href={whatsappGroupLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] text-white font-black text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-[#128C7E] transition-colors w-fit"
+                >
+                  <FaWhatsapp />
+                  Join WhatsApp Group
+                </a>
+              </div>
+            )}
 
             {/* Social Links */}
             <div className="rounded-2xl border border-[#E6D1CB] bg-[#FAF7F5] p-7">
@@ -271,11 +358,11 @@ export default function ContactUs() {
             <div className="h-[2px] w-10 bg-[#9C6A5A] mx-auto mt-3" />
           </div>
           <div className="w-full h-72 rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm bg-[#E6D1CB]/30 flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center px-6">
               <FiMapPin className="text-[#9C6A5A] text-4xl mx-auto mb-3" />
               <p className="text-sm font-semibold text-[#3B2A25]">Manchanda Fabrics</p>
-              <p className="text-xs text-[#3B2A25]/60">Chandni Chowk, Delhi – 110006</p>
-              <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer"
+              <p className="text-xs text-[#3B2A25]/70 mt-2 leading-relaxed max-w-sm mx-auto">{address}</p>
+              <a href={MAPS_URL} target="_blank" rel="noopener noreferrer"
                 className="mt-4 inline-block text-xs font-bold uppercase tracking-widest text-[#9C6A5A] hover:text-[#6F4A3D] underline underline-offset-2 transition-colors">
                 Open in Google Maps →
               </a>

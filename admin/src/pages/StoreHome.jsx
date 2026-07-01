@@ -290,7 +290,7 @@ const StoreHome = () => {
   } = useStoreHomeSubmit();
 
   useEffect(() => {
-    if (tabName === "seo-setting") {
+    if (tabName === "seo-settings") {
       setTabIndex(9);
     } else if (tabName === "dashboard-setting") {
       setTabIndex(8);
@@ -473,25 +473,27 @@ const StoreHome = () => {
               Dashboard Settings
             </Link>
           </li>
+
           <li>
             <Link
               to={"/store/customization?storeTab=seo-settings"}
               className={`inline-block px-6 py-4 text-sm font-bold rounded-2xl transition-all duration-200 ${
                 tabName === "seo-settings"
-                  ? "bg-[#004f56] dark:bg-emerald-600 text-white shadow-lg scale-105"
-                  : "bg-[#d0eaec] dark:bg-gray-700 text-[#004f56] dark:text-emerald-400 hover:bg-[#c2e4e6] dark:hover:bg-gray-600"
+                  ? "bg-[#93614E] text-white shadow-lg scale-105"
+                  : "bg-[#F5ECE8] text-[#93614E] hover:bg-[#D5BBB4]/55"
               } text-center min-w-[120px]`}
             >
               SEO Settings
             </Link>
           </li>
+
           <li>
             <Link
               to={"/store/customization?storeTab=theme-setting"}
               className={`inline-block px-6 py-4 text-sm font-bold rounded-2xl transition-all duration-200 ${
                 tabName === "theme-setting"
-                  ? "bg-[#004f56] dark:bg-emerald-600 text-white shadow-lg scale-105"
-                  : "bg-[#d0eaec] dark:bg-gray-700 text-[#004f56] dark:text-emerald-400 hover:bg-[#c2e4e6] dark:hover:bg-gray-600"
+                  ? "bg-[#93614E] text-white shadow-lg scale-105"
+                  : "bg-[#F5ECE8] text-[#93614E] hover:bg-[#D5BBB4]/55"
               } text-center min-w-[120px]`}
             >
               Theme
@@ -913,6 +915,7 @@ const StoreHome = () => {
             </div>
           </AnimatedContent>
         )}
+
         {tabName === "theme-setting" && (
           <AnimatedContent>
             <div className="sm:container md:p-8 p-4 w-full mx-auto bg-white dark:bg-gray-800 dark:text-gray-200 rounded-2xl shadow-sm border border-[#e5e7eb] dark:border-gray-700">

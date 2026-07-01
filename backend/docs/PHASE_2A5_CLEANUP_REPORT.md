@@ -36,7 +36,7 @@ Removed: `prescriptionId`
 node backend/script/migrateRemoveB2BCustomerFields.js
 node backend/script/migrateRemovePharmacyProductFields.js
 node backend/script/migrateRemovePrescriptionNotifications.js
-node backend/script/migrateRasaCategories.js
+node backend/script/migrateManchandaCategories.js
 ```
 
 Docs: `backend/docs/CUSTOMER_MODEL_MIGRATION.md`, `backend/docs/PRODUCT_MODEL_MIGRATION.md`
@@ -54,8 +54,8 @@ Docs: `backend/docs/CUSTOMER_MODEL_MIGRATION.md`, `backend/docs/PRODUCT_MODEL_MI
 ## Branding cleanup (completed)
 
 - All user-facing Farmacy/Farmcy Kart references removed from app code, emails, admin copy, and sample imports
-- Default Cloudinary folder: `rasa`
-- Default store domain in examples: `rasastore.com`
+- Default Cloudinary folder: `manchanda`
+- Default store domain in examples: `manchandafabrics.com`
 
 | Location | Action |
 |----------|--------|
@@ -68,7 +68,7 @@ Docs: `backend/docs/CUSTOMER_MODEL_MIGRATION.md`, `backend/docs/PRODUCT_MODEL_MI
 
 ## Firebase
 
-- `frontend/public/firebase-messaging-sw.js` and `admin/public/firebase-messaging-sw.js` — hardcoded config **cleared**; must match new RASA Firebase project + `NEXT_PUBLIC_FIREBASE_*` in `.env`
+- `frontend/public/firebase-messaging-sw.js` and `admin/public/firebase-messaging-sw.js` — hardcoded config **cleared**; must match new Manchanda Firebase project + `NEXT_PUBLIC_FIREBASE_*` in `.env`
 - Main app uses env-based config in `frontend/src/lib/firebase.js` (already correct)
 
 ## CORS
@@ -77,9 +77,9 @@ Docs: `backend/docs/CUSTOMER_MODEL_MIGRATION.md`, `backend/docs/PRODUCT_MODEL_MI
 
 ## Cloudinary
 
-- Default folder: `rasa`
-- Email fallback logo: `rasa/brand/logo.png` via `backend/lib/brand-assets.js`
-- Set `BRAND_LOGO_URL` or upload logo to Cloudinary `rasa/brand/`
+- Default folder: `manchanda`
+- Email fallback logo: `manchanda/brand/logo.png` via `backend/lib/brand-assets.js`
+- Set `BRAND_LOGO_URL` or upload logo to Cloudinary `manchanda/brand/`
 
 ## Wholesaler Code Status
 

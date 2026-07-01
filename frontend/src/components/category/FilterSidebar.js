@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { IoClose, IoStar } from "react-icons/io5";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-import BrandServices from "@services/BrandServices";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
 const FilterSidebar = ({
-  selectedBrands,
-  setSelectedBrands,
   priceRange,
   setPriceRange,
   selectedCategories,
@@ -20,10 +17,8 @@ const FilterSidebar = ({
 }) => {
   const { showingTranslateValue, currency } = useUtilsFunction();
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [openSections, setOpenSections] = useState({
-    brand: false,
     rating: false,
     discount: false,
     category: true,
@@ -32,11 +27,7 @@ const FilterSidebar = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [brandData, categoryData] = await Promise.all([
-          BrandServices.getShowingBrands(),
-          CategoryServices.getShowingCategory(),
-        ]);
-        setBrands(brandData || []);
+        const categoryData = await CategoryServices.getShowingCategory();
         const root = (categoryData || []).find(
           (c) => c.id === "Root" || c.name?.en?.toLowerCase() === "home"
         );
@@ -57,10 +48,6 @@ const FilterSidebar = ({
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  const handleBrandChange = (brandId) => {
-    setSelectedBrands(brandId);
   };
 
   const handleCategoryChange = (catId) => {
@@ -89,29 +76,12 @@ const FilterSidebar = ({
       </div>
 
       {/* Active Filters */}
-      {(selectedBrands.length > 0 ||
-        selectedCategories.length > 0 ||
+      {(selectedCategories.length > 0 ||
         selectedRating > 0 ||
         selectedDiscount > 0 ||
         priceRange.min > 0 ||
         priceRange.max < 100000) && (
         <div className="py-3 flex flex-wrap gap-2 border-b border-[#E6D1CB]/50">
-          {selectedBrands.map((brandId) => {
-            const brand = brands.find((b) => b._id === brandId);
-            if (!brand) return null;
-            return (
-              <span
-                key={brandId}
-                className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium"
-              >
-                {showingTranslateValue(brand.name)}
-                <IoClose
-                  className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
-                  onClick={() => handleBrandChange(brandId)}
-                />
-              </span>
-            );
-          })}
           {
             (() => {
               const tags = [];
@@ -353,38 +323,6 @@ const FilterSidebar = ({
             }%, #E6D1CB/30 ${(priceRange.max / 100000) * 100}%, #E6D1CB/30 100%)`,
           }}
         />
-      </div>
-
-      {/* Brand */}
-      <div className="border-b border-[#E6D1CB]/50">
-        <button
-          onClick={() => toggleSection("brand")}
-          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
-        >
-          Brand
-          {openSections.brand ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
-        </button>
-        {openSections.brand && (
-          <div className="pb-4 max-h-60 overflow-y-auto">
-            {brands.map((brand) => (
-              <div key={brand._id} className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  id={`brand-${brand._id}`}
-                  checked={selectedBrands.includes(brand._id)}
-                  onChange={() => handleBrandChange(brand._id)}
-                  className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
-                />
-                <label
-                  htmlFor={`brand-${brand._id}`}
-                  className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer hover:text-[#9C6A5A] transition-colors"
-                >
-                  {showingTranslateValue(brand.name)}
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Customer Ratings */}

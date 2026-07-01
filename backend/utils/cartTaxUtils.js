@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const { normalizeCartItemPricing } = require("./invoicePricing");
 
 const DEFAULT_SHIPROCKET_HSN =
   process.env.SHIPROCKET_DEFAULT_HSN?.trim() || "3305";
@@ -19,7 +20,7 @@ async function populateCartTaxFields(cart) {
   if (productIds.length === 0) return cart;
 
   const products = await Product.find({ _id: { $in: productIds } }).select(
-    "_id taxRate hsnCode mrp originalPrice"
+    "_id taxRate hsnCode prices"
   );
 
   const productMap = {};
@@ -27,23 +28,30 @@ async function populateCartTaxFields(cart) {
     productMap[product._id.toString()] = {
       taxRate: product.taxRate || 0,
       hsnCode: product.hsnCode || "",
-      mrp: product.mrp || product.originalPrice || 0,
+      prices: product.prices || {},
+      price: product.prices?.price || 0,
+      originalPrice:
+        product.prices?.originalPrice || product.prices?.price || 0,
     };
   });
 
   return cart.map((item) => {
     const productId = item.productId || item.id || item._id;
     const productKey = productId?.toString?.();
-    if (productKey && productMap[productKey]) {
-      const productData = productMap[productKey];
-      return {
-        ...item,
-        taxRate: item.taxRate ?? productData.taxRate,
-        hsn: item.hsn || item.hsnCode || productData.hsnCode,
-        mrp: item.mrp || productData.mrp,
-      };
-    }
-    return item;
+    const productData =
+      productKey && productMap[productKey] ? productMap[productKey] : null;
+
+    const merged = {
+      ...item,
+      taxRate: item.taxRate ?? productData?.taxRate,
+      hsn: item.hsn || item.hsnCode || productData?.hsnCode,
+      prices: item.prices || productData?.prices,
+      price: item.price || productData?.price,
+      originalPrice: item.originalPrice || productData?.originalPrice,
+      mrp: item.mrp || productData?.originalPrice || productData?.price,
+    };
+
+    return normalizeCartItemPricing(merged, productData);
   });
 }
 

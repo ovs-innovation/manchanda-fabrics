@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/router";
 import { IoSearchOutline } from "react-icons/io5";
-import { FiTag, FiGrid, FiPackage } from "react-icons/fi";
+import { FiGrid, FiPackage } from "react-icons/fi";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { useQuery } from "@tanstack/react-query";
 import ProductServices from "@services/ProductServices";
-import BrandServices from "@services/BrandServices";
 import CategoryServices from "@services/CategoryServices";
 import Cookies from "js-cookie";
 
@@ -26,19 +25,11 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
         category: "",
         title: "",
         slug: "",
-        brand: "",
       });
       return response?.products || [];
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
-  });
-
-  const { data: brandsData } = useQuery({
-    queryKey: ["searchSuggestionsBrands"],
-    queryFn: async () => await BrandServices.getShowingBrands(),
-    staleTime: 10 * 60 * 1000,
-    gcTime: 15 * 60 * 1000,
   });
 
   const { data: categoriesData } = useQuery({
@@ -104,30 +95,18 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
               categoryId = firstCategory;
             }
           }
-          // Extract brand ID properly
-          let brandId = null;
-          if (product.brand) {
-            if (typeof product.brand === 'object') {
-              brandId = product.brand._id || product.brand.id || null;
-            } else if (typeof product.brand === 'string') {
-              brandId = product.brand;
-            }
-          }
-          // Use product image if available, else fallback to icon
           let image = null;
           if (product.images && Array.isArray(product.images) && product.images[0]) {
             image = product.images[0];
           } else if (product.image && Array.isArray(product.image) && product.image[0]) {
             image = product.image[0];
           }
-
           acc.push({
             type: "product",
             id: product._id,
             title: showingTranslateValue(product?.title),
             slug: product.slug,
             category: categoryId,
-            brand: brandId,
             image,
             icon: !image ? <FiPackage className="w-4 h-4" /> : null,
           });
@@ -137,30 +116,6 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
         .slice(0, 5); // Limit to 5 final products
 
       results.push(...matchedProducts);
-    }
-
-    // Search in Brands
-    if (brandsData && Array.isArray(brandsData)) {
-      const matchedBrands = brandsData
-        .filter((brand) => {
-          const name = showingTranslateValue(brand?.name)?.toLowerCase() || "";
-          const slug = brand.slug?.toLowerCase() || "";
-          return name.includes(query) || slug.includes(query);
-        })
-        .slice(0, 3) // Limit to 3 brands
-        .map((brand) => {
-          // Prefer logo, then coverImage
-          let image = brand.logo || brand.coverImage || null;
-          return {
-            type: "brand",
-            id: brand._id,
-            title: showingTranslateValue(brand?.name),
-            slug: brand.slug,
-            image,
-            icon: !image ? <FiTag className="w-4 h-4" /> : null,
-          };
-        });
-      results.push(...matchedBrands);
     }
 
     // Search in Categories
@@ -198,14 +153,14 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
 
     return results;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchText, productsData, brandsData, categoriesData, showSuggestions]);
+  }, [debouncedSearchText, productsData, categoriesData, showSuggestions]);
 
   // Helper function to create comparison key from suggestions (without React elements)
   const getSuggestionsKey = (suggs) => {
     if (!suggs || !Array.isArray(suggs) || suggs.length === 0) return '';
     // Create a simple string key from serializable data only (no React elements)
     return suggs.map(s => 
-      `${s.type || ''}-${s.id || ''}-${s.title || ''}-${s.slug || ''}-${s.category || ''}-${s.brand || ''}`
+      `${s.type || ''}-${s.id || ''}-${s.title || ''}-${s.slug || ''}-${s.category || ''}`
     ).join('||');
   };
 
@@ -270,26 +225,13 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
     let targetQuery = {};
     
     if (suggestion.type === "product") {
-      // Use category or brand from suggestion to show related products
       const categoryId = getStringId(suggestion.category);
-      const brandId = getStringId(suggestion.brand);
       
-      // Navigate to search page with category/brand filter to show related products
       if (categoryId && categoryId !== 'undefined' && categoryId !== 'null' && categoryId.trim() !== '') {
         targetPath = '/search';
         targetQuery = { _id: categoryId };
-      } else if (brandId && brandId !== 'undefined' && brandId !== 'null' && brandId.trim() !== '') {
-        targetPath = '/search';
-        targetQuery = { brand: brandId };
       } else {
-        // Fallback to product page if no category/brand
         targetPath = `/product/${suggestion.slug}`;
-      }
-    } else if (suggestion.type === "brand") {
-      const brandId = getStringId(suggestion.id);
-      if (brandId) {
-        targetPath = '/search';
-        targetQuery = { brand: brandId };
       }
     } else if (suggestion.type === "category") {
       const categoryId = getStringId(suggestion.id);

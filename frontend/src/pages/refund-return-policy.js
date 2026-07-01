@@ -55,8 +55,8 @@ const RefundReturnPolicy = () => {
 <p>Due to authenticity and safety reasons, the following cannot be returned:</p>
 <ul>
   <li>Items with removed authentication tags or security seals.</li>
-  <li>Items showing signs of outdoor wear, usage, or scuffing (especially sneaker outsoles).</li>
-  <li>Limited edition collaborative drops that explicitly state no returns.</li>
+  <li>Items showing signs of wear, usage, alterations, or damage.</li>
+  <li>Custom-tailored suit sets, custom-blouse sarees, or unstitched fabric cuts once cut.</li>
 </ul>
 <h2>3. Refund Process</h2>
 <p>Once your return is received and inspected, refunds will be processed to your original payment method within 5-7 business days.</p>

@@ -108,7 +108,7 @@ const AddProduct = () => {
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Product Name *</label>
                     <Input
                       {...register("title", { required: "Product Name is required!" })}
-                      placeholder="e.g. Nike Air Max 90"
+                      placeholder="e.g. Floral Embroidered Anarkali Suit"
                       onBlur={(e) => handleProductSlug(e.target.value)}
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:border-emerald-500"
                     />
@@ -120,7 +120,7 @@ const AddProduct = () => {
                     <Input
                       {...register("slug", { required: "Slug is required!" })}
                       defaultValue={slug}
-                      placeholder="nike-air-max-90"
+                      placeholder="e.g. floral-embroidered-anarkali-suit"
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700 focus:border-emerald-500"
                     />
                     <Error errorName={errors.slug} />
@@ -133,10 +133,9 @@ const AddProduct = () => {
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     >
                       <option value="">Choose Type</option>
-                      <option value="Sarees">Sarees</option>
-                      <option value="Suits">Suits</option>
-                      <option value="Fabrics">Fabrics</option>
-                      <option value="Traditional Wear">Traditional Wear</option>
+                      <option value="Suits">Suit Sets</option>
+                      <option value="Fabrics">Unstitched Dress Material</option>
+                      <option value="Dupattas">Dupattas</option>
                     </Select>
                     <Error errorName={errors.productType} />
                   </div>
@@ -147,10 +146,7 @@ const AddProduct = () => {
                       {...register("gender", { required: "Gender is required!" })}
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     >
-                      <option value="">Choose Gender</option>
                       <option value="Women">Women</option>
-                      <option value="Men">Men</option>
-                      <option value="Unisex">Unisex</option>
                     </Select>
                     <Error errorName={errors.gender} />
                   </div>
@@ -159,7 +155,7 @@ const AddProduct = () => {
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Occasion</label>
                     <Input
                       {...register("occasion")}
-                      placeholder="e.g. Wedding, Festive, Casual"
+                      placeholder="e.g. Wedding, Festive, Daily Wear"
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     />
                   </div>
@@ -168,7 +164,7 @@ const AddProduct = () => {
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Fabric Type</label>
                     <Input
                       {...register("fabricType")}
-                      placeholder="e.g. Banarasi Silk, Cotton"
+                      placeholder="e.g. Cotton, Organza, Silk, Muslin"
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     />
                   </div>
@@ -177,27 +173,7 @@ const AddProduct = () => {
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Work Type</label>
                     <Input
                       {...register("workType")}
-                      placeholder="e.g. Zari Weaving, Embroidered"
-                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Blouse Included</label>
-                    <Select
-                      {...register("blouseIncluded")}
-                      className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
-                    >
-                      <option value="false">No</option>
-                      <option value="true">Yes</option>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Saree Length</label>
-                    <Input
-                      {...register("sareeLength")}
-                      placeholder="e.g. 5.5 m + 0.8 m blouse"
+                      placeholder="e.g. Chikankari, Banarasi Weave, Printed"
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     />
                   </div>
@@ -412,7 +388,7 @@ const AddProduct = () => {
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Base SKU</label>
                     <Input
                       {...register("sku")}
-                      placeholder="e.g. NIKE-AM90-BLK"
+                      placeholder="e.g. MAN-SUIT-001"
                       className="w-full border-gray-200 dark:border-gray-600 dark:bg-gray-700"
                     />
                   </div>

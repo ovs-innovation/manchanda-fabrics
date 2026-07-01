@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Category = require("../models/Category");
 const Brand = require("../models/Brand");
 const Setting = require("../models/Setting");
+const { resolveHomepageSettings } = require("../lib/homepage-settings");
 const UserProductView = require("../models/UserProductView");
 const { languageCodes } = require("../utils/data");
 const { formatProductForCSV,
@@ -896,7 +897,7 @@ const getShowingStoreProducts = async (req, res) => {
     let bestSellingProducts = [];
     let discountedProducts = [];
     let relatedProducts = [];
-    let rasaHomepagePayload = null;
+    let manchandaHomepagePayload = null;
 
     if (slug) {
       queryObject.slug = slug;
@@ -929,10 +930,10 @@ const getShowingStoreProducts = async (req, res) => {
       const settingDoc = await Setting.findOne({
         name: "storeCustomizationSetting",
       }).lean();
-      const rasaHomepage = settingDoc?.setting?.rasaHomepage || {};
+      const homepageSettings = resolveHomepageSettings(settingDoc?.setting);
 
       // New Arrivals — admin picks → tag fallback → newest
-      popularProducts = await fetchProductsByIds(rasaHomepage.newArrivalProductIds);
+      popularProducts = await fetchProductsByIds(homepageSettings.newArrivalProductIds);
       if (!popularProducts.length) {
         popularProducts = await fetchProductsByPlacementTag(
           "new-arrival",
@@ -948,7 +949,7 @@ const getShowingStoreProducts = async (req, res) => {
       }
 
       // Trending — admin picks → tag fallback → best sellers
-      bestSellingProducts = await fetchProductsByIds(rasaHomepage.trendingProductIds);
+      bestSellingProducts = await fetchProductsByIds(homepageSettings.trendingProductIds);
       if (!bestSellingProducts.length) {
         bestSellingProducts = await fetchProductsByPlacementTag(
           "trending",
@@ -963,12 +964,53 @@ const getShowingStoreProducts = async (req, res) => {
           .limit(20);
       }
 
-      rasaHomepagePayload = {
-        brandsSectionEnabled: rasaHomepage.brandsSectionEnabled !== false,
-        categoryBanners: rasaHomepage.categoryBanners || [],
-        instagramPosts: rasaHomepage.instagramPosts || [],
-        heroSlides: rasaHomepage.heroSlides || [],
-        sectionOrder: (rasaHomepage.sectionOrder || ["Hero", "Brands", "New Arrival", "Trending", "Categories", "Newsletter"]).filter(
+      // Homepage Manager hero slides take priority over legacy Store Customization slider tabs
+      let heroSlides = homepageSettings.heroSlides || [];
+      const hasHomepageManagerHero = heroSlides.some(
+        (slide) => slide && (slide.image || slide.bgImage)
+      );
+
+      const sliderSettings = settingDoc?.setting?.slider || {};
+      
+      const formSlides = [];
+      const keys = ["first", "second", "third", "four", "five"];
+      for (const prefix of keys) {
+        const imgKey = prefix === "four" ? "four_img" : prefix === "five" ? "five_img" : `${prefix}_img`;
+        const titleKey = prefix === "four" ? "four_title" : prefix === "five" ? "five_title" : `${prefix}_title`;
+        const descKey = prefix === "four" ? "four_description" : prefix === "five" ? "five_description" : `${prefix}_description`;
+        const btnKey = prefix === "four" ? "four_button" : prefix === "five" ? "five_button" : `${prefix}_button`;
+        const linkKey = prefix === "four" ? "four_link" : prefix === "five" ? "five_link" : `${prefix}_link`;
+        
+        if (sliderSettings[imgKey]) {
+          const titleVal = sliderSettings[titleKey];
+          const descVal = sliderSettings[descKey];
+          const btnVal = sliderSettings[btnKey];
+          
+          formSlides.push({
+            image: sliderSettings[imgKey],
+            title: titleVal?.en || titleVal?.default || (typeof titleVal === "string" ? titleVal : ""),
+            subtitle: descVal?.en || descVal?.default || (typeof descVal === "string" ? descVal : ""),
+            btnText: btnVal?.en || btnVal?.default || (typeof btnVal === "string" ? btnVal : "Shop Now"),
+            link: sliderSettings[linkKey] || "/search",
+            style: "layout-left-framed",
+            badge: "Luxury Collection",
+            highlight: "Exclusive Collection"
+          });
+        }
+      }
+      
+      if (!hasHomepageManagerHero && formSlides.length > 0) {
+        heroSlides = formSlides;
+      }
+
+      manchandaHomepagePayload = {
+        brandsSectionEnabled: homepageSettings.brandsSectionEnabled !== false,
+        categoryBanners: homepageSettings.categoryBanners || [],
+        instagramPosts: homepageSettings.instagramPosts || [],
+        heroSlides: heroSlides,
+        newArrivalProductIds: homepageSettings.newArrivalProductIds || [],
+        trendingProductIds: homepageSettings.trendingProductIds || [],
+        sectionOrder: (homepageSettings.sectionOrder || ["Hero", "Brands", "New Arrival", "Trending", "Categories", "Newsletter"]).filter(
           (s) => s !== "Instagram"
         ),
       };
@@ -1015,7 +1057,7 @@ const getShowingStoreProducts = async (req, res) => {
       relatedProducts: relatedProducts.map(p => flattenProductVariants(p)),
       discountedProducts: discountedProducts.map(p => flattenProductVariants(p)),
       bestSellingProducts: bestSellingProducts.map(p => flattenProductVariants(p)),
-      rasaHomepage: rasaHomepagePayload,
+      manchandaHomepage: manchandaHomepagePayload,
     });
   } catch (err) {
     res.status(500).send({

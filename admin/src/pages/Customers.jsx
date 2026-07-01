@@ -88,9 +88,9 @@ const Customers = () => {
       <AnimatedContent>
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 px-1 pt-2">
           <div>
-            <PageTitle>{t("CustomersPage")}</PageTitle>
+            <PageTitle>Boutique Customers</PageTitle>
             <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2">
-              View and manage your platform's customer base
+              View and manage registered clients of Manchanda Fabrics
             </p>
           </div>
           
@@ -120,19 +120,19 @@ const Customers = () => {
         />
 
         {/* Filter/Search Bar */}
-        <div className="bg-white dark:bg-gray-800 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 dark:border-gray-700/50 p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-[#E6D1CB]/40 p-6 mb-8">
             <form
               onSubmit={handleSubmitUser}
               className="flex flex-col lg:flex-row gap-5 items-center"
             >
               <div className="w-full lg:flex-1 relative group">
-                <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" />
+                <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#93614E] transition-colors" />
                 <input
                   ref={userRef}
                   type="search"
                   name="search"
                   placeholder="Search customers by name, email or mobile..."
-                  className="w-full pl-12 pr-6 py-4 text-sm font-medium border-0 bg-gray-50 dark:bg-gray-700/50 rounded-2xl focus:ring-2 focus:ring-teal-500/20 dark:text-gray-200 transition-all outline-none"
+                  className="w-full pl-12 pr-6 py-4 text-sm font-medium border border-[#E6D1CB]/30 bg-gray-50/50 dark:bg-gray-700/50 rounded-2xl focus:ring-2 focus:ring-[#93614E]/20 focus:border-[#93614E] dark:text-gray-200 transition-all outline-none"
                 />
               </div>
 
@@ -141,7 +141,7 @@ const Customers = () => {
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="w-full pl-6 pr-12 py-4 text-sm font-semibold bg-gray-50 dark:bg-gray-700/50 rounded-2xl border-0 focus:ring-2 focus:ring-teal-500/20 dark:text-gray-200 appearance-none cursor-pointer outline-none transition-all"
+                    className="w-full pl-6 pr-12 py-4 text-sm font-semibold bg-gray-50/50 border border-[#E6D1CB]/30 dark:bg-gray-700/50 rounded-2xl focus:ring-2 focus:ring-[#93614E]/20 focus:border-[#93614E] dark:text-gray-200 appearance-none cursor-pointer outline-none transition-all"
                   >
                     <option value="all">All Customer Types</option>
                     <option value="newSignUpsToday">New Sign-ups (Today)</option>
@@ -158,7 +158,7 @@ const Customers = () => {
               <div className="flex items-center gap-3 w-full lg:w-auto">
                 <Button 
                   type="submit" 
-                  className="h-[52px] px-8 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-bold shadow-lg shadow-teal-600/20 flex-1 lg:flex-none transition-all active:scale-95"
+                  className="h-[52px] px-8 bg-[#93614E] hover:bg-[#7A4D3C] text-white rounded-2xl font-bold shadow-lg shadow-[#93614E]/10 flex-1 lg:flex-none transition-all active:scale-95"
                 >
                   Apply Filters
                 </Button>

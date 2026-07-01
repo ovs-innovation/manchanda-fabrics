@@ -201,36 +201,58 @@ const deleteManyCategory = async (req, res) => {
   }
 };
 
+const getCategoryKey = (cat) => {
+  if (cat?.slug) return String(cat.slug).toLowerCase();
+  const name = cat?.name?.en || cat?.name || "";
+  return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+};
+
 const readyToParentAndChildrenCategory = (categories, parentId = null) => {
-  const categoryList = [];
-  let cate;
-  if (parentId == null) {
-    // Build a set of all real category _id values so we can detect sentinel parentIds
-    // (e.g. "manchanda-root") that don't refer to any actual category document.
-    const knownIds = new Set(categories.map((c) => String(c._id)));
-    cate = categories.filter(
-      (cat) => !cat.parentId || !knownIds.has(String(cat.parentId))
+  const parent =
+    parentId == null
+      ? null
+      : categories.find((c) => String(c._id) === String(parentId));
+
+  const matchesParent = (cat) => {
+    if (parent && String(cat._id) === String(parent._id)) return false;
+
+    if (!parent) {
+      const pid = String(cat.parentId || "").toLowerCase();
+      if (!cat.parentId || pid === "root") return true;
+      return !categories.some(
+        (p) =>
+          String(p._id) === cat.parentId ||
+          getCategoryKey(p) === pid ||
+          (p.id && String(p.id).toLowerCase() === pid)
+      );
+    }
+
+    const pid = String(cat.parentId || "").toLowerCase();
+    const parentKey = getCategoryKey(parent);
+    const parentName = String(parent.name?.en || parent.name || "").toLowerCase();
+
+    return (
+      pid === String(parent._id).toLowerCase() ||
+      pid === parentKey ||
+      (cat.parentName &&
+        String(cat.parentName).toLowerCase() === parentName &&
+        pid !== "root")
     );
-  } else {
-    cate = categories.filter((cat) => cat.parentId == parentId);
-  }
+  };
 
-  for (let item of cate) {
-    categoryList.push({
-      _id: item._id,
-      name: item.name,
-      parentId: item.parentId,
-      parentName: item.parentName,
-      description: item.description,
-      icon: item.icon,
-      status: item.status,
-      featured: item.featured,
-      priority: item.priority,
-      children: readyToParentAndChildrenCategory(categories, item._id),
-    });
-  }
-
-  return categoryList;
+  return categories.filter(matchesParent).map((item) => ({
+    _id: item._id,
+    name: item.name,
+    slug: item.slug,
+    parentId: item.parentId,
+    parentName: item.parentName,
+    description: item.description,
+    icon: item.icon,
+    status: item.status,
+    featured: item.featured,
+    priority: item.priority,
+    children: readyToParentAndChildrenCategory(categories, item._id),
+  }));
 };
 
 

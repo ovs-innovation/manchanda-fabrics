@@ -13,13 +13,19 @@ import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
 import HeroBanner from "@components/banner/HeroBanner";
 import AttributeServices from "@services/AttributeServices";
-import BrandServices from "@services/BrandServices";
 import SectionHeader from "@components/common/SectionHeader";
-import NewsletterSection from "@components/newsletter/NewsletterSection";
+
 import CustomerReviewSection from "@components/review/CustomerReviewSection";
 import InstagramFeed from "@components/instagram/InstagramFeed";
+import ShopByCategory from "@components/category/ShopByCategory";
+import FestivalCollection from "@components/category/FestivalCollection";
+import {
+  HOME_PREMIUM_COLLECTIONS,
+  HERO_FALLBACK,
+  LOCAL_BANNERS,
+} from "@utils/traditionalImagery";
 
-const Home = ({ popularProducts, bestSellingProducts, attributes, rasaHomepage }) => {
+const Home = ({ popularProducts, bestSellingProducts, attributes, manchandaHomepage }) => {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
     setMounted(true);
@@ -28,335 +34,205 @@ const Home = ({ popularProducts, bestSellingProducts, attributes, rasaHomepage }
   const newArrivals = popularProducts || [];
   const bestSellers = bestSellingProducts || [];
 
-  // Mock items if db is empty initially
-  const defaultNewArrivals = newArrivals.length > 0 ? newArrivals : [];
-  const defaultBestSellers = bestSellers.length > 0 ? bestSellers : [];
-
-  // Section 2: Dynamic Category Cards from Admin panel, fallback to defaults
-  const categoryCards = rasaHomepage?.categoryBanners?.length > 0
-    ? rasaHomepage.categoryBanners.map(c => ({
-        title: c.title,
-        image: c.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=600",
-        slug: c.slug
-      }))
-    : [
-        { title: "Banarasi Sarees", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=600", slug: "sarees" },
-        { title: "Silk Sarees", image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=600", slug: "sarees" },
-        { title: "Cotton Sarees", image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=600", slug: "sarees" },
-        { title: "Designer Sarees", image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=600", slug: "sarees" },
-        { title: "Premium Suits", image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=600", slug: "suits" },
-        { title: "Exquisite Fabrics", image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?q=80&w=600", slug: "fabrics" },
-      ];
+  const premiumCollections = HOME_PREMIUM_COLLECTIONS;
 
   const renderProductCarousel = (products, prevClass, nextClass) => {
     if (!mounted) {
-      return <div className="h-96 w-full bg-[#FAF7F5] animate-pulse rounded-xl" />;
+      return <div className="h-96 w-full bg-[#F5ECE8] animate-pulse rounded-xl" />;
     }
 
     if (!products || products.length === 0) {
       return (
-        <div className="py-12 text-center text-[#3B2A25]/60 bg-white border border-[#E6D1CB]/50 rounded-xl">
+        <div className="py-12 text-center text-[#2B211E]/60 bg-white border border-[#D5BBB4]/50 rounded-xl font-sans">
           No premium items found. Please seed the database catalog.
         </div>
       );
     }
 
     return (
-      <div className="relative group px-2">
+      <div className="relative group">
         <Swiper
           modules={[Navigation, Autoplay]}
-          spaceBetween={20}
-          slidesPerView={2}
+          spaceBetween={10}
+          slidesPerView={1.15}
           loop={products.length >= 5}
           navigation={{ prevEl: `.${prevClass}`, nextEl: `.${nextClass}` }}
           autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
-            640: { slidesPerView: 2, spaceBetween: 20 },
-            768: { slidesPerView: 3, spaceBetween: 24 },
-            1024: { slidesPerView: 4, spaceBetween: 24 },
+            480: { slidesPerView: 1.5, spaceBetween: 12 },
+            640: { slidesPerView: 2, spaceBetween: 14 },
+            768: { slidesPerView: 3, spaceBetween: 18 },
+            1024: { slidesPerView: 4, spaceBetween: 22 },
             1280: { slidesPerView: 5, spaceBetween: 24 },
           }}
-          className="mySwiper !pb-8 !pt-2"
+          className="mySwiper !pb-4 !pt-1 -mx-1 px-1"
         >
           {products.map((product) => (
-            <SwiperSlide key={product._id}>
-              <div className="bg-white p-3 border border-[#E6D1CB]/40 rounded-xl hover:shadow-md transition-all duration-300">
-                <ProductCard product={product} attributes={attributes} />
-              </div>
+            <SwiperSlide key={product._id} className="h-auto">
+              <ProductCard product={product} attributes={attributes} />
             </SwiperSlide>
           ))}
         </Swiper>
-        <button className={`${prevClass} absolute top-1/2 -left-3 z-10 bg-white shadow-md border border-[#E6D1CB] rounded-full p-2.5 hover:bg-[#FAF7F5] transition-colors transform -translate-y-1/2`}>
-          <IoChevronBack className="text-lg text-[#9C6A5A]" />
+        <button
+          type="button"
+          className={`${prevClass} hidden sm:flex absolute top-1/2 -left-2 md:-left-3 z-10 bg-white shadow-md border border-[#D5BBB4] rounded-full p-2 hover:bg-[#F5ECE8] transition-colors -translate-y-1/2`}
+        >
+          <IoChevronBack className="text-lg text-[#93614E]" />
         </button>
-        <button className={`${nextClass} absolute top-1/2 -right-3 z-10 bg-white shadow-md border border-[#E6D1CB] rounded-full p-2.5 hover:bg-[#FAF7F5] transition-colors transform -translate-y-1/2`}>
-          <IoChevronForward className="text-lg text-[#9C6A5A]" />
+        <button
+          type="button"
+          className={`${nextClass} hidden sm:flex absolute top-1/2 -right-2 md:-right-3 z-10 bg-white shadow-md border border-[#D5BBB4] rounded-full p-2 hover:bg-[#F5ECE8] transition-colors -translate-y-1/2`}
+        >
+          <IoChevronForward className="text-lg text-[#93614E]" />
         </button>
       </div>
     );
   };
 
-  const order = rasaHomepage?.sectionOrder || ["Hero", "Categories", "New Arrival", "Trending", "Instagram"];
-
-  if (!mounted) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-[#FAF7F5]" />
-      </Layout>
-    );
-  }
+  // Use dynamic hero slides
+  const heroSlides =
+    manchandaHomepage?.heroSlides && manchandaHomepage.heroSlides.length > 0
+      ? manchandaHomepage.heroSlides.map((s, idx) => ({
+        style: s.style || "layout-left-framed",
+        badge: s.badge || "Ethnic Suit Edit",
+        title: s.title || "Traditional Suit Sets",
+        subtitle: s.subtitle || "Straight, anarkali & festive salwar suits crafted for every occasion.",
+        highlight: s.highlight || "Handcrafted Heritage",
+        btnText: s.btnText || "Shop Suits",
+        btnLink: s.link || s.btnLink || "/search?category=suits",
+        bgImage: s.image || Object.values(LOCAL_BANNERS)[idx % 4] || HERO_FALLBACK,
+      }))
+    : [
+        {
+          style: "layout-left-framed",
+          badge: "Straight Suit Sets",
+          title: "Timeless Elegance in Every Stitch",
+          subtitle: "Discover handcrafted salwar suits, anarkali sets & kurta ensembles — Biba-inspired tradition.",
+          highlight: "Premium Ethnic Suit Collection",
+          btnText: "Shop Suit Sets",
+          btnLink: "/search?category=suits",
+          bgImage: HERO_FALLBACK,
+        }
+      ];
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#FAF7F5] text-[#3B2A25]">
-        {order.map((sectionName) => {
-          if (sectionName === "Hero") {
-            return <HeroBanner key="hero" slides={rasaHomepage?.heroSlides} />;
-          }
+      <div className="min-h-screen bg-[#FAF7F5] text-[#2B211E] font-serif overflow-x-hidden">
 
-          if (sectionName === "Categories") {
-            return (
-              <React.Fragment key="categories">
-                {/* Section 2: Shop By Category (Biba Circular Style) */}
-                <section className="py-16 md:py-24 mx-auto max-w-screen-2xl px-6 sm:px-10 lg:px-16">
-                  <div className="text-center max-w-2xl mx-auto mb-16">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#9C6A5A] mb-2">Heritage Categories</p>
-                    <h2 className="text-3xl md:text-4xl font-serif font-light text-[#3B2A25]">Shop By Category</h2>
-                    <div className="h-[2px] w-12 bg-[#9C6A5A] mx-auto mt-4" />
-                  </div>
+        {/* 1. Hero Banner */}
+        <HeroBanner slides={heroSlides} />
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 justify-items-center">
-                    {categoryCards.map((cat, idx) => (
-                      <Link key={idx} href={`/search?category=${cat.slug}`} className="group flex flex-col items-center select-none w-full max-w-[180px]">
-                        {/* Dual Border Luxury Frame */}
-                        <div className="relative w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 rounded-full p-1.5 border border-[#E6D1CB]/50 group-hover:border-[#9C6A5A]/60 transition-all duration-500 flex-shrink-0 flex items-center justify-center bg-white shadow-sm group-hover:shadow-md">
-                          <div className="w-full h-full rounded-full overflow-hidden relative border border-[#E6D1CB]/30">
-                            <img
-                              src={cat.image}
-                              alt={cat.title}
-                              className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
-                            />
-                            <div className="absolute inset-0 bg-[#3B2A25]/5 group-hover:bg-transparent transition-colors duration-300" />
-                          </div>
-                        </div>
-                        {/* Elegant Typography */}
-                        <h3 className="mt-4 font-serif text-sm sm:text-base font-normal text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors duration-300 text-center">
-                          {cat.title}
-                        </h3>
-                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#9C6A5A] mt-1 opacity-0 transform translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                          Shop Now
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
+        <ShopByCategory adminBanners={manchandaHomepage?.categoryBanners} />
 
-                {/* Section 3: Biba Style Campaign Spotlights (3-Column Grid) */}
-                <section className="py-12 bg-[#FAF7F5] border-t border-[#E6D1CB]/50">
-                  <div className="mx-auto max-w-screen-2xl px-6 sm:px-10 lg:px-16">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                      <Link href="/search?category=sarees" className="group relative block overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                        <div className="relative aspect-[4/5] w-full overflow-hidden bg-white">
-                          <img
-                            src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=600"
-                            alt="Sarees Spotlight"
-                            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A25]/90 via-[#3B2A25]/20 to-transparent" />
-                          <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#E6D1CB]">Heritage Weaves</span>
-                            <h3 className="text-xl font-serif font-light">The Saree Edit</h3>
-                            <p className="text-[10px] text-white/80 uppercase tracking-widest">Shop Pure Silk & Banarasis →</p>
-                          </div>
-                        </div>
-                      </Link>
-                      <Link href="/search?category=suits" className="group relative block overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                        <div className="relative aspect-[4/5] w-full overflow-hidden bg-white">
-                          <img
-                            src="https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=600"
-                            alt="Suits Spotlight"
-                            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A25]/90 via-[#3B2A25]/20 to-transparent" />
-                          <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#E6D1CB]">Traditional Sets</span>
-                            <h3 className="text-xl font-serif font-light">Designer Suits</h3>
-                            <p className="text-[10px] text-white/80 uppercase tracking-widest">Shop Salwars & Anarkalis →</p>
-                          </div>
-                        </div>
-                      </Link>
-                      <Link href="/search?category=fabrics" className="group relative block overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                        <div className="relative aspect-[4/5] w-full overflow-hidden bg-white">
-                          <img
-                            src="https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=600"
-                            alt="Fabrics Spotlight"
-                            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A25]/90 via-[#3B2A25]/20 to-transparent" />
-                          <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#E6D1CB]">Tailored Style</span>
-                            <h3 className="text-xl font-serif font-light">Premium Fabrics</h3>
-                            <p className="text-[10px] text-white/80 uppercase tracking-widest">Shop Unstitched Luxury →</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </section>
-              </React.Fragment>
-            );
-          }
+        <FestivalCollection />
 
-          if (sectionName === "New Arrival") {
-            return (
-              <section key="new-arrival" className="py-16 bg-white border-y border-[#E6D1CB]/50">
-                <div className="mx-auto max-w-screen-2xl px-6 sm:px-10 lg:px-16">
-                  <div className="flex justify-between items-center mb-8 gap-4 border-b border-[#E6D1CB]/40 pb-4">
-                    <div>
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#FAF7F5] border border-[#E6D1CB] text-[#9C6A5A] text-[9px] font-bold uppercase tracking-widest rounded-full mb-2">
-                        <IoSparkles className="text-[#9C6A5A]" />
-                        <span>Latest Additions</span>
-                      </div>
-                      <h2 className="text-2xl md:text-3xl font-serif font-light text-[#3B2A25]">New Arrivals</h2>
-                    </div>
-                    <Link
-                      href="/new-arrivals"
-                      className="group inline-flex items-center gap-1.5 px-4 py-2 border border-[#E6D1CB] rounded-md text-xs font-bold uppercase tracking-wider text-[#3B2A25]/80 hover:text-[#9C6A5A] hover:border-[#9C6A5A] transition-all"
-                    >
-                      <span>View All</span>
-                      <IoChevronForward className="transition-transform group-hover:translate-x-0.5 text-[#9C6A5A] text-xs" />
-                    </Link>
-                  </div>
-                  {renderProductCarousel(defaultNewArrivals, "prev-new-arrivals", "next-new-arrivals")}
+        {/* 5. New Arrivals Section */}
+        <section className="py-10 sm:py-14 lg:py-20 bg-white border-y border-[#D5BBB4]/40">
+          <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-16">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 sm:mb-8 border-b border-[#D5BBB4]/40 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FAF7F5] border border-[#D5BBB4] text-[#93614E] text-[9px] font-semibold uppercase tracking-widest rounded-full mb-2">
+                  <IoSparkles className="text-[#93614E]" />
+                  <span>Latest Additions</span>
                 </div>
-              </section>
-            );
-          }
-
-          if (sectionName === "Trending") {
-            return (
-              <section key="trending" className="py-16 md:py-24 mx-auto max-w-screen-2xl px-6 sm:px-10 lg:px-16">
-                <div className="text-center max-w-2xl mx-auto mb-16">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#9C6A5A] mb-2">Most Loved</p>
-                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#3B2A25]">Best Sellers</h2>
-                  <div className="h-[2px] w-12 bg-[#9C6A5A] mx-auto mt-4" />
-                </div>
-
-                {defaultBestSellers.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {defaultBestSellers.map((product) => (
-                      <div key={product._id} className="bg-white p-3 border border-[#E6D1CB]/40 rounded-xl hover:shadow-md transition-all duration-300">
-                        <ProductCard product={product} attributes={attributes} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-16 text-center text-[#3B2A25]/60 bg-white border border-[#E6D1CB]/50 rounded-xl max-w-2xl mx-auto">
-                    Please seed the best seller items into the database.
-                  </div>
-                )}
-              </section>
-            );
-          }
-
-          if (sectionName === "Instagram") {
-            return (
-              <React.Fragment key="instagram">
-                <InstagramFeed posts={rasaHomepage?.instagramPosts} />
-
-                {/* Section 6: Biba Style Editorial Split (Heritage Diaries) */}
-                <section className="py-16 bg-white border-y border-[#E6D1CB]/50">
-                  <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                      <div className="relative aspect-[16/10] lg:aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
-                        <img
-                          src="https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800"
-                          alt="Manchanda Heritage Weaving"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-[#3B2A25]/15" />
-                      </div>
-                      <div className="space-y-6 lg:pl-6">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#9C6A5A]">Crafted with Love</span>
-                        <h2 className="text-3xl md:text-4xl font-serif font-light text-[#3B2A25] leading-tight">
-                          Generations of <br />
-                          <span className="italic font-normal text-[#9C6A5A]">Pure Artistry</span>
-                        </h2>
-                        <p className="text-sm text-[#3B2A25]/85 leading-relaxed">
-                          Every Manchanda creation represents generation-old handloom expertise. Directly cooperating with weaver clusters across Banaras, Kanchipuram, and Bhagalpur, we preserve pure zari, natural silks, and hand-embroidered details to bring royal elegance to your wardrobe.
-                        </p>
-                        <div className="pt-2">
-                          <Link href="/about-us" className="inline-block px-8 py-3.5 bg-[#9C6A5A] hover:bg-[#6F4A3D] text-white text-xs font-bold uppercase tracking-widest rounded transition-colors shadow">
-                            Our Weaving Journey
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 7: Why Choose Us */}
-                <section className="py-16 bg-[#FAF7F5]">
-                  <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-12 h-12 bg-white border border-[#E6D1CB] rounded-full flex items-center justify-center text-[#9C6A5A]">
-                        <FiAward size={20} />
-                      </div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">Premium Fabrics</h4>
-                      <p className="text-[10px] text-[#3B2A25]/60 max-w-[160px]">Finest handloom silk, cotton, and georgette materials</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-12 h-12 bg-white border border-[#E6D1CB] rounded-full flex items-center justify-center text-[#9C6A5A]">
-                        <FiShield size={20} />
-                      </div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">Authentic Weaves</h4>
-                      <p className="text-[10px] text-[#3B2A25]/60 max-w-[160px]">Directly sourced from master weavers across India</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-12 h-12 bg-white border border-[#E6D1CB] rounded-full flex items-center justify-center text-[#9C6A5A]">
-                        <FiSmartphone size={20} />
-                      </div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">Secure Payments</h4>
-                      <p className="text-[10px] text-[#3B2A25]/60 max-w-[160px]">Encrypted checkouts & secure transaction gateways</p>
-                    </div>
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-12 h-12 bg-white border border-[#E6D1CB] rounded-full flex items-center justify-center text-[#9C6A5A]">
-                        <FiRotateCcw size={20} />
-                      </div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]">Easy Returns</h4>
-                      <p className="text-[10px] text-[#3B2A25]/60 max-w-[160px]">Hassle-free replacement policy if not satisfied</p>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Section 8: Testimonials - moved below */}
-              </React.Fragment>
-            );
-          }
-          return null;
-        })}
-
-        {/* Section 10: About Brand */}
-        <section className="py-20 mx-auto max-w-5xl px-6 text-center space-y-6">
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#9C6A5A]">Our Story</span>
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-[#3B2A25]">Manchanda Fabrics</h2>
-          <div className="h-[2px] w-12 bg-[#9C6A5A] mx-auto mt-2" />
-          <p className="text-sm text-[#3B2A25]/80 leading-relaxed max-w-3xl mx-auto">
-            Rooted in heritage and dedicated to absolute purity, Manchanda Fabrics celebrates India's vibrant weaving cultures. We curate the finest pure silks, traditional Banarasis, custom embroideries, and comfortable daily fabrics. Each thread in our collections tells a story of generation-old artisanship, design integrity, and premium quality crafted for the modern woman who values style and tradition.
-          </p>
-          <div className="pt-2">
-            <Link href="/about-us" className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-[#9C6A5A] hover:text-[#6F4A3D] transition-colors">
-              <span>Discover Our Heritage</span>
-              <span>→</span>
-            </Link>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-[#2B211E] font-serif">New Arrivals</h2>
+              </div>
+              <Link
+                href="/search?tag=new-arrival"
+                className="group inline-flex items-center gap-1.5 px-4 py-2 border border-[#D5BBB4] rounded-full text-xs font-semibold uppercase tracking-wider text-[#2B211E]/80 hover:text-[#93614E] hover:border-[#93614E] transition-all"
+              >
+                <span>View All</span>
+                <IoChevronForward className="transition-transform group-hover:translate-x-0.5 text-[#93614E] text-xs" />
+              </Link>
+            </div>
+            {renderProductCarousel(newArrivals, "prev-new-arrivals", "next-new-arrivals")}
           </div>
         </section>
 
+        {/* 6 & 7. Trending & Best Sellers */}
+        <section className="py-10 sm:py-14 lg:py-20 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-16 bg-[#FAF7F5]">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C7A46A] mb-2">Most Loved</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#2B211E] font-serif">Best Sellers & Trending</h2>
+            <div className="h-[1px] w-12 bg-[#93614E] mx-auto mt-3 sm:mt-4" />
+          </div>
+
+          {bestSellers.length > 0 ? (
+            <div className="space-y-8 sm:space-y-12">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
+                {bestSellers.slice(0, 5).map((product) => (
+                  <ProductCard key={product._id} product={product} attributes={attributes} />
+                ))}
+              </div>
+              {bestSellers.length > 5 && (
+                <div className="text-center pt-4">
+                  <Link
+                    href="/search"
+                    className="inline-flex items-center justify-center px-8 py-3.5 border border-[#93614E] text-xs font-semibold uppercase tracking-widest text-[#93614E] hover:bg-[#93614E] hover:text-white rounded-full transition-all duration-300"
+                  >
+                    Show All
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="py-16 text-center text-[#2B211E]/60 bg-white border border-[#D5BBB4]/50 rounded-[24px] max-w-2xl mx-auto">
+              Please seed the best seller items into the database.
+            </div>
+          )}
+        </section>
+
+        {/* 8. Featured Premium Collections Section */}
+        <section className="py-10 sm:py-14 lg:py-20 bg-white border-t border-[#D5BBB4]/40">
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+              <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[#93614E] mb-2">Premium Curations</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#2B211E] font-serif">Featured Collections</h2>
+              <div className="h-[1px] w-12 bg-[#C7A46A] mx-auto mt-3 sm:mt-4" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
+              {premiumCollections.map((col, idx) => (
+                <Link
+                  key={idx}
+                  href={`/search?category=${col.slug}`}
+                  className="group block relative overflow-hidden rounded-[24px] shadow-sm bg-[#FAF7F5] border border-[#D5BBB4]/30 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden relative">
+                    <img
+                      src={col.bg}
+                      alt={col.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-[#2B211E]/5 group-hover:bg-transparent transition-all" />
+                  </div>
+                  <div className="p-4 sm:p-6">
+                    <h3 className="text-base sm:text-xl font-medium text-[#2B211E] group-hover:text-[#93614E] transition-colors">
+                      {col.title}
+                    </h3>
+                    <p className="text-sm text-[#2B211E]/70 mt-1 font-light italic leading-relaxed">
+                      {col.desc}
+                    </p>
+                    <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-widest text-[#93614E] border-b border-[#93614E]/40 pb-0.5 group-hover:border-[#93614E] transition-all">
+                      Discover Collection →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 9. Customer Reviews */}
+        <section className="py-10 sm:py-14 lg:py-20 bg-[#FAF7F5] border-y border-[#D5BBB4]/40">
+          <CustomerReviewSection />
+        </section>
+
+        {manchandaHomepage?.instagramPosts?.length > 0 && (
+          <InstagramFeed posts={manchandaHomepage.instagramPosts} />
+        )}
+
       </div>
-
-      {/* Customer Reviews — always just above the footer */}
-      <CustomerReviewSection />
-
     </Layout>
   );
 };
@@ -375,9 +251,9 @@ export const getStaticProps = async () => {
       attributes: attributes || [],
       popularProducts: data?.popularProducts || [],
       bestSellingProducts: data?.bestSellingProducts || [],
-      rasaHomepage: data?.rasaHomepage || null,
+      manchandaHomepage: data?.manchandaHomepage || null,
     },
-    revalidate: 30,
+    revalidate: 10,
   };
 };
 

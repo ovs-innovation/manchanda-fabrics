@@ -182,7 +182,7 @@ const Uploader = ({
         setLoading(true);
         setError("Uploading....");
 
-        const safeFolder = folder && folder !== "undefined" ? folder : "rasa";
+        const safeFolder = folder && folder !== "undefined" ? folder : "manchanda";
         const name = file.name.replaceAll(/\s/g, "");
         const basePublicId = name?.substring(0, name.lastIndexOf(".")) || "image";
         

@@ -1,10 +1,10 @@
-# RASA Product Model — Deprecation Roadmap
+# Manchanda Product Model — Deprecation Roadmap
 
-> Legacy pharmacy fields are **deprecated**. Do not use in new RASA products.
+> Legacy pharmacy fields are **deprecated**. Do not use in new Manchanda products.
 
 ## Deprecated fields (remove in v2 migration)
 
-| Field | Pharmacy use | RASA replacement |
+| Field | Pharmacy use | Manchanda replacement |
 |-------|--------------|------------------|
 | `batchNo` | Medicine batch tracking | — (remove) |
 | `expDate` | Medicine expiry | — (remove) |
@@ -19,7 +19,7 @@
 | `wholePrice` | Wholesale price | — (remove) |
 | `minQuantity` | B2B min order qty | — (remove) |
 
-## Active RASA fields
+## Active Manchanda fields
 
 | Field | Purpose |
 |-------|---------|
@@ -34,10 +34,10 @@
 | `attributes` / `variants` | Size + Color variant matrix |
 | `suitableFor` | **Deprecated** — use `gender` instead |
 
-## Category reset (RASA)
+## Category reset (Manchanda)
 
 ```
 Sneakers | Bags | Slides | Accessories | Women | Men | New Arrivals | Sale
 ```
 
-Run: `node backend/script/migrateRasaCategories.js`
+Run: `node backend/script/migrateManchandaCategories.js`

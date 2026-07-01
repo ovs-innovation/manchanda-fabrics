@@ -1,13 +1,13 @@
 /**
- * Seeds RASA fashion brands.
- * Usage: node backend/script/migrateRasaBrands.js
+ * Seeds Manchanda fashion brands.
+ * Usage: node backend/script/migrateManchandaBrands.js
  */
 require("../config/env");
 const mongoose = require("mongoose");
 const { connectDB } = require("../config/db");
 const Brand = require("../models/Brand");
 
-const RASA_BRANDS = [
+const MANCHANDA_BRANDS = [
   { name: { en: "Premium Sports" }, slug: "premium-sports", logo: "/brands/nike.svg" },
   { name: { en: "Urban Sports" }, slug: "urban-sports", logo: "/brands/adidas.svg" },
   {
@@ -31,7 +31,7 @@ const run = async () => {
   const deleted = await Brand.deleteMany({});
   console.log(`Cleared ${deleted.deletedCount} old brands.`);
 
-  for (const brand of RASA_BRANDS) {
+  for (const brand of MANCHANDA_BRANDS) {
     await Brand.create({
       name: brand.name,
       slug: brand.slug,

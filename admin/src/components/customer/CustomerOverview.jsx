@@ -60,7 +60,7 @@ const ActivityPieChart = ({ active, inactive }) => {
     datasets: [
       {
         data: [active, inactive],
-        backgroundColor: ['#3b82f6', '#ef4444'],
+        backgroundColor: ['#93614E', '#D5BBB4'],
         borderWidth: 0,
         hoverOffset: 4,
       },
@@ -133,17 +133,17 @@ const CustomerOverview = ({
         {/* New Sign Ups Card */}
         <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08),0_2px_8px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(15,23,42,0.12),0_8px_18px_rgba(15,23,42,0.06)] border border-gray-100/50 dark:border-gray-700/50 flex flex-col justify-between relative overflow-hidden group transition-all hover:scale-[1.02] duration-300">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500 shadow-sm border border-indigo-100/50 dark:border-indigo-800/30">
+            <div className="w-12 h-12 rounded-2xl bg-[#F5ECE8] dark:bg-indigo-900/20 flex items-center justify-center text-[#93614E] shadow-sm border border-[#E6D1CB]/40">
               <FiUserPlus size={22} strokeWidth={2.5} />
             </div>
             <div className="bg-gray-100/80 dark:bg-gray-700/50 p-1 rounded-xl flex">
               <button
                 onClick={() => setSignUpPeriod('today')}
-                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${signUpPeriod === 'today' ? 'bg-[#4338ca] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${signUpPeriod === 'today' ? 'bg-[#93614E] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >Today</button>
               <button
                 onClick={() => setSignUpPeriod('month')}
-                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${signUpPeriod === 'month' ? 'bg-[#4338ca] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${signUpPeriod === 'month' ? 'bg-[#93614E] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >This Month</button>
             </div>
           </div>
@@ -167,17 +167,17 @@ const CustomerOverview = ({
         {/* Active Customers Card */}
         <div className="bg-white dark:bg-gray-800 rounded-[24px] p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08),0_2px_8px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_rgba(15,23,42,0.12),0_8px_18px_rgba(15,23,42,0.06)] border border-gray-100/50 dark:border-gray-700/50 flex flex-col justify-between relative overflow-hidden group transition-all hover:scale-[1.02] duration-300">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500 shadow-sm border border-emerald-100/50 dark:border-emerald-800/30">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-emerald-900/20 flex items-center justify-center text-amber-600 shadow-sm border border-amber-100/50">
               <FiActivity size={22} strokeWidth={2.5} />
             </div>
             <div className="bg-gray-100/80 dark:bg-gray-700/50 p-1 rounded-xl flex">
               <button
                 onClick={() => setActiveCriteria('login')}
-                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${activeCriteria === 'login' ? 'bg-[#059669] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${activeCriteria === 'login' ? 'bg-[#93614E] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >Login</button>
               <button
                 onClick={() => setActiveCriteria('order')}
-                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${activeCriteria === 'order' ? 'bg-[#059669] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`text-[11px] font-bold px-4 py-1.5 rounded-lg transition-all ${activeCriteria === 'order' ? 'bg-[#93614E] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >Order</button>
             </div>
           </div>
@@ -190,14 +190,6 @@ const CustomerOverview = ({
             </h3>
           </div>
 
-          <div className="absolute right-6 bottom-6 flex items-end">
-            <div className="pulse-icon h-8 flex items-end gap-1">
-              <div className="w-1 bg-emerald-500 h-2 rounded-full animate-pulse"></div>
-              <div className="w-1 bg-emerald-400 h-5 rounded-full animate-pulse delay-75"></div>
-              <div className="w-1 bg-emerald-500 h-3 rounded-full animate-pulse delay-150"></div>
-              <div className="w-1 bg-emerald-400 h-6 rounded-full animate-pulse delay-200"></div>
-            </div>
-          </div>
         </div>
 
         {/* Inactive Customers Card */}

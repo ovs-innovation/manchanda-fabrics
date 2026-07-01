@@ -15,7 +15,7 @@ const run = async () => {
     customSet.setting.privacy_policy = {
       title: { en: "Privacy Policy" },
       description: { en: `<h2>1. Introduction</h2>
-<p>Welcome to RASA. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
+<p>Welcome to Manchanda Fabrics. We are committed to protecting your privacy and ensuring the security of your personal data.</p>
 <h2>2. Information We Collect</h2>
 <ul>
   <li><strong>Personal Details:</strong> Name, contact number, email, and delivery address.</li>
@@ -64,13 +64,13 @@ const run = async () => {
     customSet.setting.terms_conditions = {
       title: { en: "Terms & Conditions" },
       description: { en: `<h2>1. Agreement to Terms</h2>
-<p>By accessing or using the RASA platform, you agree to be bound by these terms. If you do not agree, please do not use our services.</p>
+<p>By accessing or using the Manchanda Fabrics platform, you agree to be bound by these terms. If you do not agree, please do not use our services.</p>
 <h2>2. Product Representation</h2>
 <p>We strive to display our products, colors, and sizing as accurately as possible. However, actual colors may vary slightly depending on your screen settings.</p>
 <h2>3. Authentication Guarantee</h2>
-<p>RASA guarantees the authenticity of all sneakers, bags, and accessories sold. Every product is carefully curated and verified prior to shipping.</p>
+<p>Manchanda Fabrics guarantees the authenticity of all fabrics and ethnic wear sold. Every product is carefully curated and verified prior to shipping.</p>
 <h2>4. Limitation of Liability</h2>
-<p>RASA shall not be liable for any indirect, incidental, or consequential damages arising out of your use of the website or purchased products.</p>` }
+<p>Manchanda Fabrics shall not be liable for any indirect, incidental, or consequential damages arising out of your use of the website or purchased products.</p>` }
     };
 
     customSet.markModified("setting");

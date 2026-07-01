@@ -48,7 +48,7 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
       if (route.routes) {
         const validSubRoutes = route.routes.filter((subRoute) => {
           const routeKey = subRoute.path?.split("?")[0].split("/")[1];
-          return effectiveAccessList.includes(routeKey) || subRoute.outside || true;
+          return effectiveAccessList.includes(routeKey) || subRoute.outside;
         });
 
         if (validSubRoutes.length > 0) {
@@ -64,20 +64,20 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
     .filter(Boolean);
 
   return (
-    <div className={`flex flex-col h-full py-4 text-store-700/70 dark:text-store-200/70 ${collapsed ? "items-center" : ""}`}>
-      <div className={`flex items-center ${collapsed ? "flex-col gap-3 px-2" : "justify-between px-6"} mb-2`}>
-        <a className="block text-store-800 dark:text-store-100 shrink-0" href="/dashboard">
+    <div className={`flex flex-col h-full ${collapsed ? "items-center px-2 py-4" : "px-3 py-4"}`}>
+      <div className={`flex items-center w-full ${collapsed ? "flex-col gap-2" : "justify-between gap-3 px-2 mb-1"}`}>
+        <a className="block shrink-0" href="/dashboard" title="Dashboard">
           <img
             src={ADMIN_BRAND_LOGO}
             alt={globalSetting?.company_name || "Manchanda Fabrics"}
-            className={`object-contain ${collapsed ? "h-14 w-14" : "h-24 w-auto max-w-[240px]"}`}
+            className={`object-contain ${collapsed ? "h-9 w-9" : "h-10 w-auto max-w-[170px]"}`}
           />
         </a>
         {onToggleCollapse && (
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg text-store-400 hover:text-store-500 hover:bg-store-100 dark:hover:bg-white/5 transition-colors"
+            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-lg text-store-500/70 hover:text-store-600 hover:bg-store-100 dark:hover:bg-white/5 transition-colors"
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <FiChevronsRight className="w-4 h-4" /> : <FiChevronsLeft className="w-4 h-4" />}
@@ -85,12 +85,18 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
         )}
       </div>
 
-      <ul className={`mt-4 flex-1 overflow-y-auto w-full space-y-0.5 ${collapsed ? "px-1" : ""}`}>
+      {!collapsed && (
+        <p className="px-3 mt-2 mb-3 text-[11px] font-medium text-store-500/70">
+          Manchanda Fabrics Admin
+        </p>
+      )}
+
+      <ul className={`flex-1 overflow-y-auto w-full space-y-1 ${collapsed ? "mt-2" : ""}`}>
         {updatedSidebar?.map((route) =>
           route.type === "title" ? (
             !collapsed && (
-              <li className="px-6 py-3 mt-3 first:mt-0" key={route.name}>
-                <span className="text-[10px] font-bold tracking-[0.12em] text-store-500/60 dark:text-store-300/50 uppercase">
+              <li className="px-3 pt-4 pb-1 first:pt-2" key={route.name}>
+                <span className="text-[11px] font-semibold tracking-wide text-store-500/60 uppercase">
                   {t(route.name)}
                 </span>
               </li>
@@ -103,29 +109,29 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
                 exact
                 to={route.path}
                 target={`${route?.outside ? "_blank" : "_self"}`}
-                className={`inline-flex items-center w-full text-sm font-semibold transition-all duration-150 rounded-xl hover:text-store-500 dark:hover:text-store-200 hover:bg-store-100/80 dark:hover:bg-white/5 ${
-                  collapsed ? "justify-center px-3 py-3.5 mx-1" : "px-6 py-3.5 mx-2"
+                className={`admin-nav-item inline-flex items-center w-full text-sm font-medium text-store-700/80 dark:text-store-200/80 hover:text-store-700 hover:bg-store-100/70 dark:hover:bg-white/5 ${
+                  collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"
                 }`}
-                activeClassName="text-store-600 dark:text-store-300 bg-store-100 dark:bg-store-800/60"
+                activeClassName="is-active font-semibold"
                 rel="noreferrer"
                 title={collapsed ? t(route.name) : undefined}
               >
-                <route.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
-                {!collapsed && <span className="ml-4">{t(route.name)}</span>}
+                <route.icon className="w-5 h-5 shrink-0" aria-hidden="true" />
+                {!collapsed && <span className="ml-3">{t(route.name)}</span>}
               </NavLink>
             </li>
           )
         )}
       </ul>
 
-      <span className={`block mt-4 ${collapsed ? "px-2" : "px-4"}`}>
-        <Button onClick={handleLogOut} size="large" className={`w-full ${collapsed ? "!px-2" : ""}`}>
-          <span className={`flex items-center ${collapsed ? "justify-center" : ""}`}>
-            <IoLogOutOutline className={`text-lg ${collapsed ? "" : "mr-3"}`} />
-            {!collapsed && <span className="text-sm">{t("LogOut")}</span>}
+      <div className={`mt-3 w-full ${collapsed ? "px-1" : "px-2"}`}>
+        <Button onClick={handleLogOut} size="small" layout="outline" className={`w-full !border-store-200 ${collapsed ? "!px-2" : ""}`}>
+          <span className={`flex items-center justify-center ${collapsed ? "" : "gap-2"}`}>
+            <IoLogOutOutline className="text-lg" />
+            {!collapsed && <span>{t("LogOut")}</span>}
           </span>
         </Button>
-      </span>
+      </div>
     </div>
   );
 };
