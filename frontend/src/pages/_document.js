@@ -18,7 +18,7 @@ class MyDocument extends Document {
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
             rel="stylesheet"
           />
           <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -40,6 +40,26 @@ class MyDocument extends Document {
               `,
             }}
           />
+          {process.env.NODE_ENV !== "production" && (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof window !== 'undefined') {
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        regs.forEach(function(r) { r.unregister(); });
+                      });
+                    }
+                    if ('caches' in window) {
+                      caches.keys().then(function(keys) {
+                        keys.forEach(function(k) { caches.delete(k); });
+                      });
+                    }
+                  }
+                `,
+              }}
+            />
+          )}
         </Head>
         <body className="bg-[#FAF7F5] text-[#3B2A25] antialiased">
           <Main />

@@ -50,8 +50,7 @@ const ProductCard = ({
       att?.title?.en?.toLowerCase() === "size"
   );
   const sizeAttrId = sizeAttribute?._id;
-  const hasSizeVariants =
-    product?.variants?.length > 0 && sizeAttrId;
+  const hasSizeVariants = product?.variants?.length > 0 && sizeAttrId;
 
   const activeItemId = product._id;
   const isItemInCart = inCart(activeItemId);
@@ -117,6 +116,15 @@ const ProductCard = ({
   const primaryImg = product.featuredImage || product.image?.[0];
   const hoverImg = product.hoverImage || product.image?.[1];
 
+  // Dynamic luxury status badge
+  const getBadgeText = () => {
+    if (product.tags?.includes("best-seller") || product.tag?.includes("best-seller")) return "Best Seller";
+    if (product.tags?.includes("new-arrival") || product.tag?.includes("new-arrival") || product.tag?.includes("new")) return "New";
+    if (product.stock < 5 && product.stock > 0) return "Limited";
+    return null;
+  };
+  const badgeText = getBadgeText();
+
   return (
     <>
       {modalOpen && (
@@ -129,94 +137,104 @@ const ProductCard = ({
         />
       )}
 
-      <article className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-[#E8E0DC] bg-white transition-shadow hover:shadow-md">
-        {/* Image */}
+      <article className="group flex h-full w-full flex-col overflow-hidden rounded-none border border-neutral-100 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        {/* Image Container */}
         <div
           onClick={goToProduct}
-          className="relative aspect-[4/5] w-full cursor-pointer overflow-hidden bg-[#F7F3F1]"
+          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden bg-[#FAF8F4]"
         >
           {isSoldOut && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-              <span className="rounded bg-[#3B2A25] px-3 py-1 text-[11px] font-medium text-white">
+              <span className="bg-[#222222] px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                 Sold Out
               </span>
             </div>
           )}
 
-          {!hideDiscount && hasSale && (
-            <span className="absolute left-2 top-2 z-20 rounded bg-[#9C6A5A] px-2 py-0.5 text-[10px] font-medium text-white">
-              {discountPercent}% OFF
+          {/* Luxury Badge */}
+          {badgeText && !isSoldOut && (
+            <span className="absolute left-3 top-3 z-20 bg-[#B08D57] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-white">
+              {badgeText}
             </span>
           )}
 
+          {/* Wishlist Button */}
           {!hideWishlistCompare && (
             <button
               type="button"
               onClick={handleAddToWishlist}
               id={`wishlist-${product._id}`}
               aria-label="Add to wishlist"
-              className={`absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
-                wishlistActive
-                  ? "border-[#9C6A5A] bg-[#9C6A5A] text-white"
-                  : "border-[#E8E0DC] bg-white text-[#3B2A25] hover:border-[#9C6A5A]"
-              }`}
+              className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm border border-neutral-100 text-[#222222] hover:text-[#B08D57] transition-all active:scale-95 duration-200"
             >
-              <FiHeart className={`h-3.5 w-3.5 ${wishlistActive ? "fill-white" : ""}`} />
+              <FiHeart className={`h-4.5 w-4.5 ${wishlistActive ? "fill-[#B08D57] text-[#B08D57]" : ""}`} />
             </button>
           )}
 
+          {/* Product Image Swap */}
           {primaryImg ? (
-            <>
+            <div className="w-full h-full relative">
               <img
                 src={primaryImg}
                 alt={title}
-                className={`h-full w-full object-cover object-top transition duration-500 ${
-                  hoverImg ? "group-hover:opacity-0" : "group-hover:scale-[1.03]"
+                className={`h-full w-full object-cover object-top transition duration-700 ease-in-out ${
+                  hoverImg ? "group-hover:opacity-0" : "group-hover:scale-105"
                 }`}
               />
               {hoverImg && (
                 <img
                   src={hoverImg}
                   alt={title}
-                  className="absolute inset-0 h-full w-full object-cover object-top opacity-0 transition duration-500 group-hover:opacity-100"
+                  className="absolute inset-0 h-full w-full object-cover object-top opacity-0 transition duration-700 ease-in-out group-hover:opacity-100 group-hover:scale-105"
                 />
               )}
-            </>
+            </div>
           ) : (
-            <Image src="/placeholder.png" fill className="object-cover" alt="product" />
+            <Image src="/placeholder.png" fill className="object-cover" alt="product placeholder" />
           )}
         </div>
 
-        {/* Details */}
-        <div className="flex flex-1 flex-col gap-2 p-3 font-sans">
+        {/* Details Wrapper */}
+        <div className="flex flex-1 flex-col gap-2 p-4 font-sans text-left bg-white">
           <h3
             onClick={goToProduct}
             title={title}
-            className="cursor-pointer text-[13px] font-normal leading-snug text-[#3B2A25] line-clamp-2 hover:text-[#9C6A5A]"
+            className="cursor-pointer text-xs font-semibold leading-normal text-[#222222] line-clamp-2 hover:text-[#B08D57] tracking-wide transition-colors uppercase h-8"
           >
             {title}
           </h3>
 
-          {!hidePriceAndAdd && (
-            <div className="flex items-baseline gap-2">
-              <span className="text-[15px] font-semibold tabular-nums text-[#3B2A25] font-price">
-                {currency}{formatCardPrice(currentPrice)}
-              </span>
-              {hasSale && (
-                <span className="text-xs tabular-nums text-[#8A7A74] line-through font-price">
-                  {currency}{formatCardPrice(originalPriceValue)}
+          <div className="flex items-center justify-between mt-1">
+            {/* Price Display */}
+            {!hidePriceAndAdd && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-[14px] font-bold tabular-nums text-[#222222]">
+                  {currency}{formatCardPrice(currentPrice)}
                 </span>
-              )}
-            </div>
-          )}
+                {hasSale && (
+                  <span className="text-[11px] tabular-nums text-[#666666] line-through">
+                    {currency}{formatCardPrice(originalPriceValue)}
+                  </span>
+                )}
+              </div>
+            )}
+            
+            {/* Discount Badge */}
+            {hasSale && !hideDiscount && (
+              <span className="text-[9px] font-bold text-[#592523] uppercase tracking-wider bg-[#592523]/5 px-2 py-0.5">
+                {discountPercent}% Off
+              </span>
+            )}
+          </div>
 
+          {/* Quick Add CTA Button */}
           {!hidePriceAndAdd && (
-            <div className="mt-auto pt-1">
+            <div className="mt-2">
               {isSoldOut ? (
                 <button
                   type="button"
                   disabled
-                  className="flex h-9 w-full items-center justify-center rounded-md border border-[#E8E0DC] bg-[#FAF7F5] text-xs font-medium text-[#8A7A74]"
+                  className="flex h-10 w-full items-center justify-center border border-neutral-100 bg-[#FAF8F4] text-[10px] font-bold uppercase tracking-wider text-[#666666] cursor-not-allowed"
                 >
                   Out of Stock
                 </button>
@@ -225,25 +243,25 @@ const ProductCard = ({
                   const item = getItem(activeItemId);
                   return (
                     item && (
-                      <div className="flex h-9 w-full items-center justify-between rounded-md border border-[#E8E0DC] px-3 text-sm">
+                      <div className="flex h-10 w-full items-center justify-between border border-neutral-200 px-3 text-xs bg-white">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             updateItemQuantity(item.id, item.quantity - 1);
                           }}
-                          className="text-[#3B2A25] hover:text-[#9C6A5A]"
+                          className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
                         >
                           <IoRemove />
                         </button>
-                        <span className="text-sm font-medium text-[#3B2A25]">{item.quantity}</span>
+                        <span className="font-bold text-[#222222]">{item.quantity}</span>
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleIncreaseQuantity({ ...item, stock: product.stock });
                           }}
-                          className="text-[#3B2A25] hover:text-[#9C6A5A]"
+                          className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
                         >
                           <IoAdd />
                         </button>
@@ -255,7 +273,7 @@ const ProductCard = ({
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-[#9C6A5A] text-xs font-medium text-white transition-colors hover:bg-[#7A4D3C]"
+                  className="flex h-10 w-full items-center justify-center gap-2 bg-[#592523] text-[10px] font-bold uppercase tracking-widest text-white transition-colors duration-300 hover:bg-[#401817]"
                 >
                   <FiShoppingBag className="h-3.5 w-3.5" />
                   {hasSizeVariants ? "Select Size" : "Add to Bag"}

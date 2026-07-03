@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 
-/** Legacy route — same phone login as /auth/login */
+/** Legacy route — redirecting to login */
 const OTPLoginRedirect = () => {
   const router = useRouter();
 
@@ -15,7 +15,11 @@ const OTPLoginRedirect = () => {
     router.replace(`/auth/login${suffix}`);
   }, [router.isReady, router.query]);
 
-  return null;
+  return (
+    <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center font-sans">
+      <span className="text-xs tracking-widest text-[#B08D57] uppercase">Redirecting...</span>
+    </div>
+  );
 };
 
 export default OTPLoginRedirect;

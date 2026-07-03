@@ -21,15 +21,21 @@ module.exports = {
 
   theme: {
     fontFamily: {
-      sans: ["Inter", "Manrope", "sans-serif"],
+      sans: ["Poppins", "sans-serif"],
       serif: ["Cormorant Garamond", "serif"],
-      title: ["Cormorant Garamond", "serif"],
-      playfair: ["Playfair Display", "serif"],
-      micro: ["Inter", "sans-serif"],
-      DejaVu: ["DejaVu Sans", "Arial", "sans-serif"],
     },
     extend: {
       colors: {
+        cream: "#FFF7E6",
+        ivory: "#FFFAF0",
+        softWhite: "#FDFDFD",
+        warmBeige: "#F5E6D3",
+        goldAccent: "#B08D57",
+        luxuryBg: "#FAF8F4",
+        luxuryText: "#222222",
+        luxurySecondary: "#666666",
+        luxuryBorder: "rgba(0,0,0,0.08)",
+        luxuryButton: "#592523",
         store: {
           50: "var(--store-color-50)",
           100: "var(--store-color-100)",

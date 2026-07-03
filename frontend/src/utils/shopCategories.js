@@ -99,6 +99,16 @@ export const SHOP_CATEGORIES = [
     slug: "modal",
     image: traditionalPhoto("cottonFabric", 500, 640),
   },
+  {
+    title: "Crush Tissue",
+    slug: "crush-tissue",
+    image: traditionalPhoto("festiveSuitRed", 500, 640),
+  },
+  {
+    title: "Pakistani Style Suits",
+    slug: "pakistani-style-suits",
+    image: traditionalPhoto("anarkaliSuit", 500, 640),
+  },
 ];
 
 export const mergeCategoryBanners = (adminBanners = []) => {

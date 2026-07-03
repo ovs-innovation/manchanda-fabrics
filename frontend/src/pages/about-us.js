@@ -30,7 +30,7 @@ const AboutUs = () => {
             {/* Left Column: Copy */}
             <div className="lg:col-span-5 space-y-6 text-left">
               <span className="text-[#9C6A5A] text-xs font-bold uppercase tracking-[0.25em] block font-sans">
-                ABOUT MANCHANDA
+                ABOUT MANCHANDA FABRICS
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight leading-[1.05] text-[#3B2A25]">
                 {heroTitle}

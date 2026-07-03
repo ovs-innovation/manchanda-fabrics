@@ -50,18 +50,6 @@ export const HOME_CATEGORY_CARDS = [
 
 export const HOME_FESTIVALS = [
   {
-    name: "Wedding",
-    slug: "party-wear-suits",
-    tag: "Royal Splendor",
-    bg: LOCAL_BANNERS.bangaloriSilk,
-  },
-  {
-    name: "Reception",
-    slug: "party-wear-suits",
-    tag: "Evening Glitz",
-    bg: LOCAL_BANNERS.gajiSilk,
-  },
-  {
     name: "Haldi",
     slug: "cotton-suits",
     tag: "Bright Marigold",
@@ -74,22 +62,22 @@ export const HOME_FESTIVALS = [
     bg: LOCAL_BANNERS.appliqueSuit,
   },
   {
-    name: "Diwali",
-    slug: "party-wear-suits",
-    tag: "Festive Sparkle",
+    name: "Wedding",
+    slug: "party-wear",
+    tag: "Royal Splendor",
+    bg: LOCAL_BANNERS.bangaloriSilk,
+  },
+  {
+    name: "Reception",
+    slug: "party-wear",
+    tag: "Evening Glitz",
+    bg: LOCAL_BANNERS.gajiSilk,
+  },
+  {
+    name: "Party Wear",
+    slug: "party-wear",
+    tag: "Celebration Glam",
     bg: traditionalPhoto("festiveSuitRed", 500, 700),
-  },
-  {
-    name: "Karwa Chauth",
-    slug: "kanjivaram-silk",
-    tag: "Traditional Grace",
-    bg: traditionalPhoto("embroideredSuit", 500, 700),
-  },
-  {
-    name: "Raksha Bandhan",
-    slug: "cotton-suits",
-    tag: "Sibling Love",
-    bg: traditionalPhoto("anarkaliSuit", 500, 700),
   },
 ];
 

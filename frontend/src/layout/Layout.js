@@ -10,6 +10,8 @@ import useGetSetting from "@hooks/useGetSetting";
 import useCartSync from "@hooks/useCartSync";
 import { pickBrandLogo } from "@utils/brandAssets";
 
+import { useRouter } from "next/router";
+
 const MobileNavbar = dynamic(() => import("@layout/navbar/MobileNavbar"), {
   ssr: false,
 });
@@ -21,6 +23,29 @@ const FloatingWhatsApp = dynamic(
 
 const Layout = ({ title, description, children, hideMobileHeader }) => {
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
+  const router = useRouter();
+  const isHome = router.pathname === "/";
+  const [scrolled, setScrolled] = React.useState(false);
+  const [visible, setVisible] = React.useState(true);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = window.scrollY;
+      setScrolled(currentScroll > 80);
+      
+      // Hide on scroll down, show on scroll up
+      if (currentScroll > lastScrollY && currentScroll > 82) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      setLastScrollY(currentScroll);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   useCartSync();
 
@@ -75,13 +100,13 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
 
         <div
           id="site-header"
-          className="hidden lg:block sticky top-0 z-[70] bg-[#FAF7F5] border-b border-[#E6D1CB] shadow-sm"
+          style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
+          className="hidden lg:block fixed top-0 left-0 w-full z-50 transition-transform duration-400 ease-in-out h-[90px] bg-white border-b border-black/8 text-[#111111]"
         >
-          <NavBarTop />
           <Navbar />
         </div>
 
-        <main>{children}</main>
+        <main className="pt-[90px]">{children}</main>
 
         <Footer />
         <FloatingWhatsApp />

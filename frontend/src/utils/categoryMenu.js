@@ -55,25 +55,41 @@ export const buildMobileCategoryMenu = (categories, showingTranslateValue) => {
   const flat = flattenCategories(categories);
   if (!flat.length) return [];
 
-  const PARENT_KEYS = ["sarees", "suits", "fabrics"];
+  const allowedSlugs = [
+    "cotton-suits",
+    "gaji-silk",
+    "kanjivaram-silk",
+    "party-wear",
+    "mul-cotton",
+    "bangalori-silk-pure",
+    "muslin",
+    "kota-doria",
+    "bandhani",
+    "batik",
+    "georgette",
+    "organza",
+    "crepe",
+    "jamdani-cotton",
+    "linen-cotton",
+    "glace-cotton",
+    "modal",
+    "applique-work",
+    "crush-tissue",
+    "pakistani-style-suits"
+  ];
 
-  const menu = PARENT_KEYS.map((key) => {
-    const parent = flat.find((cat) => {
-      const slug = getCategorySlug(cat, showingTranslateValue);
-      const pid = String(cat.parentId || "").toLowerCase();
-      return slug === key && (pid === "root" || !pid || cat.parentName === "Home");
-    }) || flat.find((cat) => getCategorySlug(cat, showingTranslateValue) === key);
+  // Filter categories whose slug is allowed
+  const filtered = flat.filter((cat) => {
+    const slug = getCategorySlug(cat, showingTranslateValue);
+    return allowedSlugs.includes(slug);
+  });
 
-    if (!parent) return null;
-
-    const nestedChildren = Array.isArray(parent.children) ? parent.children : [];
-    const children =
-      nestedChildren.length > 0
-        ? nestedChildren
-        : flat.filter((cat) => childBelongsToParent(cat, parent, key, showingTranslateValue));
-
+  // Map children properly
+  return filtered.map((parent) => {
+    const children = (parent.children || []).filter((child) => {
+      const childSlug = getCategorySlug(child, showingTranslateValue);
+      return allowedSlugs.includes(childSlug);
+    });
     return { ...parent, children };
-  }).filter(Boolean);
-
-  return menu;
+  });
 };

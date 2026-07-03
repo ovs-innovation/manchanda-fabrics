@@ -915,19 +915,11 @@ const Checkout = () => {
                                 required: "Payment Method is required!",
                               })}
                               className="w-full px-2 py-1 pr-8 bg-transparent border-none focus:ring-0 focus:outline-none text-sm font-medium text-[#9C6A5A] cursor-pointer appearance-none"
-                              defaultValue=""
+                              defaultValue="RazorPay"
                             >
-                              <option value="" disabled>
-                                Pay using
-                              </option>
-                              {storeSetting?.cod_status && (
-                                <option value="Cash">
-                                  Cash on Delivery
-                                </option>
-                              )}
                               {storeSetting?.razorpay_status && (
                                 <option value="RazorPay">
-                                  UPI / RazorPay
+                                  UPI / Online Payment (RazorPay)
                                 </option>
                               )}
                             </select>

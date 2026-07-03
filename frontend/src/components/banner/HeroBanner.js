@@ -1,202 +1,128 @@
 import React from "react";
 import Link from "next/link";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { IoChevronForward } from "react-icons/io5";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
+import { motion } from "framer-motion";
+import { FaWhatsapp } from "react-icons/fa";
+import useGetSetting from "@hooks/useGetSetting";
 
-import { LOCAL_BANNERS, traditionalPhoto } from "@utils/traditionalImagery";
+const HeroBanner = () => {
+  const { storeCustomizationSetting } = useGetSetting();
+  const whatsappNumber =
+    storeCustomizationSetting?.footer?.social_whatsapp || "919240250346";
 
-const HeroBanner = ({ slides: dynamicSlides }) => {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const defaultSlides = [
-    {
-      style: "layout-left-framed",
-      badge: "Straight Suit Sets",
-      title: "Gaji Silk Suit Collection",
-      subtitle: "Biba-inspired straight kurta sets with rich silk weaves, zari borders & graceful dupattas.",
-      highlight: "Festive • Pure Silk Suits",
-      btnText: "Shop Gaji Silk Suits",
-      btnLink: "/search?category=gaji-silk",
-      bgImage: LOCAL_BANNERS.gajiSilk,
-    },
-    {
-      style: "layout-right-split",
-      badge: "Wedding Edit",
-      title: "Bangalori Silk Suit Sets",
-      subtitle: "Embroidered salwar suits with premium resham work — perfect for receptions & celebrations.",
-      highlight: "Heritage Ethnic Wear",
-      btnText: "Explore Silk Suits",
-      btnLink: "/search?category=bangalori-silk-pure",
-      bgImage: LOCAL_BANNERS.bangaloriSilk,
-    },
-    {
-      style: "layout-center-minimal",
-      badge: "Artisan Craft",
-      title: "Applique Work Suit Sets",
-      subtitle: "Handcrafted applique on cotton-silk suits — traditional elegance for mehendi & festivals.",
-      highlight: "Limited Edition Suits",
-      btnText: "Shop Applique Suits",
-      btnLink: "/search?category=applique-work",
-      bgImage: LOCAL_BANNERS.appliqueSuit,
-    },
-    {
-      style: "layout-offset-box",
-      badge: "Daily Elegance",
-      title: "Mul Cotton Suit Fabrics",
-      subtitle: "Soft pastel suit fabrics in handblock prints — breathable comfort for everyday ethnic style.",
-      highlight: "Summer Suit Edit",
-      btnText: "Browse Cotton Suits",
-      btnLink: "/search?category=mul-cotton",
-      bgImage: LOCAL_BANNERS.mulCotton,
-    },
-  ];
-
-  let slides = [];
-  if (dynamicSlides && dynamicSlides.length > 0) {
-    slides = dynamicSlides.map((s, idx) => {
-      const fallback = defaultSlides[idx % defaultSlides.length];
-      return {
-        style: s.style || fallback.style,
-        badge: s.badge || fallback.badge,
-        title: s.title || fallback.title,
-        subtitle: s.subtitle || fallback.subtitle,
-        highlight: s.highlight || fallback.highlight,
-        btnText: s.btnText || fallback.btnText,
-        btnLink: s.link || s.btnLink || fallback.btnLink,
-        bgImage: s.image || s.bgImage || fallback.bgImage || traditionalPhoto("straightSuit", 1600),
-      };
-    });
-  } else {
-    slides = defaultSlides;
-  }
-
-  if (!mounted) {
-    return (
-      <div
-        id="hero-section"
-        className="relative w-full h-[min(72vh,420px)] sm:h-[480px] md:h-[540px] lg:h-[600px] bg-[#FAF7F5] font-sans hero-slider-container animate-pulse"
-      />
-    );
-  }
+  const waLink = `https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
+    "Hello Manchanda Fabrics, I would like to place an order."
+  )}`;
 
   return (
     <div
       id="hero-section"
-      className="relative w-full h-[min(72vh,420px)] sm:h-[480px] md:h-[540px] lg:h-[600px] bg-[#FAF7F5] font-sans group hero-slider-container"
+      className="relative w-full h-screen min-h-[600px] bg-[#111111] overflow-hidden flex items-center"
     >
-      <Swiper
-        modules={[Autoplay, Pagination, Navigation, EffectFade]}
-        
-        spaceBetween={0}
-        slidesPerView={1}
-        loop={slides.length >= 2}
-        pagination={{ clickable: true, el: ".swiper-pagination-custom" }}
-        navigation={{
-          nextEl: ".swiper-button-next-custom",
-          prevEl: ".swiper-button-prev-custom",
-        }}
-        autoplay={{ delay: 6500, disableOnInteraction: false }}
-        className="h-full w-full"
+      {/* ── Background Video ── */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-80"
       >
-        {slides.map((slide, index) => {
-          let alignmentClass = "justify-start text-left";
-          let overlayClass = "absolute inset-0 bg-black/45 lg:bg-gradient-to-r lg:from-black/70 lg:via-black/40 lg:to-transparent z-0";
-          
-          if (slide.style === "layout-right-split") {
-            alignmentClass = "justify-end text-right";
-            overlayClass = "absolute inset-0 bg-black/45 lg:bg-gradient-to-l lg:from-black/70 lg:via-black/40 lg:to-transparent z-0";
-          } else if (slide.style === "layout-center-minimal") {
-            alignmentClass = "justify-center text-center";
-            overlayClass = "absolute inset-0 bg-black/50 z-0";
-          }
+        <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+      </video>
 
-          return (
-            <SwiperSlide key={index} className="h-full w-full relative">
-              {/* Background Image */}
-              <div className="absolute inset-0 z-0">
-                <img
-                  src={slide.bgImage}
-                  alt={slide.title}
-                  className="w-full h-full object-cover object-[center_35%]"
-                />
-                {/* Dark Gradient Overlay for high text readability */}
-                <div className={overlayClass} />
-              </div>
-              
-              {/* Flat Typographic Content (No Cards, No Borders) */}
-              <div className={`absolute inset-0 max-w-screen-2xl mx-auto px-4 sm:px-10 lg:px-16 flex items-center z-10 text-white ${alignmentClass}`}>
-                <div className="w-full max-w-xl space-y-3 sm:space-y-4">
-                  <span className="inline-block text-[9px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[#E6D1CB]">
-                    {slide.badge}
-                  </span>
-                  
-                  <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-light tracking-tight leading-[1.15] text-white">
-                    {slide.title}
-                  </h2>
-                  
-                  <p className="text-xs sm:text-sm md:text-base text-neutral-200/90 font-light leading-relaxed max-w-lg mx-auto lg:mx-0 line-clamp-3 sm:line-clamp-none">
-                    {slide.subtitle}
-                  </p>
-                  
-                  <div className={`flex items-center gap-2 ${slide.style === "layout-center-minimal" ? "justify-center" : slide.style === "layout-right-split" ? "justify-end" : "justify-start"}`}>
-                    <span className="h-[1px] w-6 bg-[#E6D1CB]" />
-                    <span className="text-[10px] sm:text-xs font-bold tracking-wider text-[#E6D1CB] uppercase">
-                      {slide.highlight}
-                    </span>
-                  </div>
-                  
-                  <div className="pt-1 sm:pt-2">
-                    <Link
-                      href={slide.btnLink}
-                      className="inline-flex items-center gap-2 px-5 sm:px-8 py-2.5 sm:py-3.5 bg-[#9C6A5A] hover:bg-[#6F4A3D] text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 rounded shadow-md"
-                    >
-                      <span>{slide.btnText}</span>
-                      <IoChevronForward className="text-xs" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-          );
-        })}
-      </Swiper>
+      {/* ── Cinematic Gradient Overlay ── */}
+      <div className="absolute inset-0 z-[1]"
+        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.42) 55%, rgba(0,0,0,0.15) 100%)" }}
+      />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-      {/* Navigation Buttons (Biba Style layout arrows) */}
-      <button className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/40 hover:bg-white text-[#3B2A25] flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hidden md:flex shadow-md">
-        <FiChevronLeft className="text-xl" />
-      </button>
-      <button className="swiper-button-next-custom absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/40 hover:bg-white text-[#3B2A25] flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hidden md:flex shadow-md">
-        <FiChevronRight className="text-xl" />
-      </button>
+      {/* ── Content ── */}
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-8 sm:px-14 lg:px-20 w-full text-white">
+        <div className="max-w-2xl space-y-7">
 
-      {/* Custom pagination — always visible on mobile */}
-      <div className="swiper-pagination-custom absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2" />
+          {/* Established label */}
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+            className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-[#C8A45D]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            <span className="w-8 h-[1px] bg-[#C8A45D]" />
+            Established 1995
+            <span className="w-8 h-[1px] bg-[#C8A45D]" />
+          </motion.span>
 
-      <style jsx global>{`
-        .hero-slider-container .swiper-pagination-custom .swiper-pagination-bullet {
-          width: 8px;
-          height: 8px;
-          background: #ffffff !important;
-          opacity: 0.4 !important;
-          border-radius: 50%;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .hero-slider-container .swiper-pagination-custom .swiper-pagination-bullet-active {
-          width: 24px;
-          background: #ffffff !important;
-          opacity: 1 !important;
-          border-radius: 4px;
-        }
-      `}</style>
+          {/* Main heading */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
+            className="text-5xl sm:text-7xl lg:text-8xl font-light leading-[1.1] tracking-wide text-white"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            Timeless Heritage
+            <br />
+            <em className="not-italic font-normal text-[#F5E6C8]">Ethnic Luxury</em>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.45 }}
+            className="text-[15px] sm:text-lg text-neutral-300 font-light max-w-lg leading-relaxed"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            Handcrafted Banarasi Silk, Gaji Silk and premium cotton salwar suits
+            designed for weddings, festivals and timeless celebrations.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.65 }}
+            className="flex flex-col sm:flex-row gap-4 pt-2"
+          >
+            <Link
+              href="/search"
+              className="inline-flex items-center justify-center px-9 py-4 bg-[#C8A45D] text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-[#a8833d] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              Shop Collection
+            </Link>
+
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2.5 px-9 py-4 border border-white/60 text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white transition-all duration-300 backdrop-blur-sm"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              <FaWhatsapp className="w-4 h-4 text-[#25D366]" />
+              WhatsApp Order
+            </a>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Scroll Indicator ── */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 z-10">
+        <span
+          className="text-[9px] uppercase tracking-[0.3em] text-white font-light"
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
+        >
+          Scroll
+        </span>
+        <div className="w-[1px] h-10 bg-white/40 relative overflow-hidden">
+          <motion.div
+            animate={{ y: ["-100%", "100%"] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+            className="absolute top-0 left-0 w-full h-1/2 bg-[#C8A45D]"
+          />
+        </div>
+      </div>
     </div>
   );
 };

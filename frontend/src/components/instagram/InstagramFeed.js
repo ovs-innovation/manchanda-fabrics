@@ -1,209 +1,148 @@
-import React, { useState } from "react";
-import { FaInstagram, FaHeart, FaRegHeart, FaRegComment, FaRegBookmark, FaBookmark } from "react-icons/fa";
-import { FiSend, FiMoreHorizontal } from "react-icons/fi";
-import { INSTAGRAM_FALLBACK } from "@utils/traditionalImagery";
+import React from "react";
+import { FaInstagram } from "react-icons/fa";
 
-const INSTAGRAM_HANDLE = "manchandafabrics";
-const PROFILE_PICTURE = "/logo/logo.png";
+/*
+  CAROUSEL FIX NOTES:
+  - Each card slot = CARD_W + CARD_GAP = 190 + 16 = 206px
+  - 8 cards per set × 206px = 1648px — fills any screen up to 1920px
+  - We render 2 full sets (16 cards) so translateX(-50%) = exactly one set
+  - Using marginRight on each card (NOT gap on parent) so the -50% math is exact
+*/
 
-const InstagramFeed = ({ posts = [] }) => {
-  const [likedPosts, setLikedPosts] = useState({});
-  const [bookmarkedPosts, setBookmarkedPosts] = useState({});
+const CARD_W = 190;    // px — card content width
+const CARD_GAP = 16;   // px — right margin on each card
+const SLOT = CARD_W + CARD_GAP; // 206px per slot
 
-  const displayPosts = (posts || [])
-    .filter((post) => post?.image)
-    .map((post, idx) => ({
-      id: post.id || `ig-${idx}`,
-      image: post.image,
-      link: post.url || post.link || `https://www.instagram.com/${INSTAGRAM_HANDLE}`,
-      likes: post.likes || "",
-      location: post.location || "",
-      caption: post.caption || "",
-      timeAgo: post.timeAgo || "",
-    }));
+const BASE_REELS = [
+  { id: 1, video: "/R1.mp4", title: "Heritage Weaves",   desc: "Intricate detailing on premium silk dupattas." },
+  { id: 2, video: "/R2.mp4", title: "Timeless Elegance", desc: "Designed for wedding trousseaus and trousseaux." },
+  { id: 3, video: "/R3.mp4", title: "Festive Vibes",     desc: "Bright Haldi & Mehendi colour stories." },
+  { id: 4, video: "/R1.mp4", title: "Bridal Couture",    desc: "Curated for the modern Indian bride." },
+  { id: 5, video: "/R2.mp4", title: "Silk Stories",      desc: "Premium Banarasi & Kanjivaram weaves." },
+  { id: 6, video: "/R3.mp4", title: "Occasion Wear",     desc: "From festivals to family celebrations." },
+  { id: 7, video: "/R1.mp4", title: "Royal Splendor",    desc: "Zari work that commands attention." },
+  { id: 8, video: "/R2.mp4", title: "Handloom Grace",    desc: "Artisan-crafted beauty, thread by thread." },
+];
 
-  if (!displayPosts.length) return null;
+// Duplicate for seamless infinite loop — track = 2× set width
+const TRACK_REELS = [...BASE_REELS, ...BASE_REELS];
 
-  const toggleLike = (id) => {
-    setLikedPosts((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const toggleBookmark = (id) => {
-    setBookmarkedPosts((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
+const InstagramFeed = () => {
   return (
-    <div className="bg-[#FAF7F5] py-20 border-t border-[#E6D1CB] relative overflow-hidden">
-      {/* Background Soft Glows for Ambient Lighting */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] bg-[#9C6A5A]/5" />
-        <div className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] rounded-full blur-[150px] bg-[#E6D1CB]/10" />
+    <section className="py-20 sm:py-24 bg-[#F9F6F1] overflow-hidden">
+
+      {/* ── Header (constrained) ── */}
+      <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+        <div className="text-center mb-14">
+          <span
+            className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] mb-4"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            <FaInstagram className="w-3.5 h-3.5" />
+            @manchandafabrics
+          </span>
+          <h2
+            className="text-4xl sm:text-5xl font-light text-[#111111] mb-4"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            Instagram Reels
+          </h2>
+          <div className="w-12 h-[1.5px] bg-[#C8A45D] mx-auto mb-5" />
+          <p
+            className="text-[14px] text-[#7A7A7A] font-light max-w-md mx-auto mb-7"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            Follow our latest ethnic fashion inspiration.
+          </p>
+          <a
+            href="https://instagram.com/manchandafabrics"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-7 py-3 border border-[#C8A45D] text-[#C8A45D] text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-[#C8A45D] hover:text-white transition-all duration-300 rounded-full"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            <FaInstagram className="w-4 h-4" />
+            Follow on Instagram
+          </a>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
-        
-        {/* Section Title Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
-          <div className="space-y-4 text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E6D1CB] rounded-full shadow-sm">
-              <FaInstagram className="text-xs text-[#9C6A5A]" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#9C6A5A]">
-                @{INSTAGRAM_HANDLE}
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-serif font-light text-[#3B2A25] leading-none">
-              From Our Instagram
-            </h2>
-            <p className="text-[#3B2A25]/60 text-xs font-semibold uppercase tracking-wider">
-              Explore featured styling and daily inspiration straight from our feed
-            </p>
-          </div>
-
-          <div className="mt-6 md:mt-0">
-            <a
-              href={`https://www.instagram.com/${INSTAGRAM_HANDLE}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#9C6A5A] text-white font-extrabold text-[10px] uppercase tracking-widest rounded-md hover:bg-[#6F4A3D] transition-all duration-300 shadow-md hover:scale-105 active:scale-95 pointer-events-auto"
+      {/* ── Full-viewport Infinite Carousel ── */}
+      <div
+        style={{ overflow: "hidden", width: "100%" }}
+      >
+        {/* The track: exactly 2× set width, animation moves -50% = one full set */}
+        <div
+          style={{
+            display: "flex",
+            width: `${SLOT * TRACK_REELS.length}px`,
+            animation: "marquee 36s linear infinite",
+            willChange: "transform",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
+        >
+          {TRACK_REELS.map((reel, idx) => (
+            <div
+              key={idx}
+              style={{
+                width: `${CARD_W}px`,
+                marginRight: `${CARD_GAP}px`,
+                flexShrink: 0,
+              }}
             >
-              <span>Follow Us</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Instagram Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 max-w-5xl mx-auto">
-          {displayPosts.map((post) => {
-            const isLiked = !!likedPosts[post.id];
-            const isBookmarked = !!bookmarkedPosts[post.id];
-
-            return (
+              {/* 9:16 portrait card */}
               <div
-                key={post.id}
-                className="bg-white border border-[#E6D1CB]/50 hover:border-[#9C6A5A]/30 rounded-2xl overflow-hidden flex flex-col justify-between shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2 group"
+                className="relative overflow-hidden rounded-2xl shadow-lg group"
+                style={{ aspectRatio: "9/16", background: "#0a0a0a" }}
               >
-                {/* 1. POST HEADER */}
-                <div className="flex items-center justify-between p-4 border-b border-[#E6D1CB]/30 bg-[#FAF7F5]/50">
-                  <div className="flex items-center gap-3">
-                    {/* Profile Avatar */}
-                    <div className="w-9 h-9 rounded-full overflow-hidden border border-[#E6D1CB] bg-[#FAF7F5] shrink-0 p-[1.5px]">
-                      <img
-                        src={PROFILE_PICTURE}
-                        alt="Profile"
-                        className="w-full h-full object-cover rounded-full"
-                        onError={(e) => {
-                          e.target.src = INSTAGRAM_FALLBACK;
-                        }}
-                      />
-                    </div>
-                    
-                    {/* Username, Location & Badge */}
-                    <div className="flex flex-col text-left">
-                      <div className="flex items-center gap-1">
-                        <a
-                          href={post.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-bold text-[#3B2A25] hover:underline tracking-tight"
-                        >
-                          {INSTAGRAM_HANDLE}
-                        </a>
-                      </div>
-                      <span className="text-[9px] font-medium text-[#3B2A25]/50 tracking-wide">
-                        {post.location}
-                      </span>
-                    </div>
-                  </div>
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                >
+                  <source src={reel.video} type="video/mp4" />
+                </video>
 
-                  <button className="text-[#3B2A25]/50 hover:text-[#3B2A25] transition-colors duration-300">
-                    <FiMoreHorizontal className="text-lg" />
-                  </button>
+                {/* Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+                {/* Instagram icon */}
+                <div className="absolute top-3 right-3 text-white/60">
+                  <FaInstagram className="w-4 h-4" />
                 </div>
 
-                {/* 2. POST IMAGE */}
-                <a
-                  href={post.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative aspect-square block bg-black overflow-hidden"
-                >
-                  <img
-                    src={post.image}
-                    alt={`Instagram Post by ${INSTAGRAM_HANDLE}`}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  {/* Glass sheen effect */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent z-[1]" />
-                </a>
-
-                {/* 3. POST INTERACTIONS (Action Bar) */}
-                <div className="p-5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-lg">
-                      {/* Like button */}
-                      <button
-                        onClick={() => toggleLike(post.id)}
-                        className={`transition-all duration-300 hover:scale-125 ${
-                          isLiked ? "text-red-500" : "text-[#3B2A25]/60 hover:text-[#9C6A5A]"
-                        }`}
-                      >
-                        {isLiked ? <FaHeart /> : <FaRegHeart />}
-                      </button>
-                      
-                      {/* Comment button */}
-                      <a
-                        href={post.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-all duration-300 hover:scale-125"
-                      >
-                        <FaRegComment />
-                      </a>
-                      
-                      {/* Share button */}
-                      <a
-                        href={post.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-all duration-300 hover:scale-125"
-                      >
-                        <FiSend />
-                      </a>
-                    </div>
-
-                    {/* Bookmark button */}
-                    <button
-                      onClick={() => toggleBookmark(post.id)}
-                      className={`transition-all duration-300 hover:scale-125 text-lg ${
-                        isBookmarked ? "text-[#9C6A5A]" : "text-[#3B2A25]/60 hover:text-[#9C6A5A]"
-                      }`}
-                    >
-                      {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
-                    </button>
-                  </div>
-
-                  {/* Likes count */}
-                  <div className="text-xs font-bold text-[#3B2A25] text-left tracking-wide">
-                    {post.likes} likes
-                  </div>
-
-                  {/* Caption */}
-                  <div className="text-xs text-[#3B2A25]/80 leading-relaxed font-sans text-left">
-                    <span className="font-bold text-[#3B2A25] mr-2">{INSTAGRAM_HANDLE}</span>
-                    {post.caption}
-                  </div>
-
-                  {/* Timestamp */}
-                  <div className="text-[9px] font-bold text-[#3B2A25]/45 tracking-wider text-left uppercase">
-                    {post.timeAgo}
-                  </div>
+                {/* Bottom overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h3
+                    className="text-[15px] font-light leading-snug mb-1"
+                    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  >
+                    {reel.title}
+                  </h3>
+                  <p
+                    className="text-[10px] text-white/65 font-light leading-relaxed mb-3"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    {reel.desc}
+                  </p>
+                  <span
+                    className="inline-block text-[9px] font-semibold uppercase tracking-[0.18em] text-[#C8A45D] border border-[#C8A45D]/50 px-3 py-1 rounded-full"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    View Reel
+                  </span>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+
+    </section>
   );
 };
 

@@ -2,8 +2,17 @@ import React from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import { IoChevronBack, IoChevronForward, IoSparkles } from "react-icons/io5";
-import { FiShield, FiAward, FiSmartphone, FiRotateCcw } from "react-icons/fi";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import {
+  Award,
+  Sparkles,
+  Truck,
+  ShieldCheck,
+  Users,
+  ChevronRight,
+  Quote,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
@@ -13,59 +22,95 @@ import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
 import HeroBanner from "@components/banner/HeroBanner";
 import AttributeServices from "@services/AttributeServices";
-import SectionHeader from "@components/common/SectionHeader";
-
 import CustomerReviewSection from "@components/review/CustomerReviewSection";
 import InstagramFeed from "@components/instagram/InstagramFeed";
 import ShopByCategory from "@components/category/ShopByCategory";
-import FestivalCollection from "@components/category/FestivalCollection";
+import FounderStory from "@components/founder/FounderStory";
+import LuxuryFeatures from "@components/trust/LuxuryFeatures";
+import WhatsAppSection from "@components/whatsapp/WhatsAppSection";
+import YouTubeShorts from "@components/youtube/YouTubeShorts";
+
 import {
   HOME_PREMIUM_COLLECTIONS,
-  HERO_FALLBACK,
+  traditionalPhoto,
   LOCAL_BANNERS,
 } from "@utils/traditionalImagery";
 
-const Home = ({ popularProducts, bestSellingProducts, attributes, manchandaHomepage }) => {
+/* ── Shared typography helpers ── */
+const SectionLabel = ({ children }) => (
+  <span
+    className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] mb-3"
+    style={{ fontFamily: "'Montserrat', sans-serif" }}
+  >
+    {children}
+  </span>
+);
+
+const SectionHeading = ({ children }) => (
+  <h2
+    className="text-3xl sm:text-5xl font-light text-[#111111]"
+    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+  >
+    {children}
+  </h2>
+);
+
+const GoldLine = () => (
+  <div className="h-[1.5px] w-12 bg-[#C8A45D] mx-auto mt-5" />
+);
+
+/* ── Main Page ── */
+const Home = ({ popularProducts, bestSellingProducts, attributes }) => {
   const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  React.useEffect(() => { setMounted(true); }, []);
 
   const newArrivals = popularProducts || [];
   const bestSellers = bestSellingProducts || [];
 
-  const premiumCollections = HOME_PREMIUM_COLLECTIONS;
+  const occasions = [
+    { name: "Wedding", slug: "party-wear", tag: "Royal Splendor", bg: LOCAL_BANNERS.bangaloriSilk },
+    { name: "Reception", slug: "party-wear", tag: "Evening Glitz", bg: LOCAL_BANNERS.gajiSilk },
+    { name: "Haldi", slug: "cotton-suits", tag: "Bright Marigold", bg: LOCAL_BANNERS.mulCotton },
+    { name: "Mehendi", slug: "applique-work", tag: "Festive Greens", bg: LOCAL_BANNERS.appliqueSuit },
+    { name: "Festivals", slug: "party-wear", tag: "Divine Grace", bg: traditionalPhoto("festiveSuitRed", 500, 700) },
+    { name: "Daily Wear", slug: "cotton-suits", tag: "Premium Comfort", bg: traditionalPhoto("cottonSuitPastel", 500, 700) },
+  ];
+
+  const whyChooseUs = [
+    { icon: <Award className="w-7 h-7 text-[#C8A45D]" />, title: "Since 1995", desc: "Three decades of trust and direct legacy in luxury Indian fabrics." },
+    { icon: <Sparkles className="w-7 h-7 text-[#C8A45D]" />, title: "Handcrafted", desc: "Intricate weaves, resham embroidery and premium handloom details." },
+    { icon: <Truck className="w-7 h-7 text-[#C8A45D]" />, title: "Pan India Delivery", desc: "Secure insured premium courier shipping to your doorstep." },
+    { icon: <ShieldCheck className="w-7 h-7 text-[#C8A45D]" />, title: "Premium Quality", desc: "Strict quality checks on warp, weft, border weights and finish." },
+    { icon: <Users className="w-7 h-7 text-[#C8A45D]" />, title: "Trusted by Thousands", desc: "Over 10,000+ satisfied clients across multiple generations." },
+  ];
 
   const renderProductCarousel = (products, prevClass, nextClass) => {
-    if (!mounted) {
-      return <div className="h-96 w-full bg-[#F5ECE8] animate-pulse rounded-xl" />;
-    }
-
+    if (!mounted) return <div className="h-96 w-full bg-[#F9F6F1] animate-pulse rounded" />;
     if (!products || products.length === 0) {
       return (
-        <div className="py-12 text-center text-[#2B211E]/60 bg-white border border-[#D5BBB4]/50 rounded-xl font-sans">
-          No premium items found. Please seed the database catalog.
+        <div className="py-12 text-center text-[#7A7A7A] bg-white border border-neutral-100 text-sm"
+          style={{ fontFamily: "'Poppins', sans-serif" }}>
+          No premium products available at the moment.
         </div>
       );
     }
-
     return (
-      <div className="relative group">
+      <div className="relative group px-1">
         <Swiper
           modules={[Navigation, Autoplay]}
-          spaceBetween={10}
-          slidesPerView={1.15}
+          spaceBetween={24}
+          slidesPerView={1.2}
           loop={products.length >= 5}
           navigation={{ prevEl: `.${prevClass}`, nextEl: `.${nextClass}` }}
           autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
-            480: { slidesPerView: 1.5, spaceBetween: 12 },
-            640: { slidesPerView: 2, spaceBetween: 14 },
-            768: { slidesPerView: 3, spaceBetween: 18 },
-            1024: { slidesPerView: 4, spaceBetween: 22 },
-            1280: { slidesPerView: 5, spaceBetween: 24 },
+            480: { slidesPerView: 1.5, spaceBetween: 24 },
+            640: { slidesPerView: 2, spaceBetween: 24 },
+            768: { slidesPerView: 3, spaceBetween: 28 },
+            1024: { slidesPerView: 4, spaceBetween: 32 },
+            1280: { slidesPerView: 5, spaceBetween: 36 },
           }}
-          className="mySwiper !pb-4 !pt-1 -mx-1 px-1"
+          className="mySwiper !pb-6 !pt-1"
         >
           {products.map((product) => (
             <SwiperSlide key={product._id} className="h-auto">
@@ -73,149 +118,164 @@ const Home = ({ popularProducts, bestSellingProducts, attributes, manchandaHomep
             </SwiperSlide>
           ))}
         </Swiper>
-        <button
-          type="button"
-          className={`${prevClass} hidden sm:flex absolute top-1/2 -left-2 md:-left-3 z-10 bg-white shadow-md border border-[#D5BBB4] rounded-full p-2 hover:bg-[#F5ECE8] transition-colors -translate-y-1/2`}
-        >
-          <IoChevronBack className="text-lg text-[#93614E]" />
+        <button type="button"
+          className={`${prevClass} hidden sm:flex absolute top-1/2 -left-6 z-10 bg-white shadow-md border border-neutral-100 rounded-full p-3.5 hover:bg-[#F9F6F1] transition-colors -translate-y-1/2 focus:outline-none`}>
+          <IoChevronBack className="text-lg text-[#111111]" />
         </button>
-        <button
-          type="button"
-          className={`${nextClass} hidden sm:flex absolute top-1/2 -right-2 md:-right-3 z-10 bg-white shadow-md border border-[#D5BBB4] rounded-full p-2 hover:bg-[#F5ECE8] transition-colors -translate-y-1/2`}
-        >
-          <IoChevronForward className="text-lg text-[#93614E]" />
+        <button type="button"
+          className={`${nextClass} hidden sm:flex absolute top-1/2 -right-6 z-10 bg-white shadow-md border border-neutral-100 rounded-full p-3.5 hover:bg-[#F9F6F1] transition-colors -translate-y-1/2 focus:outline-none`}>
+          <IoChevronForward className="text-lg text-[#111111]" />
         </button>
       </div>
     );
   };
 
-  // Use dynamic hero slides
-  const heroSlides =
-    manchandaHomepage?.heroSlides && manchandaHomepage.heroSlides.length > 0
-      ? manchandaHomepage.heroSlides.map((s, idx) => ({
-        style: s.style || "layout-left-framed",
-        badge: s.badge || "Ethnic Suit Edit",
-        title: s.title || "Traditional Suit Sets",
-        subtitle: s.subtitle || "Straight, anarkali & festive salwar suits crafted for every occasion.",
-        highlight: s.highlight || "Handcrafted Heritage",
-        btnText: s.btnText || "Shop Suits",
-        btnLink: s.link || s.btnLink || "/search?category=suits",
-        bgImage: s.image || Object.values(LOCAL_BANNERS)[idx % 4] || HERO_FALLBACK,
-      }))
-    : [
-        {
-          style: "layout-left-framed",
-          badge: "Straight Suit Sets",
-          title: "Timeless Elegance in Every Stitch",
-          subtitle: "Discover handcrafted salwar suits, anarkali sets & kurta ensembles — Biba-inspired tradition.",
-          highlight: "Premium Ethnic Suit Collection",
-          btnText: "Shop Suit Sets",
-          btnLink: "/search?category=suits",
-          bgImage: HERO_FALLBACK,
-        }
-      ];
-
   return (
     <Layout>
-      <div className="min-h-screen bg-[#FAF7F5] text-[#2B211E] font-serif overflow-x-hidden">
+      <div className="min-h-screen bg-[#F9F6F1] text-[#3A3A3A] overflow-x-hidden">
 
-        {/* 1. Hero Banner */}
-        <HeroBanner slides={heroSlides} />
+        {/* 1 ── Hero */}
+        <HeroBanner />
 
-        <ShopByCategory adminBanners={manchandaHomepage?.categoryBanners} />
+        {/* 2 ── Compact WhatsApp CTA — directly below hero */}
+        <WhatsAppSection />
 
-        <FestivalCollection />
+        {/* 3 ── Luxury Features Bar */}
+        <LuxuryFeatures />
 
-        {/* 5. New Arrivals Section */}
-        <section className="py-10 sm:py-14 lg:py-20 bg-white border-y border-[#D5BBB4]/40">
-          <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-16">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 sm:mb-8 border-b border-[#D5BBB4]/40 pb-4">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FAF7F5] border border-[#D5BBB4] text-[#93614E] text-[9px] font-semibold uppercase tracking-widest rounded-full mb-2">
-                  <IoSparkles className="text-[#93614E]" />
-                  <span>Latest Additions</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-light text-[#2B211E] font-serif">New Arrivals</h2>
-              </div>
-              <Link
-                href="/search?tag=new-arrival"
-                className="group inline-flex items-center gap-1.5 px-4 py-2 border border-[#D5BBB4] rounded-full text-xs font-semibold uppercase tracking-wider text-[#2B211E]/80 hover:text-[#93614E] hover:border-[#93614E] transition-all"
-              >
-                <span>View All</span>
-                <IoChevronForward className="transition-transform group-hover:translate-x-0.5 text-[#93614E] text-xs" />
-              </Link>
+        {/* 4 ── Shop By Category */}
+        <ShopByCategory />
+
+        {/* 4 ── Best Sellers */}
+        <section className="py-20 sm:py-28 bg-white border-b border-black/5">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <SectionLabel>Most Loved Weaves</SectionLabel>
+              <SectionHeading>Best Sellers</SectionHeading>
+              <GoldLine />
             </div>
-            {renderProductCarousel(newArrivals, "prev-new-arrivals", "next-new-arrivals")}
+            {renderProductCarousel(bestSellers, "prev-best-sellers", "next-best-sellers")}
           </div>
         </section>
 
-        {/* 6 & 7. Trending & Best Sellers */}
-        <section className="py-10 sm:py-14 lg:py-20 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-16 bg-[#FAF7F5]">
-          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C7A46A] mb-2">Most Loved</p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#2B211E] font-serif">Best Sellers & Trending</h2>
-            <div className="h-[1px] w-12 bg-[#93614E] mx-auto mt-3 sm:mt-4" />
-          </div>
+        {/* 5 ── Founder Story */}
+        <FounderStory />
 
-          {bestSellers.length > 0 ? (
-            <div className="space-y-8 sm:space-y-12">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
-                {bestSellers.slice(0, 5).map((product) => (
+        {/* 6 ── New Arrivals */}
+        <section className="py-20 sm:py-28 bg-[#F9F6F1]">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-black/5 pb-6">
+              <div>
+                <SectionLabel>Latest Curations</SectionLabel>
+                <SectionHeading>New Arrivals</SectionHeading>
+              </div>
+              <Link
+                href="/search"
+                className="group flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#C8A45D] hover:text-[#a8833d] transition-colors mt-4 md:mt-0"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                <span>View All Collection</span>
+                <ChevronRight size={13} className="transition-transform group-hover:translate-x-1 duration-200" />
+              </Link>
+            </div>
+            {newArrivals.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8">
+                {newArrivals.slice(0, 10).map((product) => (
                   <ProductCard key={product._id} product={product} attributes={attributes} />
                 ))}
               </div>
-              {bestSellers.length > 5 && (
-                <div className="text-center pt-4">
-                  <Link
-                    href="/search"
-                    className="inline-flex items-center justify-center px-8 py-3.5 border border-[#93614E] text-xs font-semibold uppercase tracking-widest text-[#93614E] hover:bg-[#93614E] hover:text-white rounded-full transition-all duration-300"
-                  >
-                    Show All
-                  </Link>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="py-16 text-center text-[#2B211E]/60 bg-white border border-[#D5BBB4]/50 rounded-[24px] max-w-2xl mx-auto">
-              Please seed the best seller items into the database.
-            </div>
-          )}
+            ) : (
+              <div className="py-16 text-center text-[#7A7A7A] bg-white border border-neutral-100"
+                style={{ fontFamily: "'Poppins', sans-serif" }}>
+                Products catalog loading...
+              </div>
+            )}
+          </div>
         </section>
 
-        {/* 8. Featured Premium Collections Section */}
-        <section className="py-10 sm:py-14 lg:py-20 bg-white border-t border-[#D5BBB4]/40">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-16">
-            <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-              <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[#93614E] mb-2">Premium Curations</p>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#2B211E] font-serif">Featured Collections</h2>
-              <div className="h-[1px] w-12 bg-[#C7A46A] mx-auto mt-3 sm:mt-4" />
+        {/* 7 ── Featured Collections */}
+        <section className="py-20 sm:py-28 bg-white border-y border-black/5">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <SectionLabel>Editorial Curations</SectionLabel>
+              <SectionHeading>Featured Collections</SectionHeading>
+              <GoldLine />
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
-              {premiumCollections.map((col, idx) => (
-                <Link
-                  key={idx}
-                  href={`/search?category=${col.slug}`}
-                  className="group block relative overflow-hidden rounded-[24px] shadow-sm bg-[#FAF7F5] border border-[#D5BBB4]/30 hover:shadow-md transition-all duration-300"
-                >
-                  <div className="aspect-[4/3] w-full overflow-hidden relative">
-                    <img
-                      src={col.bg}
-                      alt={col.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-[#2B211E]/5 group-hover:bg-transparent transition-all" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+              <div className="lg:col-span-7 group relative overflow-hidden bg-[#F9F6F1] flex flex-col justify-between border border-neutral-100">
+                <div className="aspect-[4/3] lg:aspect-auto lg:h-[500px] w-full overflow-hidden relative">
+                  <img src={traditionalPhoto("festiveSuitRed", 900)} alt="Heritage Luxury Silk Collection"
+                    className="w-full h-full object-cover object-top transition-transform duration-700 ease-in-out group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                </div>
+                <div className="p-8 absolute bottom-0 left-0 right-0 text-white z-10">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D]"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}>Handcrafted Heritage</span>
+                  <h3 className="text-2xl sm:text-4xl font-light mt-2 text-white"
+                    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                    Banarasi &amp; Kanjivaram Silk Suits
+                  </h3>
+                  <p className="text-xs sm:text-sm text-neutral-200 mt-2 font-light max-w-lg leading-relaxed"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}>
+                    Intricate zari motifs on absolute premium silk fabrics curated for traditional celebrations.
+                  </p>
+                  <Link href="/search?category=kanjivaram-silk"
+                    className="inline-block mt-4 text-[10px] font-semibold uppercase tracking-widest text-[#C8A45D] border-b border-[#C8A45D]/40 pb-0.5 transition-all"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    Shop Heritage Collection →
+                  </Link>
+                </div>
+              </div>
+              <div className="lg:col-span-5 grid grid-cols-1 gap-8">
+                {HOME_PREMIUM_COLLECTIONS.slice(1, 3).map((col, idx) => (
+                  <div key={idx} className="group relative flex flex-col sm:flex-row overflow-hidden bg-[#F9F6F1] border border-neutral-100 h-full">
+                    <div className="aspect-[4/3] sm:aspect-square sm:w-1/2 overflow-hidden relative shrink-0">
+                      <img src={col.bg} alt={col.title}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
+                    </div>
+                    <div className="p-6 flex flex-col justify-center">
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#C8A45D]"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}>Premium Curation</span>
+                      <h3 className="text-lg font-light text-[#111111] mt-2 group-hover:text-[#C8A45D] transition-colors"
+                        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                        {col.title}
+                      </h3>
+                      <p className="text-xs text-[#7A7A7A] mt-2 font-light leading-relaxed"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}>{col.desc}</p>
+                      <Link href={`/search?category=${col.slug}`}
+                        className="inline-block mt-4 text-[9px] font-semibold uppercase tracking-widest text-[#C8A45D] border-b border-[#C8A45D]/40 pb-0.5 transition-all"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        Explore →
+                      </Link>
+                    </div>
                   </div>
-                  <div className="p-4 sm:p-6">
-                    <h3 className="text-base sm:text-xl font-medium text-[#2B211E] group-hover:text-[#93614E] transition-colors">
-                      {col.title}
-                    </h3>
-                    <p className="text-sm text-[#2B211E]/70 mt-1 font-light italic leading-relaxed">
-                      {col.desc}
-                    </p>
-                    <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-widest text-[#93614E] border-b border-[#93614E]/40 pb-0.5 group-hover:border-[#93614E] transition-all">
-                      Discover Collection →
-                    </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 8 ── Shop By Occasion */}
+        <section className="py-20 sm:py-28 bg-[#F9F6F1]">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <SectionLabel>Occasion Edit</SectionLabel>
+              <SectionHeading>Shop By Occasion</SectionHeading>
+              <GoldLine />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+              {occasions.map((occ, idx) => (
+                <Link key={idx} href={`/search?category=${occ.slug}`}
+                  className="group relative block overflow-hidden bg-neutral-100 aspect-[3/4] shadow-sm hover:shadow-xl transition-all duration-400">
+                  <img src={occ.bg} alt={occ.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-108"
+                    loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <span className="text-[8px] font-semibold uppercase tracking-widest text-[#C8A45D] block mb-1"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}>{occ.tag}</span>
+                    <h3 className="font-light text-lg tracking-wide text-white"
+                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{occ.name}</h3>
                   </div>
                 </Link>
               ))}
@@ -223,14 +283,90 @@ const Home = ({ popularProducts, bestSellingProducts, attributes, manchandaHomep
           </div>
         </section>
 
-        {/* 9. Customer Reviews */}
-        <section className="py-10 sm:py-14 lg:py-20 bg-[#FAF7F5] border-y border-[#D5BBB4]/40">
-          <CustomerReviewSection />
+        {/* 9 ── Why Choose Us */}
+        <section className="py-20 sm:py-28 bg-white border-y border-black/5">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <SectionLabel>Our Values</SectionLabel>
+              <SectionHeading>Why Choose Us</SectionHeading>
+              <GoldLine />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+              {whyChooseUs.map((item, idx) => (
+                <motion.div key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="flex flex-col items-center text-center p-7 bg-[#F9F6F1] border border-neutral-100 hover:shadow-lg transition-shadow duration-300">
+                  <div className="mb-5 p-3.5 bg-white rounded-full shadow-sm border border-neutral-100">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#111111] mb-3"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                    {item.title}
+                  </h3>
+                  <p className="text-[12px] text-[#7A7A7A] leading-relaxed font-light"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}>
+                    {item.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </section>
 
-        {manchandaHomepage?.instagramPosts?.length > 0 && (
-          <InstagramFeed posts={manchandaHomepage.instagramPosts} />
-        )}
+        {/* 11 ── Customer Stories */}
+        <section className="py-20 sm:py-28 bg-[#F9F6F1] border-b border-black/5">
+          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <SectionLabel>Client Voices</SectionLabel>
+              <SectionHeading>Customer Stories</SectionHeading>
+              <GoldLine />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {[
+                { name: "Pooja Malhotra", location: "Delhi", text: "Ordered three silk suits for a family wedding. The Resham work is absolutely pristine and the fabric weight is premium. Received compliments from everyone!", img: traditionalPhoto("straightSuit", 150) },
+                { name: "Kiran Sharma", location: "Gurugram", text: "The Mul Cotton suits are extremely soft and lightweight. Perfect for daily luxury. The ordering process via WhatsApp was incredibly fast and smooth.", img: traditionalPhoto("cottonSuitPastel", 150) },
+                { name: "Radhika Sen", location: "Kolkata", text: "Bought unstitched Gajis. Beautiful traditional gold zari weaves. The colour is rich and exactly as showcased in the video reels. Five stars!", img: traditionalPhoto("silkSuitGold", 150) },
+              ].map((review, idx) => (
+                <motion.div key={idx}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: idx * 0.15 }}
+                  className="bg-white p-8 border border-neutral-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+                  <div>
+                    <Quote className="w-7 h-7 text-[#C8A45D]/30 mb-4" />
+                    <p className="text-[13px] text-[#7A7A7A] italic leading-relaxed mb-6 font-light"
+                      style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      &ldquo;{review.text}&rdquo;
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 border-t border-neutral-100 pt-5 mt-auto">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-neutral-200">
+                      <img src={review.img} alt={review.name} className="w-full h-full object-cover object-top" />
+                    </div>
+                    <div>
+                      <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#111111]"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}>{review.name}</h4>
+                      <p className="text-[10px] text-[#C8A45D] uppercase tracking-widest"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        {review.location} · Verified Purchase
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 12 ── Instagram Reels */}
+        <InstagramFeed />
+
+        {/* 13 ── YouTube Shorts */}
+        <YouTubeShorts />
 
       </div>
     </Layout>
@@ -251,7 +387,6 @@ export const getStaticProps = async () => {
       attributes: attributes || [],
       popularProducts: data?.popularProducts || [],
       bestSellingProducts: data?.bestSellingProducts || [],
-      manchandaHomepage: data?.manchandaHomepage || null,
     },
     revalidate: 10,
   };

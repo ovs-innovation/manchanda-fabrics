@@ -30,6 +30,21 @@
       rel="stylesheet"
     />
     <title id="page-title">Manchanda Fabrics | eCommerce Admin Dashboard</title>
+    <script>
+      // Clear PWA service worker and caches in local development to avoid blank screen load loops on HMR changes
+      if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.unregister(); });
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(k) { caches.delete(k); });
+          });
+        }
+      }
+    </script>
   </head>
   <body class="antialiased">
     <noscript>You need to enable JavaScript to run this app.</noscript>
