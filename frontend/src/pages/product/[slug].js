@@ -1165,7 +1165,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     return variantImgs.length > 0 ? variantImgs : productImages;
   }, [selectVariant, productImages]);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   const productFaqs = useMemo(() => {
     // Handle new listSectionSchema structure (with items array)
@@ -2088,7 +2088,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   </h3>
                   <div className="flex">
                     <div className="w-full">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 md:gap-3 lg:gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
                         {relatedProducts?.slice(1, 13).map((product, i) => (
                           <ProductCard
                             key={product._id}

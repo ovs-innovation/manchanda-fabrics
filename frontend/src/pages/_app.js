@@ -118,4 +118,6 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+import appWithI18n from "next-translate/appWithI18n";
+
+export default appWithI18n(MyApp);

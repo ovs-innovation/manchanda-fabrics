@@ -17,7 +17,7 @@ import Price from "@components/common/Price";
 import Stock from "@components/common/Stock";
 
 const Compare = ({ attributes }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { addItem } = useCart();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();

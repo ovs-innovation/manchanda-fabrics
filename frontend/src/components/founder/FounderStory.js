@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import useTranslation from "next-translate/useTranslation";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -11,6 +12,7 @@ const fadeUp = {
 };
 
 const FounderStory = () => {
+  const { t } = useTranslation("common");
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">
       <div className="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-16">
@@ -63,20 +65,20 @@ const FounderStory = () => {
             {/* Eyebrow */}
             <span
               className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
+              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <span className="w-8 h-[1px] bg-[#C8A45D]" />
-              Our Heritage
+              {t("Our Heritage")}
             </span>
 
             {/* Heading */}
             <h2
               className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.15] text-[#111111]"
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              Founder&apos;s
+              {t("Founder's")}
               <br />
-              <em className="not-italic font-normal italic text-[#C8A45D]">Message</em>
+              <em className="not-italic font-normal italic text-[#C8A45D]">{t("Message")}</em>
             </h2>
 
             {/* Gold divider */}
@@ -88,10 +90,10 @@ const FounderStory = () => {
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <p>
-                &ldquo;When I started Manchanda Fabrics in 1995, my dream was simple — to bring the finest handloom weaves of India to every woman who values elegance and heritage. Three decades later, that vision remains our compass.&rdquo;
+                {t("&ldquo;When I started Manchanda Fabrics in 1995, my dream was simple — to bring the finest handloom weaves of India to every woman who values elegance and heritage. Three decades later, that vision remains our compass.&rdquo;")}
               </p>
               <p>
-                Every piece we curate carries the soul of its maker — the weaver who spent days perfecting the zari, the artisan whose hands shaped each motif. We believe fashion is not merely what you wear; it is the story you carry.
+                {t("Every piece we curate carries the soul of its maker — the weaver who spent days perfecting the zari, the artisan whose hands shaped each motif. We believe fashion is not merely what you wear; it is the story you carry.")}
               </p>
             </div>
 
@@ -99,15 +101,15 @@ const FounderStory = () => {
             <div className="pt-2">
               <p
                 className="text-2xl text-[#111111] mb-1"
-                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic" }}
+                style={{ fontFamily: "'Poppins', sans-serif", fontStyle: "italic" }}
               >
                 Manchanda Fabrics
               </p>
               <p
                 className="text-[11px] uppercase tracking-[0.2em] text-[#7A7A7A]"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
+                style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                Est. 1995 · Premium Indian Ethnic Wear
+                {t("Est. 1995 · Premium Indian Ethnic Wear")}
               </p>
             </div>
           </motion.div>

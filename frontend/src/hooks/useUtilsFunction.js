@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import dayjs from "dayjs";
-import Cookies from "js-cookie";
 import useGetSetting from "./useGetSetting";
 
 const useUtilsFunction = () => {
-  const [lang, setLang] = useState("en");
-
-  useEffect(() => {
-    setLang(Cookies.get("_lang") || "en");
-  }, []);
+  const router = useRouter();
+  const lang = router?.locale || "en";
 
   const { globalSetting } = useGetSetting();
 
@@ -39,9 +35,9 @@ const useUtilsFunction = () => {
 
   //for translation
   const showingTranslateValue = (data) => {
-    return data !== undefined && Object?.keys(data).includes(lang)
-      ? data[lang]
-      : data?.en;
+    if (!data) return "";
+    const val = data !== undefined && Object?.keys(data).includes(lang) ? data[lang] : undefined;
+    return val && String(val).trim() !== "" ? val : (data?.en || "");
   };
 
   const showingImage = (data) => {

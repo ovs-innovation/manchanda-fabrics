@@ -1,7 +1,7 @@
 import useTranslation from "next-translate/useTranslation";
 
 const Stock = ({ stock, card }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   return (
     <>

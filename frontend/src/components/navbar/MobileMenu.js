@@ -6,6 +6,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, ChevronUp } from "lucide-react";
+import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 
 const MOBILE_CATEGORIES = [
   { label: "Sarees", slug: "sarees" },
@@ -24,6 +26,16 @@ const menuVariants = {
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const router = useRouter();
+  const { t } = useTranslation("common");
+
+  const handleLocaleChange = (newLocale) => {
+    localStorage.setItem("locale", newLocale);
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    document.cookie = `_lang=${newLocale}; path=/; max-age=31536000`;
+    router.push(router.asPath, router.asPath, { locale: newLocale });
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -45,11 +57,12 @@ const MobileMenu = ({ isOpen, onClose }) => {
             animate="open"
             exit="closed"
             className="fixed top-0 left-0 bottom-0 w-[80vw] max-w-sm bg-white z-50 shadow-2xl p-6 lg:hidden flex flex-col justify-between font-sans"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <div>
               {/* Header */}
               <div className="flex justify-between items-center pb-6 border-b border-neutral-100">
-                <span className="text-[13px] tracking-[0.18em] uppercase text-[#111111] font-semibold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <span className="text-[15px] tracking-[0.18em] uppercase text-[#111111] font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   MANCHANDA FABRICS
                 </span>
                 <button
@@ -58,7 +71,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                   className="p-1 text-neutral-500 hover:text-[#E35353] transition-colors"
                   aria-label="Close menu"
                 >
-                  <X size={20} />
+                  <X size={22} />
                 </button>
               </div>
 
@@ -67,10 +80,10 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/"
                   onClick={onClose}
-                  className="text-[12px] font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  Home
+                  {t("HOME")}
                 </Link>
 
                 {/* Catalog Accordion */}
@@ -78,11 +91,11 @@ const MobileMenu = ({ isOpen, onClose }) => {
                   <button
                     type="button"
                     onClick={() => setCatalogOpen((v) => !v)}
-                    className="flex justify-between items-center text-[12px] font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors text-left w-full"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    className="flex justify-between items-center text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors text-left w-full"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    <span>Catalog</span>
-                    {catalogOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    <span>{t("Catalog")}</span>
+                    {catalogOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </button>
 
                   <AnimatePresence>
@@ -98,8 +111,8 @@ const MobileMenu = ({ isOpen, onClose }) => {
                             key={cat.slug}
                             href={cat.slug === "new-arrivals" ? "/new-arrivals" : `/search?category=${cat.slug}`}
                             onClick={onClose}
-                            className="text-[11px] font-medium tracking-[0.12em] uppercase text-neutral-500 hover:text-[#C8A45D] transition-colors"
-                            style={{ fontFamily: "'Montserrat', sans-serif" }}
+                            className="text-sm font-medium tracking-[0.12em] uppercase text-neutral-500 hover:text-[#C8A45D] transition-colors"
+                            style={{ fontFamily: "'Poppins', sans-serif" }}
                           >
                             {cat.label}
                           </Link>
@@ -112,35 +125,59 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/new-arrivals"
                   onClick={onClose}
-                  className="text-[12px] font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  New Arrivals
+                  {t("New Arrivals")}
                 </Link>
 
                 <Link
                   href="/search"
                   onClick={onClose}
-                  className="text-[12px] font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  All Collections
+                  {t("View All Collections")}
                 </Link>
 
                 <Link
                   href="/contact-us"
                   onClick={onClose}
-                  className="text-[12px] font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  Contact Us
+                  {t("Contact Us")}
                 </Link>
               </nav>
             </div>
 
             {/* Footer */}
-            <div className="pt-6 border-t border-neutral-100 text-center">
-              <p className="text-[10px] tracking-widest text-neutral-400 uppercase">
+            <div className="pt-6 border-t border-neutral-100 flex flex-col gap-4 text-center">
+              {/* Language Switcher */}
+              <div className="flex justify-center items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleLocaleChange("en")}
+                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${
+                    router.locale === "en" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
+                  }`}
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLocaleChange("hi")}
+                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${
+                    router.locale === "hi" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
+                  }`}
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  हिन्दी
+                </button>
+              </div>
+
+              <p className="text-[11px] tracking-widest text-neutral-400 uppercase">
                 Timeless Indian Heritage
               </p>
             </div>

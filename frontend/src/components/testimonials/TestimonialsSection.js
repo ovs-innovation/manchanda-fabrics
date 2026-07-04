@@ -49,41 +49,44 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 font-sans">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 xl:gap-12 font-sans">
           {TESTIMONIALS.map((t) => (
             <div
               key={t.id}
-              className="group relative bg-white border border-[#E6D1CB]/50 rounded-2xl p-6 sm:p-8 hover:border-[#9C6A5A] transition-all duration-300 flex flex-col justify-between shadow-sm"
+              className="group relative bg-white border border-[#E6D1CB]/50 rounded-2xl p-6 md:p-10 lg:p-12 hover:border-[#9C6A5A] transition-all duration-300 hover:shadow-lg hover:-translate-y-1.5 transform flex flex-col justify-between shadow-sm md:max-w-md lg:max-w-lg mx-auto w-full"
             >
-              {/* Rating */}
+              {/* Rating & Quote */}
               <div>
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(t.rating)].map((_, i) => (
-                    <IoStar key={i} className="text-[#9C6A5A] text-sm" />
-                  ))}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-1">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <IoStar key={i} className="text-[#9C6A5A] text-sm" />
+                    ))}
+                  </div>
+                  <span className="text-5xl text-[#9C6A5A]/25 leading-none select-none" style={{ fontFamily: "Georgia, serif" }}>“</span>
                 </div>
 
                 {/* Comment */}
-                <p className="text-[#3B2A25]/80 text-sm leading-relaxed mb-6 italic">
+                <p className="text-[#3B2A25]/80 text-sm md:text-lg leading-relaxed md:leading-9 mb-8 italic" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   "{t.comment}"
                 </p>
               </div>
 
               {/* User Info */}
-              <div className="flex items-center gap-3 pt-6 border-t border-[#E6D1CB]/40 mt-auto">
+              <div className="flex items-center gap-4 pt-8 border-t border-[#E6D1CB]/40 mt-auto">
                 <img
                   src={t.avatar}
                   alt={t.name}
-                  className="w-10 h-10 rounded-full object-cover border border-[#E6D1CB]"
+                  className="w-10 h-10 md:w-16 md:h-16 rounded-full object-cover border border-[#E6D1CB]"
                 />
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-[#3B2A25] tracking-tight flex items-center gap-1.5">
+                  <h4 className="text-sm md:text-xl font-bold md:font-semibold text-[#3B2A25] tracking-tight flex items-center gap-1.5" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     {t.name}
-                    <IoCheckmarkCircle className="text-emerald-600 text-sm flex-shrink-0" title="Verified Purchase" />
+                    <IoCheckmarkCircle className="text-emerald-600 text-sm md:text-base flex-shrink-0" title="Verified Purchase" />
                   </h4>
-                  <div className="flex flex-col text-[10px] text-[#3B2A25]/60">
+                  <div className="flex flex-col text-[10px] md:text-sm text-[#3B2A25]/60 mt-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     <span className="font-medium">{t.role}</span>
-                    <span className="text-[#9C6A5A] font-bold truncate mt-0.5">{t.item}</span>
+                    <span className="text-[#9C6A5A] font-semibold md:font-bold truncate mt-0.5">{t.item}</span>
                   </div>
                 </div>
               </div>

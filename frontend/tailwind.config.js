@@ -22,7 +22,7 @@ module.exports = {
   theme: {
     fontFamily: {
       sans: ["Poppins", "sans-serif"],
-      serif: ["Cormorant Garamond", "serif"],
+      serif: ["Poppins", "sans-serif"],
     },
     extend: {
       colors: {

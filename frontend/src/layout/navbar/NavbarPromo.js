@@ -24,7 +24,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import useTranslation from "next-translate/useTranslation";
 
 const NavbarPromo = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const { lang, storeCustomizationSetting } = useGetSetting();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
   const { showingTranslateValue } = useUtilsFunction();

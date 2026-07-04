@@ -17,7 +17,7 @@ import { notifySuccess, notifyError } from "@utils/toast";
 import PageHeader from "@components/header/PageHeader";
 
 const Wishlist = ({ attributes }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { addItem } = useCart();
   const { storeCustomizationSetting } = useGetSetting();
@@ -118,7 +118,7 @@ const Wishlist = ({ attributes }) => {
                 My Wishlist ({wishlistItems.length} items)
               </h1>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-6 gap-2 md:gap-3 lg:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
               {wishlistItems.map((product, i) => (
                 <div key={i} className="relative group">
                   <ProductCard product={product} attributes={attributes} />

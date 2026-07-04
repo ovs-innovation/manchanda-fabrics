@@ -1,4 +1,5 @@
 const runtimeCaching = require("next-pwa/cache");
+const nextTranslate = require("next-translate-plugin");
 
 const withPWA = require("next-pwa")({
   dest: "public",
@@ -15,7 +16,6 @@ const withPWA = require("next-pwa")({
 const nextConfig = {
   reactStrictMode: false,
 
-  // 🔴 IMPORTANT (add this)
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -31,7 +31,7 @@ const nextConfig = {
   },
 
   i18n: {
-    locales: ["en", "es", "fr", "de"],
+    locales: ["en", "hi"],
     defaultLocale: "en",
   },
 
@@ -46,4 +46,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextTranslate(nextConfig);

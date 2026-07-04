@@ -33,7 +33,7 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
       setScrolled(currentScroll > 80);
-      
+
       // Hide on scroll down, show on scroll up
       if (currentScroll > lastScrollY && currentScroll > 82) {
         setVisible(false);
@@ -42,7 +42,7 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
       }
       setLastScrollY(currentScroll);
     };
-    
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
@@ -106,7 +106,7 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
           <Navbar />
         </div>
 
-        <main className="pt-[90px]">{children}</main>
+        <main className="pt-0 lg:pt-[90px]">{children}</main>
 
         <Footer />
         <FloatingWhatsApp />

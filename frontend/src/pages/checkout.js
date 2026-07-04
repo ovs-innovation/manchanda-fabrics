@@ -38,7 +38,7 @@ import { notifySuccess, notifyError } from "@utils/toast";
 import { isProfileComplete, getDisplayEmail } from "@utils/profileAuth";
 
 const Checkout = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);

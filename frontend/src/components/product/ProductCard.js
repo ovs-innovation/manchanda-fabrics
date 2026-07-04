@@ -4,6 +4,7 @@ import { IoAdd, IoRemove } from "react-icons/io5";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "react-use-cart";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 
 import { notifyError, notifySuccess } from "@utils/toast";
 import useAddToCart from "@hooks/useAddToCart";
@@ -11,7 +12,7 @@ import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import ProductModal from "@components/modal/ProductModal";
 import { handleLogEvent } from "src/lib/analytics";
-import { addToWishlist } from "@lib/wishlist";
+import { addToWishlist, removeFromWishlist, isInWishlist } from "@lib/wishlist";
 
 const formatCardPrice = (value = 0) => {
   const num = Math.max(0, parseFloat(value) || 0);
@@ -31,10 +32,26 @@ const ProductCard = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [wishlistActive, setWishlistActive] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const updateState = () => {
+      if (product?._id) {
+        setWishlistActive(isInWishlist(product._id));
+      }
+    };
+    updateState();
+    if (typeof window !== "undefined") {
+      const WISHLIST_EVENT = "wishlist:changed";
+      window.addEventListener(WISHLIST_EVENT, updateState);
+      window.addEventListener("storage", updateState);
+      return () => {
+        window.removeEventListener(WISHLIST_EVENT, updateState);
+        window.removeEventListener("storage", updateState);
+      };
+    }
+  }, [product?._id]);
 
   const { addItem, updateItemQuantity, inCart, getItem } = useCart();
   const { handleIncreaseQuantity } = useAddToCart();
@@ -85,16 +102,24 @@ const ProductCard = ({
 
   const handleAddToWishlist = (e) => {
     e.stopPropagation();
-    addToWishlist({
-      product,
-      onSuccess: () => {
+    if (!product?._id) return;
+    if (wishlistActive) {
+      const res = removeFromWishlist(product._id);
+      if (res.ok) {
+        setWishlistActive(false);
+        notifySuccess("Removed from wishlist!");
+      } else {
+        notifyError("Failed to update wishlist!");
+      }
+    } else {
+      const res = addToWishlist(product);
+      if (res.ok) {
         setWishlistActive(true);
         notifySuccess("Added to wishlist!");
-      },
-      onError: (err) => {
-        notifyError(err?.message || "Failed to wishlist!");
-      },
-    });
+      } else {
+        notifyError("Failed to update wishlist!");
+      }
+    }
   };
 
   const goToProduct = () => {
@@ -137,16 +162,16 @@ const ProductCard = ({
         />
       )}
 
-      <article className="group flex h-full w-full flex-col overflow-hidden rounded-none border border-neutral-100 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <article className="group flex h-full w-full flex-col overflow-hidden rounded-md border border-neutral-100 bg-white transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
         {/* Image Container */}
         <div
           onClick={goToProduct}
-          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden bg-[#FAF8F4]"
+          className="relative h-[450px] md:h-[480px] lg:h-[540px] w-full cursor-pointer overflow-hidden bg-[#FAF8F4]"
         >
           {isSoldOut && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-              <span className="bg-[#222222] px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                Sold Out
+              <span className="bg-[#222222] px-4.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white rounded-sm">
+                {t("Sold Out")}
               </span>
             </div>
           )}
@@ -154,7 +179,7 @@ const ProductCard = ({
           {/* Luxury Badge */}
           {badgeText && !isSoldOut && (
             <span className="absolute left-3 top-3 z-20 bg-[#B08D57] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-white">
-              {badgeText}
+              {t(badgeText)}
             </span>
           )}
 
@@ -177,9 +202,8 @@ const ProductCard = ({
               <img
                 src={primaryImg}
                 alt={title}
-                className={`h-full w-full object-cover object-top transition duration-700 ease-in-out ${
-                  hoverImg ? "group-hover:opacity-0" : "group-hover:scale-105"
-                }`}
+                className={`h-full w-full object-cover object-top transition duration-700 ease-in-out ${hoverImg ? "group-hover:opacity-0" : "group-hover:scale-105"
+                  }`}
               />
               {hoverImg && (
                 <img
@@ -195,34 +219,34 @@ const ProductCard = ({
         </div>
 
         {/* Details Wrapper */}
-        <div className="flex flex-1 flex-col gap-2 p-4 font-sans text-left bg-white">
+        <div className="flex flex-1 flex-col gap-3.5 p-5 text-left bg-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
           <h3
             onClick={goToProduct}
             title={title}
-            className="cursor-pointer text-xs font-semibold leading-normal text-[#222222] line-clamp-2 hover:text-[#B08D57] tracking-wide transition-colors uppercase h-8"
+            className="cursor-pointer text-lg md:text-xl font-semibold leading-snug text-[#222222] hover:text-[#B08D57] transition-colors line-clamp-2 min-h-[56px]"
           >
             {title}
           </h3>
 
-          <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center justify-between mt-1 gap-2">
             {/* Price Display */}
             {!hidePriceAndAdd && (
               <div className="flex items-baseline gap-2">
-                <span className="text-[14px] font-bold tabular-nums text-[#222222]">
+                <span className="text-2xl md:text-3xl lg:text-[32px] font-bold text-[#222222]">
                   {currency}{formatCardPrice(currentPrice)}
                 </span>
                 {hasSale && (
-                  <span className="text-[11px] tabular-nums text-[#666666] line-through">
+                  <span className="text-lg md:text-xl tabular-nums text-[#666666] line-through">
                     {currency}{formatCardPrice(originalPriceValue)}
                   </span>
                 )}
               </div>
             )}
-            
+
             {/* Discount Badge */}
             {hasSale && !hideDiscount && (
-              <span className="text-[9px] font-bold text-[#592523] uppercase tracking-wider bg-[#592523]/5 px-2 py-0.5">
-                {discountPercent}% Off
+              <span className="inline-flex items-center justify-center rounded-[6px] bg-white border border-[#C8A45D] px-2.5 py-1 text-xs md:text-sm font-medium tracking-wide text-[#C8A45D] shadow-sm shrink-0" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                {discountPercent}% {t("OFF")}
               </span>
             )}
           </div>
@@ -234,16 +258,16 @@ const ProductCard = ({
                 <button
                   type="button"
                   disabled
-                  className="flex h-10 w-full items-center justify-center border border-neutral-100 bg-[#FAF8F4] text-[10px] font-bold uppercase tracking-wider text-[#666666] cursor-not-allowed"
+                  className="flex h-16 w-full items-center justify-center border border-neutral-100 bg-[#FAF8F4] text-base font-bold uppercase tracking-wider text-[#666666] cursor-not-allowed rounded-md"
                 >
-                  Out of Stock
+                  {t("Sold Out")}
                 </button>
               ) : mounted && isItemInCart && !hasSizeVariants ? (
                 (() => {
                   const item = getItem(activeItemId);
                   return (
                     item && (
-                      <div className="flex h-10 w-full items-center justify-between border border-neutral-200 px-3 text-xs bg-white">
+                      <div className="flex h-16 w-full items-center justify-between border border-neutral-200 px-4 text-sm bg-white rounded-md">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -252,9 +276,9 @@ const ProductCard = ({
                           }}
                           className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
                         >
-                          <IoRemove />
+                          <IoRemove size={18} />
                         </button>
-                        <span className="font-bold text-[#222222]">{item.quantity}</span>
+                        <span className="font-bold text-[#222222] text-base">{item.quantity}</span>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -263,7 +287,7 @@ const ProductCard = ({
                           }}
                           className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
                         >
-                          <IoAdd />
+                          <IoAdd size={18} />
                         </button>
                       </div>
                     )
@@ -273,10 +297,10 @@ const ProductCard = ({
                 <button
                   type="button"
                   onClick={handleAddClick}
-                  className="flex h-10 w-full items-center justify-center gap-2 bg-[#592523] text-[10px] font-bold uppercase tracking-widest text-white transition-colors duration-300 hover:bg-[#401817]"
+                  className="flex h-16 w-full items-center justify-center gap-2 bg-[#592523] text-base font-bold uppercase tracking-wider text-white transition-all duration-300 hover:bg-[#401817] hover:scale-[1.02] active:scale-[0.98] rounded-md shadow-md"
                 >
-                  <FiShoppingBag className="h-3.5 w-3.5" />
-                  {hasSizeVariants ? "Select Size" : "Add to Bag"}
+                  <FiShoppingBag className="h-5.5 w-5.5" />
+                  {hasSizeVariants ? t("Select Size") : t("Add to Bag")}
                 </button>
               )}
             </div>

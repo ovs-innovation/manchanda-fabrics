@@ -8,10 +8,10 @@ const NavLink = ({ href, children, className = "" }) => {
   return (
     <Link
       href={href}
-      className={`relative group inline-flex items-center py-2 text-[13px] font-semibold tracking-[1px] uppercase transition-colors duration-200 ${
+      className={`relative group inline-flex items-center py-2 text-[17px] md:text-[18px] font-semibold tracking-[1px] uppercase transition-colors duration-200 ${
         isActive ? "text-[#C8A45D]" : "text-[#111111] hover:text-[#C8A45D]"
       } ${className}`}
-      style={{ fontFamily: "'Montserrat', sans-serif" }}
+      style={{ fontFamily: "'Poppins', sans-serif" }}
       aria-current={isActive ? "page" : undefined}
     >
       {children}
