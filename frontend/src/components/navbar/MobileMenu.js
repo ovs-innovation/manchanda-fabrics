@@ -158,9 +158,8 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={() => handleLocaleChange("en")}
-                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${
-                    router.locale === "en" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
-                  }`}
+                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${router.locale === "en" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
+                    }`}
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   English
@@ -168,9 +167,8 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={() => handleLocaleChange("hi")}
-                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${
-                    router.locale === "hi" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
-                  }`}
+                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${router.locale === "hi" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
+                    }`}
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   हिन्दी

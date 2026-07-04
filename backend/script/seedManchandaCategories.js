@@ -16,7 +16,7 @@ const MANCHANDA_CATEGORIES = [
     parentName: "Home",
     description: { en: "Manchanda Fabrics Root Category" },
   },
-  
+
   // Main Categories
   {
     status: "show",

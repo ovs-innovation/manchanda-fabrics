@@ -44,7 +44,6 @@ const Footer = () => {
   const block2Links = [
     { title: "About Us", href: "/about-us" },
     { title: "Contact Us", href: "/contact-us" },
-    { title: "FAQs", href: "/faq" },
     { title: "Shipping & Returns", href: "/refund-return-policy" },
   ];
 
@@ -66,10 +65,10 @@ const Footer = () => {
   return (
     <footer className="bg-white text-[#222222] border-t border-black/5 relative overflow-hidden font-sans">
       <div className="mx-auto max-w-screen-2xl px-6 sm:px-12 lg:px-16 relative z-10">
-        
+
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-12 py-16">
-          
+
           {/* Column 1: Brand Info (4 cols) */}
           <div className="lg:col-span-4 space-y-5 text-left">
             <Link href="/" className="inline-block" rel="noreferrer">

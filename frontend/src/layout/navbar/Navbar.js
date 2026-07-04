@@ -119,7 +119,7 @@ const Navbar = () => {
 
           {/* Language Switcher */}
           {mounted && (
-            <div 
+            <div
               className="relative mr-1"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
@@ -133,12 +133,11 @@ const Navbar = () => {
                 <span>{router.locale === "hi" ? "हिन्दी" : "English"}</span>
                 <ChevronDown size={12} className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
-              <div 
-                className={`absolute right-0 mt-1 w-36 bg-white border border-[#E6D1CB]/40 shadow-xl rounded-xl py-1.5 z-50 transition-all duration-200 ease-out transform origin-top-right ${
-                  dropdownOpen 
-                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
+              <div
+                className={`absolute right-0 mt-1 w-36 bg-white border border-[#E6D1CB]/40 shadow-xl rounded-xl py-1.5 z-50 transition-all duration-200 ease-out transform origin-top-right ${dropdownOpen
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
-                }`}
+                  }`}
               >
                 <button
                   type="button"
@@ -146,9 +145,8 @@ const Navbar = () => {
                     handleLocaleChange("en");
                     setDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#FAF7F5] hover:text-[#C8A45D] transition-colors ${
-                    router.locale === "en" ? "text-[#C8A45D] bg-[#FAF7F5]" : "text-[#3B2A25]"
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#FAF7F5] hover:text-[#C8A45D] transition-colors ${router.locale === "en" ? "text-[#C8A45D] bg-[#FAF7F5]" : "text-[#3B2A25]"
+                    }`}
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   English
@@ -159,9 +157,8 @@ const Navbar = () => {
                     handleLocaleChange("hi");
                     setDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#FAF7F5] hover:text-[#C8A45D] transition-colors ${
-                    router.locale === "hi" ? "text-[#C8A45D] bg-[#FAF7F5]" : "text-[#3B2A25]"
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#FAF7F5] hover:text-[#C8A45D] transition-colors ${router.locale === "hi" ? "text-[#C8A45D] bg-[#FAF7F5]" : "text-[#3B2A25]"
+                    }`}
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   हिन्दी

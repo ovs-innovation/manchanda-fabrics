@@ -79,10 +79,10 @@ const Search = ({ products, attributes }) => {
   // Sync sort state from URL when route is ready or query changes
   useEffect(() => {
     if (!router.isReady) return;
-    
+
     const sortFromUrl = router.query.sort;
     const currentSort = sortedField || "All";
-    
+
     // Only sync if URL value differs from current state (prevents loops)
     if (sortFromUrl && sortFromUrl !== currentSort) {
       setSortedField(sortFromUrl);
@@ -100,7 +100,7 @@ const Search = ({ products, attributes }) => {
     // Update state immediately for instant UI feedback
     // This triggers useFilter to recalculate productData
     setSortedField(value);
-    
+
     // Build query object preserving all existing params (id, query, etc.)
     const newQuery = { ...router.query };
     if (value === "All" || value === "") {
@@ -108,7 +108,7 @@ const Search = ({ products, attributes }) => {
     } else {
       newQuery.sort = value;
     }
-    
+
     router.push(
       {
         pathname: "/search",
@@ -128,7 +128,7 @@ const Search = ({ products, attributes }) => {
 
         // Fetch products without category constraint so client-side filters work on all items
         const response = await ProductServices.getShowingStoreProducts({
-          category: "", 
+          category: "",
           title: q ? encodeURIComponent(q) : "",
         });
 
@@ -148,7 +148,7 @@ const Search = ({ products, attributes }) => {
       if (!isSidebarAction.current) {
         const catSlug = router.query.category;
         const id = router.query._id;
-        
+
         if (catSlug) {
           setSelectedCategories([catSlug]);
         } else if (id) {
@@ -168,17 +168,17 @@ const Search = ({ products, attributes }) => {
   const clearSearchQuery = () => {
     // Check if any filtering params exist in URL that limit the initial data fetch
     if (
-      router.query.query || 
-      router.query._id || 
+      router.query.query ||
+      router.query._id ||
       router.query.category
     ) {
       const newQuery = { ...router.query };
-      
+
       // Remove params that restrict the server-side product list
       delete newQuery.query;
       delete newQuery._id;
       delete newQuery.category;
-      
+
       router.push(
         {
           pathname: "/search",
@@ -213,7 +213,7 @@ const Search = ({ products, attributes }) => {
       });
     } else {
       const catId = catIdOrIds;
-      setSelectedCategories((prev) => 
+      setSelectedCategories((prev) =>
         prev.includes(catId) ? prev.filter((id) => id !== catId) : [...prev, catId]
       );
     }
@@ -271,11 +271,11 @@ const Search = ({ products, attributes }) => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const trimmedSearchText = searchText.trim();
     setShowSuggestions(false);
     searchInputRef.current?.blur();
-    
+
     if (trimmedSearchText) {
       router.push(
         {
@@ -301,19 +301,19 @@ const Search = ({ products, attributes }) => {
       <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-[#E6D1CB]/50 px-4 py-3">
         {isSearchOpen ? (
           <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-white border-2 border-[#E6D1CB]/60 rounded-full shadow-sm overflow-visible">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => {
                 setIsSearchOpen(false);
                 setShowSuggestions(false);
-              }} 
+              }}
               className="text-gray-700 px-3"
             >
               <IoArrowBack size={24} />
             </button>
             {/* Location Button */}
             <LocationButton className="h-full" />
-            
+
             {/* Search Input */}
             <div className="flex-1 relative">
               <input
@@ -328,7 +328,7 @@ const Search = ({ products, attributes }) => {
                 onBlur={(e) => {
                   const relatedTarget = e.relatedTarget;
                   const suggestionsContainer = document.querySelector('.search-suggestions-container');
-                  
+
                   if (!relatedTarget || (suggestionsContainer && !suggestionsContainer.contains(relatedTarget))) {
                     setTimeout(() => {
                       const activeElement = document.activeElement;
@@ -339,8 +339,8 @@ const Search = ({ products, attributes }) => {
                   }
                 }}
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#9C6A5A] transition-colors"
               >
                 <IoSearchOutline className="text-lg" />
@@ -556,9 +556,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("Low");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "Low" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "Low" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Price: Low to High
               </button>
@@ -567,9 +566,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("High");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "High" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "High" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Price: High to Low
               </button>
@@ -578,9 +576,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("newest");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "newest" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "newest" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Latest
               </button>
@@ -589,9 +586,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("best-selling");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "best-selling" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "best-selling" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Best Selling
               </button>
@@ -600,9 +596,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("most-discounted");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "most-discounted" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "most-discounted" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Most Discounted
               </button>
@@ -611,9 +606,8 @@ const Search = ({ products, attributes }) => {
                   handleSortChange("All");
                   setIsSortModalOpen(false);
                 }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${
-                  sortedField === "All" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                }`}
+                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "All" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
+                  }`}
               >
                 Default
               </button>

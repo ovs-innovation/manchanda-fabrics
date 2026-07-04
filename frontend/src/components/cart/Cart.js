@@ -23,13 +23,8 @@ const Cart = () => {
     if (items?.length <= 0) {
       closeCartDrawer();
     } else {
-      if (!userInfo?.token) {
-        router.push(`/auth/login?redirectUrl=checkout`);
-        closeCartDrawer();
-      } else {
-        router.push("/checkout");
-        closeCartDrawer();
-      }
+      router.push("/checkout");
+      closeCartDrawer();
     }
   };
 

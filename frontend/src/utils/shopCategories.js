@@ -13,19 +13,19 @@ export const SHOP_CATEGORIES = [
   {
     title: "Cotton Suits",
     slug: "cotton-suits",
-    image: traditionalPhoto("cottonSuitPastel", 500, 640),
+    image: "/p1.jpeg",
   },
   {
     title: "Gaji Silk",
     slug: "gaji-silk",
-    image: LOCAL_BANNERS.gajiSilk,
+    image: "/p2.jpeg",
     isHit: true,
     tagline: "Bestseller • Heritage weave",
   },
   {
     title: "Kanjivaram Silk",
     slug: "kanjivaram-silk",
-    image: traditionalPhoto("festiveSuitRed", 500, 640),
+    image: "/p4.jpeg",
   },
   {
     title: "Party Wear Suits",
@@ -35,12 +35,12 @@ export const SHOP_CATEGORIES = [
   {
     title: "Mul Cotton",
     slug: "mul-cotton",
-    image: LOCAL_BANNERS.mulCotton,
+    image: "/p5.jpeg",
   },
   {
     title: "Bangalori Silk Pure",
     slug: "bangalori-silk-pure",
-    image: LOCAL_BANNERS.bangaloriSilk,
+    image: "/p3.jpeg",
     isHit: true,
     tagline: "Bestseller • Pure resham",
   },
@@ -57,52 +57,52 @@ export const SHOP_CATEGORIES = [
   {
     title: "Bandhani Suits",
     slug: "bandhani-suits",
-    image: traditionalPhoto("mehendiSuit", 500, 640),
+    image: "/p6.jpeg",
   },
   {
     title: "Batik",
     slug: "batik",
-    image: traditionalPhoto("fabricWeave", 500, 640),
+    image: "/p7.jpeg",
   },
   {
     title: "Georgette",
     slug: "georgette",
-    image: traditionalPhoto("palazzoSuit", 500, 640),
+    image: "/p8.jpeg",
   },
   {
     title: "Organza",
     slug: "organza",
-    image: traditionalPhoto("diwaliSuit", 500, 640),
+    image: "/p9.jpeg",
   },
   {
     title: "Crepe",
     slug: "crepe",
-    image: traditionalPhoto("embroideredSuit", 500, 640),
+    image: "/p10.jpeg",
   },
   {
     title: "Jamdani Cotton",
     slug: "jamdani-cotton",
-    image: traditionalPhoto("cottonFabric", 500, 640),
+    image: "/p11.jpeg",
   },
   {
     title: "Linen Cotton",
     slug: "linen-cotton",
-    image: traditionalPhoto("cottonSuitPastel", 500, 640),
+    image: "/p12.jpeg",
   },
   {
     title: "Glace Cotton",
     slug: "glace-cotton",
-    image: traditionalPhoto("muslinDrape", 500, 640),
+    image: "/p13.jpeg",
   },
   {
     title: "Modal",
     slug: "modal",
-    image: traditionalPhoto("cottonFabric", 500, 640),
+    image: "/p14.jpeg",
   },
   {
     title: "Crush Tissue",
     slug: "crush-tissue",
-    image: traditionalPhoto("festiveSuitRed", 500, 640),
+    image: "/p15.jpeg",
   },
   {
     title: "Pakistani Style Suits",

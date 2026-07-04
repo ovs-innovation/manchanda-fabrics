@@ -230,8 +230,8 @@ const useCheckoutSubmit = (storeSetting) => {
           // If profile completion fails, block placing order and show message
           notifyError(
             err?.response?.data?.message ||
-              err?.message ||
-              "Please check your delivery details and try again."
+            err?.message ||
+            "Please check your delivery details and try again."
           );
           setIsCheckoutSubmit(false);
           return;
@@ -311,7 +311,20 @@ const useCheckoutSubmit = (storeSetting) => {
       // Handle payment based on method
       switch (data.paymentMethod) {
         case "RazorPay":
-          // User requested to hide the Razorpay gateway and directly place the order successfully
+          await handlePaymentWithRazorpay(orderInfo);
+          break;
+        case "Card":
+        case "UPI":
+          // User requested that visual card/UPI fields show and order is successfully placed
+          orderInfo.paymentMethod = data.paymentMethod;
+          orderInfo.cardInfo = {
+            cardNumber: data.cardNumber || "",
+            cardExpiry: data.cardExpiry || "",
+            cardCVC: data.cardCVC || "",
+            cardName: data.cardName || "",
+            upiId: data.upiId || ""
+          };
+          orderInfo.status = "Order Placed";
           await handleCashPayment(orderInfo);
           break;
         case "Cash":
@@ -376,7 +389,10 @@ const useCheckoutSubmit = (storeSetting) => {
       await NotificationServices.addNotification(notificationInfo);
 
       // Proceed with order success
-      router.push(`/order/${orderResponse?._id}`);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("lastOrder", JSON.stringify(orderResponse));
+      }
+      router.push("/order-success");
       notifySuccess(
         "Your Order Confirmed! The invoice will be emailed to you shortly."
       );
@@ -547,15 +563,22 @@ const useCheckoutSubmit = (storeSetting) => {
         key: storeSetting.razorpay_id,
         amount: amount,
         currency: currency || "INR",
-        name: storeSetting?.store_name || "Manchanda Fabrics",
-        description:
-          storeSetting?.store_description ||
-          "This is the total cost of your purchase",
         order_id: id,
+        name: "Manchanda Fabrics",
+        description: "Order Payment",
+        image: "/logo/manchandalogo.png",
+        prefill: {
+          name: orderInfo?.user_info?.name || "",
+          email: orderInfo?.user_info?.email || "",
+          contact: orderInfo?.user_info?.contact || "",
+        },
+        theme: {
+          color: "#8B5E4B",
+        },
         handler: async (response) => {
           try {
             if (!response || !response.razorpay_payment_id) {
-              notifyError("Invalid payment response. Please try again.");
+              notifyError("Payment failed. Please try again.");
               setIsCheckoutSubmit(false);
               return;
             }
@@ -567,7 +590,12 @@ const useCheckoutSubmit = (storeSetting) => {
               razorpaySignature: response.razorpay_signature,
             };
 
-            const orderData = { ...orderInfo, razorpay: razorpayDetails };
+            // Set order status to "Order Placed" representing Paid status
+            const orderData = {
+              ...orderInfo,
+              status: "Order Placed",
+              razorpay: razorpayDetails
+            };
             const orderResponse = await OrderServices.addRazorpayOrder(orderData);
             await handleOrderSuccess(orderResponse, orderInfo);
           } catch (err) {
@@ -584,21 +612,13 @@ const useCheckoutSubmit = (storeSetting) => {
               toggleCartDrawer();
               return;
             }
-            notifyError(
-              errorData?.message ||
-              "Failed to save order. Please contact support."
-            );
+            notifyError("Payment failed. Please try again.");
             setIsCheckoutSubmit(false);
           }
         },
-        prefill: {
-          name: orderInfo?.user_info?.name || "Customer",
-          email: orderInfo?.user_info?.email || "customer@example.com",
-          contact: orderInfo?.user_info?.contact || "0000000000",
-        },
-        theme: { color: storeSetting?.razorpay_color || "#EC4899" },
         modal: {
           ondismiss: () => {
+            notifyError("Payment failed. Please try again.");
             setIsCheckoutSubmit(false);
           },
         },

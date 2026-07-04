@@ -56,8 +56,8 @@ const Header = () => {
     () =>
       typeof Audio !== "undefined"
         ? new Audio(
-            "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-          )
+          "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+        )
         : null
   );
   const [profileOpen, setProfileOpen] = useState(false);
@@ -135,26 +135,26 @@ const Header = () => {
         if (latestOrderNotification) {
           // Deduplicate by ID to prevent repeated popups on page navigation/refresh
           const lastNotifiedId = localStorage.getItem("lastNotifiedOrderId");
-          
+
           if (latestOrderNotification._id !== lastNotifiedId) {
-              localStorage.setItem("lastNotifiedOrderId", latestOrderNotification._id);
+            localStorage.setItem("lastNotifiedOrderId", latestOrderNotification._id);
             // Fetch order to get product image
             try {
               const orderData = await OrderServices.getOrderById(
                 latestOrderNotification.orderId
               );
-              
+
               // Get product image from order cart - handle both array and string formats
               let productImage = null;
               const cartItem = orderData?.cart?.[0];
-              
+
               if (cartItem) {
                 if (Array.isArray(cartItem.image)) {
                   productImage = cartItem.image[0] || cartItem.image;
                 } else if (typeof cartItem.image === 'string') {
                   productImage = cartItem.image;
                 }
-                
+
                 // Also check variant image if main image not found
                 if (!productImage && cartItem.variants?.[0]?.image) {
                   if (Array.isArray(cartItem.variants[0].image)) {
@@ -164,14 +164,14 @@ const Header = () => {
                   }
                 }
               }
-              
+
               // Fallback chain
-              productImage = productImage || 
+              productImage = productImage ||
                 latestOrderNotification.image ||
                 "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100";
-              
+
               console.log("Order popup image:", productImage, "Order data:", orderData);
-              
+
               setOrderPopup({
                 ...latestOrderNotification,
                 image: productImage,
@@ -186,12 +186,12 @@ const Header = () => {
                   "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100",
               });
             }
-            
+
             // play sound softly
             if (orderSound) {
               orderSound.currentTime = 0;
               orderSound.volume = 0.6;
-              orderSound.play().catch(() => {});
+              orderSound.play().catch(() => { });
             }
           }
           // notifySuccess(latestOrderNotification.message || "New order received");
@@ -263,8 +263,8 @@ const Header = () => {
                   <div className="flex-shrink-0">
                     <img
                       src={
-                        (orderPopup && orderPopup.image) 
-                          ? orderPopup.image 
+                        (orderPopup && orderPopup.image)
+                          ? orderPopup.image
                           : "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100"
                       }
                       alt="Product"
@@ -406,15 +406,14 @@ const Header = () => {
               {notificationOpen && (
                 <div className="origin-top-right absolute md:right-0 -right-3 top-2 rounded-md shadow-lg bg-white dark:bg-gray-800  focus:outline-none">
                   <div
-                    className={`${
-                      data?.length === 0
+                    className={`${data?.length === 0
                         ? "h-40"
                         : data?.length <= 2
-                        ? "h-40"
-                        : data?.length <= 3
-                        ? "h-56"
-                        : "h-330"
-                    } md:w-400 w-300`}
+                          ? "h-40"
+                          : data?.length <= 3
+                            ? "h-56"
+                            : "h-330"
+                      } md:w-400 w-300`}
                   >
                     <Scrollbars>
                       {data?.length === 0 ? (
@@ -425,20 +424,18 @@ const Header = () => {
                             return (
                               <li
                                 key={index + 1}
-                                className={`flex justify-between items-center font-serif font-normal text-sm py-3 border-b border-gray-100 dark:border-gray-700 px-3 transition-colors duration-150 hover:bg-gray-100 ${
-                                  value.status === "unread" && "bg-gray-50"
-                                } hover:text-gray-800 dark:text-gray-400 ${
-                                  value.status === "unread" &&
+                                className={`flex justify-between items-center font-serif font-normal text-sm py-3 border-b border-gray-100 dark:border-gray-700 px-3 transition-colors duration-150 hover:bg-gray-100 ${value.status === "unread" && "bg-gray-50"
+                                  } hover:text-gray-800 dark:text-gray-400 ${value.status === "unread" &&
                                   "dark:bg-gray-800"
-                                } dark:hover:bg-gray-900  dark:hover:text-gray-100 cursor-pointer`}
+                                  } dark:hover:bg-gray-900  dark:hover:text-gray-100 cursor-pointer`}
                               >
                                 <Link
                                   to={
                                     value.productId
                                       ? `/product/${value.productId}`
                                       : value.orderId
-                                      ? `/order/${value.orderId}`
-                                      : "/our-staff"
+                                        ? `/order/${value.orderId}`
+                                        : "/our-staff"
                                   }
                                   className="flex items-center"
                                   onClick={() =>

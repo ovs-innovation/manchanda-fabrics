@@ -170,5 +170,24 @@
   "Other": "अन्य",
   "Find Us": "हमें खोजें",
   "Visit Our Showroom": "हमारे शोरूम पर आएं",
-  "Open in Google Maps": "गूगल मैप्स में खोलें"
+  "Open in Google Maps": "गूगल मैप्स में खोलें",
+
+  "Notifications": "सूचनाएँ",
+  "My Account": "मेरा खाता",
+  "Track Order": "ऑर्डर ट्रैक करें",
+  "Welcome back": "वापस स्वागत है",
+  "Manage your orders, saved addresses, and profile details below.": "अपने ऑर्डर, सहेजे गए पते और प्रोफ़ाइल विवरण यहाँ प्रबंधित करें।",
+  "Latest Order": "नवीनतम ऑर्डर",
+  "Placed on": "दिनांक",
+  "Total": "कुल",
+  "View Details": "विवरण देखें",
+  "Track Package": "पैकेज ट्रैक करें",
+  "You have not placed any orders yet.": "आपने अभी तक कोई ऑर्डर नहीं दिया है।",
+  "Shop Collections": "संग्रह देखें",
+  "Default Address": "डिफ़ॉल्ट पता",
+  "No delivery addresses saved yet. Add a default shipping location.": "अभी तक कोई डिलीवरी पता नहीं है। एक डिफ़ॉल्ट पता जोड़ें।",
+  "Edit Address": "पता बदलें",
+  "Add Address": "पता जोड़ें",
+  "Home": "घर",
+  "Office": "कार्यालय"
 }

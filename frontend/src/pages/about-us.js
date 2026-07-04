@@ -14,19 +14,19 @@ const AboutUs = () => {
 
   const heroTitle =
     showingTranslateValue(about?.top_title) ||
-    "WEAVE YOUR STORY WITH TIMELESS ELEGANCE.";
+    "ONE FAMILY. ONE SHOP. SINCE 1990.";
   const heroDescription =
     showingTranslateValue(about?.top_description) ||
-    "At Manchanda Fabrics, we believe ethnic wear is more than fabric—it is heritage, culture, and personal expression. We curate exquisite salwar suits, anarkali sets, and handloom fabrics from India's finest weaving centers.";
+    "Manchanda Fabrics is a family-run business from Chandni Chowk, Delhi. Started by our father in 1990, run today by Pradeep, Shallu, and their three daughters — Sanjana, Saisha & Sanaya. No big office. No outsourced team. Just family.";
 
   return (
     <Layout title="About Us" description="Our Heritage & Story - Manchanda Fabrics">
-      
+
       {/* 1. HERO SECTION: Light Warm Beige Background */}
       <div className="bg-[#FAF7F5] text-[#3B2A25] pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-[#E6D1CB]">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-            
+
             {/* Left Column: Copy */}
             <div className="lg:col-span-5 space-y-6 text-left">
               <span className="text-[#9C6A5A] text-xs font-bold uppercase tracking-[0.25em] block font-sans">
@@ -39,14 +39,14 @@ const AboutUs = () => {
                 {heroDescription}
               </p>
               <p className="text-[#3B2A25]/60 text-sm font-sans tracking-wide">
-                With over 10,000+ happy patrons across India, our mission is to deliver authentic, premium quality textiles directly from master weavers.
+                Est. 1990 · Chandni Chowk, Delhi · Trusted by thousands of families across India.
               </p>
               <div className="pt-2">
-                <a 
+                <a
                   href="#story"
                   className="bg-[#9C6A5A] text-white hover:bg-[#6F4A3D] transition-all font-sans font-bold tracking-widest text-xs uppercase px-8 py-4 rounded-md inline-flex items-center gap-3 group shadow-md"
                 >
-                  OUR HERITAGE 
+                  OUR STORY
                   <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </a>
               </div>
@@ -55,7 +55,7 @@ const AboutUs = () => {
             {/* Right Column: Hero Mockup Image */}
             <div className="lg:col-span-7 flex justify-center">
               <div className="w-full relative overflow-hidden rounded-t-[180px] rounded-b-[20px] border-4 border-white shadow-xl">
-                <img 
+                <img
                   src={ABOUT_IMAGES.hero}
                   alt="Manchanda Fabrics Traditional Suit Collection"
                   className="w-full h-auto object-cover"
@@ -71,25 +71,25 @@ const AboutUs = () => {
       <div id="story" className="bg-[#3B2A25] text-[#E6D1CB] py-20 lg:py-28">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            
+
             {/* Left Side Copy */}
             <div className="lg:col-span-5 space-y-6 text-left">
               <span className="text-[#E6D1CB] text-xs font-bold uppercase tracking-[0.25em] block font-sans">
                 OUR ORIGIN
               </span>
               <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight leading-tight text-[#FAF7F5]">
-                A LEGACY OF WEAVES<br />
-                AND DESIGN INTEGRITY
+                ONE FAMILY,<br />
+                ONE SHOP, ONE DREAM.
               </h2>
               <div className="space-y-4 text-[#E6D1CB]/80 font-sans text-sm md:text-base leading-relaxed text-justify">
                 <p>
-                  Manchanda Fabrics started with a simple vision: to bridge the gap between India's traditional weaving clusters and contemporary buyers who cherish authentic ethnic wear.
+                  Manchanda Fabrics began in 1990, when our father started a small shop in the heart of Chandni Chowk, Delhi — with nothing more than a love for good fabric and honest business.
                 </p>
                 <p>
-                  Today, we offer a handpicked collection of pure silks, traditional Banarasis, unstitched suit sets, and breathable everyday cotton fabrics.
+                  Today, Pradeep still handles the shop and sourcing, packing every order himself. Shallu is the voice on your calls and messages. And us three sisters — Sanjana, Saisha, and Sanaya — have taken the business online, running everything from the reels to the page itself.
                 </p>
                 <p>
-                  Our commitment remains absolute - ensuring zero compromise on fiber purity, supporting native weavers, and delivering a secure, premium shopping experience.
+                  From one small shop to a family business spanning three generations. No big office, no outsourced team — just one family, splitting the work between us, the same way we have for years.
                 </p>
               </div>
             </div>
@@ -97,13 +97,13 @@ const AboutUs = () => {
             {/* Right Side Lookbook Column Cards */}
             <div className="lg:col-span-7 grid grid-cols-3 gap-3 md:gap-4">
               {ABOUT_IMAGES.lookbook.map((src, i) => (
-              <div key={i} className={`rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30 ${i === 1 ? "mt-6 lg:mt-8" : ""}`}>
-                <img 
-                  src={src}
-                  alt={`Traditional suit lookbook ${i + 1}`}
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                />
-              </div>
+                <div key={i} className={`rounded-xl overflow-hidden aspect-[3/5] relative bg-[#FAF7F5] border border-[#E6D1CB]/30 ${i === 1 ? "mt-6 lg:mt-8" : ""}`}>
+                  <img
+                    src={src}
+                    alt={`Traditional suit lookbook ${i + 1}`}
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                  />
+                </div>
               ))}
             </div>
 
@@ -114,7 +114,7 @@ const AboutUs = () => {
       {/* 3. WHAT WE OFFER: Soft Cream Background */}
       <div className="bg-[#FAF7F5] text-[#3B2A25] py-20 lg:py-24 border-t border-[#E6D1CB]">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10">
-          
+
           {/* Header Row */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div className="text-left space-y-2">
@@ -130,13 +130,13 @@ const AboutUs = () => {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 font-sans max-w-4xl mx-auto">
-            
+
             {/* Suit Sets Card */}
             <div className="bg-white rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm hover:shadow-md transition-all group text-left">
               <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100 border-b border-[#E6D1CB]">
-                <img 
+                <img
                   src={ABOUT_IMAGES.suitsCard}
-                  alt="Premium Suit Sets" 
+                  alt="Premium Suit Sets"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -156,9 +156,9 @@ const AboutUs = () => {
             {/* Fabrics Card */}
             <div className="bg-white rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm hover:shadow-md transition-all group text-left">
               <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100 border-b border-[#E6D1CB]">
-                <img 
+                <img
                   src={ABOUT_IMAGES.fabricsCard}
-                  alt="Premium Suit Fabrics" 
+                  alt="Premium Suit Fabrics"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -183,7 +183,7 @@ const AboutUs = () => {
       <div className="bg-[#6F4A3D] text-[#FAF7F5] py-14 border-t border-b border-[#3B2A25]/20">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 font-sans">
-            
+
             {/* Feature 1 */}
             <div className="flex items-start gap-4 text-left">
               <div className="w-10 h-10 rounded-full border border-[#E6D1CB]/30 flex items-center justify-center flex-shrink-0 text-[#E6D1CB]">
@@ -236,10 +236,10 @@ const AboutUs = () => {
       <div className="bg-[#FAF7F5] py-20">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10">
           <div className="bg-white border border-[#E6D1CB] rounded-3xl p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-md font-sans">
-            
+
             {/* Stats Area */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 w-full lg:w-auto text-left lg:border-r lg:border-[#E6D1CB] pr-0 lg:pr-12">
-              
+
               {/* Stat 1 */}
               <div className="flex items-center gap-4">
                 <div className="text-3xl text-[#9C6A5A]"><FiUsers /></div>
@@ -271,14 +271,14 @@ const AboutUs = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto sm:justify-end">
-              <Link 
+              <Link
                 href="/search?category=sarees"
                 className="border border-[#9C6A5A] text-[#9C6A5A] hover:bg-[#FAF7F5] transition-all font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-md flex items-center justify-center gap-2"
               >
                 SHOP SAREES
                 <FiArrowRight className="w-4 h-4" />
               </Link>
-              <Link 
+              <Link
                 href="/search?category=suits"
                 className="bg-[#9C6A5A] text-white hover:bg-[#6F4A3D] transition-all font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-md flex items-center justify-center gap-2 shadow-sm"
               >

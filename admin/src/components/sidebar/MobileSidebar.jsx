@@ -7,7 +7,7 @@ import { SidebarContext } from "@/context/SidebarContext";
 
 function MobileSidebar() {
   const { isSidebarOpen, closeSidebar } = useContext(SidebarContext);
-  
+
   return (
     <Transition show={isSidebarOpen}>
       <div className="fixed inset-0 z-50 lg:hidden">

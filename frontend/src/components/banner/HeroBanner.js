@@ -29,7 +29,7 @@ const HeroBanner = () => {
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-80"
       >
-        <source src="https://vjs.zencdn.net/v/oceans.mp4" type="video/mp4" />
+        <source src="/main.mp4" type="video/mp4" />
       </video>
 
       {/* ── Cinematic Gradient Overlay ── */}

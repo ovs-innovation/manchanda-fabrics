@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { IoLockOpenOutline } from "react-icons/io5";
+import useTranslation from "next-translate/useTranslation";
 import {
   FiBell,
   FiCheck,
@@ -42,6 +43,7 @@ const Dashboard = ({ title, description, children }) => {
 
   const { storeCustomizationSetting } = useGetSetting();
   const { showingTranslateValue } = useUtilsFunction();
+  const { t } = useTranslation("common");
   const [isOpen, setIsOpen] = useState(false);
 
   const userInfo = userState?.userInfo || session?.user;
@@ -109,17 +111,17 @@ const Dashboard = ({ title, description, children }) => {
       icon: FiList,
     },
     {
-      title: "Notifications",
+      title: t("Notifications"),
       href: "/user/notifications",
       icon: FiBell,
     },
     {
-      title: "My Account",
+      title: t("My Account"),
       href: "/user/my-account",
       icon: FiUser,
     },
     {
-      title: "Track Order",
+      title: t("Track Order"),
       href: "/user/track-order",
       icon: FiTruck,
     },
@@ -447,10 +449,10 @@ const Dashboard = ({ title, description, children }) => {
                     <div className="space-y-6">
                       <div className="mb-4">
                         <h2 className="text-2xl font-serif font-light text-[#3B2A25]">
-                          Welcome back, {userInfo?.name}!
+                          {t("Welcome back")}, {userInfo?.name}!
                         </h2>
                         <p className="text-xs text-[#3B2A25]/60 mt-1">
-                          Manage your orders, saved addresses, and profile details below.
+                          {t("Manage your orders, saved addresses, and profile details below.")}
                         </p>
                       </div>
 
@@ -460,7 +462,7 @@ const Dashboard = ({ title, description, children }) => {
                           {/* Latest Order Status */}
                           <div className="bg-white border border-[#E6D1CB]/60 rounded-2xl p-6 shadow-md">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-4">
-                              Latest Order
+                              {t("Latest Order")}
                             </h3>
                             {data?.orders && data.orders.length > 0 ? (
                               (() => {
@@ -473,7 +475,7 @@ const Dashboard = ({ title, description, children }) => {
                                           #{latestOrder?._id?.slice(-6).toUpperCase()}
                                         </span>
                                         <span className="text-[11px] text-[#3B2A25]/60 ml-3">
-                                          Placed on {new Date(latestOrder.createdAt).toLocaleDateString()}
+                                          {t("Placed on")} {new Date(latestOrder.createdAt).toLocaleDateString()}
                                         </span>
                                       </div>
                                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
@@ -491,20 +493,20 @@ const Dashboard = ({ title, description, children }) => {
 
                                     <div className="flex justify-between items-center py-1">
                                       <div className="text-sm font-bold text-[#3B2A25]">
-                                        Total: <span className="text-[#9C6A5A]">{showingTranslateValue(storeCustomizationSetting?.theme?.currency) || "₹"}{parseFloat(latestOrder.total).toFixed(2)}</span>
+                                        {t("Total")}: <span className="text-[#9C6A5A]">{showingTranslateValue(storeCustomizationSetting?.theme?.currency) || "₹"}{parseFloat(latestOrder.total).toFixed(2)}</span>
                                       </div>
                                       <div className="flex gap-2.5">
                                         <Link
                                           href={`/order/${latestOrder._id}`}
                                           className="text-xs font-bold uppercase tracking-wider text-[#3B2A25]/80 hover:text-[#3B2A25] bg-[#FAF7F5] border border-[#E6D1CB]/60 px-4 py-2 rounded-xl transition-all duration-200"
                                         >
-                                          View Details
+                                          {t("View Details")}
                                         </Link>
                                         <Link
                                           href={`/order/${latestOrder._id}`}
                                           className="text-xs font-bold uppercase tracking-wider text-white bg-[#9C6A5A] hover:bg-[#6F4A3D] px-4 py-2 rounded-xl transition-all duration-200"
                                         >
-                                          Track Package
+                                          {t("Track Package")}
                                         </Link>
                                       </div>
                                     </div>
@@ -513,12 +515,12 @@ const Dashboard = ({ title, description, children }) => {
                               })()
                             ) : (
                               <div className="py-6 text-center">
-                                <p className="text-sm text-[#3B2A25]/60 mb-4">You have not placed any orders yet.</p>
+                                <p className="text-sm text-[#3B2A25]/60 mb-4">{t("You have not placed any orders yet.")}</p>
                                 <Link
                                   href="/"
                                   className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white bg-[#9C6A5A] hover:bg-[#6F4A3D] px-6 py-3 rounded-xl transition-all duration-200"
                                 >
-                                  <FiShoppingBag size={14} /> Shop Collections
+                                  <FiShoppingBag size={14} /> {t("Shop Collections")}
                                 </Link>
                               </div>
                             )}
@@ -533,13 +535,13 @@ const Dashboard = ({ title, description, children }) => {
                           <div className="bg-white border border-[#E6D1CB]/60 rounded-2xl p-6 shadow-md h-full flex flex-col justify-between">
                             <div>
                               <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-4">
-                                Default Address
+                                {t("Default Address")}
                               </h3>
                               {defaultAddress ? (
                                 <div className="space-y-4">
                                   <div>
                                     <span className="px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-lg border bg-indigo-50 text-indigo-700 border-indigo-200">
-                                      {defaultAddress.addressType || "Home"}
+                                      {defaultAddress.addressType || t("Home")}
                                     </span>
                                     <h4 className="text-base font-bold text-[#3B2A25] mt-2">
                                       {defaultAddress.name}
@@ -554,7 +556,7 @@ const Dashboard = ({ title, description, children }) => {
                                 </div>
                               ) : (
                                 <div className="py-6 text-center">
-                                  <p className="text-xs text-[#3B2A25]/60 leading-relaxed">No delivery addresses saved yet. Add a default shipping location.</p>
+                                  <p className="text-xs text-[#3B2A25]/60 leading-relaxed">{t("No delivery addresses saved yet. Add a default shipping location.")}</p>
                                 </div>
                               )}
                             </div>
@@ -563,7 +565,7 @@ const Dashboard = ({ title, description, children }) => {
                                 href="/user/my-account"
                                 className="w-full flex items-center justify-center gap-1.5 text-center text-xs font-bold uppercase tracking-wider text-white bg-[#9C6A5A] hover:bg-[#6F4A3D] py-3 rounded-xl transition-all duration-200"
                               >
-                                {defaultAddress ? "Edit Address" : "Add Address"}
+                                {defaultAddress ? t("Edit Address") : t("Add Address")}
                               </Link>
                             </div>
                           </div>

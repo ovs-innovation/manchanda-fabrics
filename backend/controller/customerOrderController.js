@@ -422,8 +422,41 @@ const createOrderByRazorPay = async (req, res) => {
   }
 };
 
+const crypto = require("crypto");
+
 const addRazorpayOrder = async (req, res) => {
   try {
+    // 1. Fetch store settings and verify payment signature
+    const storeSetting = await Setting.findOne({ name: "storeSetting" });
+    if (!storeSetting || !storeSetting.setting) {
+      return res.status(400).send({
+        message: "Store settings not found in database.",
+      });
+    }
+
+    const razorpaySecret = storeSetting?.setting?.razorpay_secret;
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body.razorpay || {};
+
+    if (razorpaySecret && razorpayPaymentId && razorpayOrderId && razorpaySignature) {
+      const generated_signature = crypto
+        .createHmac("sha256", razorpaySecret)
+        .update(razorpayOrderId + "|" + razorpayPaymentId)
+        .digest("hex");
+
+      if (generated_signature !== razorpaySignature) {
+        console.error("Razorpay signature verification failed!");
+        return res.status(400).send({
+          message: "Razorpay signature verification failed!",
+        });
+      }
+      console.log("Razorpay signature verified successfully.");
+    } else {
+      console.error("Razorpay payment details or signature missing in request:", req.body.razorpay);
+      return res.status(400).send({
+        message: "Razorpay payment details or signature missing!",
+      });
+    }
+
     const outOfStockItems = await checkStock(req.body.cart);
     if (outOfStockItems.length > 0) {
       return res.status(400).send({

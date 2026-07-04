@@ -1,26 +1,26 @@
 :root {
   /* ── Luxury Brand Palette ── */
-  --gold:            #C8A45D;
-  --gold-dark:       #a8833d;
-  --gold-light:      #e8d5a3;
-  --bg:              #F9F6F1;
-  --dark:            #111111;
-  --white:           #FFFFFF;
-  --text:            #3A3A3A;
-  --text-light:      #7A7A7A;
-  --whatsapp:        #25D366;
+  --gold: #C8A45D;
+  --gold-dark: #a8833d;
+  --gold-light: #e8d5a3;
+  --bg: #F9F6F1;
+  --dark: #111111;
+  --white: #FFFFFF;
+  --text: #3A3A3A;
+  --text-light: #7A7A7A;
+  --whatsapp: #25D366;
 
   /* Legacy store aliases — kept for existing product/checkout components */
-  --brand-coffee:    #93614E;
-  --brand-dark:      #7A4D3C;
-  --brand-bg:        #F9F6F1;
+  --brand-coffee: #93614E;
+  --brand-dark: #7A4D3C;
+  --brand-bg: #F9F6F1;
   --brand-secondary: #D5BBB4;
-  --brand-gold:      #C8A45D;
-  --brand-text:      #3A3A3A;
-  --brand-white:     #FFFFFF;
-  --brand-cream:     #F9F6F1;
-  --brand-blush:     #EFE0D9;
-  --store-color-50:  #F9F6F1;
+  --brand-gold: #C8A45D;
+  --brand-text: #3A3A3A;
+  --brand-white: #FFFFFF;
+  --brand-cream: #F9F6F1;
+  --brand-blush: #EFE0D9;
+  --store-color-50: #F9F6F1;
   --store-color-100: #F5ECE8;
   --store-color-200: #D5BBB4;
   --store-color-300: #D5BBB4;
@@ -30,12 +30,12 @@
   --store-color-700: #7A4D3C;
   --store-color-800: #3A3A3A;
   --store-color-900: #111111;
-  --store-gold:      #C8A45D;
+  --store-gold: #C8A45D;
 
   /* ── Font Aliases ── */
   --font-heading: 'Poppins', sans-serif;
-  --font-nav:     'Poppins', sans-serif;
-  --font-body:    'Poppins', sans-serif;
+  --font-nav: 'Poppins', sans-serif;
+  --font-body: 'Poppins', sans-serif;
 }
 
 @tailwind base;
@@ -63,8 +63,13 @@ body {
 
 /* ── Infinite Marquee ── */
 @keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .marquee-track {
@@ -110,6 +115,7 @@ body {
   }
 
   @media print {
+
     .font-invoice,
     .font-invoice * {
       font-family: Arial, sans-serif !important;

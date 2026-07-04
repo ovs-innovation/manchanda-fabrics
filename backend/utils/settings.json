@@ -94,7 +94,10 @@
         "popular_products_status": true,
         "discount_product_status": true,
         "feature_promo_status": true,
-        "discount_coupon_code": ["WINTER21", "OCTOBER21"],
+        "discount_coupon_code": [
+          "WINTER21",
+          "OCTOBER21"
+        ],
         "place_holder_img": "",
         "discount_title": {
           "en": "Latest Super Discount Active Coupon Code",
@@ -358,7 +361,12 @@
           "en": "Mega Offer",
           "de": "Mega Angebot"
         },
-        "coupon_code": ["SUMMER21", "WINTER21", "AUGUST21", "OCTOBER21"]
+        "coupon_code": [
+          "SUMMER21",
+          "WINTER21",
+          "AUGUST21",
+          "OCTOBER21"
+        ]
       },
       "privacy_policy": {
         "status": true,
@@ -871,7 +879,6 @@
       "fb_pixel_status": false,
       "google_analytic_key": "",
       "google_analytic_status": false,
-
       "google_login_status": false,
       "github_login_status": false,
       "facebook_login_status": false,

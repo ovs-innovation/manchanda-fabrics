@@ -415,5 +415,26 @@
   "Other": "Other",
   "Find Us": "Find Us",
   "Visit Our Showroom": "Visit Our Showroom",
-  "Open in Google Maps": "Open in Google Maps"
+  "Open in Google Maps": "Open in Google Maps",
+
+  "/=================*User Dashboard*=================/": "",
+
+  "Notifications": "Notifications",
+  "My Account": "My Account",
+  "Track Order": "Track Order",
+  "Welcome back": "Welcome back",
+  "Manage your orders, saved addresses, and profile details below.": "Manage your orders, saved addresses, and profile details below.",
+  "Latest Order": "Latest Order",
+  "Placed on": "Placed on",
+  "Total": "Total",
+  "View Details": "View Details",
+  "Track Package": "Track Package",
+  "You have not placed any orders yet.": "You have not placed any orders yet.",
+  "Shop Collections": "Shop Collections",
+  "Default Address": "Default Address",
+  "No delivery addresses saved yet. Add a default shipping location.": "No delivery addresses saved yet. Add a default shipping location.",
+  "Edit Address": "Edit Address",
+  "Add Address": "Add Address",
+  "Home": "Home",
+  "Office": "Office"
 }

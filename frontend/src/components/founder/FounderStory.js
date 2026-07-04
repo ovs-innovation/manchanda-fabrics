@@ -76,9 +76,9 @@ const FounderStory = () => {
               className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.15] text-[#111111]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              {t("Founder's")}
+              {t("Our")}
               <br />
-              <em className="not-italic font-normal italic text-[#C8A45D]">{t("Message")}</em>
+              <em className="not-italic font-normal italic text-[#C8A45D]">{t("Story")}</em>
             </h2>
 
             {/* Gold divider */}
@@ -90,10 +90,13 @@ const FounderStory = () => {
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <p>
-                {t("&ldquo;When I started Manchanda Fabrics in 1995, my dream was simple — to bring the finest handloom weaves of India to every woman who values elegance and heritage. Three decades later, that vision remains our compass.&rdquo;")}
+                Manchanda Fabrics began in 1990, when our father started a small shop in the heart of Chandni Chowk, Delhi — with nothing more than a love for good fabric and honest business.
               </p>
               <p>
-                {t("Every piece we curate carries the soul of its maker — the weaver who spent days perfecting the zari, the artisan whose hands shaped each motif. We believe fashion is not merely what you wear; it is the story you carry.")}
+                Today, Pradeep still handles the shop and sourcing, packing every order himself. Shallu is the voice on your calls and messages. And us three sisters — Sanjana, Saisha, and Sanaya — have taken the business online, running everything from the reels to the page itself.
+              </p>
+              <p>
+                From one small shop to a family business spanning three generations. No big office, no outsourced team — just one family, splitting the work between us, the same way we have for years.
               </p>
             </div>
 
@@ -109,7 +112,7 @@ const FounderStory = () => {
                 className="text-[11px] uppercase tracking-[0.2em] text-[#7A7A7A]"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                {t("Est. 1995 · Premium Indian Ethnic Wear")}
+                {t("Est. 1990 · Premium Indian Ethnic Wear")}
               </p>
             </div>
           </motion.div>

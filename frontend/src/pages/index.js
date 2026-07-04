@@ -69,12 +69,12 @@ const Home = ({ popularProducts, bestSellingProducts, attributes }) => {
   const bestSellers = bestSellingProducts || [];
 
   const occasions = [
-    { name: "Wedding", slug: "party-wear", tag: "Royal Splendor", bg: LOCAL_BANNERS.bangaloriSilk },
-    { name: "Reception", slug: "party-wear", tag: "Evening Glitz", bg: LOCAL_BANNERS.gajiSilk },
-    { name: "Haldi", slug: "cotton-suits", tag: "Bright Marigold", bg: LOCAL_BANNERS.mulCotton },
-    { name: "Mehendi", slug: "applique-work", tag: "Festive Greens", bg: LOCAL_BANNERS.appliqueSuit },
-    { name: "Festivals", slug: "party-wear", tag: "Divine Grace", bg: traditionalPhoto("festiveSuitRed", 500, 700) },
-    { name: "Daily Wear", slug: "cotton-suits", tag: "Premium Comfort", bg: traditionalPhoto("cottonSuitPastel", 500, 700) },
+    { name: "Wedding", slug: "party-wear", tag: "Royal Splendor", bg: "/h1.jpeg" },
+    { name: "Reception", slug: "party-wear", tag: "Evening Glitz", bg: "/h2.jpeg" },
+    { name: "Haldi", slug: "cotton-suits", tag: "Bright Marigold", bg: "/h3.jpeg" },
+    { name: "Mehendi", slug: "applique-work", tag: "Festive Greens", bg: "/h4.jpeg" },
+    { name: "Festivals", slug: "party-wear", tag: "Divine Grace", bg: "/h5.jpeg" },
+    { name: "Daily Wear", slug: "cotton-suits", tag: "Premium Comfort", bg: "/h6.jpeg" },
   ];
 
   const whyChooseUs = [
@@ -232,7 +232,7 @@ const Home = ({ popularProducts, bestSellingProducts, attributes }) => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
               <div className="lg:col-span-7 group relative overflow-hidden bg-[#F9F6F1] flex flex-col justify-between border border-neutral-100">
                 <div className="aspect-[4/3] lg:aspect-auto lg:h-[500px] w-full overflow-hidden relative">
-                  <img src={traditionalPhoto("festiveSuitRed", 900)} alt="Heritage Luxury Silk Collection"
+                  <img src="/h1.jpeg" alt="Heritage Luxury Silk Collection"
                     className="w-full h-full object-cover object-top transition-transform duration-700 ease-in-out group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
@@ -258,8 +258,8 @@ const Home = ({ popularProducts, bestSellingProducts, attributes }) => {
                 {HOME_PREMIUM_COLLECTIONS.slice(1, 3).map((col, idx) => (
                   <div key={idx} className="group relative flex flex-col sm:flex-row overflow-hidden bg-[#F9F6F1] border border-neutral-100 h-full">
                     <div className="aspect-[4/3] sm:aspect-square sm:w-1/2 overflow-hidden relative shrink-0">
-                      <img src={col.bg} alt={col.title}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
+                      <img src="/h2.jpeg" alt={col.title}
+                        className="w-full h-[200px] object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
                     </div>
                     <div className="p-6 flex flex-col justify-center">
                       <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#C8A45D]"
