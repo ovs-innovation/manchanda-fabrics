@@ -101,12 +101,12 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
         <div
           id="site-header"
           style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
-          className="hidden lg:block fixed top-0 left-0 w-full z-50 transition-transform duration-400 ease-in-out h-[90px] bg-white border-b border-black/8 text-[#111111]"
+          className="hidden lg:block fixed top-0 left-0 w-full z-50 transition-transform duration-400 ease-in-out h-[110px] bg-white border-b border-black/8 text-[#111111]"
         >
           <Navbar />
         </div>
 
-        <main className="pt-0 lg:pt-[90px]">{children}</main>
+        <main className="pt-0 lg:pt-[110px]">{children}</main>
 
         <Footer />
         <FloatingWhatsApp />

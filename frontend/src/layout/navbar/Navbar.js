@@ -71,7 +71,7 @@ const Navbar = () => {
       <div className="w-full bg-white h-[110px] px-8 lg:px-14 flex items-center justify-between relative">
 
         {/* ── LEFT: Logo ── */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 pl-6">
           {/* Hamburger — mobile only */}
           <button
             onClick={() => setMobileMenuOpen(true)}
@@ -86,7 +86,8 @@ const Navbar = () => {
             <img
               src="/manchandalogo.png"
               alt="MANCHANDA FABRICS"
-              className="h-15 lg:h-[76px] w-auto object-contain"
+              className="w-auto object-contain"
+              style={{ height: "clamp(62px, 4.5vw, 68px)" }}
               draggable="false"
             />
           </Link>
@@ -100,7 +101,8 @@ const Navbar = () => {
               <img
                 src="/manchandalogo.png"
                 alt="MANCHANDA FABRICS"
-                className="h-13 w-auto object-contain"
+                className="w-auto object-contain"
+                style={{ height: "clamp(58px, calc(3vw + 46px), 72px)" }}
                 draggable="false"
               />
             </Link>
@@ -135,8 +137,8 @@ const Navbar = () => {
               </button>
               <div
                 className={`absolute right-0 mt-1 w-36 bg-white border border-[#E6D1CB]/40 shadow-xl rounded-xl py-1.5 z-50 transition-all duration-200 ease-out transform origin-top-right ${dropdownOpen
-                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                    : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
+                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                  : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
                   }`}
               >
                 <button

@@ -36,7 +36,7 @@ const MobileNavbar = () => {
     <>
       <CategoryDrawer />
       <CartDrawer />
-      <header className="lg:hidden sticky top-0 z-[70] h-16 bg-[#FAF7F5]/95 backdrop-blur-md border-b border-[#E6D1CB]/70 shadow-sm">
+      <header className="lg:hidden sticky top-0 z-[70] h-[80px] bg-[#FAF7F5]/95 backdrop-blur-md border-b border-[#E6D1CB]/70 shadow-sm">
         <div className="relative h-full max-w-screen-2xl mx-auto px-3 flex items-center justify-between">
           {/* Left: menu + wishlist */}
           <div className="flex items-center gap-0.5 z-10 w-[72px]">
@@ -71,7 +71,8 @@ const MobileNavbar = () => {
             <img
               src={logo}
               alt="Manchanda Fabrics"
-              className="h-12 w-auto max-w-[160px] object-contain object-center"
+              className="w-auto max-w-[180px] object-contain object-center"
+              style={{ height: "clamp(58px, calc(3vw + 46px), 72px)" }}
               draggable="false"
             />
           </Link>
