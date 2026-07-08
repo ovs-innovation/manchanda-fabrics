@@ -7,8 +7,10 @@ const WhatsAppSection = () => {
   const { storeCustomizationSetting } = useGetSetting();
   const { t } = useTranslation("common");
 
-  const phone1 = storeCustomizationSetting?.footer?.social_whatsapp || "919240250346";
-  const phone2 = "919876543210"; // Placeholder — replace via admin panel
+  const phone1 =
+    storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp ||
+    storeCustomizationSetting?.footer?.social_whatsapp ||
+    "919891595929";
 
   const makeLink = (num) =>
     `https://wa.me/${num.replace(/\D/g, "")}?text=${encodeURIComponent(
@@ -44,7 +46,7 @@ const WhatsAppSection = () => {
             </div>
           </div>
 
-          {/* ── RIGHT: Buttons ── */}
+          {/* ── RIGHT: Button ── */}
           <div className="flex flex-col sm:flex-row gap-4 shrink-0">
             <a
               href={makeLink(phone1)}
@@ -54,18 +56,7 @@ const WhatsAppSection = () => {
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <FaWhatsapp className="w-4.5 h-4.5" />
-              {t("Phone 1 — Order Now")}
-            </a>
-
-            <a
-              href={makeLink(phone2)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2.5 px-9 py-4 border border-[#25D366]/50 text-white text-[13px] sm:text-[14px] font-bold uppercase tracking-[0.18em] rounded-full hover:bg-[#25D366]/10 hover:border-[#25D366] transition-all duration-300"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              <FaWhatsapp className="w-4.5 h-4.5 text-[#25D366]" />
-              {t("Phone 2 — Order Now")}
+              {t("Order Now")}
             </a>
           </div>
 

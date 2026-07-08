@@ -98,7 +98,7 @@ const forgetPassword = async (req, res) => {
     const option = {
       name: isAdded.name,
       email: req.body.verifyEmail,
-      contact_email: globalSetting?.setting?.email || "support@Manchanda Fabrics.com",
+      contact_email: globalSetting?.setting?.email || "manchandafabrics@gmail.com",
       token: token,
       shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };
@@ -172,7 +172,7 @@ const addStaff = async (req, res) => {
       const option = {
         name: req.body.name,
         email: req.body.email,
-        contact_email: globalSetting?.setting?.email || "support@Manchanda Fabrics.com",
+        contact_email: globalSetting?.setting?.email || "manchandafabrics@gmail.com",
         password: req.body.password,
         shop_name: globalSetting?.setting?.shop_name || "manchanda",
       };

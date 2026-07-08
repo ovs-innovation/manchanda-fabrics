@@ -302,8 +302,8 @@ export const storeCustomization = {
       de: "Schreiben Sie uns eine E-Mail",
     },
     email_box_email: {
-      en: "info@Manchanda Fabrics.com ",
-      de: "info@Manchanda Fabrics.com",
+      en: "manchandafabrics@gmail.com",
+      de: "manchandafabrics@gmail.com",
     },
     email_box_text: {
       en: "Interactively grow empowered for process-centric total linkage. ",

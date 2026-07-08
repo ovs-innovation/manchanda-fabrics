@@ -13,7 +13,7 @@ const run = async () => {
       ...globalSet.setting,
       company_name: "Manchanda Fabrics Pvt Ltd",
       address: "Plot No. 12, Sector 4, Ghaziabad, Uttar Pradesh, 201012",
-      email: "contact@manchandafabrics.com",
+      email: "manchandafabrics@gmail.com",
       website: "manchandafabrics.com",
       contact: "+91 98765 43210",
       gstin: "09AAZCA5886C1ZV",

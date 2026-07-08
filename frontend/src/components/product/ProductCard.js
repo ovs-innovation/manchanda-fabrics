@@ -13,6 +13,8 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import ProductModal from "@components/modal/ProductModal";
 import { handleLogEvent } from "src/lib/analytics";
 import { addToWishlist, removeFromWishlist, isInWishlist } from "@lib/wishlist";
+import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { translateLabel } from "@utils/locale";
 
 const formatCardPrice = (value = 0) => {
   const num = Math.max(0, parseFloat(value) || 0);
@@ -136,16 +138,16 @@ const ProductCard = ({
       : 0;
 
   const isSoldOut = product.stock < 1;
-  const title = showingTranslateValue(product?.title);
+  const title = translateLabel(showingTranslateValue(product?.title), t);
 
   const primaryImg = product.featuredImage || product.image?.[0];
   const hoverImg = product.hoverImage || product.image?.[1];
 
   // Dynamic luxury status badge
   const getBadgeText = () => {
-    if (product.tags?.includes("best-seller") || product.tag?.includes("best-seller")) return "Best Seller";
-    if (product.tags?.includes("new-arrival") || product.tag?.includes("new-arrival") || product.tag?.includes("new")) return "New";
-    if (product.stock < 5 && product.stock > 0) return "Limited";
+    if (product.tags?.includes("best-seller") || product.tag?.includes("best-seller")) return t("Best Seller");
+    if (product.tags?.includes("new-arrival") || product.tag?.includes("new-arrival") || product.tag?.includes("new")) return t("New");
+    if (product.stock < 5 && product.stock > 0) return t("Limited");
     return null;
   };
   const badgeText = getBadgeText();
@@ -162,38 +164,26 @@ const ProductCard = ({
         />
       )}
 
-      <article className="group flex h-full w-full flex-col overflow-hidden rounded-md border border-neutral-100 bg-white transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+      <article
+        className="group flex h-full w-full flex-col overflow-hidden bg-white"
+        style={{ fontFamily: "'Poppins', sans-serif" }}
+      >
         {/* Image Container */}
         <div
           onClick={goToProduct}
-          className="relative h-[450px] md:h-[480px] lg:h-[540px] w-full cursor-pointer overflow-hidden bg-[#FAF8F4]"
+          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden bg-neutral-50"
         >
           {isSoldOut && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-              <span className="bg-[#222222] px-4.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white rounded-sm">
-                {t("Sold Out")}
-              </span>
-            </div>
-          )}
-
-          {/* Luxury Badge */}
-          {badgeText && !isSoldOut && (
-            <span className="absolute left-3 top-3 z-20 bg-[#B08D57] px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-white">
-              {t(badgeText)}
+            <span className="absolute left-3 top-3 z-20 bg-[#111111] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white">
+              {t("Sold Out")}
             </span>
           )}
 
-          {/* Wishlist Button */}
-          {!hideWishlistCompare && (
-            <button
-              type="button"
-              onClick={handleAddToWishlist}
-              id={`wishlist-${product._id}`}
-              aria-label="Add to wishlist"
-              className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm border border-neutral-100 text-[#222222] hover:text-[#B08D57] transition-all active:scale-95 duration-200"
-            >
-              <FiHeart className={`h-4.5 w-4.5 ${wishlistActive ? "fill-[#B08D57] text-[#B08D57]" : ""}`} />
-            </button>
+          {/* Sale badge (Aisha style "-x%") */}
+          {hasSale && !hideDiscount && !isSoldOut && (
+            <span className="absolute left-3 top-3 z-20 bg-[#111111] px-3 py-1.5 text-[10px] font-semibold tracking-[0.1em] text-white">
+              -{discountPercent}%
+            </span>
           )}
 
           {/* Product Image Swap */}
@@ -214,94 +204,59 @@ const ProductCard = ({
               )}
             </div>
           ) : (
-            <Image src="/placeholder.png" fill className="object-cover" alt="product placeholder" />
+            <Image src={PRODUCT_PLACEHOLDER} fill className="object-cover" alt="product placeholder" />
+          )}
+
+          {/* Hover actions: Add to Cart + Quickshop (Aisha style) */}
+          {!hidePriceAndAdd && !isSoldOut && (
+            <div className="absolute inset-x-3 bottom-3 z-20 flex flex-col gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
+              <button
+                type="button"
+                onClick={handleAddClick}
+                className="w-full bg-[#111111] text-white text-[11px] font-semibold uppercase tracking-[0.2em] py-3 hover:bg-black transition-colors"
+              >
+                {hasSizeVariants ? t("Select Options") : t("Add to Cart")}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setModalOpen(true);
+                }}
+                className="w-full bg-white text-[#111111] text-[11px] font-semibold uppercase tracking-[0.2em] py-3 border border-neutral-200 hover:border-[#111111] transition-colors"
+              >
+                {t("Quickshop")}
+              </button>
+            </div>
           )}
         </div>
 
-        {/* Details Wrapper */}
-        <div className="flex flex-1 flex-col gap-3.5 p-5 text-left bg-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
+        {/* Details (Aisha: centered title + Regular price) */}
+        <div className="flex flex-1 flex-col items-center gap-1.5 px-3 py-5 text-center bg-white">
           <h3
             onClick={goToProduct}
             title={title}
-            className="cursor-pointer text-lg md:text-xl font-semibold leading-snug text-[#222222] hover:text-[#B08D57] transition-colors line-clamp-2 min-h-[56px]"
+            className="cursor-pointer text-[14px] font-normal leading-snug text-[#111111] hover:underline underline-offset-4 transition-colors line-clamp-2"
           >
             {title}
           </h3>
 
-          <div className="flex items-center justify-between mt-1 gap-2">
-            {/* Price Display */}
-            {!hidePriceAndAdd && (
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl md:text-3xl lg:text-[32px] font-bold text-[#222222]">
-                  {currency}{formatCardPrice(currentPrice)}
-                </span>
-                {hasSale && (
-                  <span className="text-lg md:text-xl tabular-nums text-[#666666] line-through">
+          {!hidePriceAndAdd && (
+            <div className="flex items-baseline justify-center gap-2 text-[14px]">
+              {hasSale ? (
+                <>
+                  <span className="text-neutral-400 line-through">
                     {currency}{formatCardPrice(originalPriceValue)}
                   </span>
-                )}
-              </div>
-            )}
-
-            {/* Discount Badge */}
-            {hasSale && !hideDiscount && (
-              <span className="inline-flex items-center justify-center rounded-[6px] bg-white border border-[#C8A45D] px-2.5 py-1 text-xs md:text-sm font-medium tracking-wide text-[#C8A45D] shadow-sm shrink-0" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                {discountPercent}% {t("OFF")}
-              </span>
-            )}
-          </div>
-
-          {/* Quick Add CTA Button */}
-          {!hidePriceAndAdd && (
-            <div className="mt-2">
-              {isSoldOut ? (
-                <button
-                  type="button"
-                  disabled
-                  className="flex h-16 w-full items-center justify-center border border-neutral-100 bg-[#FAF8F4] text-base font-bold uppercase tracking-wider text-[#666666] cursor-not-allowed rounded-md"
-                >
-                  {t("Sold Out")}
-                </button>
-              ) : mounted && isItemInCart && !hasSizeVariants ? (
-                (() => {
-                  const item = getItem(activeItemId);
-                  return (
-                    item && (
-                      <div className="flex h-16 w-full items-center justify-between border border-neutral-200 px-4 text-sm bg-white rounded-md">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateItemQuantity(item.id, item.quantity - 1);
-                          }}
-                          className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
-                        >
-                          <IoRemove size={18} />
-                        </button>
-                        <span className="font-bold text-[#222222] text-base">{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIncreaseQuantity({ ...item, stock: product.stock });
-                          }}
-                          className="text-[#222222] hover:text-[#B08D57] transition-colors p-1"
-                        >
-                          <IoAdd size={18} />
-                        </button>
-                      </div>
-                    )
-                  );
-                })()
+                  <span className="text-[#111111] font-medium">
+                    {currency}{formatCardPrice(currentPrice)}
+                  </span>
+                </>
               ) : (
-                <button
-                  type="button"
-                  onClick={handleAddClick}
-                  className="flex h-16 w-full items-center justify-center gap-2 bg-[#592523] text-base font-bold uppercase tracking-wider text-white transition-all duration-300 hover:bg-[#401817] hover:scale-[1.02] active:scale-[0.98] rounded-md shadow-md"
-                >
-                  <FiShoppingBag className="h-5.5 w-5.5" />
-                  {hasSizeVariants ? t("Select Size") : t("Add to Bag")}
-                </button>
+                <span className="text-[#111111]">
+                  <span className="text-neutral-500 text-[13px] mr-1.5">{t("Regular price")}</span>
+                  {currency}{formatCardPrice(currentPrice)}
+                </span>
               )}
             </div>
           )}

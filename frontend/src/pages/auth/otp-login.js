@@ -17,7 +17,7 @@ const OTPLoginRedirect = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center font-sans">
-      <span className="text-xs tracking-widest text-[#B08D57] uppercase">Redirecting...</span>
+      <span className="text-xs tracking-widest text-[#111111] uppercase">Redirecting...</span>
     </div>
   );
 };

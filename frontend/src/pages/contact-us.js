@@ -45,7 +45,7 @@ export default function ContactUs() {
   const email =
     showingTranslateValue(contact?.email_box_email) ||
     globalSetting?.email ||
-    "support@manchandafabrics.com";
+    "manchandafabrics@gmail.com";
   const address =
     [
       showingTranslateValue(contact?.address_box_address_one),
@@ -73,7 +73,7 @@ export default function ContactUs() {
       icon: <FiPhone className="text-2xl" />,
       title: showingTranslateValue(contact?.call_box_title) || "Call / WhatsApp",
       value: phone,
-      sub: showingTranslateValue(contact?.call_box_text) || "Mon–Sat, 10 AM – 7 PM",
+      sub: showingTranslateValue(contact?.call_box_text) || "Mon–Sat, 11 AM – 8 PM",
       href: `tel:${phone.replace(/\s/g, "")}`,
     },
     {
@@ -93,8 +93,8 @@ export default function ContactUs() {
     {
       icon: <FiClock className="text-2xl" />,
       title: "Store Hours",
-      value: "Mon – Sat: 10 AM – 8 PM",
-      sub: "Sunday: 11 AM – 6 PM",
+      value: "Mon – Sat: 11 AM – 8 PM",
+      sub: "Sunday: Closed",
       href: null,
     },
   ];

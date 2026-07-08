@@ -24,7 +24,7 @@ const BusinessSettings = () => {
    const [settings, setSettings] = useState({
       maintenanceMode: false,
       businessName: "Manchanda Fabrics",
-      email: "info@Manchanda Fabrics.com",
+      email: "manchandafabrics@gmail.com",
       phone: "9100000000",
       phoneCountry: "IN",
       country: "India",

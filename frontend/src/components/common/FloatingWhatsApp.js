@@ -7,7 +7,10 @@ const FloatingWhatsApp = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const whatsappNumber = storeCustomizationSetting?.footer?.social_whatsapp || "09240250346";
+  const whatsappNumber =
+    storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp ||
+    storeCustomizationSetting?.footer?.social_whatsapp ||
+    "919891595929";
 
   useEffect(() => {
     // Delay showing the widget to make it feel natural

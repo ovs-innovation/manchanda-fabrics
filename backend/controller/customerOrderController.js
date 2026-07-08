@@ -63,7 +63,7 @@ const sendOrderNotifications = async (order) => {
       : { ok: false };
     const contactEmail = contactSettingCheck.ok
       ? contactSettingCheck.email
-      : process.env.EMAIL_REPLY_TO || process.env.EMAIL_USER || "info@manchandafabrics.com";
+      : process.env.EMAIL_REPLY_TO || process.env.EMAIL_USER || "manchandafabrics@gmail.com";
     const currency = order.company_info?.currency || "₹";
     const logo = await getEmailLogoUrl();
     const customerEmailRaw = getRealEmail(order.user_info?.email);
@@ -645,7 +645,7 @@ const sendEmailInvoiceToCustomer = async (req, res) => {
       name: user?.name,
       email: user?.email,
       shop_name: globalSetting?.setting?.shop_name || "Manchanda Fabrics",
-      contact_email: globalSetting?.setting?.email || "info@manchandafabrics.com",
+      contact_email: globalSetting?.setting?.email || "manchandafabrics@gmail.com",
       phone: user?.phone,
       address: user?.address,
       cart: req.body.cart,

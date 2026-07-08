@@ -14,68 +14,51 @@ const EditDeleteButton = ({
   product,
   parent,
   children,
+  editHref,
 }) => {
   const { t } = useTranslation();
-  // console.log('edite delet button')
-  return (
-    <>
-      <div className="flex justify-end text-right">
-        {children?.length > 0 ? (
-          <>
-            <Link
-              to={`/categories/${parent?._id}`}
-              className="p-2 cursor-pointer text-gray-400 hover:text-store-600 focus:outline-none"
-            >
-              <Tooltip
-                id="view"
-                Icon={FiZoomIn}
-                title={t("View")}
-                bgColor="#10B981"
-              />
-            </Link>
 
-            <button
-              disabled={isCheck?.length > 0}
-              onClick={() => handleUpdate(id)}
-              className="p-2 cursor-pointer text-gray-400 hover:text-store-600 focus:outline-none"
-            >
-              <Tooltip
-                id="edit"
-                Icon={FiEdit}
-                title={t("Edit")}
-                bgColor="#10B981"
-              />
-            </button>
-          </>
-        ) : (
-          <button
-            disabled={isCheck?.length > 0}
-            onClick={() => handleUpdate(id)}
+  const editControl = editHref ? (
+    <Link
+      to={editHref}
+      className="p-2 cursor-pointer text-gray-400 hover:text-store-600 focus:outline-none"
+    >
+      <Tooltip id="edit" Icon={FiEdit} title={t("Edit")} bgColor="#10B981" />
+    </Link>
+  ) : (
+    <button
+      disabled={isCheck?.length > 0}
+      onClick={() => handleUpdate(id)}
+      className="p-2 cursor-pointer text-gray-400 hover:text-store-600 focus:outline-none"
+    >
+      <Tooltip id="edit" Icon={FiEdit} title={t("Edit")} bgColor="#10B981" />
+    </button>
+  );
+
+  return (
+    <div className="flex justify-end text-right">
+      {children?.length > 0 ? (
+        <>
+          <Link
+            to={`/categories/${parent?._id}`}
             className="p-2 cursor-pointer text-gray-400 hover:text-store-600 focus:outline-none"
           >
-            <Tooltip
-              id="edit"
-              Icon={FiEdit}
-              title={t("Edit")}
-              bgColor="#10B981"
-            />
-          </button>
-        )}
+            <Tooltip id="view" Icon={FiZoomIn} title={t("View")} bgColor="#10B981" />
+          </Link>
+          {editControl}
+        </>
+      ) : (
+        editControl
+      )}
 
-        <button
-          disabled={isCheck?.length > 0}
-          onClick={() => handleModalOpen(id, title, product)}
-          className="p-2 cursor-pointer text-gray-400 hover:text-red-600 focus:outline-none"
-        >
-          <Tooltip
-            id="delete"
-            Icon={FiTrash2}
-            title={t("Delete")}
-            bgColor="#EF4444"
-          />
-        </button>
-      </div>
-    </>
+      <button
+        disabled={isCheck?.length > 0}
+        onClick={() => handleModalOpen(id, title, product)}
+        className="p-2 cursor-pointer text-gray-400 hover:text-red-600 focus:outline-none"
+      >
+        <Tooltip id="delete" Icon={FiTrash2} title={t("Delete")} bgColor="#EF4444" />
+      </button>
+    </div>
   );
 };
 

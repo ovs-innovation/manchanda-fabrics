@@ -5,6 +5,7 @@ import { FiPlus, FiMinus } from "react-icons/fi";
 //internal imports
 import useGetSetting from "@hooks/useGetSetting";
 import { notifyError } from "@utils/toast";
+import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
 const CheckoutCard = ({ item }) => {
   const { updateItemQuantity } = useCart();
@@ -23,7 +24,7 @@ const CheckoutCard = ({ item }) => {
           src={
             (Array.isArray(item.image) ? item.image[0] : item.image) ||
             (Array.isArray(item.images) ? item.images[0] : item.images) ||
-            "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
+            PRODUCT_PLACEHOLDER
           }
           width={50}
           height={50}

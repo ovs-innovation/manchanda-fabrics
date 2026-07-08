@@ -110,11 +110,11 @@ const Careers = () => {
                         Email your resume to our careers team:
                       </p>
                       <a
-                        href="mailto:careers@manchandafabrics.com"
+                        href="mailto:manchandafabrics@gmail.com"
                         className="inline-flex items-center gap-2 text-[#9C6A5A] hover:text-[#6F4A3D] font-semibold text-sm sm:text-base md:text-lg transition-colors break-all"
                       >
                         <FiMail className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                        <span className="break-all">careers@manchandafabrics.com</span>
+                        <span className="break-all">manchandafabrics@gmail.com</span>
                       </a>
                     </div>
                   </div>
@@ -150,7 +150,7 @@ const Careers = () => {
                     Join us in crafting the future of premium ethnic fashion
                   </p>
                   <a
-                    href="mailto:careers@manchandafabrics.com?subject=Career Inquiry"
+                    href="mailto:manchandafabrics@gmail.com?subject=Career Inquiry"
                     className="inline-block bg-white text-[#9C6A5A] font-semibold px-6 py-3 rounded-md hover:bg-gray-100 transition-colors"
                   >
                     Get Started

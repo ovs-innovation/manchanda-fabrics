@@ -13,6 +13,7 @@ import { notifyError } from "@utils/toast";
 import useAddToCart from "@hooks/useAddToCart";
 import MainModal from "@components/modal/MainModal";
 import Discount from "@components/common/Discount";
+import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 import VariantList from "@components/variants/VariantList";
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
@@ -238,7 +239,7 @@ const ProductModal = ({
                   />
                 ) : (
                   <Image
-                    src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
+                    src={PRODUCT_PLACEHOLDER}
                     width={420}
                     height={420}
                     alt="product Image"
@@ -343,7 +344,7 @@ const ProductModal = ({
                         {t("common:category")}:
                       </span>{" "}
                       <Link
-                        href={`/search?category=${category_name}&_id=${product?.category?._id}`}
+                        href={`/collections/${category_name}?_id=${product?.category?._id}`}
                       >
                         <button
                           type="button"

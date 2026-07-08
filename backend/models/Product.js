@@ -174,10 +174,9 @@ const productSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-    // Manchanda Fabrics product types
+    // Manchanda Fabrics product types — free text, managed in admin
     productType: {
       type: String,
-      enum: ["Sarees", "Suits", "Fabrics", "Traditional Wear", "Sneakers", "Bags", "Slides", "Accessories", ""],
       default: "",
       trim: true,
     },

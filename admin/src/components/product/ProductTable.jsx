@@ -10,8 +10,6 @@ import { FiZoomIn } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 //internal import
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
 import CheckBox from "@/components/form/others/CheckBox";
 import DeleteModal from "@/components/modal/DeleteModal";
 import EditDeleteButton from "@/components/table/EditDeleteButton";
@@ -39,12 +37,6 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
   return (
     <>
       {isCheck?.length < 1 && <DeleteModal id={serviceId} title={title} />}
-
-      {isCheck?.length < 2 && (
-        <MainDrawer>
-          <ProductDrawer currency={currency} id={serviceId} />
-        </MainDrawer>
-      )}
 
       <TableBody>
         {products?.map((product, i) => (
@@ -153,6 +145,7 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
                 handleUpdate={handleUpdate}
                 handleModalOpen={handleModalOpen}
                 title={showingTranslateValue(product?.title)}
+                editHref={`/products/edit/${product._id}`}
               />
             </TableCell>
           </TableRow>

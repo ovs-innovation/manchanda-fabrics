@@ -169,6 +169,22 @@ const MANCHANDA_CATEGORIES = [
     slug: "applique-work",
     description: { en: "Stunning Applique craft suits." },
   },
+  {
+    status: "show",
+    name: { en: "Crush Tissue" },
+    parentId: "suits",
+    parentName: "Suits",
+    slug: "crush-tissue",
+    description: { en: "Elegant Crush Tissue suits." },
+  },
+  {
+    status: "show",
+    name: { en: "Pakistani Style Suits" },
+    parentId: "suits",
+    parentName: "Suits",
+    slug: "pakistani-style-suits",
+    description: { en: "Graceful Pakistani style suit sets." },
+  },
 
   // Fabrics Subcategories
   {

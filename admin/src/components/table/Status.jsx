@@ -15,6 +15,9 @@ const Status = ({ status }) => {
           <Badge type="success">{status}</Badge>
         )}
         {status === "Cancel" && <Badge type="danger">{status}</Badge>}
+        {status === "Refund Requested" && <Badge type="warning">{status}</Badge>}
+        {status === "Refunded" && <Badge type="success">{status}</Badge>}
+        {status === "Out Of Stock" && <Badge type="danger">{status}</Badge>}
         {status === `POS-Completed` && (
           <Badge className="dark:bg-teal-900 bg-teal-100">{status}</Badge>
         )}

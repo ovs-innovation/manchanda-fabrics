@@ -22,7 +22,7 @@ messaging.onBackgroundMessage((payload) => {
       payload.data?.body ||
       payload.data?.description ||
       "",
-    icon: payload.notification?.image || payload.data?.image || "/favicon-transparent.png",
+            icon: payload.notification?.image || payload.data?.image || "/manchandalogo.png",
     data: {
       url: payload.data?.click_action || "/",
     },

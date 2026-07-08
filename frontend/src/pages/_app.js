@@ -34,6 +34,15 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [storeSetting, setStoreSetting] = useState(null);
 
+  // Restore saved language preference (default en)
+  useEffect(() => {
+    if (typeof window === "undefined" || !router.isReady) return;
+    const saved = localStorage.getItem("locale");
+    if (saved && router.locales?.includes(saved) && router.locale !== saved) {
+      router.replace(router.asPath, router.asPath, { locale: saved, scroll: false });
+    }
+  }, [router.isReady, router.locale, router.asPath, router.locales]);
+
   // Dev safety: unregister any previously installed PWA service workers.
   // Old SWs can cache API/HTML and cause "backend content" to appear after refresh.
   useEffect(() => {

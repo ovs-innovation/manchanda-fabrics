@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Table,
@@ -11,31 +11,69 @@ import {
 import { useTranslation } from "react-i18next";
 import { IoBagHandle } from "react-icons/io5";
 
-//internal import
-import useAsync from "@/hooks/useAsync";
 import OrderServices from "@/services/OrderServices";
-import useFilter from "@/hooks/useFilter";
 import PageTitle from "@/components/Typography/PageTitle";
 import Loading from "@/components/preloader/Loading";
 import CustomerOrderTable from "@/components/customer/CustomerOrderTable";
+import { notifyError } from "@/utils/toast";
+
+const RESULTS_PER_PAGE = 20;
 
 const CustomerOrder = () => {
   const { id } = useParams();
   const { t } = useTranslation();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, loading, error } = useAsync(() =>
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+
     OrderServices.getOrderCustomer(id)
-  );
+      .then((res) => {
+        if (cancelled) return;
+        setOrders(Array.isArray(res) ? res : []);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const message =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to load customer orders";
+        setError(message);
+        setOrders([]);
+        notifyError(message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-  const { handleChangePage, totalResults, resultsPerPage, dataTable } =
-    useFilter(data);
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const dataTable = useMemo(() => {
+    const start = (currentPage - 1) * RESULTS_PER_PAGE;
+    return orders.slice(start, start + RESULTS_PER_PAGE);
+  }, [orders, currentPage]);
 
   return (
     <>
       <PageTitle>{t("CustomerOrderList")}</PageTitle>
 
       {loading && <Loading loading={loading} />}
-      {!error && !loading && dataTable.length === 0 && (
+
+      {!loading && error && (
+        <div className="w-full bg-red-50 border border-red-100 rounded-xl p-6 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {!loading && !error && orders.length === 0 && (
         <div className="w-full bg-white rounded-md dark:bg-gray-800">
           <div className="p-8 text-center">
             <span className="flex justify-center my-30 text-red-500 font-semibold text-6xl">
@@ -48,7 +86,7 @@ const CustomerOrder = () => {
         </div>
       )}
 
-      {data.length > 0 && !error && !loading ? (
+      {!loading && !error && orders.length > 0 && (
         <TableContainer className="mb-8">
           <Table>
             <TableHeader>
@@ -60,8 +98,7 @@ const CustomerOrder = () => {
                 <TableCell>{t("CustomerOrderMethod")} </TableCell>
                 <TableCell>{t("Amount")}</TableCell>
                 <TableCell className="text-center">
-                  {" "}
-                  {t("CustomerOrderStatus")}{" "}
+                  {t("CustomerOrderStatus")}
                 </TableCell>
                 <TableCell className="text-center">
                   {t("CustomerOrderAction")}
@@ -72,14 +109,14 @@ const CustomerOrder = () => {
           </Table>
           <TableFooter>
             <Pagination
-              totalResults={totalResults}
-              resultsPerPage={resultsPerPage}
-              onChange={handleChangePage}
+              totalResults={orders.length}
+              resultsPerPage={RESULTS_PER_PAGE}
+              onChange={setCurrentPage}
               label="Table navigation"
             />
           </TableFooter>
         </TableContainer>
-      ) : null}
+      )}
     </>
   );
 };

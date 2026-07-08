@@ -908,11 +908,14 @@ const getShowingStoreProducts = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(500);
       relatedProducts = await Product.find({
-        category: products[0]?.category,
+        category: products[0]?.category?._id || products[0]?.category,
         status: "show",
+        _id: { $ne: products[0]?._id },
       })
         .populate({ path: "category", select: "_id name" })
-        .populate({ path: "brand", select: "_id name slug logo" });
+        .populate({ path: "brand", select: "_id name slug logo" })
+        .sort({ sales: -1, createdAt: -1 })
+        .limit(12);
     } else if (title || category || brand) {
       products = await Product.find(queryObject)
         .populate({ path: "category", select: "name _id" })
@@ -964,55 +967,20 @@ const getShowingStoreProducts = async (req, res) => {
           .limit(20);
       }
 
-      // Homepage Manager hero slides take priority over legacy Store Customization slider tabs
-      let heroSlides = homepageSettings.heroSlides || [];
-      const hasHomepageManagerHero = heroSlides.some(
-        (slide) => slide && (slide.image || slide.bgImage)
-      );
-
-      const sliderSettings = settingDoc?.setting?.slider || {};
-      
-      const formSlides = [];
-      const keys = ["first", "second", "third", "four", "five"];
-      for (const prefix of keys) {
-        const imgKey = prefix === "four" ? "four_img" : prefix === "five" ? "five_img" : `${prefix}_img`;
-        const titleKey = prefix === "four" ? "four_title" : prefix === "five" ? "five_title" : `${prefix}_title`;
-        const descKey = prefix === "four" ? "four_description" : prefix === "five" ? "five_description" : `${prefix}_description`;
-        const btnKey = prefix === "four" ? "four_button" : prefix === "five" ? "five_button" : `${prefix}_button`;
-        const linkKey = prefix === "four" ? "four_link" : prefix === "five" ? "five_link" : `${prefix}_link`;
-        
-        if (sliderSettings[imgKey]) {
-          const titleVal = sliderSettings[titleKey];
-          const descVal = sliderSettings[descKey];
-          const btnVal = sliderSettings[btnKey];
-          
-          formSlides.push({
-            image: sliderSettings[imgKey],
-            title: titleVal?.en || titleVal?.default || (typeof titleVal === "string" ? titleVal : ""),
-            subtitle: descVal?.en || descVal?.default || (typeof descVal === "string" ? descVal : ""),
-            btnText: btnVal?.en || btnVal?.default || (typeof btnVal === "string" ? btnVal : "Shop Now"),
-            link: sliderSettings[linkKey] || "/search",
-            style: "layout-left-framed",
-            badge: "Luxury Collection",
-            highlight: "Exclusive Collection"
-          });
-        }
-      }
-      
-      if (!hasHomepageManagerHero && formSlides.length > 0) {
-        heroSlides = formSlides;
-      }
-
       manchandaHomepagePayload = {
-        brandsSectionEnabled: homepageSettings.brandsSectionEnabled !== false,
-        categoryBanners: homepageSettings.categoryBanners || [],
-        instagramPosts: homepageSettings.instagramPosts || [],
-        heroSlides: heroSlides,
+        heroVideo: homepageSettings.heroVideo || "/main.mp4",
+        heroWelcome: homepageSettings.heroWelcome || "Welcome",
+        heroBrandName: homepageSettings.heroBrandName || "Manchanda Fabrics",
+        heroTagline: homepageSettings.heroTagline || "",
+        heroCtaText: homepageSettings.heroCtaText || "Explore Latest Collections",
+        heroCtaLink: homepageSettings.heroCtaLink || "/search",
         newArrivalProductIds: homepageSettings.newArrivalProductIds || [],
         trendingProductIds: homepageSettings.trendingProductIds || [],
-        sectionOrder: (homepageSettings.sectionOrder || ["Hero", "Brands", "New Arrival", "Trending", "Categories", "Newsletter"]).filter(
-          (s) => s !== "Instagram"
-        ),
+        founder: homepageSettings.founder || null,
+        stores: homepageSettings.stores || [],
+        whatsappNumbers: homepageSettings.whatsappNumbers || [],
+        videoShopping: homepageSettings.videoShopping || null,
+        marqueePhrases: homepageSettings.marqueePhrases || [],
       };
 
       discountedProducts = await Product.find({

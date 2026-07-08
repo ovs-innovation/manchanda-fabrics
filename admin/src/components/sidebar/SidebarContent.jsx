@@ -11,13 +11,16 @@ import { AdminContext } from "@/context/AdminContext";
 import { SidebarContext } from "@/context/SidebarContext";
 import SidebarSubMenu from "@/components/sidebar/SidebarSubMenu";
 import useGetCData from "@/hooks/useGetCData";
-import { ADMIN_BRAND_LOGO } from "@/utils/cloudinaryUrl";
+import { ADMIN_BRAND_LOGO, resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
   const { t } = useTranslation();
   const { dispatch } = useContext(AdminContext);
   const { globalSetting } = useContext(SidebarContext);
   const { accessList, role } = useGetCData();
+
+  const brandLogo =
+    resolveCloudinaryUrl(globalSetting?.logo) || ADMIN_BRAND_LOGO;
 
   const allSidebarRouteKeys = sidebar
     .flatMap((route) => {
@@ -68,9 +71,9 @@ const SidebarContent = ({ collapsed = false, onToggleCollapse }) => {
       <div className={`flex items-center w-full ${collapsed ? "flex-col gap-2" : "justify-between gap-3 px-2 mb-1"}`}>
         <a className="block shrink-0" href="/dashboard" title="Dashboard">
           <img
-            src={ADMIN_BRAND_LOGO}
+            src={brandLogo}
             alt={globalSetting?.company_name || "Manchanda Fabrics"}
-            className={`object-contain ${collapsed ? "h-9 w-9" : "h-10 w-auto max-w-[170px]"}`}
+            className={`object-contain ${collapsed ? "h-11 w-11" : "h-[52px] w-auto max-w-[210px]"}`}
           />
         </a>
         {onToggleCollapse && (

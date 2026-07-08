@@ -20,7 +20,7 @@ import { isProfileComplete, getDisplayEmail } from "@utils/profileAuth";
 import NotificationServices from "@services/NotificationServices";
 import ShiprocketServices from "@services/ShiprocketServices";
 import useCartDB from "@hooks/useCartDB";
-import { normalizeCartItemPricing } from "@utils/invoicePricing";
+import { isUsableImageUrl } from "@utils/brandAssets";
 
 const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
@@ -361,8 +361,9 @@ const useCheckoutSubmit = (storeSetting) => {
         orderId: orderResponse?._id,
         message: `${orderResponse?.user_info?.name || "A customer"
           } placed an order of ${parseFloat(orderResponse?.total || 0).toFixed(2)}!`,
-        image:
-          "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png",
+        image: isUsableImageUrl(globalSetting?.logo)
+          ? globalSetting.logo.trim()
+          : "/manchandalogo.png",
       };
 
       const updatedData = {

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 420">
+  <defs>
+    <style>
+      .s{fill:none;stroke:#2b2b2b;stroke-opacity:.14;stroke-width:2}
+      .t{fill:none;stroke:#2b2b2b;stroke-opacity:.08;stroke-width:1.5}
+    </style>
+  </defs>
+  <!-- Simple line-art skyline sketch (lightweight, theme-safe) -->
+  <path class="s" d="M80 330c70-70 140-80 210-30 80-80 190-110 300-30 60-50 150-90 260-40 100-70 230-90 360-30 80-70 160-70 250 0"/>
+  <path class="t" d="M120 330v-70l30-10 20 20 20-30 20 30 20-20 30 10v70"/>
+  <path class="t" d="M320 330v-120l40-15 30 30 30-45 30 45 30-30 40 15v120"/>
+  <path class="t" d="M610 330v-150l35-12 25 25 25-35 25 35 25-25 35 12v150"/>
+  <path class="t" d="M880 330v-130l30-10 20 20 20-30 20 30 20-20 30 10v130"/>
+  <path class="t" d="M1090 330v-170l45-14 32 32 32-48 32 48 32-32 45 14v170"/>
+  <path class="t" d="M1360 330v-110l28-9 18 18 18-26 18 26 18-18 28 9v110"/>
+  <path class="s" d="M70 330h1460"/>
+  <!-- birds -->
+  <path class="t" d="M760 120c20-18 40-18 60 0"/>
+  <path class="t" d="M840 140c16-14 32-14 48 0"/>
+  <path class="t" d="M700 150c14-12 28-12 42 0"/>
+</svg>
+

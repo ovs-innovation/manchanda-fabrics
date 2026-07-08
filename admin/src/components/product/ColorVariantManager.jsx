@@ -220,7 +220,7 @@ const ColorVariantManager = ({ variants, setVariants, watch }) => {
                   </div>
 
                   {/* Images Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col">
                       <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 uppercase tracking-wider">
                         Color Thumbnail
@@ -231,20 +231,6 @@ const ColorVariantManager = ({ variants, setVariants, watch }) => {
                           folder="product"
                           imageUrl={variant.thumbnail}
                           setImageUrl={(url) => handleUpdateColorField(colorIdx, "thumbnail", url)}
-                          useOriginalSize={true}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 uppercase tracking-wider">
-                        Color Hover Image
-                      </label>
-                      <div className="border border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
-                        <Uploader
-                          product={false}
-                          folder="product"
-                          imageUrl={variant.hoverImage}
-                          setImageUrl={(url) => handleUpdateColorField(colorIdx, "hoverImage", url)}
                           useOriginalSize={true}
                         />
                       </div>

@@ -11,17 +11,15 @@ import TableLoading from "@/components/preloader/TableLoading";
 import NotFound from "@/components/table/NotFound";
 import AnimatedContent from "@/components/common/AnimatedContent";
 import SelectCategory from "@/components/form/selectOption/SelectCategory";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
 import DeleteModal from "@/components/modal/DeleteModal";
+import useToggleDrawer from "@/hooks/useToggleDrawer";
 
 const RESULTS_PER_PAGE = 16;
 
 const ProductGallery = () => {
   const history = useHistory();
   const { lang, isUpdate } = useContext(SidebarContext);
-  const { serviceId, handleUpdate, handleModalOpen, title } = useToggleDrawer();
+  const { serviceId, handleModalOpen, title } = useToggleDrawer();
 
   const [viewMode, setViewMode] = useState("grid"); // "grid" | "list"
   const [search, setSearch] = useState("");
@@ -96,9 +94,6 @@ const ProductGallery = () => {
   return (
     <AnimatedContent>
       {/* Modals & Drawers */}
-      <MainDrawer>
-        <ProductDrawer id={serviceId} />
-      </MainDrawer>
       <DeleteModal id={serviceId} title={title} />
 
       <div className="bg-[#f0f2f5] dark:bg-gray-900 min-h-screen pb-10">
@@ -257,7 +252,7 @@ const ProductGallery = () => {
                           <FiEye size={15} />
                         </button>
                         <button
-                          onClick={() => handleUpdate(product._id)}
+                          onClick={() => history.push(`/products/edit/${product._id}`)}
                           title="Edit Product"
                           className="w-9 h-9 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-800 dark:text-gray-200 hover:bg-blue-600 hover:text-white transition-colors shadow-md"
                         >
@@ -350,7 +345,7 @@ const ProductGallery = () => {
                           <FiEye size={16} />
                         </button>
                         <button
-                          onClick={() => handleUpdate(product._id)}
+                          onClick={() => history.push(`/products/edit/${product._id}`)}
                           className="p-2 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50"
                         >
                           <FiEdit size={16} />

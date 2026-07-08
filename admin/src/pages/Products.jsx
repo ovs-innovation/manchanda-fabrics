@@ -27,8 +27,6 @@ import ProductServices from "@/services/ProductServices";
 import PageTitle from "@/components/Typography/PageTitle";
 import { SidebarContext } from "@/context/SidebarContext";
 import ProductTable from "@/components/product/ProductTable";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
 import CheckBox from "@/components/form/others/CheckBox";
 import useProductFilter from "@/hooks/useProductFilter";
 import DeleteModal from "@/components/modal/DeleteModal";
@@ -114,9 +112,6 @@ const Products = () => {
       <PageTitle>{t("ProductsPage")}</PageTitle>
       <DeleteModal ids={allId} setIsCheck={setIsCheck} title={title} />
       <BulkActionDrawer ids={allId} title="Products" />
-      <MainDrawer>
-        <ProductDrawer id={serviceId} />
-      </MainDrawer>
       <AnimatedContent>
         <Card className="min-w-0 shadow-xs overflow-hidden bg-white dark:bg-gray-800 mb-5">
           <CardBody className="">

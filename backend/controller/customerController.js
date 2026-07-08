@@ -750,7 +750,7 @@ const deleteCloudinaryAsset = async (req, res) => {
 // Simple server-side upload endpoint that accepts a data URL (base64) and uploads to Cloudinary
 const cloudinaryUpload = async (req, res) => {
   try {
-    const { file, publicId, folder = 'manchanda' } = req.body;
+    const { file, publicId, folder = 'manchanda', resourceType } = req.body;
     if (!file) return res.status(400).send({ message: 'file (data URL) is required' });
 
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -765,7 +765,10 @@ const cloudinaryUpload = async (req, res) => {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    const options = { folder, resource_type: 'auto' };
+    const options = {
+      folder,
+      resource_type: resourceType === 'video' ? 'video' : 'auto',
+    };
     if (publicId) options.public_id = publicId;
     // request delete token since this is a signed upload
     options.return_delete_token = true;

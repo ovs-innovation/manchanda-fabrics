@@ -41,7 +41,7 @@ export function transformProductList(products) {
 }
 
 export function transformStoreData(data) {
-  if (!data) return { products: [], popularProducts: [], discountedProducts: [], bestSellingProducts: [], relatedProducts: [] };
+  if (!data) return { products: [], popularProducts: [], discountedProducts: [], bestSellingProducts: [], relatedProducts: [], manchandaHomepage: null };
   return {
     ...data,
     products: transformProductList(data.products),
@@ -49,6 +49,7 @@ export function transformStoreData(data) {
     discountedProducts: transformProductList(data.discountedProducts),
     bestSellingProducts: transformProductList(data.bestSellingProducts),
     relatedProducts: transformProductList(data.relatedProducts),
+    manchandaHomepage: data.manchandaHomepage || null,
   };
 }
 

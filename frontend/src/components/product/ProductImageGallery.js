@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
-const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
+const ProductImageGallery = ({ images, productTitle = "Product", buttons, variant = "default" }) => {
+  const isAisha = variant === "aisha";
   const [activeIndex, setActiveIndex] = useState(0);
   const [isZooming, setIsZooming] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
@@ -105,10 +106,15 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
             <button
               key={`thumb-${index}-${mediaUrl}`}
               onClick={() => handleThumbnailClick(index)}
-              className={`flex-shrink-0 relative w-16 h-16 lg:w-20 lg:h-20 rounded-xl border-2 overflow-hidden transition-all duration-300 transform ${index === activeIndex
-                ? "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/20 shadow-md scale-105"
-                : "border-[#E6D1CB]/60 hover:border-[#E6D1CB]/60 hover:shadow-sm grayscale-[0.5] hover:grayscale-0"
-                }`}
+              className={`flex-shrink-0 relative w-16 h-16 lg:w-[72px] lg:h-[88px] border overflow-hidden transition-all duration-200 ${
+                index === activeIndex
+                  ? isAisha
+                    ? "border-[#111111] ring-1 ring-[#111111]"
+                    : "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/20 shadow-md scale-105"
+                  : isAisha
+                    ? "border-neutral-200 hover:border-neutral-400"
+                    : "border-[#E6D1CB]/60 hover:border-[#E6D1CB]/60 hover:shadow-sm grayscale-[0.5] hover:grayscale-0"
+              }`}
               type="button"
             >
               {isVideoUrl(mediaUrl) ? (
@@ -150,7 +156,11 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
       {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
       {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
       <div className="flex-1 order-1 lg:order-2 w-full">
-        <div className="relative w-full aspect-square bg-white border border-[#E6D1CB]/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+        <div
+          className={`relative w-full aspect-[4/5] bg-white overflow-hidden ${
+            isAisha ? "border border-neutral-200" : "border border-[#E6D1CB]/60 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+          }`}
+        >
 
           {/* Buttons overlay */}
           {buttons}
@@ -180,16 +190,21 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons }) => {
                 alt={productTitle}
                 onError={handleImageError}
                 loading="eager"
-                onMouseMove={handleMouseMove}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                className="w-full h-full object-contain transition-opacity duration-300"
-                style={{
-                  transform: isZooming ? "scale(2.2)" : "scale(1)",
-                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                  cursor: "zoom-in",
-                  transition: "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-                }}
+                className={`w-full h-full object-contain ${isAisha ? "" : ""}`}
+                style={
+                  isAisha
+                    ? undefined
+                    : {
+                        transform: isZooming ? "scale(2.2)" : "scale(1)",
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        cursor: "zoom-in",
+                        transition:
+                          "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                      }
+                }
+                onMouseMove={isAisha ? undefined : handleMouseMove}
+                onMouseEnter={isAisha ? undefined : handleMouseEnter}
+                onMouseLeave={isAisha ? undefined : handleMouseLeave}
               />
             )
           ) : (

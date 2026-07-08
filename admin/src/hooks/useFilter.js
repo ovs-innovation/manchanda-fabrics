@@ -121,7 +121,8 @@ const useFilter = (data) => {
   const serviceData = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() - time);
-    let services = data?.map((el) => {
+    let services = Array.isArray(data)
+      ? data.map((el) => {
       let newDate;
       try {
         const timeZone = globalSetting?.default_time_zone && globalSetting.default_time_zone.trim() !== "" 
@@ -139,7 +140,8 @@ const useFilter = (data) => {
         updatedDate: newDate === "Invalid Date" || !newDate ? "" : newDate,
       };
       return newObj;
-    });
+    })
+      : [];
     if (location.pathname === "/dashboard") {
       const orderPending = services?.filter(
         (statusP) => statusP.status === "Pending"
@@ -252,9 +254,13 @@ const useFilter = (data) => {
       services = services.filter((order) => order.status === status);
     }
     if (searchOrder) {
-      services = services.filter((search) =>
-        search.contact.toLowerCase().includes(searchOrder.toLowerCase())
-      );
+      services = services.filter((search) => {
+        const contact =
+          search?.user_info?.contact ||
+          search?.contact ||
+          "";
+        return contact.toLowerCase().includes(searchOrder.toLowerCase());
+      });
     }
     if (time) {
       services = services.filter((order) =>
@@ -327,7 +333,7 @@ const useFilter = (data) => {
   };
   useEffect(() => {
     setDataTable(
-      serviceData?.slice(
+      (serviceData || []).slice(
         (currentPage - 1) * resultsPerPage,
         currentPage * resultsPerPage
       )

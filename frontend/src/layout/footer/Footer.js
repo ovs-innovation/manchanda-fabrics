@@ -1,193 +1,266 @@
 import Link from "next/link";
-import { useState } from "react";
-import { FaInstagram } from "react-icons/fa";
-import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import { FiArrowUp } from "react-icons/fi";
+import { FaInstagram, FaFacebookF, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import useTranslation from "next-translate/useTranslation";
 
-//internal import
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { getStoreAddress } from "@utils/storeBrand";
-import NewsletterServices from "@services/NewsletterServices";
-import { notifyError, notifySuccess } from "@utils/toast";
+import { mergeHomepage } from "@utils/homepageDefaults";
+
+const SECTION_RED = "#B0322F";
+
+/** Show admin-entered label as-is, else translate the default key */
+const labelText = (title, t) => {
+  const key = String(title || "").trim();
+  if (!key) return "";
+  const translated = t(key);
+  return translated && translated !== key ? translated : key;
+};
+
+const formatPhone = (raw) => {
+  const digits = String(raw || "").replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return `+91-${digits.slice(2, 7)}${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `+91-${digits}`;
+  }
+  return raw;
+};
 
 const Footer = () => {
   const { showingTranslateValue } = useUtilsFunction();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const { t } = useTranslation("common");
 
-  const storeAddress = getStoreAddress({
-    storeCustomizationSetting,
-    globalSetting,
-    showingTranslateValue,
-  });
+  const homepage = mergeHomepage(storeCustomizationSetting?.manchandaHomepage);
+  const footer = homepage.footer || {};
+
+  const storeAddress =
+    footer.address?.trim() ||
+    getStoreAddress({ storeCustomizationSetting, globalSetting, showingTranslateValue });
 
   const storeEmail =
+    footer.email?.trim() ||
     showingTranslateValue(storeCustomizationSetting?.contact_us?.email_box_email) ||
     globalSetting?.email ||
-    "info@manchandafabrics.com";
+    "manchandafabrics@gmail.com";
 
   const storePhone =
     showingTranslateValue(storeCustomizationSetting?.contact_us?.call_box_phone) ||
     globalSetting?.contact ||
     "";
 
-  const block1Links = [
-    { title: "New Arrivals", href: "/new-arrivals" },
-    { title: "Cotton Suits", href: "/search?category=cotton-suits" },
-    { title: "Gaji Silk", href: "/search?category=gaji-silk" },
-    { title: "Kanjivaram Silk", href: "/search?category=kanjivaram-silk" },
-  ];
+  const footerPhones =
+    Array.isArray(footer.phones) && footer.phones.length > 0
+      ? footer.phones
+      : homepage.whatsappNumbers || [];
 
-  const block2Links = [
-    { title: "About Us", href: "/about-us" },
-    { title: "Contact Us", href: "/contact-us" },
-    { title: "Shipping & Returns", href: "/refund-return-policy" },
-  ];
+  const primaryPhoneRaw =
+    (footer.phones?.length ? footer.phones[0] : footerPhones[0]) || storePhone;
 
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    if (!email) return notifyError("Please enter your email.");
-    setLoading(true);
-    try {
-      await NewsletterServices.addNewsletter({ email });
-      notifySuccess("Welcome to our newsletter list!");
-      setEmail("");
-    } catch (err) {
-      notifyError(err?.response?.data?.message || err.message || "Failed!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const phoneList = [formatPhone(primaryPhoneRaw)]
+    .filter(Boolean)
+    .filter((v, i, arr) => arr.indexOf(v) === i);
+
+  const collectionLinks = footer.collectionLinks || [];
+  const quickLinks = footer.quickLinks || [];
+  const specialCollection = footer.specialCollection || [];
+  const storeHours = footer.hours?.trim() || "";
+  const brandStory = footer.brandStory || "";
+  const instagramUrl = footer.instagram || "";
+  const facebookUrl = footer.facebook || "";
+  const whatsappNumber = String(footer.whatsapp || "").replace(/\D/g, "");
+  const copyrightName = footer.copyrightName || "VastoraTech";
+  const copyrightUrl = footer.copyrightUrl || "https://vastoratech.com/";
+
+  const socialIconClass =
+    "inline-flex w-9 h-9 rounded-full border border-neutral-300 bg-white/90 items-center justify-center text-neutral-600 hover:text-[#B0322F] hover:border-[#B0322F] transition-colors";
+
+  const socialLinks = [
+    instagramUrl && { key: "ig", href: instagramUrl, label: "Instagram", Icon: FaInstagram },
+    facebookUrl && { key: "fb", href: facebookUrl, label: "Facebook", Icon: FaFacebookF },
+    whatsappNumber && {
+      key: "wa",
+      href: `https://wa.me/${whatsappNumber}`,
+      label: "WhatsApp",
+      Icon: FaWhatsapp,
+    },
+    storeEmail && {
+      key: "mail",
+      href: `mailto:${storeEmail}`,
+      label: "Email",
+      Icon: FaEnvelope,
+      external: false,
+    },
+  ].filter(Boolean);
+
+  const SectionTitle = ({ children }) => (
+    <h4
+      className="text-[12px] font-bold tracking-[0.22em] uppercase mb-5"
+      style={{ color: SECTION_RED, fontFamily: "'Poppins', sans-serif" }}
+    >
+      {children}
+    </h4>
+  );
+
+  const linkClass =
+    "text-[13px] text-[#4a4a4a] hover:text-[#111111] transition-colors leading-relaxed";
 
   return (
-    <footer className="bg-white text-[#222222] border-t border-black/5 relative overflow-hidden font-sans">
-      <div className="mx-auto max-w-screen-2xl px-6 sm:px-12 lg:px-16 relative z-10">
+    <footer
+      className="relative bg-white"
+      style={{
+        backgroundImage: "url('/footer-chandni-chowk-sepia.webp')",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center top",
+        backgroundSize: "cover",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
+      {/* soft wash so text stays readable over the sketch */}
+      <div className="absolute inset-0 bg-white/80 pointer-events-none" />
 
-        {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-12 py-16">
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-14">
+        {/* Brand heading */}
+        <div className="pt-12 pb-2 text-center border-b border-[#00000010] pb-8">
+          <h2
+            className="text-2xl sm:text-3xl font-semibold tracking-[0.14em] uppercase"
+            style={{ color: SECTION_RED, fontFamily: "'Poppins', sans-serif" }}
+          >
+            {t("Manchanda Fabrics")}
+          </h2>
+        </div>
 
-          {/* Column 1: Brand Info (4 cols) */}
-          <div className="lg:col-span-4 space-y-5 text-left">
-            <Link href="/" className="inline-block" rel="noreferrer">
-              <span className="tracking-[0.2em] text-2xl uppercase text-[#B08D57] font-semibold">
-                MANCHANDA FABRICS
-              </span>
-            </Link>
-            <p className="text-base text-[#666666] leading-relaxed max-w-sm font-light">
-              {t("Premium ethnic fashion brand focused on salwar suits, pure silks and curated boutique fabrics. Crafting timeless heritage for celebrations and daily grace.")}
-            </p>
-            {/* Social Links */}
-            <div className="flex items-center gap-3 pt-1">
-              <a
-                href="https://www.instagram.com/manchandafabrics"
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 rounded-full border border-neutral-200 bg-white flex items-center justify-center text-[#222222] hover:text-[#B08D57] hover:border-[#B08D57] transition-all duration-300"
-              >
-                <FaInstagram className="w-5 h-5" />
-              </a>
-              <a
-                href={`mailto:${storeEmail}`}
-                className="w-10 h-10 rounded-full border border-neutral-200 bg-white flex items-center justify-center text-[#222222] hover:text-[#B08D57] hover:border-[#B08D57] transition-all duration-300"
-              >
-                <FiMail className="w-5 h-5" />
-              </a>
+        {/* Columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-10 pt-10">
+          <div className="lg:col-span-3">
+            <SectionTitle>{t("Get In Touch")}</SectionTitle>
+            <div className="space-y-2">
+              {phoneList.map((phone) => (
+                <p key={phone} className={`${linkClass} flex items-center gap-2`}>
+                  <span style={{ color: SECTION_RED }}>✆</span>
+                  <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>
+                </p>
+              ))}
+              <p className={`${linkClass} flex items-center gap-2`}>
+                <span style={{ color: SECTION_RED }}>✉</span>
+                <a href={`mailto:${storeEmail}`} className="break-all">
+                  {storeEmail}
+                </a>
+              </p>
+              <p className="text-[13px] text-[#4a4a4a] leading-relaxed pt-2 flex gap-2 max-w-xs">
+                <span style={{ color: SECTION_RED }}>⚲</span>
+                <span>{storeAddress}</span>
+              </p>
+              {storeHours && (
+                <p className="text-[13px] text-[#4a4a4a] leading-relaxed flex gap-2 max-w-xs">
+                  <span style={{ color: SECTION_RED }}>◷</span>
+                  <span>{storeHours}</span>
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Column 2: Collections (2 cols) */}
-          <div className="lg:col-span-2 space-y-4 text-left">
-            <h4 className="text-lg font-bold uppercase tracking-[0.2em] text-[#B08D57]">
-              {t("Collections")}
-            </h4>
-            <ul className="text-base flex flex-col space-y-4 font-light text-[#666666]">
-              {block1Links.map((link, idx) => (
-                <li key={idx}>
-                  <Link href={link.href} className="hover:text-[#B08D57] transition-colors duration-250">
-                    {t(link.title)}
+          <div className="lg:col-span-2">
+            <SectionTitle>{t("Quick Links")}</SectionTitle>
+            <ul className="space-y-2.5">
+              {quickLinks.map((l, i) => (
+                <li key={`${l.href}-${i}`}>
+                  <Link href={l.href || "#"} className={linkClass}>
+                    {labelText(l.title, t)}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 3: Customer Care (2 cols) */}
-          <div className="lg:col-span-2 space-y-4 text-left">
-            <h4 className="text-lg font-bold uppercase tracking-[0.2em] text-[#B08D57]">
-              {t("Support & Info")}
-            </h4>
-            <ul className="text-base flex flex-col space-y-4 font-light text-[#666666]">
-              {block2Links.map((link, idx) => (
-                <li key={idx}>
-                  <Link href={link.href} className="hover:text-[#B08D57] transition-colors duration-250">
-                    {t(link.title)}
+          <div className="lg:col-span-2">
+            <SectionTitle>{t("Collection")}</SectionTitle>
+            <ul className="space-y-2.5">
+              {collectionLinks.map((l, i) => (
+                <li key={`${l.href}-${i}`}>
+                  <Link
+                    href={l.href || "#"}
+                    className={`${linkClass} uppercase text-[12px] tracking-wide`}
+                  >
+                    {labelText(l.title, t)}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 4: Newsletter & Contact (4 cols) */}
-          <div className="lg:col-span-4 space-y-6 text-left">
-            <h4 className="text-lg font-bold uppercase tracking-[0.2em] text-[#B08D57]">
-              {t("Newsletter")}
-            </h4>
-            <p className="text-base text-[#666666] leading-relaxed font-light">
-              {t("Subscribe to get notified about our premium collections, exclusive sales, and festive arrivals.")}
+          <div className="lg:col-span-2">
+            <SectionTitle>{t("Special Collection")}</SectionTitle>
+            <ul className="space-y-2.5">
+              {specialCollection.map((l, i) => (
+                <li key={`${l.href}-${i}`}>
+                  <Link
+                    href={l.href || "#"}
+                    className={`${linkClass} uppercase text-[12px] tracking-wide`}
+                  >
+                    {labelText(l.title, t)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="lg:col-span-3">
+            <SectionTitle>{t("Manchanda Fabrics")}</SectionTitle>
+            <p className="text-[13px] text-[#4a4a4a] leading-[1.8] max-w-sm">
+              {labelText(brandStory, t)}
             </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2 w-full">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("Your email address")}
-                className="flex-1 px-4 py-3.5 border border-neutral-200 text-base text-[#222222] placeholder-neutral-400 focus:outline-none focus:border-[#B08D57] rounded-none bg-[#FAF8F4]"
-                required
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3.5 bg-[#592523] text-white hover:bg-[#401817] text-[13px] sm:text-[14px] font-bold uppercase tracking-wider transition-all duration-300 rounded-none disabled:opacity-60"
-              >
-                {loading ? "..." : t("Subscribe")}
-              </button>
-            </form>
-          </div>
-
-        </div>
-
-        {/* Contact & Boutique Details Strip */}
-        <div className="border-t border-black/5 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-base text-[#666666] font-light text-left">
-          {storePhone && (
-            <div className="flex items-center gap-2">
-              <FiPhone className="text-[#B08D57] shrink-0 w-5 h-5" />
-              <span>{t("Call Us Today!")} <a href={`tel:${storePhone}`} className="hover:text-[#B08D57] font-semibold">{storePhone}</a></span>
+            <div className="mt-4 flex items-center gap-3">
+              {socialLinks.map(({ key, href, label, Icon, external = true }) => (
+                <a
+                  key={key}
+                  href={href}
+                  {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+                  className={socialIconClass}
+                  aria-label={label}
+                >
+                  <Icon size={16} />
+                </a>
+              ))}
             </div>
-          )}
-          <div className="flex items-center gap-2">
-            <FiMail className="text-[#B08D57] shrink-0 w-5 h-5" />
-            <span>{t("email")}: <a href={`mailto:${storeEmail}`} className="hover:text-[#B08D57] font-semibold">{storeEmail}</a></span>
-          </div>
-          <div className="flex items-start gap-2 md:col-span-1">
-            <FiMapPin className="text-[#B08D57] shrink-0 mt-0.5 w-5 h-5" />
-            <span>{t("Boutique")}: {storeAddress}</span>
           </div>
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="flex flex-col sm:flex-row justify-between items-center py-6 border-t border-black/5 gap-4">
-          <p className="text-xs md:text-sm uppercase tracking-[0.15em] text-[#666666]">
-            © {new Date().getFullYear()} MANCHANDA FABRICS. {t("ALL RIGHTS RESERVED.")}
+        {/* Bottom bar */}
+        <div className="mt-16 py-5 border-t border-[#00000012] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6a6a6a]">
+          <p>
+            {t("Copyright")} © {new Date().getFullYear()}{" "}
+            <a
+              href={copyrightUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold hover:underline"
+              style={{ color: SECTION_RED }}
+            >
+              {copyrightName}
+            </a>
+            . {t("All rights reserved.")}
           </p>
-          <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-[#B08D57] tracking-widest italic">
-            {t("Timeless Elegance in Every Drape")}
-          </p>
+          <div className="flex items-center gap-3 uppercase tracking-[0.2em] text-[10px] font-medium text-[#8a8a8a]">
+            <span>{t("AMEX")}</span>
+            <span>{t("MC")}</span>
+            <span>{t("Visa")}</span>
+            <span>{t("RuPay")}</span>
+          </div>
         </div>
-
       </div>
+
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className="fixed bottom-6 right-6 z-40 w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-sm flex items-center justify-center text-[#B0322F] hover:bg-[#B0322F] hover:text-white hover:border-[#B0322F] transition-all"
+        aria-label={t("Back to top")}
+      >
+        <FiArrowUp size={16} />
+      </button>
     </footer>
   );
 };

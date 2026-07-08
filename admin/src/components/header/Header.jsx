@@ -25,7 +25,7 @@ import { SidebarContext } from "@/context/SidebarContext";
 import useNotification from "@/hooks/useNotification";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotFoundTwo from "@/components/table/NotFoundTwo";
-import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
+import { resolveCloudinaryUrl, getBrandLogoUrl, getNotificationAvatarUrl } from "@/utils/cloudinaryUrl";
 import NotificationServices from "@/services/NotificationServices";
 import OrderServices from "@/services/OrderServices";
 import SelectLanguage from "@/components/form/selectOption/SelectLanguage";
@@ -43,7 +43,8 @@ const Header = () => {
   const currentLanguageCode = cookies.get("i18next") || "en";
   const { t } = useTranslation();
   const { updated, setUpdated } = useNotification();
-  const { showDateTimeFormat } = useUtilsFunction();
+  const { showDateTimeFormat, globalSetting } = useUtilsFunction();
+  const brandLogo = getBrandLogoUrl(globalSetting);
 
   const [data, setData] = useState([]);
   const [totalDoc, setTotalDoc] = useState(0);
@@ -167,8 +168,7 @@ const Header = () => {
 
               // Fallback chain
               productImage = productImage ||
-                latestOrderNotification.image ||
-                "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100";
+                getNotificationAvatarUrl(latestOrderNotification.image, globalSetting);
 
               console.log("Order popup image:", productImage, "Order data:", orderData);
 
@@ -181,9 +181,10 @@ const Header = () => {
               // If order fetch fails, use notification image or placeholder
               setOrderPopup({
                 ...latestOrderNotification,
-                image:
-                  latestOrderNotification.image ||
-                  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100",
+                image: getNotificationAvatarUrl(
+                  latestOrderNotification.image,
+                  globalSetting
+                ),
               });
             }
 
@@ -262,20 +263,14 @@ const Header = () => {
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0">
                     <img
-                      src={
-                        (orderPopup && orderPopup.image)
-                          ? orderPopup.image
-                          : "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100"
-                      }
-                      alt="Product"
-                      className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover border-2 border-gray-200 dark:border-gray-700 shadow-md bg-gray-100"
+                      src={getNotificationAvatarUrl(orderPopup?.image, globalSetting)}
+                      alt="Manchanda Fabrics"
+                      className="w-24 h-24 md:w-32 md:h-32 rounded-xl object-contain border-2 border-gray-200 dark:border-gray-700 shadow-md bg-white p-2"
                       loading="eager"
-                      referrerPolicy="no-referrer"
                       onError={(e) => {
-                        const placeholder = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=100";
-                        if (e.target.src !== placeholder) {
+                        if (e.target.src !== brandLogo) {
                           e.target.onerror = null;
-                          e.target.src = placeholder;
+                          e.target.src = brandLogo;
                         }
                       }}
                     />
@@ -443,9 +438,9 @@ const Header = () => {
                                   }
                                 >
                                   <Avatar
-                                    className="mr-2 md:block bg-gray-50 border border-gray-200"
-                                    src={resolveCloudinaryUrl(value.image) || "/favicon-transparent.png"}
-                                    alt="image"
+                                    className="mr-2 md:block bg-white border border-gray-200 object-contain p-0.5"
+                                    src={getNotificationAvatarUrl(value.image, globalSetting)}
+                                    alt="Manchanda Fabrics"
                                   />
 
                                   <div className="notification-content">

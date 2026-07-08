@@ -10,7 +10,7 @@ import {
 } from "@windmill/react-ui";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { FiEdit, FiSearch, FiPackage, FiX, FiBox, FiAlertTriangle, FiXCircle } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import ProductServices from "@/services/ProductServices";
 import BrandServices from "@/services/BrandServices";
@@ -20,9 +20,6 @@ import AnimatedContent from "@/components/common/AnimatedContent";
 import PageTitle from "@/components/Typography/PageTitle";
 import { SidebarContext } from "@/context/SidebarContext";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
 
 const STOCK_THRESHOLD = 10;
 const RESULTS_PER_PAGE = 20;
@@ -30,7 +27,7 @@ const RESULTS_PER_PAGE = 20;
 const StockOverview = () => {
   const { isUpdate } = useContext(SidebarContext);
   const { showingTranslateValue } = useUtilsFunction();
-  const { serviceId, handleUpdate } = useToggleDrawer();
+  const history = useHistory();
 
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,10 +97,6 @@ const StockOverview = () => {
     <>
       <PageTitle>Stock Overview</PageTitle>
       <AnimatedContent>
-        <MainDrawer>
-          <ProductDrawer id={serviceId} />
-        </MainDrawer>
-
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
           {[
             { label: "Total Products", value: stats.total, icon: FiBox, iconBg: "bg-teal-100 dark:bg-teal-900/30", iconColor: "text-teal-600" },
@@ -221,7 +214,7 @@ const StockOverview = () => {
                       <TableCell className="px-6 py-4 text-center">
                         <button
                           type="button"
-                          onClick={() => handleUpdate(p._id)}
+                          onClick={() => history.push(`/products/edit/${p._id}`)}
                           className="h-9 w-9 inline-flex items-center justify-center border border-teal-200 text-teal-600 rounded-xl hover:bg-teal-600 hover:text-white transition-all"
                         >
                           <FiEdit size={14} />

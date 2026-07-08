@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 
 import Navbar from "@layout/navbar/Navbar";
 import Footer from "@layout/footer/Footer";
-import NavBarTop from "./navbar/NavBarTop";
+import TopPromoBar from "@layout/navbar/TopPromoBar";
 import useGetSetting from "@hooks/useGetSetting";
 import useCartSync from "@hooks/useCartSync";
 import { pickBrandLogo } from "@utils/brandAssets";
@@ -100,13 +100,18 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
 
         <div
           id="site-header"
-          style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
-          className="hidden lg:block fixed top-0 left-0 w-full z-50 transition-transform duration-400 ease-in-out h-[110px] bg-white border-b border-black/8 text-[#111111]"
+          style={{ transform: "translateY(0)" }}
+          className="hidden lg:block fixed top-0 left-0 w-full z-50 transition-transform duration-400 ease-in-out bg-white border-b border-black/8 text-[#111111]"
         >
-          <Navbar />
+          <div className="flex flex-col">
+            <TopPromoBar />
+            <div className="h-[110px]">
+              <Navbar />
+            </div>
+          </div>
         </div>
 
-        <main className="pt-0 lg:pt-[110px]">{children}</main>
+        <main className="pt-0 lg:pt-[146px]">{children}</main>
 
         <Footer />
         <FloatingWhatsApp />

@@ -5,6 +5,31 @@ const LEGACY_CLOUD_NAMES = ["dhqcwkpzp", "ahossain"];
 export const ADMIN_BRAND_LOGO = "/manchandalogo.png";
 export const CLOUDINARY_PLACEHOLDER = ADMIN_BRAND_LOGO;
 
+const LEGACY_NOTIFICATION_MARKERS = [
+  "placeholder_kvepfp",
+  "favicon-transparent",
+  "ahossain",
+  "dhqcwkpzp",
+];
+
+export function getBrandLogoUrl(globalSetting) {
+  return resolveCloudinaryUrl(globalSetting?.logo) || ADMIN_BRAND_LOGO;
+}
+
+/** Notification list avatar — brand logo instead of old template placeholder */
+export function getNotificationAvatarUrl(image, globalSetting) {
+  const resolved = resolveCloudinaryUrl(image);
+  if (
+    resolved &&
+    !LEGACY_NOTIFICATION_MARKERS.some((marker) =>
+      resolved.toLowerCase().includes(marker)
+    )
+  ) {
+    return resolved;
+  }
+  return getBrandLogoUrl(globalSetting);
+}
+
 /**
  * Returns a safe image URL for <img src>. Blocks legacy cloud URLs so the browser
  * does not request files that always return 401.

@@ -1,6 +1,11 @@
 /**
- * Seeds premium products and brands for Manchanda Fabrics.
- * Usage: node backend/script/seedManchandaProducts.js
+ * Seeds Manchanda products from database categories (one product per category).
+ * Product titles match category names; images cycle /h1–h6 and /p1–p15.
+ *
+ * Usage:
+ *   node backend/script/seedManchandaProducts.js
+ *   node backend/script/seedManchandaProducts.js --upsert
+ *   node backend/script/seedManchandaProducts.js --refresh-images
  */
 require("../config/env");
 const mongoose = require("mongoose");
@@ -11,6 +16,17 @@ const Brand = require("../models/Brand");
 const Setting = require("../models/Setting");
 const { withManchandaHomepage } = require("../lib/homepage-settings");
 
+const HERO_IMAGES = [1, 2, 3, 4, 5, 6].map((n) => `/h${n}.jpeg`);
+const CATALOG_IMAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(
+  (n) => `/p${n}.jpeg`
+);
+const ALL_PRODUCT_IMAGES = [...HERO_IMAGES, ...CATALOG_IMAGES];
+
+const productImageAt = (index) =>
+  ALL_PRODUCT_IMAGES[index % ALL_PRODUCT_IMAGES.length];
+
+const PARENT_CATEGORY_SLUGS = new Set(["sarees", "suits", "fabrics"]);
+
 const BRANDS = [
   { name: { en: "Royal Weaves" }, slug: "royal-weaves", status: "show" },
   { name: { en: "Traditional Threads" }, slug: "traditional-threads", status: "show" },
@@ -18,817 +34,127 @@ const BRANDS = [
   { name: { en: "Loom Heritage" }, slug: "loom-heritage", status: "show" },
 ];
 
-const PRODUCTS = [
-  // --- Cotton ---
+/** Categories that may be missing from an older category seed */
+const EXTRA_CATEGORIES = [
   {
-    slug: "floral-cotton-suit-set",
-    title: "Floral Cotton Suit Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "cotton-suits",
-    image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=800",
-    originalPrice: 4999,
-    price: 3499,
-    discount: 1500,
-    stock: 25,
-    sku: "MAN-COT-001",
-    tag: ["new-arrival", "trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Cotton",
-    workType: "Floral Print",
-    colorFamily: "Blush Pink",
-    collectionName: "Summer Solace",
+    status: "show",
+    name: { en: "Crush Tissue" },
+    parentId: "suits",
+    parentName: "Suits",
+    slug: "crush-tissue",
+    description: { en: "Elegant Crush Tissue suits." },
   },
   {
-    slug: "hand-block-cotton-suit",
-    title: "Hand Block Cotton Suit",
-    brandSlug: "loom-heritage",
-    categorySlug: "cotton-suits",
-    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=800",
-    originalPrice: 5500,
-    price: 3999,
-    discount: 1501,
-    stock: 20,
-    sku: "MAN-COT-002",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Cotton",
-    workType: "Hand Block Print",
-    colorFamily: "Indigo Blue",
-    collectionName: "Daily Wear",
+    status: "show",
+    name: { en: "Pakistani Style Suits" },
+    parentId: "suits",
+    parentName: "Suits",
+    slug: "pakistani-style-suits",
+    description: { en: "Graceful Pakistani style suit sets." },
   },
-  {
-    slug: "summer-cotton-kurta-set",
-    title: "Summer Cotton Kurta Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "cotton-suits",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800",
-    originalPrice: 3999,
-    price: 2999,
-    discount: 1000,
-    stock: 30,
-    sku: "MAN-COT-003",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Cotton",
-    workType: "Solid Embroidered",
-    colorFamily: "Mint Green",
-    collectionName: "Summer Solace",
-  },
-  {
-    slug: "indigo-cotton-suit",
-    title: "Indigo Cotton Suit",
-    brandSlug: "loom-heritage",
-    categorySlug: "cotton-suits",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800",
-    originalPrice: 4500,
-    price: 3299,
-    discount: 1201,
-    stock: 18,
-    sku: "MAN-COT-004",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Cotton",
-    workType: "Indigo Dye Print",
-    colorFamily: "Deep Indigo",
-    collectionName: "Daily Wear",
-  },
-
-  // --- Gaji Silk ---
-  {
-    slug: "royal-gaji-silk-suit",
-    title: "Royal Gaji Silk Suit",
-    brandSlug: "royal-weaves",
-    categorySlug: "gaji-silk",
-    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?q=80&w=800",
-    originalPrice: 18999,
-    price: 15999,
-    discount: 3000,
-    stock: 15,
-    sku: "MAN-GAJI-001",
-    tag: ["new-arrival", "trending", "featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Gaji Silk",
-    workType: "Zari Border Weave",
-    colorFamily: "Royal Red & Gold",
-    collectionName: "Heritage Collection",
-  },
-  {
-    slug: "embroidered-gaji-silk-set",
-    title: "Embroidered Gaji Silk Set",
-    brandSlug: "royal-weaves",
-    categorySlug: "gaji-silk",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 22000,
-    price: 18500,
-    discount: 3500,
-    stock: 10,
-    sku: "MAN-GAJI-002",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Gaji Silk",
-    workType: "Hand Embroidery",
-    colorFamily: "Fuchsia Pink",
-    collectionName: "Heritage Collection",
-  },
-  {
-    slug: "festive-gaji-silk-dress",
-    title: "Festive Gaji Silk Dress",
-    brandSlug: "utsav-silks",
-    categorySlug: "gaji-silk",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800",
-    originalPrice: 16500,
-    price: 13999,
-    discount: 2501,
-    stock: 12,
-    sku: "MAN-GAJI-003",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Gaji Silk",
-    workType: "Bandhej Print Weave",
-    colorFamily: "Mustard Gold",
-    collectionName: "Festive Edit",
-  },
-
-  // --- Kanjivaram ---
-  {
-    slug: "traditional-kanjivaram-silk-suit",
-    title: "Traditional Kanjivaram Silk Suit",
-    brandSlug: "royal-weaves",
-    categorySlug: "kanjivaram-silk",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800",
-    originalPrice: 28999,
-    price: 24999,
-    discount: 4000,
-    stock: 8,
-    sku: "MAN-KANJ-001",
-    tag: ["featured", "trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Kanjivaram Silk",
-    workType: "Golden Zari Weave",
-    colorFamily: "Deep Maroon",
-    collectionName: "Wedding Edit",
-  },
-  {
-    slug: "temple-border-silk-set",
-    title: "Temple Border Silk Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "kanjivaram-silk",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 26000,
-    price: 21999,
-    discount: 4001,
-    stock: 7,
-    sku: "MAN-KANJ-002",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Kanjivaram Silk",
-    workType: "Korvai Temple Weave",
-    colorFamily: "Emerald Green",
-    collectionName: "Wedding Edit",
-  },
-  {
-    slug: "bridal-kanjivaram-collection",
-    title: "Bridal Kanjivaram Collection Suit Set",
-    brandSlug: "royal-weaves",
-    categorySlug: "kanjivaram-silk",
-    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?q=80&w=800",
-    originalPrice: 35000,
-    price: 29999,
-    discount: 5001,
-    stock: 5,
-    sku: "MAN-KANJ-003",
-    tag: ["trending", "featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Kanjivaram Silk",
-    workType: "Pure Gold Zari Brocade",
-    colorFamily: "Vermillion Red",
-    collectionName: "Wedding Edit",
-  },
-
-  // --- Muslin ---
-  {
-    slug: "printed-muslin-suit",
-    title: "Printed Muslin Suit",
-    brandSlug: "loom-heritage",
-    categorySlug: "muslin",
-    image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=800",
-    originalPrice: 6500,
-    price: 4999,
-    discount: 1501,
-    stock: 22,
-    sku: "MAN-MUS-001",
-    tag: ["new-arrival"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Muslin",
-    workType: "Floral Print",
-    colorFamily: "Blush Nude",
-    collectionName: "Daily Wear",
-  },
-  {
-    slug: "premium-muslin-kurta",
-    title: "Premium Muslin Kurta",
-    brandSlug: "traditional-threads",
-    categorySlug: "muslin",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800",
-    originalPrice: 5999,
-    price: 4499,
-    discount: 1500,
-    stock: 19,
-    sku: "MAN-MUS-002",
-    tag: ["trending"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Muslin",
-    workType: "Fine Aari Embroidery",
-    colorFamily: "Lemon Yellow",
-    collectionName: "Summer Solace",
-  },
-  {
-    slug: "digital-print-muslin-set",
-    title: "Digital Print Muslin Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "muslin",
-    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=800",
-    originalPrice: 7200,
-    price: 5499,
-    discount: 1701,
-    stock: 14,
-    sku: "MAN-MUS-003",
-    tag: ["featured"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Muslin",
-    workType: "Digital Print",
-    colorFamily: "Lavender Nude",
-    collectionName: "Festive Edit",
-  },
-
-  // --- Kota Doria ---
-  {
-    slug: "floral-kota-doria-suit",
-    title: "Floral Kota Doria Suit",
-    brandSlug: "loom-heritage",
-    categorySlug: "kota-doria",
-    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=800",
-    originalPrice: 4800,
-    price: 3599,
-    discount: 1201,
-    stock: 24,
-    sku: "MAN-KOTA-001",
-    tag: ["new-arrival"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Kota Doria",
-    workType: "Block Print",
-    colorFamily: "Pastel Cream",
-    collectionName: "Summer Solace",
-  },
-  {
-    slug: "lightweight-kota-doria-dress",
-    title: "Lightweight Kota Doria Dress",
-    brandSlug: "traditional-threads",
-    categorySlug: "kota-doria",
-    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=800",
-    originalPrice: 5200,
-    price: 3899,
-    discount: 1301,
-    stock: 20,
-    sku: "MAN-KOTA-002",
-    tag: ["trending"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Kota Doria",
-    workType: "Embroidery Border",
-    colorFamily: "Peach",
-    collectionName: "Daily Wear",
-  },
-  {
-    slug: "summer-kota-collection",
-    title: "Summer Kota Collection Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "kota-doria",
-    image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=800",
-    originalPrice: 4999,
-    price: 3699,
-    discount: 1300,
-    stock: 25,
-    sku: "MAN-KOTA-003",
-    tag: ["featured"],
-    productType: "Fabrics",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Kota Doria",
-    workType: "Zari Border Weave",
-    colorFamily: "Off-White",
-    collectionName: "Summer Solace",
-  },
-
-  // --- Organza ---
-  {
-    slug: "floral-organza-suit",
-    title: "Floral Organza Suit",
-    brandSlug: "utsav-silks",
-    categorySlug: "organza",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800",
-    originalPrice: 8500,
-    price: 6499,
-    discount: 2001,
-    stock: 15,
-    sku: "MAN-ORG-001",
-    tag: ["new-arrival", "trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Organza",
-    workType: "Floral Digital Print",
-    colorFamily: "Mint & Pink",
-    collectionName: "Festive Edit",
-  },
-  {
-    slug: "organza-embroidery-set",
-    title: "Organza Embroidery Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "organza",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 9999,
-    price: 7999,
-    discount: 2000,
-    stock: 12,
-    sku: "MAN-ORG-002",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Organza",
-    workType: "Gota Patti Handwork",
-    colorFamily: "Powder Blue",
-    collectionName: "Festive Edit",
-  },
-  {
-    slug: "organza-festive-wear",
-    title: "Organza Festive Wear Suit Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "organza",
-    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?q=80&w=800",
-    originalPrice: 11000,
-    price: 8999,
-    discount: 2001,
-    stock: 10,
-    sku: "MAN-ORG-003",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Organza",
-    workType: "Silver Zari Border",
-    colorFamily: "Lilac",
-    collectionName: "Festive Edit",
-  },
-
-  // --- Crepe ---
-  {
-    slug: "designer-crepe-suit",
-    title: "Designer Crepe Suit",
-    brandSlug: "utsav-silks",
-    categorySlug: "crepe",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 9500,
-    price: 7499,
-    discount: 2001,
-    stock: 14,
-    sku: "MAN-CREP-001",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Crepe",
-    workType: "Sequin Embroidery",
-    colorFamily: "Crimson Red",
-    collectionName: "Heritage Collection",
-  },
-  {
-    slug: "printed-crepe-dress",
-    title: "Printed Crepe Dress Suit Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "crepe",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800",
-    originalPrice: 8900,
-    price: 6999,
-    discount: 1901,
-    stock: 16,
-    sku: "MAN-CREP-002",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Crepe",
-    workType: "Geometrical Print",
-    colorFamily: "Coffee Gold",
-    collectionName: "Daily Wear",
-  },
-  {
-    slug: "premium-crepe-collection",
-    title: "Premium Crepe Collection",
-    brandSlug: "royal-weaves",
-    categorySlug: "crepe",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800",
-    originalPrice: 12000,
-    price: 9999,
-    discount: 2001,
-    stock: 9,
-    sku: "MAN-CREP-003",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Crepe",
-    workType: "Zardozi Handwork",
-    colorFamily: "Dark Coffee",
-    collectionName: "Heritage Collection",
-  },
-
-  // --- Linen Cotton ---
-  {
-    slug: "linen-cotton-kurta",
-    title: "Linen Cotton Kurta",
-    brandSlug: "loom-heritage",
-    categorySlug: "linen-cotton",
-    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=800",
-    originalPrice: 3500,
-    price: 2499,
-    discount: 1001,
-    stock: 25,
-    sku: "MAN-LIN-001",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Linen Cotton",
-    workType: "Plain Weave",
-    colorFamily: "Blush Nude",
-    collectionName: "Daily Wear",
-  },
-  {
-    slug: "elegant-linen-suit",
-    title: "Elegant Linen Suit Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "linen-cotton",
-    image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=800",
-    originalPrice: 5900,
-    price: 4499,
-    discount: 1401,
-    stock: 20,
-    sku: "MAN-LIN-002",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Linen Cotton",
-    workType: "Zari Border Weave",
-    colorFamily: "Sand Cream",
-    collectionName: "Summer Solace",
-  },
-  {
-    slug: "soft-linen-collection",
-    title: "Soft Linen Collection Suit Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "linen-cotton",
-    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=800",
-    originalPrice: 6500,
-    price: 4999,
-    discount: 1501,
-    stock: 15,
-    sku: "MAN-LIN-003",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Linen Cotton",
-    workType: "Digital Print",
-    colorFamily: "Warm Taupe",
-    collectionName: "Daily Wear",
-  },
-
-  // --- Bandhani ---
-  {
-    slug: "rajasthani-bandhani-suit",
-    title: "Rajasthani Bandhani Suit Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "bandhani-suits",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=800",
-    originalPrice: 7999,
-    price: 5999,
-    discount: 2000,
-    stock: 18,
-    sku: "MAN-BAND-001",
-    tag: ["new-arrival", "trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Art Silk",
-    workType: "Tie & Dye Bandhej",
-    colorFamily: "Mustard Orange",
-    collectionName: "Festive Edit",
-  },
-  {
-    slug: "premium-bandhej-set",
-    title: "Premium Bandhej Suit Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "bandhani-suits",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800",
-    originalPrice: 8999,
-    price: 6999,
-    discount: 2000,
-    stock: 14,
-    sku: "MAN-BAND-002",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Georgette",
-    workType: "Hand Tie Dye & Gota Work",
-    colorFamily: "Vermillion Red",
-    collectionName: "Festive Edit",
-  },
-  {
-    slug: "handcrafted-bandhani-dress",
-    title: "Handcrafted Bandhani Dress Suit",
-    brandSlug: "utsav-silks",
-    categorySlug: "bandhani-suits",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 6500,
-    price: 4999,
-    discount: 1501,
-    stock: 16,
-    sku: "MAN-BAND-003",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Cotton Silk",
-    workType: "Heritage Bandhej Craft",
-    colorFamily: "Marigold Yellow",
-    collectionName: "Festive Edit",
-  },
-
-  // --- Party Wear ---
-  {
-    slug: "designer-party-wear-suit",
-    title: "Designer Party Wear Suit Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "party-wear-suits",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800",
-    originalPrice: 9999,
-    price: 7999,
-    discount: 2000,
-    stock: 12,
-    sku: "MAN-PWS-001",
-    tag: ["new-arrival", "featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Party",
-    fabricType: "Organza",
-    workType: "Gota Patti Handwork",
-    colorFamily: "Lime Green",
-    collectionName: "Festive Edit",
-  },
-  {
-    slug: "sequins-party-collection",
-    title: "Sequins Party Wear Suit Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "party-wear-suits",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 12500,
-    price: 9999,
-    discount: 2501,
-    stock: 10,
-    sku: "MAN-PWS-002",
-    tag: ["trending", "featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Party",
-    fabricType: "Georgette",
-    workType: "Allover Sequin Embroidery",
-    colorFamily: "Royal Wine",
-    collectionName: "Wedding Edit",
-  },
-  {
-    slug: "wedding-reception-suit",
-    title: "Wedding Reception Suit Anarkali",
-    brandSlug: "royal-weaves",
-    categorySlug: "party-wear-suits",
-    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?q=80&w=800",
-    originalPrice: 15999,
-    price: 12999,
-    discount: 3000,
-    stock: 8,
-    sku: "MAN-PWS-003",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Silk",
-    workType: "Heavy Zardozi Handwork",
-    colorFamily: "Crimson Maroon",
-    collectionName: "Wedding Edit",
-  },
-
-  // --- Mul Cotton ---
-  {
-    slug: "mul-cotton-soft-fabric",
-    title: "Super Soft Pure Mul Cotton Fabric",
-    brandSlug: "loom-heritage",
-    categorySlug: "mul-cotton",
-    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=800",
-    originalPrice: 999,
-    price: 799,
-    discount: 200,
-    stock: 150,
-    sku: "MAN-MUL-001",
-    tag: ["new-arrival"],
-    productType: "Fabrics",
-    gender: "Unisex",
-    occasion: "Casual",
-    fabricType: "Mul Cotton",
-    workType: "Plain Dyed",
-    colorFamily: "Pastel Yellow",
-    collectionName: "Summer Solace",
-  },
-
-  // --- Bangalori Silk Pure ---
-  {
-    slug: "pure-bangalori-silk-saree",
-    title: "Pure Bangalori Silk Embroidered Suit Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "bangalori-silk-pure",
-    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=800",
-    originalPrice: 14999,
-    price: 11999,
-    discount: 3000,
-    stock: 12,
-    sku: "MAN-BANG-001",
-    tag: ["trending", "featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Wedding",
-    fabricType: "Bangalori Silk",
-    workType: "Fine Resham Embroidery",
-    colorFamily: "Fuchsia Pink",
-    collectionName: "Wedding Edit",
-  },
-
-  // --- Batik ---
-  {
-    slug: "handblock-batik-print-suit",
-    title: "Handblock Batik Print Suit Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "batik",
-    image: "https://images.unsplash.com/photo-1608748010899-18f300247112?q=80&w=800",
-    originalPrice: 4200,
-    price: 2999,
-    discount: 1201,
-    stock: 22,
-    sku: "MAN-BAT-001",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Cotton",
-    workType: "Batik Wax Dye Block Print",
-    colorFamily: "Earth Brown & Gold",
-    collectionName: "Daily Wear",
-  },
-
-  // --- Georgette ---
-  {
-    slug: "embroidered-georgette-festive-saree",
-    title: "Embroidered Georgette Festive Suit Set",
-    brandSlug: "utsav-silks",
-    categorySlug: "georgette",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800",
-    originalPrice: 9999,
-    price: 7999,
-    discount: 2000,
-    stock: 15,
-    sku: "MAN-GEO-001",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Georgette",
-    workType: "Chikankari Handwork",
-    colorFamily: "Off-White",
-    collectionName: "Festive Edit",
-  },
-
-  // --- Jamdani Cotton ---
-  {
-    slug: "traditional-handloom-jamdani-saree",
-    title: "Traditional Handloom Jamdani Suit Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "jamdani-cotton",
-    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=800",
-    originalPrice: 8500,
-    price: 6999,
-    discount: 1501,
-    stock: 12,
-    sku: "MAN-JAM-001",
-    tag: ["featured"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Festive",
-    fabricType: "Jamdani Cotton",
-    workType: "Dhaka Weave",
-    colorFamily: "Red & White",
-    collectionName: "Heritage Collection",
-  },
-
-  // --- Glace Cotton ---
-  {
-    slug: "premium-glace-cotton-suit",
-    title: "Premium Glace Cotton Suit Set",
-    brandSlug: "loom-heritage",
-    categorySlug: "glace-cotton",
-    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=800",
-    originalPrice: 5500,
-    price: 3999,
-    discount: 1501,
-    stock: 20,
-    sku: "MAN-GLA-001",
-    tag: ["new-arrival"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Glace Cotton",
-    workType: "Lace Embroidery",
-    colorFamily: "Blush Nude",
-    collectionName: "Daily Wear",
-  },
-
-  // --- Modal ---
-  {
-    slug: "soft-modal-silk-kurta-set",
-    title: "Soft Modal Silk Kurta Set",
-    brandSlug: "traditional-threads",
-    categorySlug: "modal",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=800",
-    originalPrice: 6800,
-    price: 4999,
-    discount: 1801,
-    stock: 15,
-    sku: "MAN-MOD-001",
-    tag: ["trending"],
-    productType: "Suits",
-    gender: "Women",
-    occasion: "Casual",
-    fabricType: "Modal Silk",
-    workType: "Foil Print & Gota Embroidery",
-    colorFamily: "Olive Green",
-    collectionName: "Summer Solace",
-  }
 ];
+
+const buildProductsFromCategories = (categories) => {
+  const leaf = categories
+    .filter(
+      (c) => c.slug && c.id !== "Root" && !PARENT_CATEGORY_SLUGS.has(c.slug)
+    )
+    .sort((a, b) => (a.name?.en || "").localeCompare(b.name?.en || ""));
+
+  const brandSlugs = BRANDS.map((b) => b.slug);
+
+  return leaf.map((cat, index) => {
+    const name = cat.name?.en || cat.slug;
+    const isSilk = /silk|kanjivaram|bangalori/i.test(name);
+    const isPremium = /party|organza|georgette|applique|crush|pakistani/i.test(
+      name
+    );
+    const originalPrice = isSilk ? 14999 : isPremium ? 9999 : 5499;
+    const price = Math.round(originalPrice * 0.82);
+
+    return {
+      slug: cat.slug,
+      title: name,
+      brandSlug: brandSlugs[index % brandSlugs.length],
+      categorySlug: cat.slug,
+      originalPrice,
+      price,
+      discount: originalPrice - price,
+      stock: 18 + (index % 12),
+      sku: `MAN-${String(cat.slug).replace(/-/g, "").slice(0, 10).toUpperCase()}-001`,
+      tag:
+        index < 4
+          ? ["new-arrival", "trending"]
+          : index < 10
+            ? ["trending"]
+            : ["featured"],
+      productType: cat.parentName || "Suits",
+      gender: "Women",
+      occasion: isPremium || isSilk ? "Festive" : "Casual",
+      fabricType: name,
+      workType: "Premium Craft",
+      colorFamily: "Assorted",
+      collectionName: "Manchanda Collection",
+    };
+  });
+};
+
+const UPSERT_ONLY = process.argv.includes("--upsert");
+const REFRESH_IMAGES = process.argv.includes("--refresh-images");
 
 const run = async () => {
   await connectDB();
 
-  // 1. Wipe & Seed Brands
-  await Brand.deleteMany({});
-  console.log("Wiped legacy brands.");
-  const createdBrands = await Brand.insertMany(BRANDS);
-  console.log(`Inserted ${createdBrands.length} premium ethnic brands.`);
+  if (REFRESH_IMAGES) {
+    const products = await Product.find({}).sort({ createdAt: 1 }).select("_id slug");
+    for (let i = 0; i < products.length; i++) {
+      const img = productImageAt(i);
+      await Product.updateOne(
+        { _id: products[i]._id },
+        { $set: { image: [img], featuredImage: img, hoverImage: img } }
+      );
+      console.log(`Updated ${products[i].slug} -> ${img}`);
+    }
+    console.log(
+      `Refreshed images for ${products.length} products (h1-h6 + p1-p15).`
+    );
+    await mongoose.connection.close();
+    return;
+  }
+
+  // 1. Brands
+  let createdBrands;
+  if (UPSERT_ONLY) {
+    createdBrands = await Brand.find({});
+    for (const b of BRANDS) {
+      const existing = createdBrands.find((x) => x.slug === b.slug);
+      if (!existing) {
+        const created = await Brand.create(b);
+        createdBrands.push(created);
+        console.log(`Created brand: ${b.name.en}`);
+      }
+    }
+  } else {
+    await Brand.deleteMany({});
+    console.log("Wiped legacy brands.");
+    createdBrands = await Brand.insertMany(BRANDS);
+    console.log(`Inserted ${createdBrands.length} premium ethnic brands.`);
+  }
 
   const brandMap = {};
   createdBrands.forEach((b) => {
     brandMap[b.slug] = b._id;
   });
 
-  // Get Categories Map
+  // 2. Ensure all catalog categories exist
+  for (const cat of EXTRA_CATEGORIES) {
+    const exists = await Category.findOne({ slug: cat.slug }).select("_id");
+    if (!exists) {
+      await Category.create(cat);
+      console.log(`Created category: ${cat.name.en}`);
+    }
+  }
+
   const categories = await Category.find({});
   const categoryMap = {};
   categories.forEach((c) => {
@@ -841,17 +167,26 @@ const run = async () => {
     process.exit(1);
   }
 
-  // 2. Wipe & Seed Products
-  await Product.deleteMany({});
-  console.log("Wiped legacy products.");
+  const productDefs = buildProductsFromCategories(categories);
+  console.log(`Building ${productDefs.length} products from category names.`);
+
+  // 3. Seed products
+  if (!UPSERT_ONLY) {
+    await Product.deleteMany({});
+    console.log("Wiped legacy products.");
+  } else {
+    console.log("Upsert mode: adding or updating products by category slug.");
+  }
 
   const createdProductIds = [];
   const newArrivalIds = [];
   const trendingIds = [];
 
-  for (const item of PRODUCTS) {
+  for (let i = 0; i < productDefs.length; i++) {
+    const item = productDefs[i];
     const brandId = brandMap[item.brandSlug];
     const categoryId = categoryMap[item.categorySlug];
+    const img = productImageAt(i);
 
     if (!brandId || !categoryId) {
       console.warn(`Skipping product ${item.slug}: Brand or Category not found.`);
@@ -861,7 +196,7 @@ const run = async () => {
     const payload = {
       title: { en: item.title },
       description: {
-        en: `${item.title} — Premium collection by Manchanda Fabrics. Sourced directly from master weavers.`,
+        en: `${item.title} — Premium ${item.fabricType} by Manchanda Fabrics. Sourced directly from master weavers.`,
       },
       slug: item.slug,
       category: categoryId,
@@ -869,7 +204,9 @@ const run = async () => {
       brand: brandId,
       gender: item.gender,
       productType: item.productType,
-      image: [item.image],
+      image: [img],
+      featuredImage: img,
+      hoverImage: img,
       stock: item.stock,
       sales: Math.floor(Math.random() * 50) + 10,
       sku: item.sku,
@@ -882,28 +219,37 @@ const run = async () => {
       isCombination: false,
       variants: [],
       status: "show",
-      taxRate: 5, // 5% GST standard on suits/textiles
+      taxRate: 5,
       isPriceInclusive: true,
-
-      // Custom Manchanda Fields
       occasion: item.occasion,
       fabricType: item.fabricType,
       workType: item.workType,
-      blouseIncluded: item.blouseIncluded || false,
-      suitLength: item.suitLength || "",
+      blouseIncluded: false,
+      suitLength: "",
       colorFamily: item.colorFamily,
       collectionName: item.collectionName,
     };
 
-    const product = await Product.create(payload);
-    console.log(`Created product: ${item.title}`);
+    if (UPSERT_ONLY) {
+      const existing = await Product.findOne({ slug: item.slug }).select("_id");
+      if (existing) {
+        await Product.updateOne({ _id: existing._id }, { $set: payload });
+        console.log(`Updated product: ${item.title}`);
+        createdProductIds.push(existing._id);
+        if (item.tag.includes("new-arrival")) newArrivalIds.push(existing._id);
+        if (item.tag.includes("trending")) trendingIds.push(existing._id);
+        continue;
+      }
+    }
 
+    const product = await Product.create(payload);
+    console.log(`Created product: ${item.title} (${img})`);
     createdProductIds.push(product._id);
     if (item.tag.includes("new-arrival")) newArrivalIds.push(product._id);
     if (item.tag.includes("trending")) trendingIds.push(product._id);
   }
 
-  // 3. Update homepage setting IDs
+  // 4. Homepage product picks
   const settingDoc = await Setting.findOne({ name: "storeCustomizationSetting" });
   if (settingDoc) {
     settingDoc.setting = withManchandaHomepage(settingDoc.setting, {
@@ -915,7 +261,7 @@ const run = async () => {
     console.log("Updated homepage settings with new arrival and trending product IDs.");
   }
 
-  console.log(`\nSuccessfully seeded ${createdProductIds.length} premium products.`);
+  console.log(`\nSuccessfully seeded ${createdProductIds.length} category products.`);
   await mongoose.connection.close();
 };
 

@@ -23,6 +23,7 @@ import { SidebarContext } from "@/context/SidebarContext";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import NotificationServices from "@/services/NotificationServices";
+import { getNotificationAvatarUrl } from "@/utils/cloudinaryUrl";
 
 const Notifications = () => {
   // react hook
@@ -33,7 +34,7 @@ const Notifications = () => {
   const [isCheck, setIsCheck] = useState([]);
   const [isCheckAll, setIsCheckAll] = useState(false);
 
-  const { showDateTimeFormat } = useUtilsFunction();
+  const { showDateTimeFormat, globalSetting } = useUtilsFunction();
 
   // handle notification status change
   const handleNotificationStatusChange = async (id) => {
@@ -259,9 +260,9 @@ const Notifications = () => {
                                 }
                               >
                                 <Avatar
-                                  className="mr-2 md:block hidden bg-gray-50 border border-gray-200"
-                                  src={value.image}
-                                  alt="image"
+                                  className="mr-2 md:block hidden bg-white border border-gray-200 object-contain p-0.5"
+                                  src={getNotificationAvatarUrl(value.image, globalSetting)}
+                                  alt="Manchanda Fabrics"
                                 />
 
                                 <div className="notification-content">

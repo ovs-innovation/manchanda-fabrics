@@ -113,7 +113,7 @@ export default function LowerCategoryNavbar({
       const bagType = slug.split("=")[1];
       return `/search?category=bags&type=${bagType}`;
     }
-    return `/search?category=${slug}`;
+    return `/collections/${slug}`;
   };
   const activeCategory = categories.find((c) => getId(c) === activeCategoryId);
   const hasChildren = activeCategory?.children?.length > 0;

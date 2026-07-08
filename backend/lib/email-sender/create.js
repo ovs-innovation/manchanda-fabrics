@@ -76,7 +76,7 @@ const resolveCompanyInfo = async (order) => {
     company: getStoreCompanyName(),
     address: fromOrder.address || contactAddress,
     phone: fromOrder.phone || gs.contact || "",
-    email: fromOrder.email || gs.email || "support@manchandafabrics.com",
+    email: fromOrder.email || gs.email || "manchandafabrics@gmail.com",
     website: fromOrder.website || gs.website || "",
     currency: fromOrder.currency || gs.default_currency || "₹",
     gstin: fromOrder.vat_number || gs.gstin || gs.vat_number || "",

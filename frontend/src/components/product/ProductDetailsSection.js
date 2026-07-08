@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 
-const placeholderImage = "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png";
+import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+
+const placeholderImage = PRODUCT_PLACEHOLDER;
 
 const ProductDetailsSection = ({ dynamicSections = [], mediaSections = [], selectedAttributes = {}, isVariantSpecific = false }) => {
   const [expandedSections, setExpandedSections] = useState({});

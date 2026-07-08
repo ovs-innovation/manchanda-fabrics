@@ -15,12 +15,9 @@ import { useParams, useHistory } from "react-router-dom";
 import useAsync from "@/hooks/useAsync";
 import useFilter from "@/hooks/useFilter";
 import useProductSubmit from "@/hooks/useProductSubmit";
-import useToggleDrawer from "@/hooks/useToggleDrawer";
 import ProductServices from "@/services/ProductServices";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import AttributeList from "@/components/attribute/AttributeList";
-import MainDrawer from "@/components/drawer/MainDrawer";
-import ProductDrawer from "@/components/drawer/ProductDrawer";
 import Loading from "@/components/preloader/Loading";
 import PageTitle from "@/components/Typography/PageTitle";
 import { SidebarContext } from "@/context/SidebarContext";
@@ -31,7 +28,6 @@ const ProductDetails = () => {
   const { id } = useParams();
   const history = useHistory();
   const { t } = useTranslation();
-  const { handleUpdate } = useToggleDrawer();
   const { attribue } = useProductSubmit(id);
   const [variantTitle, setVariantTitle] = useState([]);
   const { lang } = useContext(SidebarContext);
@@ -83,10 +79,6 @@ const ProductDetails = () => {
 
   return (
     <>
-      <MainDrawer product>
-        <ProductDrawer id={id} />
-      </MainDrawer>
-
       <div className="flex items-center gap-2 mb-4 mt-2">
         <Button
           layout="link"
@@ -203,7 +195,7 @@ const ProductDetails = () => {
               </div>
               <div className="mt-6">
                 <button
-                  onClick={() => handleUpdate(id)}
+                  onClick={() => history.push(`/products/edit/${id}`)}
                   className="cursor-pointer leading-5 transition-colors duration-150 font-medium text-sm focus:outline-none px-5 py-2 rounded-md text-white bg-store-500 border border-transparent active:bg-store-600 hover:bg-store-600 "
                 >
                   {t("EditProduct")}

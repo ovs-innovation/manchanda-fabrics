@@ -178,7 +178,7 @@ const VariantList = ({
                       isDisabled
                         ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-60"
                         : isSelected
-                        ? "bg-store-50 border-store-500 text-store-800 shadow-sm"
+                        ? "bg-neutral-100 border-[#111111] text-[#111111] shadow-sm"
                         : "bg-white border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
                     }`}
                     type="button"
@@ -198,7 +198,7 @@ const VariantList = ({
                     {/* Selected checkmark (Flipkart style) */}
                     {isSelected && (
                       <svg
-                        className="ml-2 w-4 h-4 text-store-600"
+                        className="ml-2 w-4 h-4 text-[#111111]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

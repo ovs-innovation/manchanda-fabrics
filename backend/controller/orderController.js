@@ -189,7 +189,35 @@ const getAllOrders = async (req, res) => {
 
 const getOrderCustomer = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.params.id }).sort({ createdAt: -1 });
+    const customerId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+      return res.status(400).send({ message: "Invalid customer id" });
+    }
+
+    const customer = await Customer.findById(customerId).lean();
+    if (!customer) {
+      return res.status(404).send({ message: "Customer not found" });
+    }
+
+    const matchConditions = [{ user: customerId }];
+    if (customer.email) {
+      matchConditions.push({ "user_info.email": customer.email });
+    }
+    if (customer.phone) {
+      const phone = String(customer.phone).replace(/\D/g, "");
+      if (phone) {
+        matchConditions.push({ "user_info.contact": customer.phone });
+        if (phone.length >= 10) {
+          matchConditions.push({
+            "user_info.contact": { $regex: phone.slice(-10) },
+          });
+        }
+      }
+    }
+
+    const orders = await Order.find({ $or: matchConditions }).sort({
+      createdAt: -1,
+    });
     
     // Populate brand names in all orders
     const ordersWithBrandNames = [];
@@ -372,7 +400,7 @@ const updateOrder = async (req, res) => {
         try {
           const globalSetting = await Setting.findOne({ name: "globalSetting" });
           const shopName = globalSetting?.setting?.shop_name || "manchanda";
-          const contactEmail = globalSetting?.setting?.email || "support@Manchanda Fabrics.com";
+          const contactEmail = globalSetting?.setting?.email || "manchandafabrics@gmail.com";
           const logo = await getEmailLogoUrl();
 
           const customerEmail = getRealEmail(updatedOrder.user_info?.email);

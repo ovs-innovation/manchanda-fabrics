@@ -47,9 +47,9 @@ const LuxuryFeatures = () => {
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-white border-y border-[#C8A45D]/15">
+    <section className="py-12 sm:py-16 bg-white border-y border-[#111111]/15">
       <div className="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-16">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-[#C8A45D]/15">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-[#111111]/15">
           {FEATURES.map((f, idx) => (
             <motion.div
               key={idx}
@@ -60,7 +60,7 @@ const LuxuryFeatures = () => {
               className="flex flex-col items-center text-center px-6 py-8 sm:py-10 group"
             >
               {/* Icon */}
-              <div className="text-[#C8A45D] mb-5 transition-transform duration-300 group-hover:scale-110">
+              <div className="text-[#111111] mb-5 transition-transform duration-300 group-hover:scale-110">
                 {f.icon}
               </div>
               {/* Title */}

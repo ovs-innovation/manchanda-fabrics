@@ -76,7 +76,7 @@ const CatalogDropdown = ({ isTransparent }) => {
     >
       <button
         type="button"
-        className="relative group flex items-center gap-1.5 py-2 text-[17px] md:text-[18px] font-sans font-bold tracking-[1.5px] uppercase text-[#222222] hover:text-[#B08D57] transition-colors duration-250 ease-in-out"
+        className="relative group flex items-center gap-1.5 py-2 text-[14px] font-sans font-normal tracking-[0.14em] uppercase text-[#111111] hover:text-[#111111]/70 transition-colors duration-250 ease-in-out"
         style={{ fontFamily: "'Poppins', sans-serif" }}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -86,14 +86,14 @@ const CatalogDropdown = ({ isTransparent }) => {
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.25 }}
-          className={isOpen ? "text-[#B08D57]" : ""}
+          className={isOpen ? "text-[#111111]" : ""}
         >
           <ChevronDown size={14} strokeWidth={2.5} />
         </motion.span>
 
         {/* Underline grows from center */}
         <span
-          className={`absolute bottom-0 left-1/2 h-[2px] bg-[#B08D57] -translate-x-1/2 transition-all duration-250 ease-in-out ${
+          className={`absolute bottom-0 left-1/2 h-[2px] bg-[#111111] -translate-x-1/2 transition-all duration-250 ease-in-out ${
             isOpen ? "w-full" : "w-0 group-hover:w-full"
           }`}
         />
@@ -112,7 +112,7 @@ const CatalogDropdown = ({ isTransparent }) => {
             aria-label="Catalog categories"
           >
             {/* Top accent line */}
-            <div className="h-[2px] w-full bg-[#B08D57]" />
+            <div className="h-[2px] w-full bg-[#111111]" />
 
             <div className="p-6">
               <p className="text-[12px] font-semibold tracking-[0.3em] uppercase text-neutral-400 mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -122,17 +122,17 @@ const CatalogDropdown = ({ isTransparent }) => {
                 {CATALOG_CATEGORIES.map((cat) => (
                   <Link
                     key={cat.slug}
-                    href={`/search?category=${cat.slug}`}
-                    className="group/item flex flex-col py-2.5 border-b border-neutral-50 hover:border-[#B08D57]/20 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B08D57]/30"
+                    href={`/collections/${cat.slug}`}
+                    className="group/item flex flex-col py-2.5 border-b border-neutral-50 hover:border-[#111111]/20 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]/30"
                     role="option"
                     onClick={() => setIsOpen(false)}
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    <span className="text-sm font-semibold tracking-[0.12em] uppercase text-[#1F2937] group-hover/item:text-[#B08D57] transition-colors duration-200">
-                      {cat.label}
+                    <span className="text-sm font-semibold tracking-[0.12em] uppercase text-[#1F2937] group-hover/item:text-[#111111] transition-colors duration-200">
+                      {t(cat.label)}
                     </span>
                     <span className="text-xs text-neutral-400 font-normal mt-0.5 tracking-wide">
-                      {cat.desc}
+                      {t(cat.desc)}
                     </span>
                   </Link>
                 ))}
@@ -146,7 +146,7 @@ const CatalogDropdown = ({ isTransparent }) => {
                 <Link
                   href="/search"
                   onClick={() => setIsOpen(false)}
-                  className="text-[12px] font-semibold tracking-[0.15em] uppercase text-[#B08D57] hover:text-[#906f3e] transition-colors inline-flex items-center gap-1.5 group/all"
+                  className="text-[12px] font-semibold tracking-[0.15em] uppercase text-[#111111] hover:text-[#906f3e] transition-colors inline-flex items-center gap-1.5 group/all"
                 >
                   {t("View All Collections")}
                   <span className="inline-block transition-transform group-hover/all:translate-x-1 duration-200">→</span>

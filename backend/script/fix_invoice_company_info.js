@@ -13,7 +13,7 @@ if (fs.existsSync(createPath)) {
     company: "Manchanda Fabrics",
     address: "Ludhiana, Punjab, India",
     phone: "+91 98765 43210",
-    email: "support@manchandafabrics.com",
+    email: "manchandafabrics@gmail.com",
     website: "www.manchandafabrics.com",
     currency: "₹",
     vat_number: ""

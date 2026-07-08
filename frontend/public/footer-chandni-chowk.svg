@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 720" fill="none" aria-hidden="true">
+  <defs>
+    <style>
+      .a{fill:none;stroke:#2b2b2b;stroke-opacity:.16;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .b{fill:none;stroke:#2b2b2b;stroke-opacity:.11;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+      .c{fill:none;stroke:#2b2b2b;stroke-opacity:.08;stroke-width:1.2;stroke-linecap:round}
+      .d{fill:#2b2b2b;fill-opacity:.035}
+    </style>
+  </defs>
+
+  <!-- distant skyline curve -->
+  <path class="a" d="M0 520c120-80 280-120 420-70 160-90 340-130 520-60 140-70 300-100 480-50 160-80 320-110 500-55 150-65 310-95 480-45 170-75 340-105 520-50 150-60 300-90 460-40 180-70 360-100 540-48 160-55 320-85 500-42 180-65 360-95 540-40 160-50 320-80 500-38 200-60 400-90 600-35 160-45 320-75 500-35 180-55 360-85 540-32 160-40 320-70 500-30 180-50 360-80 540-28 160-35 320-65 500-25 180-45 360-75 540-22 160-30 320-60 500-20 180-40 360-70 540-18 160-25 320-55 500-15 180-35 360-65 540-12 160-20 320-50 500-10 180-30 360-60 540-8 160-15 320-45 500-5 180-25 360-55 540 0"/>
+
+  <!-- LEFT — Jama Masjid cluster -->
+  <ellipse class="d" cx="280" cy="430" rx="120" ry="68"/>
+  <path class="a" d="M160 430c0-78 54-132 120-132s120 54 120 132"/>
+  <path class="b" d="M220 298v-52 M280 280v-72 M340 298v-52"/>
+  <circle class="c" cx="280" cy="208" r="12"/>
+  <path class="a" d="M175 430h210 M175 395h210 M175 360h210 M175 325h210"/>
+  <path class="b" d="M130 430v-115l20-8 14 16 12-20 12 20 14-16 20 8v115"/>
+  <path class="b" d="M390 430v-115l20-8 14 16 12-20 12 20 14-16 20 8v115"/>
+  <path class="b" d="M95 430v-88l16-6 10 12 8-14 8 14 10-12 16 6v88"/>
+  <path class="b" d="M455 430v-88l16-6 10 12 8-14 8 14 10-12 16 6v88"/>
+
+  <!-- LEFT minaret -->
+  <path class="a" d="M120 430V180l22-8 14 16 14-24 14 24 14-16 22 8v250"/>
+  <path class="c" d="M142 180v-28 M130 152h24"/>
+  <path class="b" d="M120 320h44 M120 260h44 M120 200h44"/>
+
+  <!-- CENTER-LEFT — Ghanta Ghar / Chandni Chowk tower -->
+  <path class="a" d="M560 560V240l36-14 20 22 20-32 20 32 20-22 36 14v320"/>
+  <path class="b" d="M596 240v-48 M580 192h32"/>
+  <circle class="b" cx="596" cy="290" r="18"/>
+  <path class="c" d="M596 272v36 M584 290h24"/>
+
+  <!-- CENTER — Jama Masjid / main dome (hero, like Taj in ref) -->
+  <ellipse class="d" cx="1180" cy="400" rx="155" ry="88"/>
+  <path class="a" d="M1025 400c0-98 69-165 155-165s155 67 155 165"/>
+  <path class="a" d="M1085 235v-62 M1180 215v-88 M1275 235v-62"/>
+  <circle class="c" cx="1180" cy="127" r="14"/>
+  <path class="b" d="M1040 400h280 M1040 365h280 M1040 330h280"/>
+  <!-- side chhatris -->
+  <path class="b" d="M960 400v-95l24-10 16 18 16-26 16 26 16-18 24 10v95"/>
+  <path class="b" d="M1320 400v-95l24-10 16 18 16-26 16 26 16-18 24 10v95"/>
+  <!-- reflecting pool hint -->
+  <path class="c" d="M1000 560h360 M1020 572h320"/>
+
+  <!-- Bazaar row — Chandni Chowk shops -->
+  <path class="a" d="M680 560V380"/>
+  <path class="b" d="M680 380h520"/>
+  <path class="b" d="M700 380v-32h88v32 M808 380v-40h100v40 M928 380v-28h80v28 M1028 380v-36h108v36 M1156 380v-30h72v30"/>
+  <path class="c" d="M712 348h64 M712 340h64 M820 340h76 M940 352h56 M1044 344h84 M1168 350h48"/>
+  <path class="a" d="M692 380l28-20h72l28 20 M792 380l32-24h80l32 24 M904 380l24-16h64l24 16 M1004 380l30-22h84l30 22 M1112 380l26-18h68l26 18"/>
+
+  <!-- Red Fort Lahori Gate -->
+  <path class="a" d="M1480 560V350"/>
+  <path class="a" d="M1410 560V410l70-48 70 48v150"/>
+  <path class="b" d="M1445 410h60 M1428 440h94 M1428 470h94"/>
+  <path class="a" d="M1480 310c-26 0-48 22-48 48s22 48 48 48 48-22 48-48-22-48-48-48z"/>
+  <path class="b" d="M1360 560V430l34-14 20 18 18-26 18 26 20-18 34 14v130"/>
+  <path class="b" d="M1560 560V430l34-14 20 18 18-26 18 26 20-18 34 14v130"/>
+
+  <!-- RIGHT — domes & havelis -->
+  <path class="a" d="M1720 560V390l40-16 24 22 24-34 24 34 24-22 40 16v170"/>
+  <ellipse class="d" cx="1840" cy="360" rx="62" ry="36"/>
+  <path class="a" d="M1778 360c0-40 28-68 62-68s62 28 62 68"/>
+  <path class="b" d="M1810 292v-38 M1840 278v-52 M1870 292v-38"/>
+  <path class="b" d="M1960 560V450l28-10 16 14 14-20 14 20 16-14 28 10v110"/>
+  <path class="b" d="M2060 560V400l34-12 20 18 18-24 18 24 20-18 34 12v160"/>
+  <path class="a" d="M2140 560V320l28-10 16 14 14-20 14 20 16-14 28 10v240"/>
+  <path class="b" d="M2220 560V380l30-10 18 16 16-22 16 22 18-16 30 10v180"/>
+
+  <!-- RIGHT minaret -->
+  <path class="a" d="M2280 560V200l24-8 14 14 14-20 14 20 14-14 24 8v360"/>
+  <path class="c" d="M2304 200v-32 M2292 168h24"/>
+
+  <!-- Trees -->
+  <path class="b" d="M480 560v-62c-20-10-20-30 0-40 20 10 20 30 0 40"/>
+  <path class="b" d="M820 560v-54c-16-8-16-24 0-32 16 8 16 24 0 32"/>
+  <path class="b" d="M1320 560v-58c-18-9-18-26 0-36 18 10 18 27 0 36"/>
+  <path class="b" d="M1680 560v-52c-14-7-14-20 0-28 14 8 14 21 0 28"/>
+  <path class="b" d="M2020 560v-56c-16-8-16-24 0-32 16 8 16 24 0 32"/>
+
+  <!-- Horse carriage (like ref) -->
+  <path class="c" d="M890 548c0-8 6-14 14-14h52c8 0 14 6 14 14v12h-80z"/>
+  <circle class="c" cx="908" cy="562" r="11"/>
+  <circle class="c" cx="952" cy="562" r="11"/>
+  <path class="c" d="M896 548h64 M920 538v12"/>
+  <path class="c" d="M914 538c-4-10 2-18 10-18"/>
+
+  <!-- Rickshaw -->
+  <circle class="c" cx="1080" cy="558" r="10"/>
+  <circle class="c" cx="1112" cy="558" r="10"/>
+  <path class="c" d="M1068 558h56 M1090 548v12"/>
+
+  <!-- People walking -->
+  <path class="c" d="M740 562c0-10 6-16 14-16s14 6 14 16v10h-28z M754 550v-14"/>
+  <path class="c" d="M770 562c0-10 6-16 14-16s14 6 14 16v10h-28z"/>
+  <path class="c" d="M1240 562c0-10 6-16 14-16s14 6 14 16v10h-28z M1254 550v-14"/>
+  <path class="c" d="M1268 562c0-10 6-16 14-16s14 6 14 16v10h-28z"/>
+  <path class="c" d="M1580 562c0-10 6-16 14-16s14 6 14 16v10h-28z"/>
+  <path class="c" d="M1600 562h8v-24c0-6-4-10-10-10"/>
+  <path class="c" d="M1620 562h8v-22"/>
+
+  <!-- Birds -->
+  <path class="c" d="M640 90c22-20 44-20 66 0"/>
+  <path class="c" d="M780 70c18-16 36-16 54 0"/>
+  <path class="c" d="M980 100c20-18 40-18 60 0"/>
+  <path class="c" d="M1180 75c24-22 48-22 72 0"/>
+  <path class="c" d="M1420 95c18-16 36-16 54 0"/>
+  <path class="c" d="M1680 80c20-18 40-18 60 0"/>
+  <path class="c" d="M1920 105c16-14 32-14 48 0"/>
+
+  <!-- Ground -->
+  <path class="a" d="M40 560H2360"/>
+  <path class="c" d="M40 570H2360"/>
+</svg>

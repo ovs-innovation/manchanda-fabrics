@@ -1,7 +1,7 @@
 import combinate from "combinate";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import swal from "sweetalert";
 
 //internal import
@@ -12,6 +12,7 @@ import AttributeServices from "@/services/AttributeServices";
 import ProductServices from "@/services/ProductServices";
 import BrandServices from "@/services/BrandServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import { sanitizeHomepagePlacementTags } from "@/lib/homepage-placements";
 import useTranslationValue from "./useTranslationValue";
 
 const generateVariantSku = (baseSku, index) => {
@@ -46,6 +47,9 @@ const mapStatusForApi = (status) => {
 
 const sumVariantStock = (variantList = []) =>
   variantList.reduce((total, variant) => {
+    if (variant.stock !== undefined && !Array.isArray(variant.sizes)) {
+      return total + Number(variant.stock || 0);
+    }
     const sizes = Array.isArray(variant.sizes) ? variant.sizes : [];
     return (
       total +
@@ -58,28 +62,81 @@ const sumVariantStock = (variantList = []) =>
     );
   }, 0);
 
-const ensureVariantsHaveSku = (variantList, baseSku) =>
-  (variantList || []).map((variant, idx) => {
-    const colorVal = variant.color || variant.colorName || "";
-    const colorSku = variant?.sku && variant.sku.toString().trim().length > 0
-      ? variant.sku
-      : `${baseSku || "SKU"}-${colorVal.toUpperCase().replace(/\s+/g, "")}`;
-    
-    const existingSizes = variant.sizes || [];
-    const sizesMap = new Map(existingSizes.map(s => [s.size, s]));
-    
-    const normalizedSizes = ["UK 3", "UK 4", "UK 5", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10"].map(size => {
-      const match = sizesMap.get(size);
-      const qty = match ? (typeof match.quantity === "number" ? match.quantity : Number(match.stock || 0)) : 0;
-      return {
-        size,
-        quantity: qty,
-        sku: match?.sku || `${colorSku}-${size.replace(/\s+/g, "")}`,
-        price: match?.price || 0,
-        originalPrice: match?.originalPrice || 0,
-        enabled: match ? match.enabled !== false : qty > 0
-      };
+const isApiVariantFormat = (list = []) =>
+  Array.isArray(list) && list.length > 0 && Array.isArray(list[0]?.sizes);
+
+const flattenVariantsToSimple = (apiVariants = []) => {
+  const rows = [];
+  (apiVariants || []).forEach((v) => {
+    const color = v.color || v.colorName || "";
+    const sizes =
+      Array.isArray(v.sizes) && v.sizes.length
+        ? v.sizes
+        : [{ size: "Free Size", quantity: v.quantity || v.stock || 0 }];
+    sizes.forEach((s) => {
+      if (s.enabled === false && !Number(s.quantity || s.stock || 0)) return;
+      rows.push({
+        color,
+        size: s.size || "Free Size",
+        stock: Number(s.quantity ?? s.stock ?? 0),
+        image: v.thumbnail || v.images?.[0] || "",
+      });
     });
+  });
+  return rows;
+};
+
+const groupSimpleVariantsForApi = (rows = [], baseSku = "SKU") => {
+  const grouped = {};
+  (rows || []).forEach((row) => {
+    const color = String(row.color || "").trim();
+    if (!color) return;
+    if (!grouped[color]) {
+      const colorSku = `${baseSku}-${color.toUpperCase().replace(/\s+/g, "")}`;
+      grouped[color] = {
+        color,
+        sku: colorSku,
+        sizes: [],
+        images: [],
+        thumbnail: "",
+      };
+    }
+    const sizeLabel = String(row.size || "Free Size").trim() || "Free Size";
+    if (row.image) {
+      grouped[color].thumbnail = row.image;
+      grouped[color].images = [row.image];
+    }
+    grouped[color].sizes.push({
+      size: sizeLabel,
+      quantity: Number(row.stock || 0),
+      enabled: true,
+      sku: `${grouped[color].sku}-${sizeLabel.replace(/\s+/g, "")}`,
+      price: 0,
+      originalPrice: 0,
+    });
+  });
+  return Object.values(grouped);
+};
+
+const ensureVariantsHaveSku = (variantList, baseSku) =>
+  (variantList || []).map((variant) => {
+    const colorVal = variant.color || variant.colorName || "";
+    const colorSku =
+      variant?.sku && variant.sku.toString().trim().length > 0
+        ? variant.sku
+        : `${baseSku || "SKU"}-${colorVal.toUpperCase().replace(/\s+/g, "")}`;
+
+    const sizes = (variant.sizes || []).map((s) => ({
+      ...s,
+      size: s.size || "Free Size",
+      quantity: Number(s.quantity ?? s.stock ?? 0),
+      enabled: s.enabled !== false,
+      sku:
+        s.sku ||
+        `${colorSku}-${String(s.size || "Free Size").replace(/\s+/g, "")}`,
+      price: s.price || 0,
+      originalPrice: s.originalPrice || 0,
+    }));
 
     return {
       ...variant,
@@ -88,12 +145,18 @@ const ensureVariantsHaveSku = (variantList, baseSku) =>
       images: normalizeImageList(variant.images || (variant.image ? [variant.image] : [])),
       thumbnail: variant.thumbnail || variant.image || "",
       hoverImage: variant.hoverImage || "",
-      sizes: normalizedSizes
+      sizes: sizes.length
+        ? sizes
+        : [{ size: "Free Size", quantity: 0, enabled: true, sku: colorSku }],
     };
   });
 
 const useProductSubmit = (id) => {
   const location = useLocation();
+  const history = useHistory();
+  const isFullPageForm =
+    location.pathname === "/products/add" ||
+    location.pathname.startsWith("/products/edit/");
   const { isDrawerOpen, closeDrawer, setIsUpdate, lang } =
     useContext(SidebarContext);
 
@@ -217,8 +280,12 @@ const useProductSubmit = (id) => {
       }
 
       const baseSkuValue = data.sku || sku || productId || "SKU";
+
+      const apiVariantSource = isApiVariantFormat(variants)
+        ? variants
+        : groupSimpleVariantsForApi(variants, baseSkuValue);
       
-      const updatedVariants = variants.map((cv, idx) => {
+      const updatedVariants = apiVariantSource.map((cv, idx) => {
         const cvOriginal = getNumberTwo(cv.originalPrice || data.originalPrice || 0);
         const cvDiscount = getNumberTwo(cv.discount || data.discount || 0);
         const cvBaseDiscountedPrice = data.discountType === "percentage" 
@@ -416,7 +483,7 @@ const useProductSubmit = (id) => {
         image: imageUrl,
         thumbnail: thumbnailUrl,
         stock: finalStock,
-        tag: Array.isArray(tag) ? tag : tag ? [tag] : [],
+        tag: sanitizeHomepagePlacementTags(tag),
 
         gender: data.gender || "",
         productType: data.productType || "",
@@ -468,6 +535,13 @@ const useProductSubmit = (id) => {
       if (updatedId) {
         const res = await ProductServices.updateProduct(updatedId, productData);
         if (res) {
+          if (isFullPageForm) {
+            setIsUpdate(true);
+            notifySuccess(res.message || "Product updated successfully!");
+            setIsSubmitting(false);
+            history.push("/products");
+            return;
+          }
           // Update form fields with response to ensure UI reflects server values
           if (isCombination) {
             setIsUpdate(true);
@@ -490,6 +564,13 @@ const useProductSubmit = (id) => {
         }
       } else {
         const res = await ProductServices.addProduct(productData);
+        if (isFullPageForm) {
+          setIsUpdate(true);
+          notifySuccess("Product added successfully!");
+          setIsSubmitting(false);
+          history.push("/products");
+          return;
+        }
         // console.log("res is ", res);
         if (isCombination) {
           setUpdatedId(res._id);
@@ -513,7 +594,7 @@ const useProductSubmit = (id) => {
           } catch (e) {
             parsedTags = res.tag ? [res.tag] : [];
           }
-          setTag(parsedTags);
+          setTag(sanitizeHomepagePlacementTags(parsedTags));
           setImageUrl(res.image);
           setFeaturedImage(res.featuredImage || "");
           setHoverImage(res.hoverImage || "");
@@ -523,7 +604,11 @@ const useProductSubmit = (id) => {
             res.variants || [],
             res.sku || res.productId || "SKU"
           );
-          setVariants(normalizedResponseVariants);
+          setVariants(
+            isFullPageForm
+              ? flattenVariantsToSimple(normalizedResponseVariants)
+              : normalizedResponseVariants
+          );
           setDynamicSections(res.dynamicSections || []);
           setMediaSections(res.mediaSections || []);
           setFaqSection(res.faqs || { enabled: true, icon: "", title: "FAQ", items: [] });
@@ -764,7 +849,7 @@ const useProductSubmit = (id) => {
             } catch (e) {
               parsedTagsTwo = res.tag ? [res.tag] : [];
             }
-            setTag(parsedTagsTwo);
+            setTag(sanitizeHomepagePlacementTags(parsedTagsTwo));
             setImageUrl(res.image);
             setFeaturedImage(res.featuredImage || "");
             setHoverImage(res.hoverImage || "");
@@ -775,7 +860,11 @@ const useProductSubmit = (id) => {
               res.variants || [],
               res.sku || res.productId || res._id || "SKU"
             );
-            setVariants(normalizedVariants);
+            setVariants(
+              isFullPageForm
+                ? flattenVariantsToSimple(normalizedVariants)
+                : normalizedVariants
+            );
             setIsCombination(res.isCombination);
             setQuantity(res?.stock);
             setTotalStock(res.stock);

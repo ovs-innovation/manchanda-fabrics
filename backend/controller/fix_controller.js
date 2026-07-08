@@ -33,7 +33,7 @@ const verifyEmailAddress = async (req, res) => {
     const option = {
       name: req.body.name,
       email: req.body.email,
-      contact_email: globalSetting?.setting?.email || "support@manchanda.com",
+      contact_email: globalSetting?.setting?.email || "manchandafabrics@gmail.com",
       token: token,
       shop_name: globalSetting?.setting?.shop_name || "manchanda",
     };

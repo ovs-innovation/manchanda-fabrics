@@ -30,7 +30,7 @@ const InstagramFeed = () => {
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
         <div className="text-center mb-16">
           <span
-            className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] mb-4"
+            className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#111111] mb-4"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <FaInstagram className="w-3.5 h-3.5" />
@@ -42,7 +42,7 @@ const InstagramFeed = () => {
           >
             {t("Instagram Reels")}
           </h2>
-          <div className="w-12 h-[1.5px] bg-[#C8A45D] mx-auto mb-6" />
+          <div className="w-12 h-[1.5px] bg-[#111111] mx-auto mb-6" />
           <p
             className="text-[15px] text-[#555555] font-light max-w-md mx-auto mb-8 leading-relaxed"
             style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -53,7 +53,7 @@ const InstagramFeed = () => {
             href="https://instagram.com/manchandafabrics"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#C8A45D] text-[#C8A45D] text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-[#C8A45D] hover:text-white transition-all duration-300 rounded-full mb-4"
+            className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#111111] text-[#111111] text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-[#111111] hover:text-white transition-all duration-300 rounded-full mb-4"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <FaInstagram className="w-4 h-4" />
@@ -119,7 +119,7 @@ const InstagramFeed = () => {
                       href="https://instagram.com/manchandafabrics"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center text-sm md:text-[10px] font-semibold uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#C8A45D] bg-white/10 hover:bg-[#C8A45D] hover:text-white transition-all duration-300 border border-[#C8A45D] px-5 py-3 md:px-4 md:py-2 rounded-lg md:rounded-md"
+                      className="inline-flex items-center justify-center text-sm md:text-[10px] font-semibold uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#111111] bg-white/10 hover:bg-[#111111] hover:text-white transition-all duration-300 border border-[#111111] px-5 py-3 md:px-4 md:py-2 rounded-lg md:rounded-md"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       {t("View Reel")}

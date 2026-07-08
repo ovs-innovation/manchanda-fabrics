@@ -6,16 +6,18 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, ChevronUp } from "lucide-react";
-import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 
 const MOBILE_CATEGORIES = [
-  { label: "Sarees", slug: "sarees" },
-  { label: "Salwar Suits", slug: "cotton-suits" },
-  { label: "Dress Materials", slug: "muslin" },
-  { label: "Wedding Collection", slug: "party-wear" },
-  { label: "Cotton Collection", slug: "mul-cotton" },
-  { label: "Silk Collection", slug: "gaji-silk" },
+  { label: "Cotton Suits", slug: "cotton-suits" },
+  { label: "Gaji Silk", slug: "gaji-silk" },
+  { label: "Kanjivaram Silk", slug: "kanjivaram-silk" },
+  { label: "Party Wear", slug: "party-wear" },
+  { label: "Bangalori Silk", slug: "bangalori-silk-pure" },
+  { label: "Muslin", slug: "muslin" },
+  { label: "Kota Doria", slug: "kota-doria" },
+  { label: "Applique Work", slug: "applique-work" },
   { label: "New Arrivals", slug: "new-arrivals" },
 ];
 
@@ -26,16 +28,7 @@ const menuVariants = {
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const [catalogOpen, setCatalogOpen] = useState(false);
-  const router = useRouter();
   const { t } = useTranslation("common");
-
-  const handleLocaleChange = (newLocale) => {
-    localStorage.setItem("locale", newLocale);
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
-    document.cookie = `_lang=${newLocale}; path=/; max-age=31536000`;
-    router.push(router.asPath, router.asPath, { locale: newLocale });
-    onClose();
-  };
 
   return (
     <AnimatePresence>
@@ -80,7 +73,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/"
                   onClick={onClose}
-                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#111111] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("HOME")}
@@ -91,7 +84,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                   <button
                     type="button"
                     onClick={() => setCatalogOpen((v) => !v)}
-                    className="flex justify-between items-center text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors text-left w-full"
+                    className="flex justify-between items-center text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#111111] transition-colors text-left w-full"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <span>{t("Catalog")}</span>
@@ -109,12 +102,16 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         {MOBILE_CATEGORIES.map((cat) => (
                           <Link
                             key={cat.slug}
-                            href={cat.slug === "new-arrivals" ? "/new-arrivals" : `/search?category=${cat.slug}`}
+                            href={
+                              cat.slug === "new-arrivals"
+                                ? "/new-arrivals"
+                                : `/collections/${cat.slug}`
+                            }
                             onClick={onClose}
-                            className="text-sm font-medium tracking-[0.12em] uppercase text-neutral-500 hover:text-[#C8A45D] transition-colors"
+                            className="text-sm font-medium tracking-[0.12em] uppercase text-neutral-500 hover:text-[#111111] transition-colors"
                             style={{ fontFamily: "'Poppins', sans-serif" }}
                           >
-                            {cat.label}
+                            {t(cat.label)}
                           </Link>
                         ))}
                       </motion.div>
@@ -125,7 +122,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/new-arrivals"
                   onClick={onClose}
-                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#111111] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("New Arrivals")}
@@ -134,7 +131,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/search"
                   onClick={onClose}
-                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#111111] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("View All Collections")}
@@ -143,7 +140,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/contact-us"
                   onClick={onClose}
-                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#C8A45D] transition-colors"
+                  className="text-base font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#111111] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("Contact Us")}
@@ -154,29 +151,10 @@ const MobileMenu = ({ isOpen, onClose }) => {
             {/* Footer */}
             <div className="pt-6 border-t border-neutral-100 flex flex-col gap-4 text-center">
               {/* Language Switcher */}
-              <div className="flex justify-center items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleLocaleChange("en")}
-                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${router.locale === "en" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
-                    }`}
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  English
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLocaleChange("hi")}
-                  className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border ${router.locale === "hi" ? "border-[#C8A45D] text-[#C8A45D]" : "border-neutral-200 text-neutral-500"
-                    }`}
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  हिन्दी
-                </button>
-              </div>
+              <LanguageSwitcher variant="mobile" onSelect={onClose} />
 
               <p className="text-[11px] tracking-widest text-neutral-400 uppercase">
-                Timeless Indian Heritage
+                {t("Timeless Indian Heritage")}
               </p>
             </div>
           </motion.div>

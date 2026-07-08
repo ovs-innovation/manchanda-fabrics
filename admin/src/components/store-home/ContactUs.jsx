@@ -63,7 +63,7 @@ const ContactUs = ({ isSave, errors, register, isSubmitting }) => {
                   label="Email"
                   name="email_box_email"
                   type="text"
-                  placeholder="info@manchandafabrics.com"
+                  placeholder="manchandafabrics@gmail.com"
                 />
                 <Error errorName={errors.email_box_email} />
               </div>

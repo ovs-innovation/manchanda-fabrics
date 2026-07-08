@@ -126,6 +126,10 @@ const routes = [
     component: AddProduct,
   },
   {
+    path: "/products/edit/:id",
+    component: AddProduct,
+  },
+  {
     path: "/products/new-request",
     component: NewItemRequest,
   },
@@ -282,19 +286,23 @@ const routes = [
     component: ManchandaHomepage,
   },
   {
-    path: "/store/homepage/trending",
+    path: "/store/homepage/products",
     component: ManchandaHomepage,
   },
   {
-    path: "/store/homepage/new-arrivals",
+    path: "/store/homepage/founder",
     component: ManchandaHomepage,
   },
   {
-    path: "/store/homepage/categories",
+    path: "/store/homepage/stores",
     component: ManchandaHomepage,
   },
   {
-    path: "/store/homepage/order",
+    path: "/store/homepage/contact",
+    component: ManchandaHomepage,
+  },
+  {
+    path: "/store/homepage/footer",
     component: ManchandaHomepage,
   },
   {
