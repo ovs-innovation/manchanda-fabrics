@@ -8,7 +8,7 @@
     "dev": "next dev -H 127.0.0.1 -p 3000",
     "dev:otp": "next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
-    "start": "PORT=3018 next start",
+    "start": "PORT=3021 next start",
     "lint": "next lint"
   },
   "dependencies": {
