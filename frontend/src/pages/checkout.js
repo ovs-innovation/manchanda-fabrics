@@ -919,7 +919,11 @@ const Checkout = () => {
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm sm:text-base font-bold text-[#3B2A25] truncate">{item.title}</h4>
                             {item.variant && (
-                              <p className="text-xs text-[#3B2A25]/60 mt-0.5">{item.variant}</p>
+                              <p className="text-xs text-[#3B2A25]/60 mt-0.5">
+                                {typeof item.variant === "object"
+                                  ? Object.values(item.variant).filter(Boolean).join(", ")
+                                  : item.variant}
+                              </p>
                             )}
                           </div>
                           <div className="text-right shrink-0">
