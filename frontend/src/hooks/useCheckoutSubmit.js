@@ -21,6 +21,7 @@ import NotificationServices from "@services/NotificationServices";
 import ShiprocketServices from "@services/ShiprocketServices";
 import useCartDB from "@hooks/useCartDB";
 import { isUsableImageUrl } from "@utils/brandAssets";
+import { normalizeCartItemPricing } from "@utils/invoicePricing";
 
 const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
