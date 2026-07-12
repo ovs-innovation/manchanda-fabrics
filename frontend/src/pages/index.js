@@ -170,39 +170,41 @@ const Home = ({
         </section>
 
         {/* 4 ── Video shopping banner (use existing LuxuryFeatures slot later if needed) */}
-        <section className="bg-white">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16 py-14">
-            <div className="relative overflow-hidden rounded-xl">
-              <img
-                src={videoShopping.image || "/h5.jpeg"}
-                alt="Video shopping"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/45" />
-              <div className="relative flex flex-col items-center justify-center text-center text-white px-5 sm:px-6 py-12 sm:py-16 min-h-[300px] sm:min-h-[360px]">
-                <h3
-                  className="text-lg sm:text-3xl md:text-4xl font-semibold leading-snug max-w-2xl"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  {videoShopping.title ||
-                    t("Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM")}
-                </h3>
-                <p className="mt-3 text-xs sm:text-sm text-white/85">
-                  {videoShopping.subtitle || t("Stylists On Call (English & Hindi)")}
-                </p>
-                <a
-                  href={`https://wa.me/${videoShopping.whatsapp || "919891595929"}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-6 inline-flex items-center justify-center bg-[#1fa64a] hover:bg-[#178a3d] transition-colors text-white px-6 sm:px-8 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  {t("Whatsapp Video Call Now")}
-                </a>
+        {videoShopping.enabled !== false && (
+          <section className="bg-white">
+            <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16 py-14">
+              <div className="relative overflow-hidden rounded-xl">
+                <img
+                  src={videoShopping.image || "/h5.jpeg"}
+                  alt="Video shopping"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/45" />
+                <div className="relative flex flex-col items-center justify-center text-center text-white px-5 sm:px-6 py-12 sm:py-16 min-h-[300px] sm:min-h-[360px]">
+                  <h3
+                    className="text-lg sm:text-3xl md:text-4xl font-semibold leading-snug max-w-2xl"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    {videoShopping.title ||
+                      t("Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM")}
+                  </h3>
+                  <p className="mt-3 text-xs sm:text-sm text-white/85">
+                    {videoShopping.subtitle || t("Stylists On Call (English & Hindi)")}
+                  </p>
+                  <a
+                    href={`https://wa.me/${videoShopping.whatsapp || "919891595929"}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-6 inline-flex items-center justify-center bg-[#1fa64a] hover:bg-[#178a3d] transition-colors text-white px-6 sm:px-8 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    {t("Whatsapp Video Call Now")}
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* 5 ── Shop By Categories (real store categories, circle avatars like ref) */}
         <HomeCategoryCircles categories={circleCategories} counts={categoryCounts} />

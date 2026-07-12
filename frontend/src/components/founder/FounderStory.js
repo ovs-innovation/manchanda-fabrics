@@ -17,9 +17,15 @@ const FounderStory = ({ founder: founderProp }) => {
   const { t } = useTranslation("common");
   const founder = { ...DEFAULT_HOMEPAGE.founder, ...(founderProp || {}) };
 
-  // Use local premium suit images from /public
-  const mainImageSrc = "/p3.jpeg";
-  const secondaryImageSrc = "/p2.jpeg";
+  // Filter out default Unsplash saree placeholders
+  const isPlaceholderOrSaree = (url) => {
+    if (!url || typeof url !== "string") return true;
+    return url.includes("images.unsplash.com") || url.includes("saree");
+  };
+
+  // Use dynamic images from setting if available (and not Unsplash saree images), otherwise fall back to local premium suit images
+  const mainImageSrc = isPlaceholderOrSaree(founder.mainImage) ? "/p3.jpeg" : founder.mainImage;
+  const secondaryImageSrc = isPlaceholderOrSaree(founder.secondaryImage) ? "/p2.jpeg" : founder.secondaryImage;
 
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">

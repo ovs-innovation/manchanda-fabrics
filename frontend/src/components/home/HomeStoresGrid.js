@@ -8,16 +8,21 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
       ? storesProp
       : DEFAULT_HOMEPAGE.stores;
 
-  // Swap the placeholder URLs with local premium women's suit and store images from /public
+  // Swap the placeholder URLs with local premium suit images from /public if no custom image is uploaded
   const localImages = [
-    "/footer-chandni-chowk-sepia.webp",
-    "/h4.jpeg",
-    "/h3.jpeg",
+    "/p3.jpeg",
+    "/p2.jpeg",
+    "/p14.jpeg",
   ];
+
+  const isPlaceholderUrl = (url) => {
+    if (!url || typeof url !== "string") return true;
+    return url.includes("images.unsplash.com") || url.includes("logo") || url.includes("sepia");
+  };
 
   const stores = originalStores.map((s, idx) => ({
     ...s,
-    image: localImages[idx % localImages.length],
+    image: isPlaceholderUrl(s.image) ? localImages[idx % localImages.length] : s.image,
   }));
 
   if (!stores.length) return null;

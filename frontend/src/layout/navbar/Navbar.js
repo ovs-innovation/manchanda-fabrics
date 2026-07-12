@@ -13,11 +13,14 @@ import DesktopMenu from "@components/navbar/DesktopMenu";
 import MobileMenu from "@components/navbar/MobileMenu";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 import useTranslation from "next-translate/useTranslation";
+import useGetSetting from "@hooks/useGetSetting";
+import { pickBrandLogo } from "@utils/brandAssets";
 
 const Navbar = () => {
   const { t } = useTranslation("common");
   const { toggleCartDrawer } = useContext(SidebarContext);
   const { totalUniqueItems } = useCart();
+  const { storeCustomizationSetting, globalSetting } = useGetSetting();
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,6 +28,12 @@ const Navbar = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const adminLogo = pickBrandLogo(
+    globalSetting?.logo,
+    storeCustomizationSetting?.navbar?.logo
+  );
+  const logo = adminLogo || "/manchandalogo.png";
 
   return (
     <>
@@ -46,7 +55,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center select-none shrink-0" aria-label="Manchanda Fabrics">
             <img
-              src="/manchandalogo.png"
+              src={logo}
               alt="MANCHANDA FABRICS"
               className="w-auto object-contain"
               style={{ height: "clamp(62px, 4.5vw, 68px)" }}
@@ -61,7 +70,7 @@ const Navbar = () => {
           <div className="lg:hidden absolute left-1/2 -translate-x-1/2">
             <Link href="/" className="flex items-center select-none" aria-label="Manchanda Fabrics">
               <img
-                src="/manchandalogo.png"
+                src={logo}
                 alt="MANCHANDA FABRICS"
                 className="w-auto object-contain"
                 style={{ height: "clamp(58px, calc(3vw + 46px), 72px)" }}

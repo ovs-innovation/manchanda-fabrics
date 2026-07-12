@@ -1,5 +1,5 @@
 /** Manchanda Fabrics brand logo */
-export const DEFAULT_BRAND_LOGO = "/logo/logo.png";
+export const DEFAULT_BRAND_LOGO = "/manchandalogo.png";
 
 const HERO_IMAGES = [1, 2, 3, 4, 5, 6].map((n) => `/h${n}.jpeg`);
 const CATALOG_IMAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(

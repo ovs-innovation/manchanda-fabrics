@@ -15,10 +15,8 @@ export const DEFAULT_HOMEPAGE = {
       "Today, Pradeep still handles the shop and sourcing, packing every order himself. Shallu is the voice on your calls and messages. And us three sisters — Sanjana, Saisha, and Sanaya — have taken the business online, running everything from the reels to the page itself.",
     paragraph3:
       "From one small shop to a family business spanning three generations. No big office, no outsourced team — just one family, splitting the work between us, the same way we have for years.",
-    mainImage:
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=720&q=80",
-    secondaryImage:
-      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&q=80",
+    mainImage: "/p3.jpeg",
+    secondaryImage: "/p2.jpeg",
     signature: "Manchanda Fabrics",
     estLine: "Est. 1990 · Premium Indian Ethnic Wear",
   },

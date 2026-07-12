@@ -8,8 +8,8 @@ import { mergeHomepage } from "@utils/homepageDefaults";
 const HeroBanner = ({ homepage: homepageProp }) => {
   const homepage = mergeHomepage(homepageProp);
   const { t } = useTranslation("common");
-  const welcomeText = t("hero_welcome_text");
-  const brandText = t("hero_brand_text");
+  const welcomeText = homepage.heroWelcome || t("hero_welcome_text");
+  const brandText = homepage.heroBrandName || t("hero_brand_text");
 
   return (
     <div
@@ -23,7 +23,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover object-center z-0"
-        src="/main1.mp4"
+        src={homepage.heroVideo || "/main1.mp4"}
       />
 
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/50 via-black/35 to-black/55" />

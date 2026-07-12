@@ -21,8 +21,8 @@ const useGetSetting = () => {
   } = useQuery({
     queryKey: ["globalSetting"],
     queryFn: async () => await SettingServices.getGlobalSetting(),
-    staleTime: 10 * 60 * 1000, // cache for 10 minutes
-    gcTime: 15 * 60 * 1000,
+    staleTime: 10 * 1000, // cache for 10 seconds
+    gcTime: 15 * 1000,
   });
 
   const {
@@ -33,8 +33,8 @@ const useGetSetting = () => {
   } = useQuery({
     queryKey: ["storeCustomization"],
     queryFn: async () => await SettingServices.getStoreCustomizationSetting(),
-    staleTime: 20 * 60 * 1000, // cache for 20 minutes
-    gcTime: 25 * 60 * 1000,
+    staleTime: 10 * 1000, // cache for 10 seconds
+    gcTime: 15 * 1000,
   });
 
   // Ensure language cookie

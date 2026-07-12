@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { setAppLocale } from "@utils/locale";
+import useGetSetting from "@hooks/useGetSetting";
+import { pickBrandLogo } from "@utils/brandAssets";
 
 const LanguagePopup = () => {
   const router = useRouter();
+  const { storeCustomizationSetting, globalSetting } = useGetSetting();
+  const adminLogo = pickBrandLogo(
+    globalSetting?.logo,
+    storeCustomizationSetting?.navbar?.logo
+  );
+  const logo = adminLogo || "/manchandalogo.png";
   const [mounted, setMounted] = useState(false);
   const [show, setShow] = useState(false);
   const [selecting, setSelecting] = useState(false);
@@ -97,7 +105,7 @@ const LanguagePopup = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/manchandalogo.png"
+            src={logo}
             alt="Manchanda Fabrics Logo"
             className="h-16 sm:h-20 w-auto object-contain select-none"
             draggable="false"

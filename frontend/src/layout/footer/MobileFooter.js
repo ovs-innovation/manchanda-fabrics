@@ -16,6 +16,7 @@ import useWishlist from "@hooks/useWishlist";
 import LocationButton from "@components/location/LocationButton";
 import SearchSuggestions from "@components/search/SearchSuggestions";
 import CustomerNotificationBell from "@components/notification/CustomerNotificationBell";
+import { pickBrandLogo } from "@utils/brandAssets";
 const MobileFooter = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -26,8 +27,13 @@ const MobileFooter = () => {
   const userInfo = getUserSession();
   const router = useRouter();
   const { t } = useTranslation("common");
-  const { storeCustomizationSetting } = useGetSetting();
+  const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
+  const adminLogo = pickBrandLogo(
+    globalSetting?.logo,
+    storeCustomizationSetting?.navbar?.logo
+  );
+  const logo = adminLogo || "/manchandalogo.png";
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -92,7 +98,7 @@ const MobileFooter = () => {
             aria-label={t("Home") || "Home"}
           >
             <img
-              src="/manchandalogo.png"
+              src={logo}
               alt="Manchanda Fabrics"
               className="absolute top-[56%] -translate-y-1/2 left-0 h-32 w-auto object-contain select-none"
               draggable="false"
