@@ -18,6 +18,7 @@ import { AdminProvider } from "@/context/AdminContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import ThemeSuspense from "@/components/theme/ThemeSuspense";
 import store from "@/reduxStore/store";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import "@/i18n";
 
 const updateSW = registerSW({
@@ -46,7 +47,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <SidebarProvider>
             <Suspense fallback={<ThemeSuspense />}>
               <Windmill usePreferences theme={myTheme}>
-                <App />
+                <ErrorBoundary>
+                  <App />
+                </ErrorBoundary>
               </Windmill>
             </Suspense>
           </SidebarProvider>

@@ -466,8 +466,6 @@ const Checkout = () => {
                   <IoChevronForward className="text-[#3B2A25]/40" />
                   <button onClick={() => setCurrentStep(1)} className={`${currentStep >= 1 ? 'text-[#C8A15A]' : 'text-[#3B2A25]/60'}`}>Information</button>
                   <IoChevronForward className="text-[#3B2A25]/40" />
-                  <button onClick={() => selectedAddress && setCurrentStep(2)} disabled={!selectedAddress} className={`${currentStep >= 2 ? 'text-[#C8A15A]' : 'text-[#3B2A25]/60'} ${!selectedAddress ? 'cursor-not-allowed' : ''}`}>Shipping</button>
-                  <IoChevronForward className="text-[#3B2A25]/40" />
                   <button onClick={() => selectedAddress && setCurrentStep(3)} disabled={!selectedAddress} className={`${currentStep >= 3 ? 'text-[#C8A15A]' : 'text-[#3B2A25]/60'} ${!selectedAddress ? 'cursor-not-allowed' : ''}`}>Payment</button>
                 </div>
 
@@ -576,11 +574,11 @@ const Checkout = () => {
                           <button
                             type="button"
                             disabled={!selectedAddress}
-                            onClick={() => setCurrentStep(2)}
+                            onClick={() => setCurrentStep(3)}
                             className={`h-[58px] px-10 rounded-[18px] text-base font-bold tracking-wider text-white transition-all transform hover:-translate-y-1 shadow-lg ${selectedAddress ? 'bg-[#6D3D2E] hover:bg-[#4A291E]' : 'bg-gray-400 cursor-not-allowed shadow-none hover:translate-y-0'
                               }`}
                           >
-                            Continue to Shipping
+                            Continue to Payment
                           </button>
                         </div>
                       </div>
@@ -599,7 +597,7 @@ const Checkout = () => {
                           <div
                             onClick={() => {
                               setLocalShippingMethod("Standard");
-                              handleShippingCost(0);
+                              handleShippingCost(49);
                             }}
                             className={`relative cursor-pointer transition-all duration-300 rounded-[20px] p-6 border-2 flex flex-col justify-between min-h-[140px] ${localShippingMethod === "Standard"
                                 ? 'border-[#9C6A5A] bg-[#FAF7F5] shadow-[0_8px_30px_rgb(156,106,90,0.12)] transform -translate-y-1'
@@ -619,7 +617,7 @@ const Checkout = () => {
                             <div>
                               <div className="flex justify-between items-baseline mb-1">
                                 <h3 className="text-lg font-bold text-[#3B2A25]">Standard</h3>
-                                <span className="font-bold text-[#6D3D2E] uppercase tracking-wide">Free</span>
+                                <span className="font-bold text-[#6D3D2E]">{currency}49.00</span>
                               </div>
                               <p className="text-sm text-[#3B2A25]/60">3–5 Business Days</p>
                             </div>
@@ -859,10 +857,10 @@ const Checkout = () => {
                         <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 pt-6 border-t border-[#E6D1CB]/40">
                           <button
                             type="button"
-                            onClick={() => setCurrentStep(2)}
+                            onClick={() => setCurrentStep(1)}
                             className="text-[#9C6A5A] font-semibold text-sm tracking-wider hover:text-[#6D3D2E] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
                           >
-                            <IoChevronForward className="rotate-180" /> Return to Shipping
+                            <IoChevronForward className="rotate-180" /> Return to Information
                           </button>
 
                           <button

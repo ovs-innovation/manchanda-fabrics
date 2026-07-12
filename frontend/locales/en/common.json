@@ -64,7 +64,7 @@
   "/=================*popular products*=================/": "",
 
   "popular-products-title": "Popular Products for Daily Shopping",
-  "popular-products-sub-title": "See all our popular products in this week. You can choose your daily needs products from this list and get some special offer with free shipping.",
+  "popular-products-sub-title": "See all our popular products in this week. You can choose your daily needs products from this list and get some special offer.",
 
   "/=================*promotional banner*=================/": "",
 
@@ -77,11 +77,11 @@
   "/=================*Discounted Products*=================/": "",
 
   "discounted-products-title": "Latest Discounted Products",
-  "discounted-products-paragraph-text": "See Our latest discounted products below. Choose your daily needs from here and get a special discount with free shipping.",
+  "discounted-products-paragraph-text": "See Our latest discounted products below. Choose your daily needs from here and get a special discount.",
 
   "/=================*Feature Promo*=================/": "",
 
-  "featurePromo1-title": "Free Shipping",
+  "featurePromo1-title": "Premium Quality Fabrics",
   "featurePromo1-info": "From $500.00",
 
   "featurePromo2-title": "Support 24/7",
@@ -506,5 +506,16 @@
   "Please enter your email address!": "Please enter your email address!",
   "Copyright": "Copyright",
   "Back to top": "Back to top",
-  "Rooted in the heart of Chandni Chowk, Manchanda Fabrics carries forward a family legacy of premium ethnic wear — handpicked silks, suits, and fabrics for weddings, festivals, and everyday grace.": "Rooted in the heart of Chandni Chowk, Manchanda Fabrics carries forward a family legacy of premium ethnic wear — handpicked silks, suits, and fabrics for weddings, festivals, and everyday grace."
+  "Rooted in the heart of Chandni Chowk, Manchanda Fabrics carries forward a family legacy of premium ethnic wear — handpicked silks, suits, and fabrics for weddings, festivals, and everyday grace.": "Rooted in the heart of Chandni Chowk, Manchanda Fabrics carries forward a family legacy of premium ethnic wear — handpicked silks, suits, and fabrics for weddings, festivals, and everyday grace.",
+  "Free Shipping": "Premium Quality Fabrics",
+  "Premium Quality Fabrics": "Premium Quality Fabrics",
+  "Handpicked premium fabrics sourced from master weavers across India.": "Handpicked premium fabrics sourced from master weavers across India.",
+  "Handpicked, premium-grade fabrics sourced from master weavers across India. Quality you can feel.": "Handpicked, premium-grade fabrics sourced from master weavers across India. Quality you can feel.",
+  "Visit Our Store": "Visit Our Store",
+  "Live Video Shopping": "Live Video Shopping",
+  "Business Hours": "Business Hours",
+  "Start Video Shopping": "Start Video Shopping",
+  "Experience our collection live from our store via a personalized WhatsApp video call.": "Experience our collection live from our store via a personalized WhatsApp video call.",
+  "hero_welcome_text": "WELCOME TO",
+  "hero_brand_text": "Manchanda Fabrics"
 }

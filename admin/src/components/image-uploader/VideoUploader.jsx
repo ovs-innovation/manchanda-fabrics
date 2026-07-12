@@ -38,17 +38,30 @@ const uploadViaBackend = async (file, folder, publicId) => {
 };
 
 const uploadViaCloudinary = async (file, folder, publicId) => {
-  const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
   const uploadUrl = getVideoUploadUrl();
-  if (!uploadPreset || !uploadUrl) {
-    throw new Error("Cloudinary is not configured in admin .env");
+  if (!uploadUrl) {
+    throw new Error("Cloudinary URL is not configured");
   }
 
+  // 1. Get signature from backend
+  const signRes = await requests.post("/customer/cloudinary-sign", {
+    publicId,
+    folder,
+  });
+
+  if (!signRes || !signRes.signature) {
+    throw new Error("Failed to generate upload signature on server");
+  }
+
+  // 2. Build FormData with the signed parameters (omit upload_preset since we are doing a signed upload)
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
-  formData.append("folder", folder);
-  formData.append("public_id", publicId);
+  formData.append("api_key", signRes.apiKey);
+  formData.append("timestamp", signRes.timestamp);
+  formData.append("signature", signRes.signature);
+  if (publicId) formData.append("public_id", publicId);
+  if (folder) formData.append("folder", folder);
+  formData.append("return_delete_token", "true");
 
   const res = await axios.post(uploadUrl, formData, {
     headers: { "Content-Type": "multipart/form-data" },

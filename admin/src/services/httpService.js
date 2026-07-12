@@ -17,7 +17,11 @@ instance.interceptors.request.use(function (config) {
   // Do something before request is sent
   let adminInfo;
   if (Cookies.get("adminInfo")) {
-    adminInfo = JSON.parse(Cookies.get("adminInfo"));
+    try {
+      adminInfo = JSON.parse(Cookies.get("adminInfo"));
+    } catch (e) {
+      Cookies.remove("adminInfo");
+    }
   }
 
   let company;

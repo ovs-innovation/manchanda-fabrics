@@ -16,7 +16,9 @@ import { FaWhatsapp, FaInstagram, FaFacebookF, FaUsers } from "react-icons/fa";
 import {
   getStoreAddress,
   STORE_DEFAULT_ADDRESS,
+  sanitizeAddress,
 } from "@utils/storeBrand";
+import { mergeHomepage } from "@utils/homepageDefaults";
 
 const MAPS_URL =
   "https://www.google.com/maps/search/?api=1&query=12-A+Krishna+Market+Chandni+Chowk+Delhi+110006";
@@ -31,12 +33,65 @@ const getWhatsAppChatUrl = (raw, message = "Hello Manchanda Fabrics! I have a qu
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 };
 
+const parseTimeToMinutes = (timeStr) => {
+  if (!timeStr) return null;
+  const match = timeStr.trim().match(/^(\d+)(?::(\d+))?\s*(AM|PM)$/i);
+  if (!match) return null;
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2] ? parseInt(match[2], 10) : 0;
+  const ampm = match[3].toUpperCase();
+
+  if (ampm === "PM" && hours < 12) {
+    hours += 12;
+  } else if (ampm === "AM" && hours === 12) {
+    hours = 0;
+  }
+  return hours * 60 + minutes;
+};
+
+const isWithinBusinessHours = (businessHoursStr) => {
+  try {
+    if (!businessHoursStr) return false;
+    const parts = businessHoursStr.split(/[–-]/);
+    if (parts.length !== 2) return false;
+
+    const startMinutes = parseTimeToMinutes(parts[0]);
+    const endMinutes = parseTimeToMinutes(parts[1]);
+
+    if (startMinutes === null || endMinutes === null) return false;
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (startMinutes <= endMinutes) {
+      return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    } else {
+      return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+    }
+  } catch (error) {
+    console.error("Error parsing business hours:", error);
+    return false;
+  }
+};
+
 export default function ContactUs() {
   const { t } = useTranslation("common");
   const { globalSetting, storeCustomizationSetting } = useGetSetting();
   const { showingTranslateValue } = useUtilsFunction();
   const contact = storeCustomizationSetting?.contact_us || {};
   const footer = storeCustomizationSetting?.footer || {};
+  const homepage = mergeHomepage(storeCustomizationSetting?.manchandaHomepage);
+  const vs = homepage.videoShopping || {};
+
+  const [inBusinessHours, setInBusinessHours] = React.useState(true);
+
+  React.useEffect(() => {
+    setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:00 PM"));
+    const interval = setInterval(() => {
+      setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:00 PM"));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [vs.businessHours]);
 
   const phone =
     showingTranslateValue(contact?.call_box_phone) ||
@@ -46,7 +101,7 @@ export default function ContactUs() {
     showingTranslateValue(contact?.email_box_email) ||
     globalSetting?.email ||
     "manchandafabrics@gmail.com";
-  const address =
+  const address = sanitizeAddress(
     [
       showingTranslateValue(contact?.address_box_address_one),
       showingTranslateValue(contact?.address_box_address_two),
@@ -55,11 +110,20 @@ export default function ContactUs() {
       .filter(Boolean)
       .join(", ") ||
     getStoreAddress({ storeCustomizationSetting, globalSetting, showingTranslateValue }) ||
-    STORE_DEFAULT_ADDRESS;
+    STORE_DEFAULT_ADDRESS
+  );
 
   const whatsappChatUrl =
     getWhatsAppChatUrl(footer?.social_whatsapp) ||
     getWhatsAppChatUrl(phone);
+
+  const videoShoppingWhatsappUrl = (() => {
+    const rawNum = vs.whatsapp || footer?.social_whatsapp || phone;
+    if (!rawNum) return null;
+    const digits = String(rawNum).replace(/\D/g, "");
+    if (!digits) return null;
+    return `https://wa.me/${digits}?text=${encodeURIComponent("Hello, I would like to schedule a live video shopping session.")}`;
+  })();
 
   const whatsappGroupLink = (contact?.whatsapp_group_link || "").trim();
   const whatsappGroupTitle =
@@ -276,6 +340,67 @@ export default function ContactUs() {
                 <p className="text-sm text-white/80">WhatsApp number coming soon.</p>
               )}
             </div>
+
+            {/* Live Video Shopping Card */}
+            {vs.enabled !== false && (
+              <div className="rounded-2xl border border-[#E6D1CB] bg-[#FAF7F5] p-10 lg:p-12 flex flex-col gap-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-[#B0322F]/10 flex items-center justify-center text-[#B0322F] shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72V10.5z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base md:text-lg uppercase tracking-widest text-[#3B2A25]">
+                      {vs.title || "Live Video Shopping"}
+                    </h3>
+                    <p className="text-[#3B2A25]/55 text-sm">
+                      {t("Business Hours")}: {vs.businessHours || "11:30 AM – 8:00 PM"}
+                    </p>
+                  </div>
+                </div>
+                {inBusinessHours ? (
+                  <>
+                    <p className="text-base leading-relaxed text-[#3B2A25]/75">
+                      {vs.subtitle || "Shop with us through a live video call."}
+                    </p>
+                    {videoShoppingWhatsappUrl ? (
+                      <a
+                        href={videoShoppingWhatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
+                      >
+                        <FaWhatsapp className="text-lg" />
+                        {vs.buttonText || "Start Video Shopping"}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-[#3B2A25]/55">{t("WhatsApp number coming soon.")}</p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-base leading-relaxed text-[#3B2A25]/75">
+                      Live Video Shopping is available from {vs.businessHours || "11:30 AM to 8:00 PM"}. Please leave us a message on WhatsApp and our team will contact you during business hours.
+                    </p>
+                    {videoShoppingWhatsappUrl ? (
+                      <a
+                        href={videoShoppingWhatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
+                      >
+                        <FaWhatsapp className="text-lg" />
+                        Send WhatsApp Message
+                      </a>
+                    ) : (
+                      <p className="text-sm text-[#3B2A25]/55">{t("WhatsApp number coming soon.")}</p>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* WhatsApp Group — admin updated link */}
             {whatsappGroupLink && (

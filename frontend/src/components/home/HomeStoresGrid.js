@@ -3,10 +3,22 @@ import { DEFAULT_HOMEPAGE } from "@utils/homepageDefaults";
 
 const HomeStoresGrid = ({ stores: storesProp }) => {
   const { t } = useTranslation("common");
-  const stores =
+  const originalStores =
     Array.isArray(storesProp) && storesProp.length > 0
       ? storesProp
       : DEFAULT_HOMEPAGE.stores;
+
+  // Swap the placeholder URLs with local premium women's suit and store images from /public
+  const localImages = [
+    "/footer-chandni-chowk-sepia.webp",
+    "/h4.jpeg",
+    "/h3.jpeg",
+  ];
+
+  const stores = originalStores.map((s, idx) => ({
+    ...s,
+    image: localImages[idx % localImages.length],
+  }));
 
   if (!stores.length) return null;
 
@@ -17,7 +29,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
           className="text-center text-4xl sm:text-5xl font-semibold text-[#111111]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {t("Visit Our Stores")}
+          {t("Visit Our Store")}
         </h2>
         <p className="text-center mt-4 text-sm text-neutral-500 max-w-3xl mx-auto">
           {t(
@@ -36,6 +48,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
                   src={s.image}
                   alt={s.name}
                   className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: "center top" }}
                   loading="lazy"
                 />
               ) : null}

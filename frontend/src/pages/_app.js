@@ -18,6 +18,11 @@ import DefaultSeo from "@components/common/DefaultSeo";
 import { SidebarProvider } from "@context/SidebarContext";
 import SettingServices from "@services/SettingServices";
 import { AnnouncementsProvider } from "@context/AnnouncementsContext";
+import dynamic from "next/dynamic";
+
+const LanguagePopup = dynamic(() => import("@components/common/LanguagePopup"), {
+  ssr: false,
+});
 
 let persistor = persistStore(store);
 
@@ -109,6 +114,7 @@ function MyApp({ Component, pageProps }) {
                   <CartProvider>
                     <DefaultSeo />
                     <Component {...pageProps} />
+                    <LanguagePopup />
                   </CartProvider>
                 </AnnouncementsProvider>
               </SidebarProvider>

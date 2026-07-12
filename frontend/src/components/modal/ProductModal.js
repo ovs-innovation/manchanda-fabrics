@@ -37,8 +37,8 @@ const ProductModal = ({
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
 
   // Get dynamic contact number
-  const contactNumber = 
-    
+  const contactNumber =
+
     storeCustomizationSetting?.footer?.bottom_contact ||
     globalSetting?.contact ||
     "+0044235234";
@@ -154,54 +154,54 @@ const ProductModal = ({
   }, [variants, attributes]);
 
   const handleAddToCart = (p) => {
-    if (p.variants.length === 1 && p.variants[0].quantity < 1)
-      return notifyError("Insufficient stock");
+    try {
+      if (stock <= 0) {
+        return notifyError("Insufficient stock");
+      }
 
-    if (stock <= 0) return notifyError("Insufficient stock");
+      const hasVariants = product?.variants && product.variants.length > 0;
+      if (
+        hasVariants &&
+        (!selectVariant || Object.keys(selectVariant).length === 0)
+      ) {
+        return notifyError("Please select all variant first!");
+      }
 
-    if (
-      product?.variants.map(
-        (variant) =>
-          Object.entries(variant).sort().toString() ===
-          Object.entries(selectVariant).sort().toString()
-      )
-    ) {
       const { variants, categories, description, ...updatedProduct } = product;
-      const priceToUse = p.variants.length === 0 ? getNumber(p.prices.price) : getNumber(price);
-      const originalToUse = p.variants.length === 0 ? getNumber(p.prices.originalPrice) : getNumber(originalPrice);
+      const priceToUse = !hasVariants ? getNumber(p?.prices?.price) : getNumber(price);
+      const originalToUse = !hasVariants ? getNumber(p?.prices?.originalPrice) : getNumber(originalPrice);
 
       const newItem = {
         ...updatedProduct,
-        id: `${
-          p?.variants.length <= 0
-            ? p._id
-            : p._id +
-              "-" +
-              variantTitle?.map((att) => selectVariant[att._id]).join("-")
-        }`,
-        title: `${
-          p?.variants.length <= 0
-            ? showingTranslateValue(p.title)
-            : showingTranslateValue(p.title) +
-              "-" +
-              variantTitle
-                ?.map((att) =>
-                  att.variants?.find((v) => v._id === selectVariant[att._id])
-                )
-                .map((el) => showingTranslateValue(el?.name))
-        }`,
-        image: img,
+        isCombination: hasVariants,
+        id: `${!hasVariants
+          ? p._id
+          : p._id +
+          "-" +
+          variantTitle?.map((att) => selectVariant[att._id]).join("-")
+          }`,
+        title: `${!hasVariants
+          ? showingTranslateValue(p.title)
+          : showingTranslateValue(p.title) +
+          "-" +
+          variantTitle
+            ?.map((att) =>
+              att.variants?.find((v) => v._id === selectVariant[att._id])
+            )
+            .map((el) => showingTranslateValue(el?.name))
+          }`,
+        image: img || p?.image?.[0] || p?.images?.[0] || PRODUCT_PLACEHOLDER,
         variant: selectVariant || {},
         price: priceToUse,
         originalPrice: originalToUse,
         mrp: originalToUse,
+        stock: stock,
       };
 
-      // console.log("newItem", newItem);
-
-      handleAddItem(newItem, 1);
-    } else {
-      return notifyError("Please select all variant first!");
+      console.log("ProductModal: Adding to cart newItem:", newItem);
+      handleAddItem(newItem, item);
+    } catch (err) {
+      console.error("ProductModal: handleAddToCart failed:", err);
     }
   };
 
@@ -259,9 +259,8 @@ const ProductModal = ({
                   </h1>
                 </Link>
                 <div
-                  className={`${
-                    stock <= 0 ? "relative py-1 mb-2" : "relative"
-                  }`}
+                  className={`${stock <= 0 ? "relative py-1 mb-2" : "relative"
+                    }`}
                 >
                   <Stock stock={stock} />
                 </div>
@@ -277,7 +276,7 @@ const ProductModal = ({
                   originalPrice={originalPrice}
                 />
               </div>
- 
+
 
               <div className="mb-6 space-y-4">
                 {variantTitle?.map((a, i) => (
@@ -328,11 +327,16 @@ const ProductModal = ({
                     </button>
                   </div>
                   <button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.quantity < 1}
-                    className={`text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold font-serif text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none text-white px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 hover:text-white bg-${(require('@hooks/useGetSetting').default()?.storeCustomizationSetting?.theme?.color) || 'green'}-500 hover:bg-${(require('@hooks/useGetSetting').default()?.storeCustomizationSetting?.theme?.color) || 'green'}-600 w-full h-12`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleAddToCart(product);
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    disabled={stock < 1}
+                    className={`text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold font-serif text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none text-white px-4 ml-4 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 hover:text-white bg-${storeCustomizationSetting?.theme?.color || 'green'}-500 hover:bg-${storeCustomizationSetting?.theme?.color || 'green'}-600 w-full h-12`}
                   >
-                    {t("common:addToCart")}
+                    {stock < 1 ? t("common:soldOut") || "Sold Out" : t("common:addToCart")}
                   </button>
                 </div>
               </div>
@@ -372,7 +376,7 @@ const ProductModal = ({
               <div className="flex justify-end mt-2">
                 <p className="text-xs sm:text-sm text-gray-600">
                   Call Us To Order By Mobile Number :{" "}
-                  <a 
+                  <a
                     href={`tel:${contactNumber.replace(/\s+/g, '')}`}
                     className="text-store-500 font-semibold hover:text-store-600 hover:underline"
                   >

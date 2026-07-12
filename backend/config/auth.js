@@ -93,6 +93,16 @@ const isAdmin = async (req, res, next) => {
   }
 };
 
+const isSuperAdmin = async (req, res, next) => {
+  if (req.user && req.user.role === "Super Admin") {
+    next();
+  } else {
+    res.status(403).send({
+      message: "User is not authorized as Super Admin",
+    });
+  }
+};
+
 const secretKey = process.env.ENCRYPT_PASSWORD || "default_encryption_key_for_dev_only";
 
 // Ensure the secret key is exactly 32 bytes (256 bits)
@@ -120,6 +130,7 @@ module.exports = {
   isAuth,
   isAuthOptional,
   isAdmin,
+  isSuperAdmin,
   signInToken,
   tokenForVerify,
   handleEncryptData,

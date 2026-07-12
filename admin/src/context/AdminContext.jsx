@@ -14,10 +14,19 @@ const sanitizeAdminInfo = (info) => {
   return info;
 };
 
+const getInitialAdminInfo = () => {
+  const cookieValue = Cookies.get('adminInfo');
+  if (!cookieValue) return null;
+  try {
+    return sanitizeAdminInfo(JSON.parse(cookieValue));
+  } catch (e) {
+    Cookies.remove('adminInfo');
+    return null;
+  }
+};
+
 const initialState = {
-  adminInfo: Cookies.get('adminInfo')
-    ? sanitizeAdminInfo(JSON.parse(Cookies.get('adminInfo')))
-    : null,
+  adminInfo: getInitialAdminInfo(),
 };
 
 function reducer(state, action) {

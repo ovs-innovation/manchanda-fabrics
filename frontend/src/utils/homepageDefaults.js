@@ -1,5 +1,5 @@
 export const DEFAULT_HOMEPAGE = {
-  heroVideo: "/main.mp4",
+  heroVideo: "/main1.mp4",
   heroWelcome: "Welcome",
   heroBrandName: "Manchanda Fabrics",
   heroTagline: "Luxury Indian Ethnic Boutique",
@@ -61,6 +61,7 @@ export const DEFAULT_HOMEPAGE = {
       { title: "Party Wear", href: "/collections/party-wear" },
     ],
     quickLinks: [
+      { title: "About Us", href: "/about-us" },
       { title: "Terms & Conditions", href: "/terms-and-conditions" },
       { title: "No Exchange & Return", href: "/refund-return-policy" },
       { title: "Privacy Policy", href: "/privacy-policy" },
@@ -75,11 +76,13 @@ export const DEFAULT_HOMEPAGE = {
   },
   whatsappNumbers: ["919891595929"],
   videoShopping: {
-    image: "/h2.jpeg",
-    title:
-      "Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM",
-    subtitle: "Stylists On Call (English & Hindi)",
+    enabled: true,
+    businessHours: "11:30 AM – 8:00 PM",
     whatsapp: "919891595929",
+    buttonText: "Start Video Shopping",
+    title: "Live Video Shopping",
+    subtitle: "Shop with us through a live video call.",
+    image: "/h2.jpeg",
   },
   marqueePhrases: [
     "Crafted from the Finest Fabrics for You",

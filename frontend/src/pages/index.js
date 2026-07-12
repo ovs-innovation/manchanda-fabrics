@@ -249,7 +249,7 @@ export const getStaticProps = async () => {
       allProducts: allProducts || [],
       homepage: data?.manchandaHomepage || null,
     },
-    revalidate: 10,
+    revalidate: 1,
   };
 };
 

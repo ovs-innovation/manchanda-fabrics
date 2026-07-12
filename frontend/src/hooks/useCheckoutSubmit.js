@@ -32,7 +32,7 @@ const useCheckoutSubmit = (storeSetting) => {
   const [couponInfo, setCouponInfo] = useState({});
   const [minimumAmount, setMinimumAmount] = useState(0);
   const [showCard, setShowCard] = useState(false);
-  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingCost, setShippingCost] = useState(49);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [taxSummary, setTaxSummary] = useState({

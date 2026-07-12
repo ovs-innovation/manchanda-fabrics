@@ -187,9 +187,9 @@ const AishaProductHero = ({
         {/* Trust rows like Aisha */}
         <div className="mt-10 space-y-4 border-t border-neutral-200 pt-8">
           <div>
-            <p className="text-sm font-semibold text-[#111111]">{t("Free Shipping")}</p>
+            <p className="text-sm font-semibold text-[#111111]">{t("Premium Quality Fabrics")}</p>
             <p className="text-xs text-neutral-500 mt-1">
-              {t("Enjoy free shipping on all orders. Delivery within 5-7 working days.")}
+              {t("Handpicked premium fabrics sourced from master weavers across India.")}
             </p>
           </div>
           <div>

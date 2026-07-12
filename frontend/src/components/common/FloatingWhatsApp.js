@@ -7,32 +7,35 @@ const FloatingWhatsApp = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const normalizeNumber = (raw) => {
+    const digits = String(raw || "").replace(/\D/g, "");
+    if (digits.length === 10) return `91${digits}`;
+    if (digits.length === 12 && digits.startsWith("91")) return digits;
+    return null;
+  };
+
   const whatsappNumber =
-    storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp ||
-    storeCustomizationSetting?.footer?.social_whatsapp ||
+    normalizeNumber(storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp) ||
+    normalizeNumber(storeCustomizationSetting?.footer?.social_whatsapp) ||
     "919891595929";
 
   useEffect(() => {
-    // Delay showing the widget to make it feel natural
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 2000);
-
+    const timer = setTimeout(() => setIsVisible(true), 2000);
     return () => clearTimeout(timer);
   }, []);
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 lg:bottom-8 right-3 sm:right-8 z-[45] flex items-end justify-end flex-col group">
+    <div className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-[99] flex items-end justify-end flex-col group pointer-events-none">
       {/* Tooltip */}
       <div 
-        className={`bg-white text-[#3B2A25] px-4 py-3 rounded-2xl shadow-xl border border-[#E6D1CB] mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px]
-          ${showTooltip ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`}
+        className={`bg-white text-[#3B2A25] px-4 py-3 rounded-2xl shadow-xl border border-[#E6D1CB] mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px] pointer-events-auto
+          ${showTooltip ? "scale-100 opacity-100" : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100"}`}
       >
         <div className="relative">
-          <p className="text-sm font-semibold leading-snug text-[#3B2A25]">
-            Need styling help? 🌸<br/>
+          <p className="text-sm font-semibold leading-snug text-[#3B2A25]" style={{ fontFamily: "'Poppins', sans-serif" }}>
+            Need any help? 🌸<br/>
             <span className="text-[#3B2A25]/75 font-normal text-xs">Chat with Manchanda Fabrics!</span>
           </p>
           {/* Arrow pointing down right */}
@@ -42,17 +45,19 @@ const FloatingWhatsApp = () => {
 
       {/* Button */}
       <a
-        href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent("Hello Manchanda Fabrics, I would like to inquire about...")}`}
+        href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          "Hello Manchanda Fabrics, I would like to inquire about..."
+        )}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:bg-[#128C7E] lg:animate-bounce-slow"
+        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 hover:bg-[#128C7E] lg:animate-bounce-slow pointer-events-auto"
         aria-label="Chat on WhatsApp"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
         {/* Pulse rings */}
         <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-20 animate-ping hidden sm:inline-flex" />
-        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-10 hidden sm:inline-flex" style={{ animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite', animationDelay: '0.5s' }} />
+        <span className="absolute inline-flex w-full h-full rounded-full bg-[#25D366] opacity-10 hidden sm:inline-flex" style={{ animation: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite", animationDelay: "0.5s" }} />
         
         <FaWhatsapp className="w-6 h-6 sm:w-8 sm:h-8 relative z-10" />
       </a>

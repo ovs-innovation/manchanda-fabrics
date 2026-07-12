@@ -2,11 +2,14 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
 const HeroBanner = ({ homepage: homepageProp }) => {
   const homepage = mergeHomepage(homepageProp);
   const { t } = useTranslation("common");
+  const welcomeText = t("hero_welcome_text");
+  const brandText = t("hero_brand_text");
 
   return (
     <div
@@ -20,7 +23,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover object-center z-0"
-        src={homepage.heroVideo || "/main.mp4"}
+        src="/main1.mp4"
       />
 
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/50 via-black/35 to-black/55" />
@@ -33,7 +36,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           className="text-[11px] sm:text-xs font-light uppercase tracking-[0.4em] text-white/85"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {homepage.heroWelcome || t("Welcome")}
+          {welcomeText}
         </motion.p>
 
         <motion.h1
@@ -43,7 +46,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           className="mt-5 sm:mt-6 text-[2rem] sm:text-5xl lg:text-[3.25rem] font-normal leading-[1.2] tracking-[0.04em]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {homepage.heroBrandName || "Manchanda Fabrics"}
+          {brandText}
         </motion.h1>
 
         {homepage.heroTagline ? (

@@ -83,10 +83,13 @@ export const DEFAULT_MANCHANDA_HOMEPAGE = {
   footer: DEFAULT_FOOTER,
   whatsappNumbers: ["919891595929"],
   videoShopping: {
-    image: "/h2.jpeg",
-    title: "Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM",
-    subtitle: "Stylists On Call (English & Hindi)",
+    enabled: true,
+    businessHours: "11:30 AM – 8:00 PM",
     whatsapp: "919891595929",
+    buttonText: "Start Video Shopping",
+    title: "Live Video Shopping",
+    subtitle: "Shop with us through a live video call.",
+    image: "/h2.jpeg",
   },
   marqueePhrases: [
     "Crafted from the Finest Fabrics for You",

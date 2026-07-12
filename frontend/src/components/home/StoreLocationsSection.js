@@ -28,7 +28,7 @@ const StoreLocationsSection = () => {
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <p className="text-[12px] font-semibold tracking-[0.3em] uppercase text-neutral-400">
-            {t("Visit Our Stores")}
+            {t("Visit Our Store")}
           </p>
           <h2
             className="mt-3 text-4xl sm:text-5xl font-semibold text-[#111111]"

@@ -214,15 +214,17 @@ export default function LowerCategoryNavbar({
 
       {mounted && dropdownMenu && createPortal(dropdownMenu, document.body)}
 
-      <style jsx>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `
+      }} />
     </div>
   );
 }

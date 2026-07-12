@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import { DEFAULT_HOMEPAGE } from "@utils/homepageDefaults";
@@ -16,6 +17,10 @@ const FounderStory = ({ founder: founderProp }) => {
   const { t } = useTranslation("common");
   const founder = { ...DEFAULT_HOMEPAGE.founder, ...(founderProp || {}) };
 
+  // Use local premium suit images from /public
+  const mainImageSrc = "/p3.jpeg";
+  const secondaryImageSrc = "/p2.jpeg";
+
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">
       <div className="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-16">
@@ -29,22 +34,25 @@ const FounderStory = ({ founder: founderProp }) => {
             className="relative"
           >
             <div className="relative aspect-[4/5] overflow-hidden shadow-2xl">
-              <img
-                src={founder.mainImage}
+              <Image
+                src={mainImageSrc}
                 alt="Manchanda Fabrics"
-                className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
-                loading="lazy"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover object-center transition-transform duration-700 hover:scale-105"
+                priority
               />
               <div className="absolute inset-0 border border-[#C8A45D]/20 pointer-events-none" />
             </div>
 
-            {founder.secondaryImage ? (
+            {secondaryImageSrc ? (
               <div className="absolute -bottom-8 -right-6 sm:-right-10 w-[42%] aspect-[3/4] overflow-hidden shadow-xl border-4 border-white">
-                <img
-                  src={founder.secondaryImage}
+                <Image
+                  src={secondaryImageSrc}
                   alt="Manchanda Fabrics Boutique"
-                  className="w-full h-full object-cover object-center"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 1024px) 40vw, 20vw"
+                  className="object-cover object-center"
                 />
               </div>
             ) : null}

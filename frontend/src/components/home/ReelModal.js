@@ -8,6 +8,7 @@ import MainModal from "@components/modal/MainModal";
 import useAddToCart from "@hooks/useAddToCart";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { notifyError } from "@utils/toast";
 
 const formatInr = (value) => {
   const n = Number(value || 0);
@@ -30,24 +31,87 @@ const ReelModal = ({ open, onClose, product, video, image }) => {
   const title =
     showingTranslateValue(product?.title) || product?.name || "Product";
   const description = showingTranslateValue(product?.description) || "";
-  const priceVal = product?.prices?.price ?? product?.price ?? null;
-  const originalVal = product?.prices?.originalPrice ?? null;
+
+  // Derive variants info
+  const hasVariants = product?.variants && product.variants.length > 0;
+  const selectVariant = hasVariants
+    ? (product.variants.find((v) => Number(v.quantity) > 0) || product.variants[0])
+    : null;
+
+  const stock = selectVariant
+    ? (Number(selectVariant.quantity) || 0)
+    : (Number(product.stock) || 0);
+
+  const priceVal = selectVariant
+    ? (selectVariant.price ?? product?.prices?.price ?? product?.price ?? null)
+    : (product?.prices?.price ?? product?.price ?? null);
+
+  const originalVal = selectVariant
+    ? (selectVariant.originalPrice ?? product?.prices?.originalPrice ?? priceVal)
+    : (product?.prices?.originalPrice ?? null);
+
   const priceText = formatInr(priceVal);
   const originalText =
     originalVal && originalVal > priceVal ? formatInr(originalVal) : null;
   const slug = product?.slug;
-  const thumb = image || product?.image?.[0] || PRODUCT_PLACEHOLDER;
+
+  const variantImage = selectVariant?.image || (Array.isArray(selectVariant?.images) && selectVariant.images[0]) || null;
+  const thumb = image || variantImage || product?.image?.[0] || PRODUCT_PLACEHOLDER;
+
+  let variantIdSuffix = "";
+  let variantTitleText = "";
+  if (hasVariants && selectVariant) {
+    const variantKeys = Object.keys(selectVariant);
+    const attributeKeys = variantKeys.filter(
+      (key) =>
+        ![
+          "_id",
+          "title",
+          "price",
+          "originalPrice",
+          "quantity",
+          "sku",
+          "barcode",
+          "image",
+          "images",
+          "dynamicSections",
+          "mediaSections",
+          "video",
+          "discount",
+        ].includes(key)
+    );
+    const attrValues = attributeKeys.map((key) => selectVariant[key]).filter(Boolean);
+    if (attrValues.length > 0) {
+      variantIdSuffix = "-" + attrValues.join("-");
+      variantTitleText = "-" + attrValues.join("-");
+    }
+  }
 
   const addToCart = () => {
-    const cartItem = {
-      ...product,
-      id: product?._id || slug,
-      slug,
-      title,
-      image: thumb,
-      prices: product?.prices || { price: priceVal, originalPrice: originalVal },
-    };
-    handleAddItem(cartItem, 1);
+    try {
+      if (stock <= 0) {
+        notifyError("Insufficient stock!");
+        return;
+      }
+
+      const cartItem = {
+        ...product,
+        isCombination: hasVariants,
+        id: `${product?._id || slug}${variantIdSuffix}`,
+        slug,
+        title: `${title}${variantTitleText}`,
+        image: thumb,
+        variant: selectVariant || {},
+        price: priceVal,
+        originalPrice: originalVal,
+        stock: stock,
+      };
+
+      console.log("ReelModal: Adding item to cart:", cartItem);
+      handleAddItem(cartItem, 1);
+    } catch (error) {
+      console.error("ReelModal: Error adding to cart:", error);
+    }
   };
 
   const goToProduct = () => {
@@ -119,11 +183,17 @@ const ReelModal = ({ open, onClose, product, video, image }) => {
               {/* Add to cart */}
               <button
                 type="button"
-                onClick={addToCart}
-                className="mt-5 w-full flex items-center justify-center gap-2 bg-[#111111] text-white text-[13px] font-semibold uppercase tracking-[0.14em] py-3.5 rounded-lg hover:bg-black/85 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  addToCart();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                disabled={stock <= 0}
+                className="mt-5 w-full flex items-center justify-center gap-2 bg-[#111111] text-white text-[13px] font-semibold uppercase tracking-[0.14em] py-3.5 rounded-lg hover:bg-black/85 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FiShoppingBag className="w-4 h-4" />
-                {t("Add to Cart")}
+                {stock <= 0 ? t("Sold Out") : t("Add to Cart")}
               </button>
 
               <button
@@ -144,9 +214,8 @@ const ReelModal = ({ open, onClose, product, video, image }) => {
                   >
                     <span>{t("Description")}</span>
                     <FiChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        descOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform ${descOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   {descOpen && (

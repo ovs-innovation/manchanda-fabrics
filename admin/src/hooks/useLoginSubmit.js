@@ -17,12 +17,7 @@ const useLoginSubmit = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: "info@ovsinnovation.com",
-      password: "Admin@123"
-    }
-  });
+  } = useForm();
 
   const onSubmit = async ({ name, email, verifyEmail, password, role }) => {
     setLoading(true);

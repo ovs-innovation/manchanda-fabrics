@@ -28,6 +28,17 @@ export const getContactUsAddressParts = (
   ].filter(Boolean);
 };
 
+export const sanitizeAddress = (addr) => {
+  if (!addr) return "";
+  return addr
+    .replace(/,\s*,/g, ",")
+    .replace(/,+/g, ",")
+    .replace(/\s+/g, " ")
+    .replace(/,\s*$/, "")
+    .replace(/^\s*,/, "")
+    .trim();
+};
+
 export const getStoreAddress = ({
   storeCustomizationSetting,
   globalSetting,
@@ -38,7 +49,9 @@ export const getStoreAddress = ({
     lang,
     showingTranslateValue,
   }).join(", ");
-  return fromContact || globalSetting?.address || STORE_DEFAULT_ADDRESS;
+  const rawAddress = fromContact || globalSetting?.address || STORE_DEFAULT_ADDRESS;
+  return sanitizeAddress(rawAddress);
 };
 
 export const getStoreCompanyName = () => STORE_BRAND_NAME;
+

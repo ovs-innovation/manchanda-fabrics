@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FiArrowUp } from "react-icons/fi";
 import { FaInstagram, FaFacebookF, FaWhatsapp, FaEnvelope } from "react-icons/fa";
@@ -34,6 +35,20 @@ const Footer = () => {
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const { t } = useTranslation("common");
 
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const homepage = mergeHomepage(storeCustomizationSetting?.manchandaHomepage);
   const footer = homepage.footer || {};
 
@@ -65,7 +80,10 @@ const Footer = () => {
     .filter((v, i, arr) => arr.indexOf(v) === i);
 
   const collectionLinks = footer.collectionLinks || [];
-  const quickLinks = footer.quickLinks || [];
+  const rawQuickLinks = footer.quickLinks || [];
+  const quickLinks = rawQuickLinks.some((l) => l.href === "/about-us")
+    ? rawQuickLinks
+    : [{ title: "About Us", href: "/about-us" }, ...rawQuickLinks];
   const specialCollection = footer.specialCollection || [];
   const storeHours = footer.hours?.trim() || "";
   const brandStory = footer.brandStory || "";
@@ -253,14 +271,16 @@ const Footer = () => {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-6 right-6 z-40 w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-sm flex items-center justify-center text-[#B0322F] hover:bg-[#B0322F] hover:text-white hover:border-[#B0322F] transition-all"
-        aria-label={t("Back to top")}
-      >
-        <FiArrowUp size={16} />
-      </button>
+      {showBackToTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 lg:bottom-8 lg:right-24 z-40 w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-sm flex items-center justify-center text-[#B0322F] hover:bg-[#B0322F] hover:text-white hover:border-[#B0322F] transition-all"
+          aria-label={t("Back to top")}
+        >
+          <FiArrowUp size={16} />
+        </button>
+      )}
     </footer>
   );
 };

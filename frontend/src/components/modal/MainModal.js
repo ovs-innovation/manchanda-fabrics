@@ -40,7 +40,9 @@ const MainModal = ({ modalOpen, setModalOpen, children }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              {children}
+              <Dialog.Panel className="inline-block align-middle transition-all transform">
+                {children}
+              </Dialog.Panel>
             </Transition.Child>
             <div className="absolute right-5 top-5">
               <button

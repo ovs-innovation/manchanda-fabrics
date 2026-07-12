@@ -6,7 +6,7 @@ import PolicyPage from "@components/policy/PolicyPage";
 
 const DEFAULT_CONTENT = `<h2>Shipping</h2>
 <ul>
-  <li>Enjoy <strong>free express shipping</strong> on all orders.</li>
+  <li>Enjoy <strong>express shipping</strong> on all orders.</li>
   <li>Delivery is completed within <strong>5-7 working days</strong> from the date of dispatch.</li>
 </ul>
 <h2>Where We Deliver</h2>

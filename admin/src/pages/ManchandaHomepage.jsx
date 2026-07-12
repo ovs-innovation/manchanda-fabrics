@@ -43,6 +43,23 @@ const Input = ({ label, value, onChange, placeholder = "" }) => (
   </label>
 );
 
+const Select = ({ label, value, onChange, options }) => (
+  <label className="block mb-4">
+    <span className="text-sm font-medium text-store-700 dark:text-store-200">{label}</span>
+    <select
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+      className="mt-1 w-full border border-store-200 dark:border-store-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-store-900 dark:text-store-100 focus:outline-none focus:border-store-400"
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
 const TextArea = ({ label, value, onChange, rows = 4, placeholder = "" }) => (
   <label className="block mb-4">
     <span className="text-sm font-medium text-store-700 dark:text-store-200">{label}</span>
@@ -248,11 +265,23 @@ const ManchandaHomepage = () => {
           />
         </div>
         <div className="border-t pt-6">
-          <h3 className="font-semibold mb-4">Video shopping banner</h3>
+          <h3 className="font-semibold mb-4">Live Video Shopping Settings</h3>
+          <Select
+            label="Enable Live Video Shopping"
+            value={vs.enabled !== false ? "true" : "false"}
+            onChange={(v) => updateVideoShopping({ enabled: v === "true" })}
+            options={[
+              { label: "Enabled", value: "true" },
+              { label: "Disabled", value: "false" },
+            ]}
+          />
+          <Input label="Section Title" value={vs.title} onChange={(v) => updateVideoShopping({ title: v })} />
+          <Input label="Section Description" value={vs.subtitle} onChange={(v) => updateVideoShopping({ subtitle: v })} />
+          <Input label="Business Hours" value={vs.businessHours} onChange={(v) => updateVideoShopping({ businessHours: v })} placeholder="11:30 AM – 8:00 PM" />
+          <Input label="WhatsApp Number" value={vs.whatsapp} onChange={(v) => updateVideoShopping({ whatsapp: v })} placeholder="919891595929" />
+          <Input label="Button Text" value={vs.buttonText} onChange={(v) => updateVideoShopping({ buttonText: v })} placeholder="Start Video Shopping" />
+          <p className="text-sm font-medium mb-2">Section Image (Optional)</p>
           <Uploader imageUrl={vs.image} setImageUrl={(url) => updateVideoShopping({ image: url })} folder="homepage" />
-          <Input label="Title" value={vs.title} onChange={(v) => updateVideoShopping({ title: v })} />
-          <Input label="Subtitle" value={vs.subtitle} onChange={(v) => updateVideoShopping({ subtitle: v })} />
-          <Input label="WhatsApp for video call" value={vs.whatsapp} onChange={(v) => updateVideoShopping({ whatsapp: v })} placeholder="919891595929" />
         </div>
         <div className="border-t pt-6">
           <TextArea

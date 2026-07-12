@@ -22,19 +22,21 @@ const HomeMarqueeStrip = ({ phrases: phrasesProp }) => {
         <div className="flex shrink-0 items-center" aria-hidden="true">{row}</div>
       </div>
 
-      <style jsx>{`
-        .marquee-track {
-          animation: home-marquee 40s linear infinite;
-        }
-        @keyframes home-marquee {
-          from {
-            transform: translateX(0);
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .marquee-track {
+            animation: home-marquee 40s linear infinite;
           }
-          to {
-            transform: translateX(-50%);
+          @keyframes home-marquee {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(-50%);
+            }
           }
-        }
-      `}</style>
+        `
+      }} />
     </section>
   );
 };

@@ -1,9 +1,9 @@
-import { Truck, ShieldCheck, Headphones, PackageX } from "lucide-react";
+import { Star, ShieldCheck, Headphones, PackageX } from "lucide-react";
 import useTranslation from "next-translate/useTranslation";
 
 const BADGES = [
   { icon: PackageX, label: "No Return & Exchange" },
-  { icon: Truck, label: "Free Shipping" },
+  { icon: Star, label: "Premium Quality Fabrics" },
   { icon: ShieldCheck, label: "100% Secure Payment" },
   { icon: Headphones, label: "24/7 Customers Support" },
 ];
