@@ -48,7 +48,7 @@ const NewArrivals = ({ products, attributes }) => {
 export const getServerSideProps = async () => {
   try {
     const [data, attributes] = await Promise.all([
-      ProductServices.getShowingStoreProducts({}),
+      ProductServices.getShowingStoreProducts({ tag: "new-arrival" }),
       AttributeServices.getShowingAttributes(),
     ]);
     return {

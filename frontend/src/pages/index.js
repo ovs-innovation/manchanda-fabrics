@@ -229,23 +229,27 @@ const Home = ({
 };
 
 export const getStaticProps = async () => {
-  const [dataResult, attributesResult, categoriesResult, allProductsResult] =
+  const [dataResult, attributesResult, categoriesResult, allProductsResult, newArrivalsResult] =
     await Promise.allSettled([
       ProductServices.getShowingStoreProducts({}),
       AttributeServices.getShowingAttributes(),
       CategoryServices.getShowingCategory(),
       ProductServices.getShowingProducts(),
+      ProductServices.getShowingStoreProducts({ tag: "new-arrival" }),
     ]);
 
   const data = dataResult.status === "fulfilled" ? dataResult.value : null;
   const attributes = attributesResult.status === "fulfilled" ? attributesResult.value : [];
   const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
   const allProducts = allProductsResult.status === "fulfilled" ? allProductsResult.value : [];
+  const newArrivalsData = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : null;
 
   return {
     props: {
       attributes: attributes || [],
-      popularProducts: data?.popularProducts || [],
+      popularProducts: (newArrivalsData?.popularProducts && newArrivalsData.popularProducts.length > 0)
+        ? newArrivalsData.popularProducts
+        : (data?.popularProducts || []),
       bestSellingProducts: data?.bestSellingProducts || [],
       categories: categories || [],
       allProducts: allProducts || [],

@@ -412,6 +412,8 @@ const sanitizeFaqSection = (faqSection = {}) => {
 };
 
 const addProduct = async (req, res) => {
+  console.log(req.file);
+  console.log(req.body);
   try {
     if (req.body.prices) {
       req.body.prices = normalizePricesPayload(req.body.prices);
@@ -591,8 +593,8 @@ const getProductById = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  // console.log('update product')
-  // console.log('variant',req.body.variants)
+  console.log(req.file);
+  console.log(req.body);
   try {
     if (req.body.prices) {
       req.body.prices = normalizePricesPayload(req.body.prices);
@@ -794,7 +796,7 @@ const getShowingStoreProducts = async (req, res) => {
 
     // console.log("getShowingStoreProducts");
 
-    const { category, title, slug, brand } = req.query;
+    const { category, title, slug, brand, tag } = req.query;
     // console.log("title", title);
 
     // console.log("query", req);
@@ -848,6 +850,10 @@ const getShowingStoreProducts = async (req, res) => {
 
     if (brand) {
       queryObject.brand = brand;
+    }
+
+    if (tag) {
+      queryObject.tag = tag;
     }
 
     if (title) {
@@ -916,12 +922,17 @@ const getShowingStoreProducts = async (req, res) => {
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ sales: -1, createdAt: -1 })
         .limit(12);
-    } else if (title || category || brand) {
+    } else if (title || category || brand || tag) {
       products = await Product.find(queryObject)
         .populate({ path: "category", select: "name _id" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
         .limit(500);
+      if (tag === "new-arrival") {
+        popularProducts = products;
+      } else if (tag === "trending") {
+        bestSellingProducts = products;
+      }
     } else {
       // Fetch all products for the default view (e.g., /search page without filters)
       products = await Product.find({ status: "show" })

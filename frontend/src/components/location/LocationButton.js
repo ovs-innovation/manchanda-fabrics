@@ -173,6 +173,7 @@ const LocationButton = ({ className = "" }) => {
   const isLoading = shouldGetLocation;
 
   const getDisplayText = () => {
+    if (!mounted) return "Set location";
     if (isLoading) return "Getting location...";
     if (location) return "Location set";
     return "Set location";

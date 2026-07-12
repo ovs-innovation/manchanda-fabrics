@@ -101,6 +101,9 @@ const Uploader = ({
         })
       );
 
+      const selectedImage = filesToUpload[0];
+      console.log(selectedImage);
+
       setFiles(
         filesToUpload.map((file) =>
           Object.assign(file, {
@@ -204,6 +207,7 @@ const Uploader = ({
         if (public_id) {
           formData.append("public_id", public_id);
         }
+        console.log(formData.entries());
 
         const uploadUrl =
           file?.type === "application/pdf" && typeof baseUrl === "string"

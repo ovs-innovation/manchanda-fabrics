@@ -256,7 +256,7 @@ const useProductSubmit = (id) => {
     // console.log('data is data',data)
     try {
       setIsSubmitting(true);
-      if (!imageUrl?.length) {
+      if (!featuredImage) {
         setIsSubmitting(false);
         return notifyError("Image is required!");
       }
@@ -480,7 +480,7 @@ const useProductSubmit = (id) => {
         categories: selectedCategory.map((item) => item._id),
         category: defaultCategory[0]._id,
 
-        image: imageUrl,
+        image: [featuredImage, ...imageUrl].filter(Boolean),
         thumbnail: thumbnailUrl,
         stock: finalStock,
         tag: sanitizeHomepagePlacementTags(tag),
@@ -595,8 +595,17 @@ const useProductSubmit = (id) => {
             parsedTags = res.tag ? [res.tag] : [];
           }
           setTag(sanitizeHomepagePlacementTags(parsedTags));
-          setImageUrl(res.image);
-          setFeaturedImage(res.featuredImage || "");
+          const firstImg = res.featuredImage || (Array.isArray(res.image) ? res.image[0] : "") || "";
+          setFeaturedImage(firstImg);
+          if (res.image && Array.isArray(res.image)) {
+            if (res.image[0] === firstImg) {
+              setImageUrl(res.image.slice(1));
+            } else {
+              setImageUrl(res.image);
+            }
+          } else {
+            setImageUrl([]);
+          }
           setHoverImage(res.hoverImage || "");
           setBadge(res.badge || "");
           setVideo(res.video || "");
@@ -683,7 +692,7 @@ const useProductSubmit = (id) => {
   };
 
   useEffect(() => {
-    if (!isDrawerOpen) {
+    if (!isDrawerOpen && !isFullPageForm) {
       setSlug("");
       setLanguage(lang);
       setValue("language", language);
@@ -850,8 +859,17 @@ const useProductSubmit = (id) => {
               parsedTagsTwo = res.tag ? [res.tag] : [];
             }
             setTag(sanitizeHomepagePlacementTags(parsedTagsTwo));
-            setImageUrl(res.image);
-            setFeaturedImage(res.featuredImage || "");
+            const firstImg = res.featuredImage || (Array.isArray(res.image) ? res.image[0] : "") || "";
+            setFeaturedImage(firstImg);
+            if (res.image && Array.isArray(res.image)) {
+              if (res.image[0] === firstImg) {
+                setImageUrl(res.image.slice(1));
+              } else {
+                setImageUrl(res.image);
+              }
+            } else {
+              setImageUrl([]);
+            }
             setHoverImage(res.hoverImage || "");
             setBadge(res.badge || "");
             setVideo(res.video || "");

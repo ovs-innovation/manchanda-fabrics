@@ -20,9 +20,10 @@ const ProductServices = {
     title = "",
     slug = "",
     brand = "",
+    tag = "",
   } = {}) => {
     const res = await requests.get(
-      `/products/store?category=${category}&title=${title}&slug=${slug}&brand=${brand}`
+      `/products/store?category=${category}&title=${title}&slug=${slug}&brand=${brand}&tag=${tag}`
     );
     return transformStoreData(res || emptyStore);
   },

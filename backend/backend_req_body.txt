@@ -1,0 +1,100 @@
+{
+  "body": {
+    "productId": "6a5369699c296a7284b59944",
+    "sku": " MF-BPS-001",
+    "barcode": "",
+    "hsnCode": "",
+    "taxRate": 0,
+    "isPriceInclusive": false,
+    "title": {
+      "en": "Blush Pink Embroidered Suit Set"
+    },
+    "description": {
+      "en": "Elegant blush pink embroidered suit set featuring delicate floral embroidery on the kurta, matching pants, and a lightweight embroidered dupatta. Designed for comfort and timeless style, making it perfect for festive celebrations, family gatherings, office wear, and casual occasions."
+    },
+    "highlights": {
+      "en": ""
+    },
+    "slug": "blush-pink-embroidered-suit-set",
+    "categories": [
+      "6a48e73a47574a53bce8eed6"
+    ],
+    "category": "6a48e73a47574a53bce8eed6",
+    "image": [
+      "https://res.cloudinary.com/detqbiabu/image/upload/v1783850383/product/product/one.avif"
+    ],
+    "thumbnail": "",
+    "stock": 0,
+    "tag": [
+      "new-arrival",
+      "trending"
+    ],
+    "gender": "",
+    "productType": "Suit Sets",
+    "metaTitle": "",
+    "metaDescription": "",
+    "seoImage": "",
+    "featuredImage": "https://res.cloudinary.com/detqbiabu/image/upload/v1783850383/product/product/one.avif",
+    "hoverImage": "",
+    "video": "",
+    "badge": "New",
+    "status": "show",
+    "lowStockAlert": 5,
+    "prices": {
+      "price": 4599,
+      "originalPrice": 5399,
+      "salePrice": 0,
+      "discount": 800,
+      "discountType": "flat"
+    },
+    "isCombination": false,
+    "variants": [],
+    "variantFilters": [],
+    "brand": "6a4de608a0a93b46189668b2",
+    "dynamicSections": [],
+    "mediaSections": [],
+    "faqs": {
+      "enabled": true,
+      "items": [],
+      "icon": "",
+      "title": "FAQ"
+    },
+    "productDescription": {
+      "enabled": true,
+      "icon": "",
+      "title": "Product Description",
+      "description": ""
+    },
+    "additionalInformation": {
+      "enabled": true,
+      "subsections": [],
+      "icon": "",
+      "title": "Additional Information"
+    },
+    "productHighlights": {
+      "enabled": true,
+      "items": [],
+      "icon": "",
+      "title": "Product Highlights"
+    },
+    "manufacturerDetails": {
+      "enabled": true,
+      "items": [],
+      "icon": "",
+      "title": "Manufacturer Details"
+    },
+    "disclaimer": {
+      "enabled": true,
+      "icon": "",
+      "title": "Disclaimer",
+      "description": ""
+    },
+    "occasion": "Festive, Casual, Family Function, Day Wear",
+    "fabricType": "Cotton Blend",
+    "workType": "",
+    "blouseIncluded": false,
+    "sareeLength": "",
+    "colorFamily": "",
+    "collectionName": ""
+  }
+}
