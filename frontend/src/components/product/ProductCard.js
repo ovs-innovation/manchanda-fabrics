@@ -186,22 +186,14 @@ const ProductCard = ({
             </span>
           )}
 
-          {/* Product Image Swap */}
+          {/* Product Image */}
           {primaryImg ? (
             <div className="w-full h-full relative">
               <img
                 src={primaryImg}
                 alt={title}
-                className={`h-full w-full object-cover object-top transition duration-700 ease-in-out ${hoverImg ? "group-hover:opacity-0" : "group-hover:scale-105"
-                  }`}
+                className="h-full w-full object-cover object-top transition duration-700 ease-in-out group-hover:scale-105"
               />
-              {hoverImg && (
-                <img
-                  src={hoverImg}
-                  alt={title}
-                  className="absolute inset-0 h-full w-full object-cover object-top opacity-0 transition duration-700 ease-in-out group-hover:opacity-100 group-hover:scale-105"
-                />
-              )}
             </div>
           ) : (
             <Image src={PRODUCT_PLACEHOLDER} fill className="object-cover" alt="product placeholder" />

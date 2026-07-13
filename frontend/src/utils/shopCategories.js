@@ -15,13 +15,13 @@ export const SHOP_CATEGORIES = [
   {
     title: "Cotton Suits",
     slug: "cotton-suits",
-    image: "/p1.jpeg",
+    image: "/Suit/s1.jpg",
     video: null,
   },
   {
     title: "Gaji Silk",
     slug: "gaji-silk",
-    image: "/p2.jpeg",
+    image: "/p2.jpeg", // Kept untouched as Gaji category
     isHit: true,
     tagline: "Bestseller • Heritage weave",
     video: null,
@@ -29,7 +29,7 @@ export const SHOP_CATEGORIES = [
   {
     title: "Kanjivaram Silk",
     slug: "kanjivaram-silk",
-    image: "/p4.jpeg",
+    image: "/Suit/s3.jpg",
     video: null,
   },
   {
@@ -41,13 +41,13 @@ export const SHOP_CATEGORIES = [
   {
     title: "Mul Cotton",
     slug: "mul-cotton",
-    image: "/p5.jpeg",
+    image: "/Suit/s5.jpg",
     video: null,
   },
   {
     title: "Bangalori Silk Pure",
     slug: "bangalori-silk-pure",
-    image: "/p3.jpeg",
+    image: "/Suit/s6.jpg",
     isHit: true,
     tagline: "Bestseller • Pure resham",
     video: null,
@@ -67,61 +67,61 @@ export const SHOP_CATEGORIES = [
   {
     title: "Bandhani Suits",
     slug: "bandhani-suits",
-    image: "/p6.jpeg",
+    image: "/Suit/s9.jpg",
     video: null,
   },
   {
     title: "Batik",
     slug: "batik",
-    image: "/p7.jpeg",
+    image: "/Suit/s10.jpg",
     video: null,
   },
   {
     title: "Georgette",
     slug: "georgette",
-    image: "/p8.jpeg",
+    image: "/Suit/s11.jpg",
     video: null,
   },
   {
     title: "Organza",
     slug: "organza",
-    image: "/p9.jpeg",
+    image: "/Suit/s12.jpg",
     video: null,
   },
   {
     title: "Crepe",
     slug: "crepe",
-    image: "/p10.jpeg",
+    image: "/Suit/s1.jpg",
     video: null,
   },
   {
     title: "Jamdani Cotton",
     slug: "jamdani-cotton",
-    image: "/p11.jpeg",
+    image: "/Suit/s2.jpg",
     video: null,
   },
   {
     title: "Linen Cotton",
     slug: "linen-cotton",
-    image: "/p12.jpeg",
+    image: "/Suit/s3.jpg",
     video: null,
   },
   {
     title: "Glace Cotton",
     slug: "glace-cotton",
-    image: "/p13.jpeg",
+    image: "/Suit/s4.jpg",
     video: null,
   },
   {
     title: "Modal",
     slug: "modal",
-    image: "/p14.jpeg",
+    image: "/Suit/s5.jpg",
     video: null,
   },
   {
     title: "Crush Tissue",
     slug: "crush-tissue",
-    image: "/p15.jpeg",
+    image: "/Suit/s6.jpg",
     video: null,
   },
   {

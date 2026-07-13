@@ -19,6 +19,7 @@ import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useGetSetting from "@hooks/useGetSetting";
 import { handleLogEvent } from "src/lib/analytics";
+import ProductServices from "@services/ProductServices";
 
 const ProductModal = ({
   modalOpen,
@@ -44,6 +45,8 @@ const ProductModal = ({
     "+0044235234";
 
   // react hook
+  const [gajjiProducts, setGajjiProducts] = useState([]);
+  const [activeProduct, setActiveProduct] = useState(null);
   const [value, setValue] = useState("");
   const [price, setPrice] = useState(0);
   const [img, setImg] = useState("");
@@ -56,9 +59,32 @@ const ProductModal = ({
   const [variants, setVariants] = useState([]);
 
   useEffect(() => {
-    // console.log('value', value, product);
+    if (modalOpen && gajjiProducts.length === 0) {
+      ProductServices.getShowingStoreProducts({ category: "gaji-silk" })
+        .then((res) => {
+          const list = res?.products || [];
+          setGajjiProducts(list);
+        })
+        .catch((err) => console.error("Error fetching Gaji Silk products:", err));
+    }
+  }, [modalOpen, gajjiProducts.length]);
+
+  useEffect(() => {
+    if (gajjiProducts.length > 0 && product) {
+      const productSeed = product._id || product.slug || "";
+      const seedSum = productSeed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const index = seedSum % gajjiProducts.length;
+      setActiveProduct(gajjiProducts[index]);
+    } else {
+      setActiveProduct(null);
+    }
+  }, [gajjiProducts, product]);
+
+  useEffect(() => {
+    // console.log('value', value, activeProduct);
+    if (!activeProduct) return;
     if (value) {
-      const result = product?.variants?.filter((variant) =>
+      const result = activeProduct?.variants?.filter((variant) =>
         Object.keys(selectVa).every((k) => selectVa[k] === variant[k])
       );
 
@@ -107,51 +133,53 @@ const ProductModal = ({
       setDiscount(getNumber(discountPercentage));
       setPrice(variantPrice);
       setOriginalPrice(variantOriginalPrice);
-    } else if (product?.variants?.length > 0) {
-      const result = product?.variants?.filter((variant) =>
+    } else if (activeProduct?.variants?.length > 0) {
+      const result = activeProduct?.variants?.filter((variant) =>
         Object.keys(selectVa).every((k) => selectVa[k] === variant[k])
       );
 
       setVariants(result);
-      setStock(product.variants[0]?.quantity);
-      setSelectVariant(product.variants[0]);
-      setSelectVa(product.variants[0]);
-      setImg(product.variants[0]?.image);
-      const variantPrice0 = getNumber(product.variants[0]?.price);
-      const variantOriginalPrice0 = getNumber(product.variants[0]?.originalPrice);
+      setStock(activeProduct.variants[0]?.quantity);
+      setSelectVariant(activeProduct.variants[0]);
+      setSelectVa(activeProduct.variants[0]);
+      setImg(activeProduct.variants[0]?.image);
+      const variantPrice0 = getNumber(activeProduct.variants[0]?.price);
+      const variantOriginalPrice0 = getNumber(activeProduct.variants[0]?.originalPrice);
       const discountPercentage0 = getNumber(((variantOriginalPrice0 - variantPrice0) / (variantOriginalPrice0 || variantPrice0)) * 100);
       setDiscount(getNumber(discountPercentage0));
       setPrice(variantPrice0);
       setOriginalPrice(variantOriginalPrice0);
     } else {
-      setStock(product?.stock);
-      setImg(product?.image?.[0] || product?.images?.[0]);
-      const retailPrice = getNumber(product?.prices?.price);
-      const retailOriginalPrice = getNumber(product?.prices?.originalPrice);
+      setStock(activeProduct?.stock);
+      setImg(activeProduct?.image?.[0] || activeProduct?.images?.[0]);
+      const retailPrice = getNumber(activeProduct?.prices?.price);
+      const retailOriginalPrice = getNumber(activeProduct?.prices?.originalPrice);
       const discountPercentage = getNumber(((retailOriginalPrice - retailPrice) / (retailOriginalPrice || retailPrice)) * 100);
       setDiscount(getNumber(discountPercentage));
       setPrice(retailPrice);
       setOriginalPrice(retailOriginalPrice);
     }
   }, [
-    product?.prices?.discount,
-    product?.prices?.originalPrice,
-    product?.prices?.price,
-    product?.stock,
-    product.variants,
+    activeProduct?.prices?.discount,
+    activeProduct?.prices?.originalPrice,
+    activeProduct?.prices?.price,
+    activeProduct?.stock,
+    activeProduct?.variants,
     selectVa,
     selectVariant,
     value,
+    activeProduct,
   ]);
-  // console.log("product", product);
+  // console.log("activeProduct", activeProduct);
 
   useEffect(() => {
-    const res = Object.keys(Object.assign({}, ...product?.variants));
+    if (!activeProduct) return;
+    const res = Object.keys(Object.assign({}, ...activeProduct?.variants));
 
     const varTitle = attributes?.filter((att) => res.includes(att?._id));
 
     setVariantTitle(varTitle?.sort());
-  }, [variants, attributes]);
+  }, [variants, attributes, activeProduct]);
 
   const handleAddToCart = (p) => {
     try {
@@ -159,7 +187,7 @@ const ProductModal = ({
         return notifyError("Insufficient stock");
       }
 
-      const hasVariants = product?.variants && product.variants.length > 0;
+      const hasVariants = activeProduct?.variants && activeProduct.variants.length > 0;
       if (
         hasVariants &&
         (!selectVariant || Object.keys(selectVariant).length === 0)
@@ -167,7 +195,7 @@ const ProductModal = ({
         return notifyError("Please select all variant first!");
       }
 
-      const { variants, categories, description, ...updatedProduct } = product;
+      const { variants, categories, description, ...updatedProduct } = activeProduct;
       const priceToUse = !hasVariants ? getNumber(p?.prices?.price) : getNumber(price);
       const originalToUse = !hasVariants ? getNumber(p?.prices?.originalPrice) : getNumber(originalPrice);
 
@@ -213,26 +241,36 @@ const ProductModal = ({
     handleLogEvent("product", `opened ${slug} product details`);
   };
 
-  const category_name = showingTranslateValue(product?.category?.name)
+  if (!activeProduct) {
+    return (
+      <MainModal modalOpen={modalOpen} setModalOpen={setModalOpen}>
+        <div className="inline-block overflow-hidden h-[300px] align-middle transition-all transform bg-white shadow-xl rounded-2xl w-full max-w-4xl p-10 flex items-center justify-center text-center text-gray-500 font-serif">
+          Loading Gajji Silk details...
+        </div>
+      </MainModal>
+    );
+  }
+
+  const category_name = showingTranslateValue(activeProduct?.category?.name)
     ?.toLowerCase()
     ?.replace(/[^A-Z0-9]+/gi, "-");
 
-  // console.log("product", product, "stock", stock);
+  // console.log("activeProduct", activeProduct, "stock", stock);
 
   return (
     <>
       <MainModal modalOpen={modalOpen} setModalOpen={setModalOpen}>
         <div className="inline-block overflow-y-auto h-full align-middle transition-all transform bg-white shadow-xl rounded-2xl">
           <div className="flex flex-col lg:flex-row md:flex-row w-full max-w-4xl overflow-hidden">
-            <Link href={`/product/${product.slug}`} passHref>
+            <Link href={`/product/${activeProduct.slug}`} passHref>
               <div
                 onClick={() => setModalOpen(false)}
                 className="flex-shrink-0 flex items-center justify-center h-auto cursor-pointer"
               >
-                <Discount product={product} discount={discount} modal />
-                {product.image[0] ? (
+                <Discount product={activeProduct} discount={discount} modal />
+                {activeProduct.image[0] ? (
                   <Image
-                    src={img || product.image[0]}
+                    src={img || activeProduct.image[0]}
                     width={420}
                     height={420}
                     alt="product"
@@ -250,12 +288,12 @@ const ProductModal = ({
 
             <div className="w-full flex flex-col p-5 md:p-8 text-left">
               <div className="mb-2 md:mb-2.5 block -mt-1.5">
-                <Link href={`/product/${product.slug}`} passHref>
+                <Link href={`/product/${activeProduct.slug}`} passHref>
                   <h1
                     onClick={() => setModalOpen(false)}
                     className="text-heading text-lg md:text-xl lg:text-2xl font-semibold font-serif hover:text-black cursor-pointer"
                   >
-                    {showingTranslateValue(product?.title)}
+                    {showingTranslateValue(activeProduct?.title)}
                   </h1>
                 </Link>
                 <div
@@ -266,11 +304,11 @@ const ProductModal = ({
                 </div>
               </div>
               <p className="text-sm leading-6 text-gray-500 md:leading-6">
-                {showingTranslateValue(product?.description)}
+                {showingTranslateValue(activeProduct?.description)}
               </p>
               <div className="flex items-center my-4">
                 <Price
-                  product={product}
+                  product={activeProduct}
                   price={price}
                   currency={currency}
                   originalPrice={originalPrice}
@@ -291,7 +329,7 @@ const ProductModal = ({
                         option={a.option}
                         setValue={setValue}
                         varTitle={variantTitle}
-                        variants={product?.variants}
+                        variants={activeProduct?.variants}
                         setSelectVa={setSelectVa}
                         selectVariant={selectVariant}
                         setSelectVariant={setSelectVariant}
@@ -330,7 +368,7 @@ const ProductModal = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      handleAddToCart(product);
+                      handleAddToCart(activeProduct);
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
                     disabled={stock < 1}
@@ -348,7 +386,7 @@ const ProductModal = ({
                         {t("common:category")}:
                       </span>{" "}
                       <Link
-                        href={`/collections/${category_name}?_id=${product?.category?._id}`}
+                        href={`/collections/${category_name}?_id=${activeProduct?.category?._id}`}
                       >
                         <button
                           type="button"
@@ -360,12 +398,12 @@ const ProductModal = ({
                       </Link>
                     </span>
 
-                    <Tags product={product} />
+                    <Tags product={activeProduct} />
                   </div>
 
                   <div>
                     <button
-                      onClick={() => handleMoreInfo(product.slug)}
+                      onClick={() => handleMoreInfo(activeProduct.slug)}
                       className="font-sans font-medium text-sm text-orange-500"
                     >
                       {t("common:moreInfo")}

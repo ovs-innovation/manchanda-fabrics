@@ -15,8 +15,8 @@ export const DEFAULT_HOMEPAGE = {
       "Today, Pradeep still handles the shop and sourcing, packing every order himself. Shallu is the voice on your calls and messages. And us three sisters — Sanjana, Saisha, and Sanaya — have taken the business online, running everything from the reels to the page itself.",
     paragraph3:
       "From one small shop to a family business spanning three generations. No big office, no outsourced team — just one family, splitting the work between us, the same way we have for years.",
-    mainImage: "/p3.jpeg",
-    secondaryImage: "/p2.jpeg",
+    mainImage: "/Suit/s1.jpg",
+    secondaryImage: "/Suit/s2.jpg",
     signature: "Manchanda Fabrics",
     estLine: "Est. 1990 · Premium Indian Ethnic Wear",
   },
@@ -24,20 +24,17 @@ export const DEFAULT_HOMEPAGE = {
     {
       name: "Manchanda Fabrics Delhi",
       address: "Chandni Chowk, Delhi",
-      image:
-        "https://images.unsplash.com/photo-1521336575822-6da63fb45455?w=1200&q=80",
+      image: "/Suit/s4.jpg",
     },
     {
       name: "Manchanda Fabrics Gurgaon",
       address: "Gurgaon, Haryana",
-      image:
-        "https://images.unsplash.com/photo-1523381294911-8d3cead13475?w=1200&q=80",
+      image: "/Suit/s5.jpg",
     },
     {
       name: "Manchanda Fabrics Mumbai",
       address: "Mumbai, Maharashtra",
-      image:
-        "https://images.unsplash.com/photo-1520975916090-3105956dac38?w=1200&q=80",
+      image: "/Suit/s6.jpg",
     },
   ],
   footer: {
@@ -80,7 +77,7 @@ export const DEFAULT_HOMEPAGE = {
     buttonText: "Start Video Shopping",
     title: "Live Video Shopping",
     subtitle: "Shop with us through a live video call.",
-    image: "/h2.jpeg",
+    image: "/Suit/s3.jpg",
   },
   marqueePhrases: [
     "Crafted from the Finest Fabrics for You",

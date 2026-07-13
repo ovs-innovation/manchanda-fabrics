@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import ReelModal from "@components/home/ReelModal";
+import ProductServices from "@services/ProductServices";
 
 const canUseVideo = (src) => {
   if (!src) return false;
@@ -35,6 +36,21 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
   const [reelsData, setReelsData] = useState({ videos: [], manifest: { products: {}, categories: {} } });
   const [selected, setSelected] = useState(null);
   const videoEls = useRef(new Map());
+  const [reelsGajjiProducts, setReelsGajjiProducts] = useState([]);
+
+  useEffect(() => {
+    ProductServices.getShowingStoreProducts({ category: "gaji-silk" })
+      .then((res) => {
+        const list = res?.products || [];
+        setReelsGajjiProducts(list);
+      })
+      .catch((err) => console.error("Error fetching Gaji Silk products for carousel:", err));
+  }, []);
+
+  const finalItems = useMemo(() => {
+    if (reelsGajjiProducts.length === 0) return [];
+    return reelsGajjiProducts.slice(0, 9);
+  }, [reelsGajjiProducts]);
 
   useEffect(() => {
     let alive = true;
@@ -75,7 +91,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
 
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, [items, reelsData]);
+  }, [finalItems, reelsData]);
 
   const getReelSrc = useMemo(() => {
     const productMap = reelsData.manifest?.products || {};
@@ -91,7 +107,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
     };
   }, [reelsData]);
 
-  if (!items.length) return null;
+  if (!finalItems.length) return null;
 
   return (
     <section className="py-16 sm:py-20 bg-white">
@@ -118,9 +134,9 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
               1280: { slidesPerView: 4.4, spaceBetween: 20 },
             }}
           >
-            {items.map((p, index) => {
+            {finalItems.map((p, index) => {
               const image = pickImage(p);
-              const video = getReelSrc(p, index);
+              const video = `/R${index + 1}.mp4`;
               const title = p?.title?.en || p?.title || p?.name || "Product";
               const price = p?.prices?.price ?? p?.price ?? null;
               const priceText = price != null ? `Rs. ${formatInr(price)}` : null;

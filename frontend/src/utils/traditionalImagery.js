@@ -4,35 +4,33 @@
  */
 
 const unsplash = (photoId, width = 800, height) => {
-  const base = `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80&w=${width}`;
-  return height ? `${base}&h=${height}` : `${base}`;
+  return photoId;
 };
 
-/** Curated Unsplash IDs — Indian ethnic suits & traditional wear */
+/** Curated local Suit images distributed evenly */
 export const PHOTO = {
-  straightSuit: "photo-1583391733956-3750e0ff4e8b",
-  anarkaliSuit: "photo-1596755389378-c31d21fd12d4",
-  festiveSuitRed: "photo-1610030469983-98e550d6193c",
-  embroideredSuit: "photo-1617627143750-d86bc21e42bb",
-  cottonSuitPastel: "photo-1608748010899-18f300247112",
-  silkSuitGold: "photo-1610030469668-93535c17b6b3",
-  mehendiSuit: "photo-1595777457583-95e059d581b8",
-  diwaliSuit: "photo-1617111657625-40569e6569ef",
-  palazzoSuit: "photo-1572804013307-08144da27012",
-  fabricWeave: "photo-1606744824163-985d376605aa",
-  muslinDrape: "photo-1609357605129-26f69add5d6e",
-  cottonFabric: "photo-1528459801416-a9e53bbf4e17",
-  kanjivaramTexture: "photo-1610030469668-93535c17b6b3",
+  straightSuit: "/Suit/s1.jpg",
+  anarkaliSuit: "/Suit/s2.jpg",
+  festiveSuitRed: "/Suit/s3.jpg",
+  embroideredSuit: "/Suit/s4.jpg",
+  cottonSuitPastel: "/Suit/s5.jpg",
+  silkSuitGold: "/Suit/s6.jpg",
+  mehendiSuit: "/Suit/s7.jpg",
+  diwaliSuit: "/Suit/s8.jpg",
+  palazzoSuit: "/Suit/s9.jpg",
+  fabricWeave: "/Suit/s10.jpg",
+  muslinDrape: "/Suit/s11.jpg",
+  cottonFabric: "/Suit/s12.jpg",
+  kanjivaramTexture: "/Suit/s1.jpg",
 };
 
-export const traditionalPhoto = (key, width = 800, height) =>
-  unsplash(PHOTO[key] || PHOTO.straightSuit, width, height);
+export const traditionalPhoto = (key) => PHOTO[key] || PHOTO.straightSuit;
 
 export const LOCAL_BANNERS = {
-  gajiSilk: "/banners/gaji-silk.jpg",
-  bangaloriSilk: "/banners/bangalori-silk.jpg",
-  appliqueSuit: "/banners/applique-suit.jpg",
-  mulCotton: "/banners/mul-cotton.jpg",
+  gajiSilk: "/banners/gaji-silk.jpg", // Kept untouched as requested
+  bangaloriSilk: "/Suit/s2.jpg",
+  appliqueSuit: "/Suit/s3.jpg",
+  mulCotton: "/Suit/s4.jpg",
 };
 
 export const HERO_FALLBACK = LOCAL_BANNERS.appliqueSuit;

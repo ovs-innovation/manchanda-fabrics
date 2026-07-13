@@ -23,25 +23,25 @@ const AboutUs = () => {
     {
       title: "Cotton & Mul Cotton",
       desc: "Soft pastels and handblock prints crafted for everyday elegance and comfort.",
-      image: "/p1.jpeg",
+      image: "/Suit/s1.jpg",
       slug: "cotton-suits",
     },
     {
       title: "Luxury Gaji & Silk",
       desc: "Pure silk weaves with delicate zari borders and rich celebratory embroidery.",
-      image: "/p2.jpeg",
+      image: "/Suit/s2.jpg",
       slug: "gaji-silk",
     },
     {
       title: "Pakistani Style Suits",
       desc: "Flowing silhouettes, premium prints, and heavy handwork for festive grace.",
-      image: "/p14.jpeg",
+      image: "/Suit/s3.jpg",
       slug: "pakistani-style-suits",
     },
     {
       title: "Bandhani & Kota Doria",
       desc: "Vibrant tie-dyes and breathable handcrafted weave sets from Rajasthan.",
-      image: "/p6.jpeg",
+      image: "/Suit/s4.jpg",
       slug: "bandhani-suits",
     },
   ];
@@ -202,9 +202,9 @@ const AboutUs = () => {
                 className="lg:col-span-7 grid grid-cols-3 gap-3 sm:gap-6"
               >
                 {[
-                  { src: "/p1.jpeg", alt: "Premium Cotton Suit", offset: false },
-                  { src: "/p2.jpeg", alt: "Premium Gaji Silk Suit", offset: true },
-                  { src: "/p5.jpeg", alt: "Premium Mul Cotton Suit", offset: false },
+                  { src: "/Suit/s8.jpg", alt: "Premium Cotton Suit", offset: false },
+                  { src: "/Suit/s9.jpg", alt: "Premium Gaji Silk Suit", offset: true },
+                  { src: "/Suit/s10.jpg", alt: "Premium Mul Cotton Suit", offset: false },
                 ].map((img, i) => (
                   <div
                     key={i}

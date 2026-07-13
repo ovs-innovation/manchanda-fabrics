@@ -24,22 +24,22 @@ const FounderStory = ({ founder: founderProp }) => {
   };
 
   // Use dynamic images from setting if available (and not Unsplash saree images), otherwise fall back to local premium suit images
-  const mainImageSrc = isPlaceholderOrSaree(founder.mainImage) ? "/p3.jpeg" : founder.mainImage;
-  const secondaryImageSrc = isPlaceholderOrSaree(founder.secondaryImage) ? "/p2.jpeg" : founder.secondaryImage;
+  const mainImageSrc = "/family/family 2.jpeg";
+  const secondaryImageSrc = "/family/Family_1.jpg";
 
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">
       <div className="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
             custom={0}
-            className="relative"
+            className="relative lg:col-span-7"
           >
-            <div className="relative aspect-[4/5] overflow-hidden shadow-2xl">
+            <div className="relative aspect-[3/2] overflow-hidden shadow-2xl">
               <Image
                 src={mainImageSrc}
                 alt="Manchanda Fabrics"
@@ -52,7 +52,7 @@ const FounderStory = ({ founder: founderProp }) => {
             </div>
 
             {secondaryImageSrc ? (
-              <div className="absolute -bottom-8 -right-6 sm:-right-10 w-[42%] aspect-[3/4] overflow-hidden shadow-xl border-4 border-white">
+              <div className="absolute -bottom-10 -right-6 sm:-right-10 w-[35%] aspect-[3/4] overflow-hidden shadow-xl border-4 border-white">
                 <Image
                   src={secondaryImageSrc}
                   alt="Manchanda Fabrics Boutique"
@@ -72,7 +72,7 @@ const FounderStory = ({ founder: founderProp }) => {
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
             custom={0.2}
-            className="flex flex-col justify-center space-y-8 lg:pl-4 mt-10 lg:mt-0"
+            className="lg:col-span-5 flex flex-col justify-center space-y-8 lg:pl-4 mt-10 lg:mt-0"
           >
             <span
               className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"

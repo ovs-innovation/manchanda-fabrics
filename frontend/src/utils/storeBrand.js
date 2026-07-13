@@ -1,7 +1,7 @@
 export const STORE_BRAND_NAME = "Manchanda Fabrics";
 
 export const STORE_DEFAULT_ADDRESS =
-  "12-A, Krishna Market, Chandni Chowk, Delhi - 110006";
+  "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006";
 
 const pickLang = (value, lang = "en") => {
   if (!value) return "";

@@ -21,7 +21,7 @@ import {
 import { mergeHomepage } from "@utils/homepageDefaults";
 
 const MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=12-A+Krishna+Market+Chandni+Chowk+Delhi+110006";
+  "https://www.google.com/maps/search/?api=1&query=12,+Katra+Neel+Rd,+New+Krishna+Cloth+Market,+Kucha+Ghasiram,+Chandni+Chowk,+Delhi,+110006";
 
 const getWhatsAppChatUrl = (raw, message = "Hello Manchanda Fabrics! I have a query.") => {
   if (!raw) return null;
@@ -310,6 +310,20 @@ export default function ContactUs() {
                 </button>
               </form>
             )}
+
+            {/* Live Google Map Embed inside the form column to fill empty space */}
+            <div className="mt-12 h-[380px] rounded-[20px] overflow-hidden border border-[#E6D1CB] shadow-md relative">
+              <iframe
+                src="https://maps.google.com/maps?q=12,%20Katra%20Neel%20Rd,%20New%20Krishna%20Cloth%20Market,%20Kucha%20Ghasiram,%20Chandni%20Chowk,%20Delhi,%20110006&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
           </div>
 
           {/* Right Panel */}
@@ -478,27 +492,6 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="py-28 lg:py-36 bg-[#FAF7F5] border-t border-[#E6D1CB]/60">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#9C6A5A] mb-3">{t("Find Us")}</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#3B2A25]">{t("Visit Our Showroom")}</h2>
-            <div className="h-[2px] w-10 bg-[#9C6A5A] mx-auto mt-4" />
-          </div>
-          <div className="w-full h-[320px] rounded-2xl overflow-hidden border border-[#E6D1CB] shadow-sm bg-[#E6D1CB]/30 flex items-center justify-center" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            <div className="text-center px-6">
-              <FiMapPin className="text-[#9C6A5A] text-5xl mx-auto mb-4" />
-              <p className="text-2xl md:text-3xl font-bold text-[#3B2A25]">Manchanda Fabrics</p>
-              <p className="text-sm md:text-lg text-[#3B2A25]/70 mt-3 leading-relaxed max-w-xl mx-auto font-light">{address}</p>
-              <a href={MAPS_URL} target="_blank" rel="noopener noreferrer"
-                className="mt-5 inline-block text-sm md:text-base font-bold uppercase tracking-widest text-[#9C6A5A] hover:text-[#6F4A3D] underline underline-offset-2 transition-colors">
-                {t("Open in Google Maps")} →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
     </Layout>
   );
 }

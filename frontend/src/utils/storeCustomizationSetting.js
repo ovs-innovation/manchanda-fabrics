@@ -164,23 +164,23 @@ export const storeCustomization = {
     content_middle_status: true,
     founder_status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s1.jpg",
     content_right_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/v7g6gowiju0wanpwx70f.jpg",
+      "/Suit/s2.jpg",
     content_middle_Img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439195/settings/sl8vzvzm54jgzq6sphn2.jpg",
+      "/Suit/s3.jpg",
     founder_one_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439688/settings/team-1_acjmv7.webp",
+      "/Suit/s4.jpg",
     founder_two_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-2_dw7zs1.webp",
+      "/Suit/s5.jpg",
     founder_three_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-3_ld3323.webp",
+      "/Suit/s6.jpg",
     founder_four_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-4_i7jvx7.webp",
+      "/Suit/s7.jpg",
     founder_five_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-5_ylyklw.webp",
+      "/Suit/s8.jpg",
     founder_six_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439689/settings/team-6_gmlts4.webp",
+      "/Suit/s9.jpg",
     title: {
       en: "About Us",
       de: "Über uns",
@@ -290,9 +290,9 @@ export const storeCustomization = {
     left_col_status: true,
     form_status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s10.jpg",
     left_col_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697472924/settings/contact-us_zvwn2n.png",
+      "/Suit/s11.jpg",
     title: {
       en: "Contact Us",
       de: "Kontaktiere uns",
@@ -326,8 +326,8 @@ export const storeCustomization = {
       de: "Visit Us",
     },
     address_box_address_one: {
-      en: "12-A, Krishna Market, Chandni Chowk, Delhi - 110006",
-      de: "12-A, Krishna Market, Chandni Chowk, Delhi - 110006",
+      en: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006",
+      de: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006",
     },
     address_box_address_two: {
       en: "",
@@ -358,7 +358,7 @@ export const storeCustomization = {
   offers: {
     header_status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s12.jpg",
     title: {
       en: "Mega Offer",
       de: "Mega Angebot",
@@ -368,7 +368,7 @@ export const storeCustomization = {
   privacy_policy: {
     status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s1.jpg",
     title: {
       en: "Privacy Policy",
       de: "Datenschutz-Bestimmungen",
@@ -380,7 +380,7 @@ export const storeCustomization = {
   term_and_condition: {
     status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s2.jpg",
     title: {
       en: "Terms & Conditions",
       de: "Terms & Bedingungen",
@@ -394,7 +394,7 @@ export const storeCustomization = {
     leftcol_status: true,
     rightcol_status: true,
     header_bg:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697439245/settings/yw3cd2xupqwqpqcbxv9l.jpg",
+      "/Suit/s3.jpg",
     left_img:
       "https://res.cloudinary.com/ahossain/image/upload/v1697687955/settings/faq_qr1y1h.svg",
     title: {
@@ -471,7 +471,7 @@ export const storeCustomization = {
     bottom_dots: true,
     both_slider: false,
     first_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-1_rl8qdc.jpg",
+      "/Suit/s4.jpg",
     first_title: {
       en: "The Best Quality Products Guaranteed!",
       de: "Die besten Qualitätsprodukte garantiert!",
@@ -486,7 +486,7 @@ export const storeCustomization = {
     },
     first_link: "/search?category=milk-dairy",
     second_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
+      "/Suit/s5.jpg",
     second_title: {
       en: "Best Sarees & Ethnic Wear",
       de: "Bestes anderes Lebensmittelgeschäft",
@@ -501,7 +501,7 @@ export const storeCustomization = {
     },
     second_link: "/search?category=fish-meat",
     third_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697688492/settings/slider-3_iw4nnf.jpg",
+      "/Suit/s6.jpg",
     third_title: {
       en: "Quality Freshness Guaranteed!",
       de: "Qualitätsfrische garantiert!",
@@ -515,8 +515,9 @@ export const storeCustomization = {
       de: "Jetzt einkaufen",
     },
     third_link: "/search?category=fruits-vegetable",
-    four_img: "https://i.postimg.cc/rscqZJNz/slider-1.webp",
+    four_img: "/Suit/s7.jpg",
     four_title: {
+      en: "The Best Quality Products Guaranteed!",
       en: "The Best Quality Products Guaranteed!",
       de: "Die besten Qualitätsprodukte garantiert!",
     },
@@ -530,7 +531,7 @@ export const storeCustomization = {
     },
     four_link: "/search?category=fruits-vegetable",
     five_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1697688491/settings/slider-2_o6aezc.jpg",
+      "/Suit/s8.jpg",
     five_title: {
       en: "Best Sarees & Ethnic Wear",
       de: "Bestes anderes Lebensmittelgeschäft",
