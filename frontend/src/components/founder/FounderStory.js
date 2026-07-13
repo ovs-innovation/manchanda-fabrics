@@ -24,8 +24,8 @@ const FounderStory = ({ founder: founderProp }) => {
   };
 
   // Use dynamic images from setting if available (and not Unsplash saree images), otherwise fall back to local premium suit images
-  const mainImageSrc = "/family/family 2.jpeg";
-  const secondaryImageSrc = "/family/Family_1.jpg";
+  const mainImageSrc = "/Family/family 2.jpeg";
+  const secondaryImageSrc = "/Family/Family_1.jpg";
 
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">
