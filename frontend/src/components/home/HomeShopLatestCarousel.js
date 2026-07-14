@@ -33,7 +33,7 @@ const pickImage = (item) =>
 
 const HomeShopLatestCarousel = ({ items = [] }) => {
   const { t } = useTranslation("common");
-  const [reelsData, setReelsData] = useState({ videos: [], manifest: { products: {}, categories: {} } });
+  const [reelsData, setReelsData] = useState({ reels: [], videos: [], manifest: { products: {}, categories: {} } });
   const [selected, setSelected] = useState(null);
   const videoEls = useRef(new Map());
   const [reelsGajjiProducts, setReelsGajjiProducts] = useState([]);
@@ -59,6 +59,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
       .then((json) => {
         if (!alive || !json) return;
         setReelsData({
+          reels: Array.isArray(json.reels) ? json.reels : [],
           videos: Array.isArray(json.videos) ? json.videos : [],
           manifest: json.manifest || { products: {}, categories: {} },
         });
@@ -68,6 +69,63 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
       alive = false;
     };
   }, []);
+
+  const getReelSrc = useMemo(() => {
+    const productMap = reelsData.manifest?.products || {};
+    const pool = reelsData.videos.filter((v) => !v.endsWith("manifest.json"));
+
+    return (p, index) => {
+      if (canUseVideo(p?.video)) return p.video;
+      const key = p?.slug || p?._id || null;
+      const mapped = key ? productMap[key] : null;
+      if (canUseVideo(mapped)) return mapped;
+      if (pool.length > 0) return pool[index % pool.length];
+      return null;
+    };
+  }, [reelsData]);
+
+  const carouselItems = useMemo(() => {
+    // 1. If database reels exist, render ONLY those uploaded reels!
+    if (reelsData.reels && reelsData.reels.length > 0) {
+      return reelsData.reels.map((reel, index) => {
+        const product = reel.product || null;
+        const video = reel.video;
+        const title = reel.title || (product ? product.title?.en || product.title || product.name : "Reel");
+        const image = reel.thumbnail || (product ? pickImage(product) : null);
+        const price = product ? (product.prices?.price ?? product.price) : null;
+        
+        return {
+          id: reel._id || `reel-${index}`,
+          video,
+          product,
+          title,
+          image,
+          price,
+        };
+      });
+    }
+
+    // 2. Fallback: If no database reels exist, render the static collection items
+    if (finalItems.length > 0) {
+      return finalItems.map((p, index) => {
+        const image = pickImage(p);
+        const video = getReelSrc(p, index) || `/R${index + 1}.mp4`;
+        const title = p?.title?.en || p?.title || p?.name || "Product";
+        const price = p?.prices?.price ?? p?.price ?? null;
+
+        return {
+          id: p?._id || `static-${index}`,
+          video,
+          product: p,
+          title,
+          image,
+          price,
+        };
+      });
+    }
+
+    return [];
+  }, [reelsData.reels, reelsData.videos, finalItems, getReelSrc]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -91,23 +149,9 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
 
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, [finalItems, reelsData]);
+  }, [carouselItems]);
 
-  const getReelSrc = useMemo(() => {
-    const productMap = reelsData.manifest?.products || {};
-    const pool = reelsData.videos.filter((v) => !v.endsWith("manifest.json"));
-
-    return (p, index) => {
-      if (canUseVideo(p?.video)) return p.video;
-      const key = p?.slug || p?._id || null;
-      const mapped = key ? productMap[key] : null;
-      if (canUseVideo(mapped)) return mapped;
-      if (pool.length > 0) return pool[index % pool.length];
-      return null;
-    };
-  }, [reelsData]);
-
-  if (!finalItems.length) return null;
+  if (!carouselItems.length) return null;
 
   return (
     <section className="py-16 sm:py-20 bg-white">
@@ -134,19 +178,19 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
               1280: { slidesPerView: 4.4, spaceBetween: 20 },
             }}
           >
-            {finalItems.map((p, index) => {
-              const image = pickImage(p);
-              const video = `/R${index + 1}.mp4`;
-              const title = p?.title?.en || p?.title || p?.name || "Product";
-              const price = p?.prices?.price ?? p?.price ?? null;
+            {carouselItems.map((item, index) => {
+              const image = item.image;
+              const video = item.video;
+              const title = item.title;
+              const price = item.price;
               const priceText = price != null ? `Rs. ${formatInr(price)}` : null;
-              const key = p?._id || p?.slug || `${title}-${index}`;
+              const key = item.id;
 
               return (
                 <SwiperSlide key={key}>
                   <button
                     type="button"
-                    onClick={() => setSelected({ product: p, video, image })}
+                    onClick={() => item.product && setSelected({ product: item.product, video, image })}
                     className="block w-full text-left bg-white rounded-[14px] shadow-[0_6px_16px_rgba(0,0,0,0.08)] overflow-hidden border border-black/5 cursor-pointer"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >

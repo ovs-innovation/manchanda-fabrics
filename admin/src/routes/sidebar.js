@@ -36,6 +36,7 @@ const sidebar = [
       { path: "/products", name: "Products" },
       { path: "/categories", name: "Categories" },
       { path: "/reviews", name: "Reviews" },
+      { path: "/reels", name: "Video Reels" },
     ],
   },
   {

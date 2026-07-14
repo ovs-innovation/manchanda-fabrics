@@ -242,6 +242,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    video: {
+      type: String,
+      default: "",
+    },
     badge: {
       type: String,
       default: "",

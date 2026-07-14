@@ -34,6 +34,7 @@ const StoreSetting = lazy(() => import("@/pages/StoreSetting"));
 const Notifications = lazy(() => import("@/pages/Notifications"));
 const Taxes = lazy(() => import("@/pages/Taxes"));
 const Reviews = lazy(() => import("@/pages/Reviews"));
+const Reels = lazy(() => import("@/pages/Reels"));
 const CategoryBulkImport = lazy(() => import("@/pages/CategoryBulkImport"));
 const CategoryBulkExport = lazy(() => import("@/pages/CategoryBulkExport"));
 const LowStock = lazy(() => import("@/pages/LowStock"));
@@ -245,6 +246,10 @@ const routes = [
   {
     path: "/reviews",
     component: Reviews,
+  },
+  {
+    path: "/reels",
+    component: Reels,
   },
   {
     path: "/faqs",

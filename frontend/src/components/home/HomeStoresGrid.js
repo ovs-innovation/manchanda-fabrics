@@ -93,7 +93,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
                     Visit Store
                   </Link>
                   <a 
-                    href="https://www.google.com/maps/search/?api=1&query=12,+Katra+Neel+Rd,+New+Krishna+Cloth+Market,+Kucha+Ghasiram,+Chandni+Chowk,+Delhi,+110006"
+                    href="https://maps.app.goo.gl/PQHMD4iJ1gzAhuLR6"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-transparent border border-white/40 hover:border-white hover:bg-white/5 text-white text-[11px] font-semibold uppercase tracking-[0.2em] rounded transition-all duration-300 transform active:scale-95 text-center"

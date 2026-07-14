@@ -21,7 +21,7 @@ import {
 import { mergeHomepage } from "@utils/homepageDefaults";
 
 const MAPS_URL =
-  "https://www.google.com/maps/search/?api=1&query=12,+Katra+Neel+Rd,+New+Krishna+Cloth+Market,+Kucha+Ghasiram,+Chandni+Chowk,+Delhi,+110006";
+  "https://maps.app.goo.gl/PQHMD4iJ1gzAhuLR6";
 
 const getWhatsAppChatUrl = (raw, message = "Hello Manchanda Fabrics! I have a query.") => {
   if (!raw) return null;
@@ -314,7 +314,7 @@ export default function ContactUs() {
             {/* Live Google Map Embed inside the form column to fill empty space */}
             <div className="mt-12 h-[380px] rounded-[20px] overflow-hidden border border-[#E6D1CB] shadow-md relative">
               <iframe
-                src="https://maps.google.com/maps?q=12,%20Katra%20Neel%20Rd,%20New%20Krishna%20Cloth%20Market,%20Kucha%20Ghasiram,%20Chandni%20Chowk,%20Delhi,%20110006&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=28.657076,77.226211&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

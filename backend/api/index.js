@@ -30,6 +30,7 @@ const refundRoutes = require("../routes/refundRoutes");
 const pushNotificationRoutes = require("../routes/pushNotificationRoutes");
 const customerNotificationRoutes = require("../routes/customerNotificationRoutes");
 const webhookRoutes = require("../routes/webhookRoutes");
+const reelRoutes = require("../routes/reelRoutes");
 
 const { isAuth, isAdmin } = require("../config/auth");
 // const {
@@ -121,6 +122,7 @@ app.use("/api/refund", refundRoutes);
 app.use("/api/push-notification", pushNotificationRoutes);
 app.use("/api/customer-notifications", customerNotificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
+app.use("/api/reels", reelRoutes);
 //if you not use admin dashboard then these two route will not needed.
 app.use("/api/admin", adminRoutes);
 app.use("/api/orders", orderRoutes);
