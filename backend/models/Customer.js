@@ -89,6 +89,10 @@ const customerSchema = new mongoose.Schema(
           required: true,
           default: 1,
         },
+        color: {
+          type: String,
+          required: false,
+        },
       },
     ],
     fcmToken: {

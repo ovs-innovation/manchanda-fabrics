@@ -15,6 +15,8 @@ const FilterDrawer = ({
   setSelectedRating,
   selectedDiscount,
   setSelectedDiscount,
+  selectedColor,
+  setSelectedColor,
   onClearAll,
 }) => {
   const { filterDrawerOpen, closeFilterDrawer } = useContext(SidebarContext);
@@ -45,6 +47,8 @@ const FilterDrawer = ({
             setSelectedRating={setSelectedRating}
             selectedDiscount={selectedDiscount}
             setSelectedDiscount={setSelectedDiscount}
+            selectedColor={selectedColor}
+            setSelectedColor={setSelectedColor}
             onClearAll={onClearAll}
           />
         </div>

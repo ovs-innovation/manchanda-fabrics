@@ -133,6 +133,7 @@ const ProductDrawer = ({ id }) => {
     badge, setBadge,
     video, setVideo,
     seoImage, setSeoImage,
+    colorVariants, setColorVariants,
   } = useProductSubmit(id);
   const { currency, showingTranslateValue } = useUtilsFunction();
   
@@ -1988,6 +1989,28 @@ const ProductDrawer = ({ id }) => {
                     />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
+                  <LabelArea label="Default Color *" />
+                  <div className="col-span-8 sm:col-span-4">
+                    <div className="flex items-center gap-2">
+                      {/* Live color swatch derived from defaultColorName */}
+                      <div
+                        title={watch("defaultColorName") || "Color preview"}
+                        style={{
+                          backgroundColor: watch("defaultColorName") || "transparent",
+                          border: "2px solid rgba(128,128,128,0.3)",
+                        }}
+                        className="w-10 h-10 rounded-lg shrink-0 transition-colors duration-300"
+                      />
+                      <Input
+                        {...register("defaultColorName", { required: "Default color name is required!" })}
+                        placeholder="e.g. Ruby Red, Mustard"
+                      />
+                    </div>
+                    <Error errorName={errors.defaultColorName} />
+                  </div>
+                </div>
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
                   <LabelArea label="Short Description *" />
                   <div className="col-span-8 sm:col-span-4">
@@ -2048,6 +2071,7 @@ const ProductDrawer = ({ id }) => {
                       folder="product"
                       imageUrl={imageUrl}
                       setImageUrl={setImageUrl}
+                      useOriginalSize={true}
                     />
                   </div>
                 </div>
@@ -2289,9 +2313,8 @@ const ProductDrawer = ({ id }) => {
           {tapValue === "Combination" && isCombination && (
             <div className="p-6">
               <ColorVariantManager
-                variants={variants}
-                setVariants={setVariants}
-                watch={watch}
+                colorVariants={colorVariants}
+                setColorVariants={setColorVariants}
               />
             </div>
           )}

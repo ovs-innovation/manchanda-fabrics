@@ -27,6 +27,8 @@ const nextConfig = {
       "img.youtube.com",
       "placehold.co",
       "images.unsplash.com",
+      "localhost",
+      "127.0.0.1",
     ],
   },
 

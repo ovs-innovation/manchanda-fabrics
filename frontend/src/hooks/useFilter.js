@@ -12,6 +12,7 @@ const useFilter = (data, allCategories = []) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedRating, setSelectedRating] = useState(0);
   const [selectedDiscount, setSelectedDiscount] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("");
   const { showingTranslateValue } = useUtilsFunction();
 
   // Get search query from router
@@ -112,6 +113,17 @@ const useFilter = (data, allCategories = []) => {
       );
     }
 
+    // Filter by Color
+    if (selectedColor) {
+      services = services.filter((product) => {
+        const matchesDefault = product.defaultColorName?.toLowerCase() === selectedColor.toLowerCase();
+        const matchesVariants = Array.isArray(product.colorVariants) && product.colorVariants.some(
+          (cv) => cv.colorName?.toLowerCase() === selectedColor.toLowerCase()
+        );
+        return matchesDefault || matchesVariants;
+      });
+    }
+
     //filter user order
     if (router.pathname === "/user/dashboard") {
       const orderPending = services?.filter(
@@ -161,6 +173,7 @@ const useFilter = (data, allCategories = []) => {
     selectedCategories,
     selectedRating,
     selectedDiscount,
+    selectedColor,
     searchQuery,
   ]);
 
@@ -178,6 +191,8 @@ const useFilter = (data, allCategories = []) => {
     setSelectedRating,
     selectedDiscount,
     setSelectedDiscount,
+    selectedColor,
+    setSelectedColor,
   };
 };
 

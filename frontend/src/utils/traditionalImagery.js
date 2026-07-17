@@ -3,9 +3,6 @@
  * Central place for all storefront placeholder photos.
  */
 
-const unsplash = (photoId, width = 800, height) => {
-  return photoId;
-};
 
 /** Curated local Suit images distributed evenly */
 export const PHOTO = {

@@ -24,7 +24,7 @@ const LanguagePopup = dynamic(() => import("@components/common/LanguagePopup"), 
   ssr: false,
 });
 
-let persistor = persistStore(store);
+persistStore(store);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,14 +59,14 @@ function MyApp({ Component, pageProps }) {
       try {
         const regs = await navigator.serviceWorker.getRegistrations();
         await Promise.all(regs.map((r) => r.unregister()));
-      } catch (_) {}
+      } catch (e) { console.warn(e); }
 
       try {
         if ("caches" in window) {
           const keys = await caches.keys();
           await Promise.all(keys.map((k) => caches.delete(k)));
         }
-      } catch (_) {}
+      } catch (e) { console.warn(e); }
     })();
   }, []);
 
@@ -86,7 +86,7 @@ function MyApp({ Component, pageProps }) {
           ReactGA.initialize(settings?.google_analytic_key || "");
           handlePageView();
 
-          const handleRouteChange = (url) => {
+          const handleRouteChange = () => {
             handlePageView(`/${router.pathname}`, "Manchanda Fabrics");
           };
 

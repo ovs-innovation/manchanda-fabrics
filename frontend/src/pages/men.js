@@ -11,10 +11,10 @@ const MenCollection = ({ products, attributes }) => {
         {/* Editorial Banner */}
         <div className="relative bg-[#F5ECE8] py-16 px-4 border-b border-[#D5BBB4]/30 mb-10 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[#2B211E] mb-3">
-            Men's Collection
+            Men&apos;s Collection
           </h1>
           <p className="text-[#2B211E]/70 text-sm max-w-lg mx-auto font-medium font-sans">
-            Curated premium men's ethnic wear, royal bandhgalas, handcrafted kurtas, and traditional jackets designed for the modern gentleman.
+            Curated premium men&apos;s ethnic wear, royal bandhgalas, handcrafted kurtas, and traditional jackets designed for the modern gentleman.
           </p>
         </div>
 

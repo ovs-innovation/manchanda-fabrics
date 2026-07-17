@@ -11,14 +11,12 @@ import SearchSuggestions from "@components/search/SearchSuggestions";
 //internal import
 import Layout from "@layout/Layout";
 import useFilter from "@hooks/useFilter";
-import Card from "@components/cta-card/Card";
 import Loading from "@components/preloader/Loading";
 import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
 import { SidebarContext } from "@context/SidebarContext";
 import AttributeServices from "@services/AttributeServices";
 import CategoryServices from "@services/CategoryServices";
-import CategoryCarousel from "@components/carousel/CategoryCarousel";
 import FilterSidebar from "@components/category/FilterSidebar";
 import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
@@ -67,6 +65,8 @@ const Search = ({ products, attributes }) => {
     setSelectedRating,
     selectedDiscount,
     setSelectedDiscount,
+    selectedColor,
+    setSelectedColor,
     sortedField,
   } = useFilter(initialProducts, categories);
 
@@ -238,12 +238,19 @@ const Search = ({ products, attributes }) => {
     setSelectedDiscount(discount);
   };
 
+  const handleColorChange = (color) => {
+    isSidebarAction.current = true;
+    clearSearchQuery();
+    setSelectedColor(color);
+  };
+
   const handleClearAll = () => {
     isSidebarAction.current = true;
     setPriceRange({ min: 0, max: 100000 });
     setSelectedCategories([]);
     setSelectedRating(0);
     setSelectedDiscount(0);
+    setSelectedColor("");
     clearSearchQuery();
   };
 
@@ -437,6 +444,8 @@ const Search = ({ products, attributes }) => {
               setSelectedRating={handleRatingChange}
               selectedDiscount={selectedDiscount}
               setSelectedDiscount={handleDiscountChange}
+              selectedColor={selectedColor}
+              setSelectedColor={handleColorChange}
               onClearAll={handleClearAll}
             />
           </div>
@@ -537,6 +546,8 @@ const Search = ({ products, attributes }) => {
         setSelectedRating={handleRatingChange}
         selectedDiscount={selectedDiscount}
         setSelectedDiscount={handleDiscountChange}
+        selectedColor={selectedColor}
+        setSelectedColor={handleColorChange}
         onClearAll={handleClearAll}
       />
 

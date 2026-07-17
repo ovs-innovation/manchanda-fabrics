@@ -19,7 +19,10 @@ const InvoiceOrderTable = ({ data, currency, getNumberTwo }) => {
               {i + 1}
             </th>
             <td className="product-column px-2 py-1.5 font-normal border-r border-[#ccc]">
-              {item.title}
+              <div>{item.title}</div>
+              {item.color && (
+                <div className="text-xs text-gray-500 font-semibold mt-0.5">Color: {item.color}</div>
+              )}
             </td>
             <td className="px-2 py-1.5 whitespace-nowrap font-normal text-center border-r border-[#ccc]">
               {item.hsn || "-"}

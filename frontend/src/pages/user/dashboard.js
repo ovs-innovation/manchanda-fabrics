@@ -7,24 +7,17 @@ import { IoLockOpenOutline } from "react-icons/io5";
 import useTranslation from "next-translate/useTranslation";
 import {
   FiBell,
-  FiCheck,
   FiGrid,
   FiList,
-  FiRefreshCw,
   FiSettings,
-  FiShoppingCart,
   FiTruck,
   FiUser,
-  FiMapPin,
-  FiHeart,
-  FiChevronRight,
   FiShoppingBag,
 } from "react-icons/fi";
 import { signOut, useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 
 import Layout from "@layout/Layout";
-import Card from "@components/order-card/Card";
 import OrderServices from "@services/OrderServices";
 import RecentOrder from "@pages/user/recent-order";
 import CustomerServices from "@services/CustomerServices";

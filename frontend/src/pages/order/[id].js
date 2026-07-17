@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from "next/router";
 import { useRef, useEffect, useState } from "react";
 import { IoCloudDownloadOutline, IoPrintOutline, IoCopyOutline } from "react-icons/io5";
 import { FiTruck, FiExternalLink } from "react-icons/fi";
@@ -21,6 +22,7 @@ import downloadInvoicePdf from "@utils/downloadInvoicePdf";
 import OrderTracking from "@components/order/OrderTracking";
 import { setToken } from "@services/httpServices";
 const Order = ({ params }) => {
+  const router = useRouter();
   const { t } = useTranslation("common");
   const printRef = useRef();
   const orderId = params.id;
@@ -75,7 +77,7 @@ const Order = ({ params }) => {
     enabled: !!orderId,
   });
 
-  const { showingTranslateValue, getNumberTwo, currency } = useUtilsFunction();
+  const { showingTranslateValue, currency } = useUtilsFunction();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
 
   const handleCopyTracking = (num) => {

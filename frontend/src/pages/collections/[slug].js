@@ -65,6 +65,8 @@ const CollectionsSlug = ({ products, attributes }) => {
     setSelectedRating,
     selectedDiscount,
     setSelectedDiscount,
+    selectedColor,
+    setSelectedColor,
     sortedField,
   } = useFilter(initialProducts, categories);
 
@@ -191,6 +193,12 @@ const CollectionsSlug = ({ products, attributes }) => {
     setSelectedDiscount(discount);
   };
 
+  const handleColorChange = (color) => {
+    isSidebarAction.current = true;
+    clearSearchQuery();
+    setSelectedColor(color);
+  };
+
   const handleClearAll = () => {
     isSidebarAction.current = true;
     setPriceRange({ min: 0, max: 100000 });
@@ -198,6 +206,7 @@ const CollectionsSlug = ({ products, attributes }) => {
     else setSelectedCategories([]);
     setSelectedRating(0);
     setSelectedDiscount(0);
+    setSelectedColor("");
     clearSearchQuery();
   };
 
@@ -420,6 +429,8 @@ const CollectionsSlug = ({ products, attributes }) => {
               setSelectedRating={handleRatingChange}
               selectedDiscount={selectedDiscount}
               setSelectedDiscount={handleDiscountChange}
+              selectedColor={selectedColor}
+              setSelectedColor={handleColorChange}
               onClearAll={handleClearAll}
             />
           </div>
@@ -528,6 +539,8 @@ const CollectionsSlug = ({ products, attributes }) => {
         setSelectedRating={handleRatingChange}
         selectedDiscount={selectedDiscount}
         setSelectedDiscount={handleDiscountChange}
+        selectedColor={selectedColor}
+        setSelectedColor={handleColorChange}
         onClearAll={handleClearAll}
       />
 

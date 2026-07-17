@@ -209,6 +209,16 @@ const productSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    defaultColorName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    defaultColorCode: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     collectionName: {
       type: String,
       default: "",
@@ -290,6 +300,15 @@ const productSchema = new mongoose.Schema(
       },
     },
     variants: [{}],
+    colorVariants: [
+      {
+        colorName: { type: String, required: true },
+        colorCode: { type: String, required: true },
+        images: { type: [String], default: [] },
+        stock: { type: Number, required: true, default: 0 },
+        sku: { type: String, default: "" },
+      }
+    ],
     variantFilters: {
       type: [
         {

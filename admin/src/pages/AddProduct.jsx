@@ -10,6 +10,7 @@ import ParentCategory from "@/components/category/ParentCategory";
 import Error from "@/components/form/others/Error";
 import ProductPlacementFlags from "@/components/product/ProductPlacementFlags";
 import SimpleVariantManager from "@/components/product/SimpleVariantManager";
+import ColorVariantManager from "@/components/product/ColorVariantManager";
 import ProductTypePicker from "@/components/product/ProductTypePicker";
 import ProductPreviewCard from "@/components/product/ProductPreviewCard";
 import Loading from "@/components/preloader/Loading";
@@ -62,6 +63,8 @@ const AddProduct = () => {
     setVariants,
     resData,
     setValue,
+    colorVariants,
+    setColorVariants,
   } = useProductSubmit(id);
 
   useEffect(() => {
@@ -149,6 +152,30 @@ const AddProduct = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
+                      Default Color *
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {/* Live color swatch derived from defaultColorName */}
+                      <div
+                        title={watch("defaultColorName") || "Color preview"}
+                        style={{
+                          backgroundColor: watch("defaultColorName") || "transparent",
+                          border: "2px solid rgba(128,128,128,0.3)",
+                        }}
+                        className="w-10 h-10 rounded-lg shrink-0 transition-colors duration-300"
+                      />
+                      <Input
+                        {...register("defaultColorName", { required: "Default color name is required" })}
+                        placeholder="e.g. Ruby Red, Mustard"
+                      />
+                    </div>
+                    <Error errorName={errors.defaultColorName} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
                       Occasion
                     </label>
                     <Input {...register("occasion")} placeholder="Festive, Wedding, Daily..." />
@@ -193,7 +220,7 @@ const AddProduct = () => {
                   <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
                     More Photos
                   </label>
-                  <Uploader product folder="product" imageUrl={imageUrl} setImageUrl={setImageUrl} />
+                  <Uploader product folder="product" imageUrl={imageUrl} setImageUrl={setImageUrl} useOriginalSize />
                 </div>
 
                 <div>
@@ -336,6 +363,11 @@ const AddProduct = () => {
               {/* Variants */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">
                 <SimpleVariantManager variants={variants} setVariants={setVariants} />
+              </section>
+
+              {/* Color Variants */}
+              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">
+                <ColorVariantManager colorVariants={colorVariants} setColorVariants={setColorVariants} />
               </section>
 
               <div className="flex justify-end">

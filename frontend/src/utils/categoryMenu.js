@@ -26,26 +26,6 @@ const flattenCategories = (categories) => {
   return flat;
 };
 
-const childBelongsToParent = (child, parent, parentKey, showingTranslateValue) => {
-  if (!child || !parent) return false;
-  if (String(child._id) === String(parent._id)) return false;
-
-  const pid = String(child.parentId || "").toLowerCase();
-  const parentSlug = getCategorySlug(parent, showingTranslateValue);
-  const parentName = String(
-    showingTranslateValue
-      ? showingTranslateValue(parent?.name)
-      : parent?.name?.en || parent?.name || ""
-  ).toLowerCase();
-
-  return (
-    pid === parentKey ||
-    pid === parentSlug ||
-    pid === String(parent._id).toLowerCase() ||
-    String(child.parentName || "").toLowerCase() === parentKey ||
-    String(child.parentName || "").toLowerCase() === parentName
-  );
-};
 
 /**
  * Build Sarees / Suits / Fabrics groups for mobile menu & category drawer.

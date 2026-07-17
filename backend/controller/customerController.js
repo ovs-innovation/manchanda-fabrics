@@ -83,7 +83,7 @@ const computeProfileComplete = (customer) => {
 const sendCustomerAuthResponse = async (res, customer, message, extra = {}) => {
   const customerWithCart = await Customer.findById(customer._id).populate({
     path: "cart.productId",
-    select: "title prices image slug",
+    select: "title prices image slug colorVariants",
   });
 
   const profileComplete =
@@ -1486,7 +1486,7 @@ const getCustomerById = async (req, res) => {
   try {
     const customer = await Customer.findById(req.params.id).populate({
       path: "cart.productId",
-      select: "title prices image slug",
+      select: "title prices image slug colorVariants",
     });
     // console.log("getCustomerById cart:", JSON.stringify(customer?.cart, null, 2));
     res.send(customer);
@@ -1887,7 +1887,7 @@ const getCart = async (req, res) => {
     const { customerId } = req.params;
     const customer = await Customer.findById(customerId).populate({
       path: "cart.productId",
-      select: "title prices image slug stock variants",
+      select: "title prices image slug stock variants colorVariants",
     });
     if (!customer) {
       return res.status(404).send({ message: "Customer not found." });
@@ -1907,7 +1907,7 @@ const getCart = async (req, res) => {
 const addToCart = async (req, res) => {
   try {
     const { customerId } = req.params;
-    const { productId, quantity = 1 } = req.body;
+    const { productId, quantity = 1, color } = req.body;
 
     if (!productId) {
       return res.status(400).send({ message: "productId is required." });
@@ -1920,13 +1920,16 @@ const addToCart = async (req, res) => {
 
     const qty = Math.max(1, Number(quantity));
     const existingItem = customer.cart.find(
-      (c) => c.productId && c.productId.toString() === productId.toString()
+      (c) =>
+        c.productId &&
+        c.productId.toString() === productId.toString() &&
+        c.color === color
     );
 
     if (existingItem) {
       existingItem.quantity = existingItem.quantity + qty;
     } else {
-      customer.cart.push({ productId, quantity: qty });
+      customer.cart.push({ productId, quantity: qty, color });
     }
 
     await customer.save();
@@ -1934,7 +1937,7 @@ const addToCart = async (req, res) => {
     // Return populated cart
     const updated = await Customer.findById(customerId).populate({
       path: "cart.productId",
-      select: "title prices image slug stock variants",
+      select: "title prices image slug stock variants colorVariants",
     });
 
     res.send({ message: "Cart updated successfully.", cart: updated.cart });
@@ -1952,7 +1955,7 @@ const addToCart = async (req, res) => {
 const updateCartItem = async (req, res) => {
   try {
     const { customerId } = req.params;
-    const { productId, quantity } = req.body;
+    const { productId, quantity, color } = req.body;
 
     if (!productId) {
       return res.status(400).send({ message: "productId is required." });
@@ -1968,16 +1971,24 @@ const updateCartItem = async (req, res) => {
     if (qty <= 0) {
       // Remove item
       customer.cart = customer.cart.filter(
-        (c) => c.productId && c.productId.toString() !== productId.toString()
+        (c) =>
+          !(
+            c.productId &&
+            c.productId.toString() === productId.toString() &&
+            c.color === color
+          )
       );
     } else {
       const item = customer.cart.find(
-        (c) => c.productId && c.productId.toString() === productId.toString()
+        (c) =>
+          c.productId &&
+          c.productId.toString() === productId.toString() &&
+          c.color === color
       );
       if (item) {
         item.quantity = qty;
       } else {
-        customer.cart.push({ productId, quantity: qty });
+        customer.cart.push({ productId, quantity: qty, color });
       }
     }
 
@@ -1985,7 +1996,7 @@ const updateCartItem = async (req, res) => {
 
     const updated = await Customer.findById(customerId).populate({
       path: "cart.productId",
-      select: "title prices image slug stock variants",
+      select: "title prices image slug stock variants colorVariants",
     });
 
     res.send({ message: "Cart item updated.", cart: updated.cart });
@@ -2002,6 +2013,7 @@ const updateCartItem = async (req, res) => {
 const removeFromCart = async (req, res) => {
   try {
     const { customerId, productId } = req.params;
+    const { color } = req.query;
 
     const customer = await Customer.findById(customerId);
     if (!customer) {
@@ -2009,7 +2021,12 @@ const removeFromCart = async (req, res) => {
     }
 
     customer.cart = customer.cart.filter(
-      (c) => c.productId && c.productId.toString() !== productId.toString()
+      (c) =>
+        !(
+          c.productId &&
+          c.productId.toString() === productId.toString() &&
+          c.color === color
+        )
     );
 
     await customer.save();

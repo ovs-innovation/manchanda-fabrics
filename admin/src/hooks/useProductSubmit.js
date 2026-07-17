@@ -209,6 +209,7 @@ const useProductSubmit = (id) => {
   const [previewVariants, setPreviewVariants] = useState([]);
   const [selectedPreviewVariants, setSelectedPreviewVariants] = useState([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [colorVariants, setColorVariants] = useState([]);
 
   // New Sections State
   const [productDescription, setProductDescription] = useState({ enabled: true, icon: "", title: "Product Description", description: "" });
@@ -336,10 +337,17 @@ const useProductSubmit = (id) => {
         return sum + cv.sizes.reduce((sSum, sv) => sSum + Number(sv.quantity || 0), 0);
       }, 0);
 
+      const colorVariantsTotalStock = (colorVariants || []).reduce(
+        (sum, cv) => sum + Number(cv.stock || 0),
+        0
+      );
+
       const hasColorVariants = updatedVariants.length > 0;
-      const finalStock = hasColorVariants
-        ? computedTotalStock
-        : Number(data.stock ?? 0);
+      const finalStock = (colorVariants || []).length > 0
+        ? colorVariantsTotalStock
+        : hasColorVariants
+          ? computedTotalStock
+          : Number(data.stock ?? 0);
 
       setTotalStock(finalStock);
       setPrice(calculatedPrice);
@@ -484,6 +492,9 @@ const useProductSubmit = (id) => {
         thumbnail: thumbnailUrl,
         stock: finalStock,
         tag: sanitizeHomepagePlacementTags(tag),
+        colorVariants: colorVariants || [],
+        defaultColorName: data.defaultColorName || "",
+        defaultColorCode: data.defaultColorCode || "",
 
         gender: data.gender || "",
         productType: data.productType || "",
@@ -776,6 +787,7 @@ const useProductSubmit = (id) => {
       setFaqSection({ enabled: true, icon: "", title: "FAQ", items: [] });
 
       setUpdatedId();
+      setColorVariants([]);
       return;
     } else {
       handleProductTap("Basic Info", true);
@@ -830,6 +842,9 @@ const useProductSubmit = (id) => {
             setSeoImage(res.seoImage || "");
             setValue("status", mapStatusForForm(res.status));
             setValue("lowStockAlert", res.lowStockAlert || 5);
+            setColorVariants(res.colorVariants || []);
+            setValue("defaultColorName", res.defaultColorName || "");
+            setValue("defaultColorCode", res.defaultColorCode || "");
 
             setProductId(res.productId ? res.productId : res._id);
             setBarcode(res.barcode);
@@ -922,6 +937,11 @@ const useProductSubmit = (id) => {
     language,
     lang,
   ]);
+
+  const watchDefaultColorName = watch("defaultColorName");
+  useEffect(() => {
+    setValue("defaultColorCode", watchDefaultColorName || "");
+  }, [watchDefaultColorName, setValue]);
 
   //for filter related attribute and extras for every product which need to update
   useEffect(() => {
@@ -1836,6 +1856,7 @@ const useProductSubmit = (id) => {
     hoverImage, setHoverImage,
     badge, setBadge,
     video, setVideo,
+    colorVariants, setColorVariants,
   };
 };
 

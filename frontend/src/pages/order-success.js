@@ -99,7 +99,7 @@ const OrderSuccess = () => {
               </>
             ) : (
               <div className="text-center py-8">
-                <p className="text-[#3B2A25]/70 mb-4">No order details found in session. But don't worry, your order is being processed.</p>
+                <p className="text-[#3B2A25]/70 mb-4">No order details found in session. But don&apos;t worry, your order is being processed.</p>
               </div>
             )}
 

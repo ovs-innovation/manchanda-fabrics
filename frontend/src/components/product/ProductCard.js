@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { IoAdd, IoRemove } from "react-icons/io5";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
@@ -129,6 +129,24 @@ const ProductCard = ({
     handleLogEvent("product", `navigated to ${title} product page`);
   };
 
+  const [previewColorImg, setPreviewColorImg] = useState(null);
+
+  const combinedColorVariants = useMemo(() => {
+    const list = [];
+    if (product?.defaultColorName) {
+      list.push({
+        colorName: product.defaultColorName,
+        colorCode: product.defaultColorCode || "#000000",
+        images: product.featuredImage || (Array.isArray(product.image) && product.image[0]) ? [product.featuredImage || product.image[0]] : [],
+        isDefault: true,
+      });
+    }
+    if (product?.colorVariants && Array.isArray(product.colorVariants)) {
+      list.push(...product.colorVariants.map(cv => ({ ...cv, isDefault: false })));
+    }
+    return list;
+  }, [product]);
+
   const originalPriceValue = Number(product.prices?.originalPrice || 0);
   const currentPrice = Number(product.prices?.price || 0);
   const hasSale = originalPriceValue > currentPrice;
@@ -140,7 +158,7 @@ const ProductCard = ({
   const isSoldOut = product.stock < 1;
   const title = translateLabel(showingTranslateValue(product?.title), t);
 
-  const primaryImg = product.featuredImage || product.image?.[0];
+  const primaryImg = previewColorImg || product.featuredImage || product.image?.[0];
   const hoverImg = product.hoverImage || product.image?.[1];
 
   // Dynamic luxury status badge
@@ -225,6 +243,36 @@ const ProductCard = ({
 
         {/* Details (Aisha: centered title + Regular price) */}
         <div className="flex flex-1 flex-col items-center gap-1.5 px-3 py-5 text-center bg-white">
+          {combinedColorVariants && combinedColorVariants.length > 1 && (
+            <div className="flex items-center justify-center gap-1.5 mb-2 flex-wrap">
+              {combinedColorVariants.map((colorVar, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onMouseEnter={() => {
+                    if (colorVar.images && colorVar.images.length > 0) {
+                      setPreviewColorImg(colorVar.images[0]);
+                    }
+                  }}
+                  onMouseLeave={() => setPreviewColorImg(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (colorVar.images && colorVar.images.length > 0) {
+                      setPreviewColorImg(colorVar.images[0]);
+                    }
+                  }}
+                  className="w-4 h-4 rounded-full border border-neutral-300 flex items-center justify-center hover:border-[#111111] transition-all"
+                  title={colorVar.colorName}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full block border border-neutral-200/50"
+                    style={{ backgroundColor: colorVar.colorCode || "#000000" }}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
           <h3
             onClick={goToProduct}
             title={title}

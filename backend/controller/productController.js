@@ -628,6 +628,9 @@ const updateProduct = async (req, res) => {
       product.lowStockAlert = typeof req.body.lowStockAlert === "number" ? req.body.lowStockAlert : Number(req.body.lowStockAlert || 5);
       product.isCombination = req.body.isCombination;
       product.variants = req.body.variants;
+      product.colorVariants = req.body.colorVariants;
+      product.defaultColorName = req.body.defaultColorName;
+      product.defaultColorCode = req.body.defaultColorCode;
       product.stock = req.body.stock;
       product.prices = req.body.prices;
       product.image = req.body.image;

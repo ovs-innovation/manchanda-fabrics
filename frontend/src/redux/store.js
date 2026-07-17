@@ -4,13 +4,16 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 const createNoopStorage = () => {
   return {
-    getItem(_key) {
+    getItem(key) {
+      void key;
       return Promise.resolve(null);
     },
-    setItem(_key, value) {
+    setItem(key, value) {
+      void key;
       return Promise.resolve(value);
     },
-    removeItem(_key) {
+    removeItem(key) {
+      void key;
       return Promise.resolve();
     },
   };

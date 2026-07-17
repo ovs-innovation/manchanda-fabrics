@@ -11,6 +11,12 @@ const useAddToCart = () => {
   // Helper: return available stock number
   const getAvailableStock = (product) => {
     if (!product) return Number.MAX_SAFE_INTEGER;
+    if (product.color && Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+      const colorVar = product.colorVariants.find(
+        (cv) => cv.colorName?.toLowerCase() === product.color.toLowerCase()
+      );
+      if (colorVar) return Number(colorVar.stock ?? 0);
+    }
     if (product?.variants?.length > 0) {
       if (
         product?.variant &&

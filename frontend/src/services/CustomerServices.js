@@ -129,25 +129,29 @@ const CustomerServices = {
   },
 
   /** Add or increment a product in the DB cart */
-  addToCartDB: async (customerId, productId, quantity = 1) => {
+  addToCartDB: async (customerId, productId, quantity = 1, color = null) => {
     return requests.post(`/customer/cart/${customerId}/add`, {
       productId,
       quantity,
+      color,
     });
   },
 
   /** Set exact quantity for a product in the DB cart (pass 0 to remove) */
-  updateCartItemDB: async (customerId, productId, quantity) => {
+  updateCartItemDB: async (customerId, productId, quantity, color = null) => {
     return requests.put(`/customer/cart/${customerId}/update`, {
       productId,
       quantity,
+      color,
     });
   },
 
   /** Remove a specific product from the DB cart */
-  removeFromCartDB: async (customerId, productId) => {
+  removeFromCartDB: async (customerId, productId, color = null) => {
     return requests.delete(
-      `/customer/cart/${customerId}/remove/${productId}`
+      `/customer/cart/${customerId}/remove/${productId}${
+        color ? `?color=${encodeURIComponent(color)}` : ""
+      }`
     );
   },
 

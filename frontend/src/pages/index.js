@@ -18,28 +18,8 @@ import HomeTrustBadges from "@components/home/HomeTrustBadges";
 import CategoryServices from "@services/CategoryServices";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
-/* ── Shared typography helpers ── */
-const SectionLabel = ({ children }) => (
-  <span
-    className="block text-[13px] sm:text-[14px] text-neutral-500 mb-4"
-    style={{ fontFamily: "'Poppins', sans-serif" }}
-  >
-    {children}
-  </span>
-);
 
-const SectionHeading = ({ children }) => (
-  <h2
-    className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-semibold text-[#111111] leading-tight"
-    style={{ fontFamily: "'Poppins', sans-serif" }}
-  >
-    {children}
-  </h2>
-);
 
-const GoldLine = () => (
-  <div className="h-[1.5px] w-12 bg-[#111111] mx-auto mt-5" />
-);
 
 /* ── Main Page ── */
 const Home = ({

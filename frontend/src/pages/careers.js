@@ -1,13 +1,10 @@
 import React from "react";
-import { FiBriefcase, FiMail, FiUser, FiTrendingUp, FiShoppingBag, FiMessageSquare, FiTruck, FiBarChart2, FiUsers } from "react-icons/fi";
+import { FiMail, FiUser, FiTrendingUp, FiShoppingBag, FiMessageSquare, FiTruck, FiUsers } from "react-icons/fi";
 
 //internal import
 import Layout from "@layout/Layout";
-import SimpleHeader from "@components/header/SimpleHeader";
-import useGetSetting from "@hooks/useGetSetting";
 
 const Careers = () => {
-  const { storeCustomizationSetting } = useGetSetting();
 
   const opportunities = [
     {

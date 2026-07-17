@@ -73,6 +73,13 @@ const CartItem = ({ item, currency = "₹" }) => {
           {item.title}
         </Link>
 
+        {item.color && (
+          <p className="text-xs text-gray-600 mb-1 flex items-center gap-1 font-medium">
+            <span>Color:</span>
+            <span className="font-semibold text-neutral-800">{item.color}</span>
+          </p>
+        )}
+
         {/* MRP and Discount Badge */}
         {originalPrice > currentPrice && (
           <div className="flex items-center gap-2 mb-2">

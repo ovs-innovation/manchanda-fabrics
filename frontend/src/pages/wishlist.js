@@ -1,27 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { FiHeart, FiTrash2, FiShoppingCart } from "react-icons/fi";
-import { useCart } from "react-use-cart";
-import useTranslation from "next-translate/useTranslation";
+import { FiTrash2 } from "react-icons/fi";
 
 //internal import
 import Layout from "@layout/Layout";
 import ProductCard from "@components/product/ProductCard";
 import Loading from "@components/preloader/Loading";
-import useGetSetting from "@hooks/useGetSetting";
-import useUtilsFunction from "@hooks/useUtilsFunction";
 import AttributeServices from "@services/AttributeServices";
-import { notifySuccess, notifyError } from "@utils/toast";
-import PageHeader from "@components/header/PageHeader";
+import { notifySuccess } from "@utils/toast";
 
 const Wishlist = ({ attributes }) => {
-  const { t } = useTranslation("common");
-  const router = useRouter();
-  const { addItem } = useCart();
-  const { storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,34 +39,6 @@ const Wishlist = ({ attributes }) => {
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     }
     notifySuccess("Product removed from wishlist");
-  };
-
-  const addToCartFromWishlist = (product) => {
-    if (product.stock < 1) {
-      notifyError("Insufficient stock!");
-      return;
-    }
-
-    if (product?.variants?.length > 0) {
-      router.push(`/product/${product.slug}`);
-      return;
-    }
-
-    const { slug, variants, categories, description, ...updatedProduct } =
-      product;
-    const priceToUse = product.prices?.price || 0;
-
-    const newItem = {
-      ...updatedProduct,
-      title: showingTranslateValue(product?.title),
-      id: product._id,
-      variant: product.prices,
-      price: priceToUse,
-      originalPrice: product.prices?.originalPrice,
-    };
-
-    addItem(newItem, 1);
-    notifySuccess("Product added to cart");
   };
 
   return (

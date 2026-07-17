@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import Link from "next/link";
 import Layout from "@layout/Layout";
 import FeatureCategory from "@components/category/FeatureCategory";
 import SliderCarousel from "@components/carousel/SliderCarousel";
@@ -14,7 +15,6 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
-import DealsYouLove from "@components/carousel/DealsYouLove";
 import { useQuery } from "@tanstack/react-query";
 
 const Categories = () => {
@@ -31,7 +31,7 @@ const Categories = () => {
     return (cat.name && String(cat.name)) || cat.title || "";
   };
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["category"],
     queryFn: async () => await CategoryServices.getShowingCategory(),
   });
@@ -142,9 +142,9 @@ const Categories = () => {
                       </button>
 
                       <div className="flex justify-end mt-4 px-2">
-                        <a href="/search?sort=best-selling" className="inline-flex items-center gap-1 text-sm font-semibold text-store-500 border border-store-500 rounded-full px-4 py-1 hover:bg-store-500 hover:text-white transition-colors">
+                        <Link href="/search?sort=best-selling" className="inline-flex items-center gap-1 text-sm font-semibold text-store-500 border border-store-500 rounded-full px-4 py-1 hover:bg-store-500 hover:text-white transition-colors">
                           View All <IoChevronForward />
-                        </a>
+                        </Link>
                       </div>
                     </>
                   )}

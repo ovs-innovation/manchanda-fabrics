@@ -1,19 +1,17 @@
 import React, { useContext, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { IoBagHandle, IoRefreshOutline, IoTimeOutline } from "react-icons/io5";
-import { FiEye, FiStar, FiPackage, FiTruck, FiCheck, FiX, FiClock, FiShoppingCart } from "react-icons/fi";
+import { FiEye, FiStar, FiPackage, FiTruck, FiShoppingCart } from "react-icons/fi";
 import ReactPaginate from "react-paginate";
 import dayjs from "dayjs";
 import { SidebarContext } from "@context/SidebarContext";
-import { UserContext } from "@context/UserContext";
-import { notifySuccess, notifyError } from "@utils/toast";
 
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import ReviewModal from "@components/reviews/ReviewModal";
 import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
 import useCartDB from "@hooks/useCartDB";
+import { notifySuccess, notifyError } from "@utils/toast";
 
 /* ─── Status badge ─── */
 const StatusBadge = ({ status }) => {
@@ -61,7 +59,6 @@ const ProductStrip = ({ cart = [] }) => {
 
 /* ─── Main Component ─── */
 const RecentOrder = ({ data, loading, error }) => {
-  const router = useRouter();
   const { handleChangePage, currentPage, setCartDrawerOpen } = useContext(SidebarContext);
   const { storeCustomizationSetting } = useGetSetting();
   const { showingTranslateValue, currency } = useUtilsFunction();

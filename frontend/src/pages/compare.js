@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FiX, FiShoppingCart, FiTrash2 } from "react-icons/fi";
+import { FiX, FiShoppingCart } from "react-icons/fi";
 import { useCart } from "react-use-cart";
-import useTranslation from "next-translate/useTranslation";
 
 //internal import
 import Layout from "@layout/Layout";
@@ -12,12 +11,10 @@ import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import AttributeServices from "@services/AttributeServices";
 import { notifySuccess, notifyError } from "@utils/toast";
-import PageHeader from "@components/header/PageHeader";
 import Price from "@components/common/Price";
 import Stock from "@components/common/Stock";
 
-const Compare = ({ attributes }) => {
-  const { t } = useTranslation("common");
+const Compare = () => {
   const router = useRouter();
   const { addItem } = useCart();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
@@ -76,8 +73,11 @@ const Compare = ({ attributes }) => {
       return;
     }
 
-    const { slug, variants, categories, description, ...updatedProduct } =
-      product;
+    const updatedProduct = { ...product };
+    delete updatedProduct.slug;
+    delete updatedProduct.variants;
+    delete updatedProduct.categories;
+    delete updatedProduct.description;
     const priceToUse = product.prices?.price || 0;
 
     const newItem = {

@@ -160,7 +160,23 @@ const handleProductQuantity = async (cart) => {
         continue;
       }
 
-      if (hasVariantSelection(p)) {
+      const hasColorVariants = product.colorVariants && product.colorVariants.length > 0;
+      const selectedColor = p.color;
+
+      if (hasColorVariants && selectedColor) {
+        const colorVar = product.colorVariants.find(
+          (cv) => cv.colorName.toLowerCase() === selectedColor.toLowerCase()
+        );
+        if (colorVar) {
+          colorVar.stock = Math.max(0, colorVar.stock - p.quantity);
+          product.stock = Math.max(0, (product.stock || 0) - p.quantity);
+          product.sales = Number(product.sales || 0) + p.quantity;
+          product.markModified("colorVariants");
+          await product.save();
+        } else {
+          console.error(`Failed to decrease stock for color variant: ${selectedColor}`);
+        }
+      } else if (hasVariantSelection(p)) {
         const available = getVariantQuantity(product, p.variant);
         if (available === null || available < p.quantity) {
           console.error(
@@ -233,7 +249,32 @@ const checkStock = async (cart) => {
         continue;
       }
 
-      if (hasVariantSelection(item)) {
+      const hasColorVariants = product.colorVariants && product.colorVariants.length > 0;
+      const selectedColor = item.color;
+
+      if (hasColorVariants && selectedColor) {
+        const colorVar = product.colorVariants.find(
+          (cv) => cv.colorName.toLowerCase() === selectedColor.toLowerCase()
+        );
+        if (!colorVar) {
+          outOfStockItems.push({
+            _id: itemId,
+            id: item.id,
+            title: item.title,
+            reason: `Color variant '${selectedColor}' not found`,
+          });
+          continue;
+        }
+        if (colorVar.stock < item.quantity) {
+          outOfStockItems.push({
+            _id: itemId,
+            id: item.id,
+            title: `${item.title} (${colorVar.colorName})`,
+            available: colorVar.stock,
+            requested: item.quantity,
+          });
+        }
+      } else if (hasVariantSelection(item)) {
         if (!item.variant) {
           outOfStockItems.push({
             _id: itemId,

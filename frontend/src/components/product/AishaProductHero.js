@@ -29,12 +29,14 @@ const AishaProductHero = ({
   onAddToCart,
   quantity,
   onQuantityChange,
+  selectedColorVar,
+  setSelectedColorVar,
   t,
 }) => {
   const title = dynamicTitle || showingTranslateValue(product?.title);
   const description =
     dynamicDescription || showingTranslateValue(product?.description);
-  const sku = selectVariant?.sku || product?.sku || "—";
+  const sku = selectedColorVar?.sku || selectVariant?.sku || product?.sku || "—";
 
   return (
     <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
@@ -71,6 +73,41 @@ const AishaProductHero = ({
         </div>
 
         <hr className="my-6 border-neutral-200" />
+
+        {/* Color Variants */}
+        {product.colorVariants && product.colorVariants.length > 0 && (
+          <div className="mb-6">
+            <p
+              className="text-sm font-medium text-[#111111] mb-2"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              Color: <span className="font-semibold text-neutral-800">{selectedColorVar?.colorName}</span>
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              {product.colorVariants.map((colorVar, idx) => {
+                const isSelected = selectedColorVar?.colorName === colorVar.colorName;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedColorVar(colorVar)}
+                    className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
+                      isSelected
+                        ? "border-[#111111] ring-2 ring-neutral-200"
+                        : "border-neutral-300 hover:border-neutral-800"
+                    }`}
+                    title={colorVar.colorName}
+                  >
+                    <span
+                      className="w-7 h-7 rounded-full block border border-neutral-200/50"
+                      style={{ backgroundColor: colorVar.colorCode || "#000000" }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Variants */}
         {variantTitle?.length > 0 && (

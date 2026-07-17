@@ -38,11 +38,7 @@ const MyAccount = () => {
     }
   }, [userInfo?.token]);
 
-  const {
-    data: customer,
-    error: customerError,
-    isLoading: customerLoading,
-  } = useQuery({
+  const { data: customer } = useQuery({
     queryKey: ["customer", { id: userId }],
     queryFn: async () => await CustomerServices.getCustomerById(userId),
     enabled: !!userId,

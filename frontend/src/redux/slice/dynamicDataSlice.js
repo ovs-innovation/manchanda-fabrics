@@ -43,7 +43,7 @@ const dynamicDataSlice = createSlice({
       );
 
       const uniqueArray = uniqueArrayOfObjects([
-        ...singleItem?.data,
+        ...(singleItem?.data || []),
         action.payload.data,
       ]);
 
@@ -96,8 +96,8 @@ const dynamicDataSlice = createSlice({
         (el) => !action?.payload?.ids?.includes(el?._id)
       );
       const updatedFinalArr = [
-        ...multipleUpdatedData,
-        ...action?.payload?.data,
+        ...(multipleUpdatedData || []),
+        ...(action?.payload?.data || []),
       ];
 
       const updatedDatMultiple = [

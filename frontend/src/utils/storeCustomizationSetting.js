@@ -518,8 +518,7 @@ export const storeCustomization = {
     four_img: "/Suit/s7.jpg",
     four_title: {
       en: "The Best Quality Products Guaranteed!",
-      en: "The Best Quality Products Guaranteed!",
-      de: "Die besten Qualitätsprodukte garantiert!",
+      de: "Die besten Qualit\u00e4tsprodukte garantiert!",
     },
     four_description: {
       en: "Dramatically facilitate effective total linkage for go forward processes...",

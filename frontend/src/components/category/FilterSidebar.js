@@ -13,6 +13,8 @@ const FilterSidebar = ({
   setSelectedRating,
   selectedDiscount,
   setSelectedDiscount,
+  selectedColor,
+  setSelectedColor,
   onClearAll,
 }) => {
   const { showingTranslateValue, currency } = useUtilsFunction();
@@ -22,6 +24,7 @@ const FilterSidebar = ({
     rating: false,
     discount: false,
     category: true,
+    color: false,
   });
 
   useEffect(() => {
@@ -80,7 +83,8 @@ const FilterSidebar = ({
         selectedRating > 0 ||
         selectedDiscount > 0 ||
         priceRange.min > 0 ||
-        priceRange.max < 100000) && (
+        priceRange.max < 100000 ||
+        selectedColor) && (
         <div className="py-3 flex flex-wrap gap-2 border-b border-[#E6D1CB]/50">
           {
             (() => {
@@ -170,6 +174,15 @@ const FilterSidebar = ({
               <IoClose
                 className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedDiscount(0)}
+              />
+            </span>
+          )}
+          {selectedColor && (
+            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
+              Color: {selectedColor}
+              <IoClose
+                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
+                onClick={() => setSelectedColor("")}
               />
             </span>
           )}
@@ -385,6 +398,58 @@ const FilterSidebar = ({
                 <label className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer group-hover:text-[#9C6A5A] transition-colors">
                   {discount}% or more
                 </label>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Color Filter */}
+      <div className="border-b border-[#E6D1CB]/50">
+        <button
+          onClick={() => toggleSection("color")}
+          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
+        >
+          Color
+          {openSections.color ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
+        </button>
+        {openSections.color && (
+          <div className="pb-4 max-h-60 overflow-y-auto custom-scrollbar">
+            {[
+              { name: "Red", code: "#EF4444" },
+              { name: "Blue", code: "#3B82F6" },
+              { name: "Green", code: "#10B981" },
+              { name: "Black", code: "#000000" },
+              { name: "White", code: "#FFFFFF" },
+              { name: "Pink", code: "#EC4899" },
+              { name: "Yellow", code: "#F59E0B" },
+              { name: "Purple", code: "#8B5CF6" },
+              { name: "Orange", code: "#F97316" },
+              { name: "Brown", code: "#78350F" },
+              { name: "Grey", code: "#6B7280" },
+              { name: "Beige", code: "#F5F5DC" },
+              { name: "Maroon", code: "#800000" },
+              { name: "Navy", code: "#000080" },
+            ].map((color) => (
+              <div
+                key={color.name}
+                className="flex items-center mb-2 cursor-pointer group"
+                onClick={() => setSelectedColor(selectedColor === color.name ? "" : color.name)}
+              >
+                <input
+                  type="checkbox"
+                  name="color"
+                  checked={selectedColor === color.name}
+                  onChange={() => setSelectedColor(selectedColor === color.name ? "" : color.name)}
+                  className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4 cursor-pointer"
+                />
+                <div className="ml-2 flex items-center text-sm text-[#3B2A25]/80 font-medium group-hover:text-[#9C6A5A] transition-colors">
+                  <span
+                    className="w-3 h-3 rounded-full inline-block mr-2 border border-gray-200"
+                    style={{ backgroundColor: color.code }}
+                  />
+                  {color.name}
+                </div>
               </div>
             ))}
           </div>

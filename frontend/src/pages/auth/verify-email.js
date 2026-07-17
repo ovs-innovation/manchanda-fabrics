@@ -18,7 +18,6 @@ const VerifyEmail = () => {
 
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     if (router.isReady && !email) {

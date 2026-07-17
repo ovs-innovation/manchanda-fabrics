@@ -1,60 +1,32 @@
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   FiChevronRight,
-  FiMinus,
-  FiPlus,
   FiChevronDown,
-  FiChevronUp,
-  FiShare2,
-  FiHeart,
-  FiShuffle,
-  FiTruck,
 } from "react-icons/fi";
-import { AiFillStar } from "react-icons/ai";
-import {
-  FacebookIcon,
-  FacebookShareButton,
-  LinkedinIcon,
-  LinkedinShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-  WhatsappIcon,
-  WhatsappShareButton,
-} from "react-share";
-import { FaInstagram } from "react-icons/fa";
 //internal import
 
-import Price from "@components/common/Price";
-import Stock from "@components/common/Stock";
-import Tags from "@components/common/Tags";
 import Layout from "@layout/Layout";
-import Card from "@components/slug-card/Card";
 import useAddToCart from "@hooks/useAddToCart";
-import { useCart } from "react-use-cart";
 import Loading from "@components/preloader/Loading";
 import ProductCard from "@components/product/ProductCard";
-import VariantList from "@components/variants/VariantList";
 import { SidebarContext } from "@context/SidebarContext";
 import { UserContext } from "@context/UserContext";
 import AttributeServices from "@services/AttributeServices";
 import ProductServices from "@services/ProductServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import Discount from "@components/common/Discount";
 import useGetSetting from "@hooks/useGetSetting";
-import ProductImageGallery from "@components/product/ProductImageGallery";
 import ProductDetailsSection from "@components/product/ProductDetailsSection";
-import LocationPickerDropdown from "@components/location/LocationPickerDropdown";
-import { notifyError, notifySuccess } from "@utils/toast";
+import { notifyError } from "@utils/toast";
 import { useSession } from "next-auth/react";
-import { addToWishlist } from "@lib/wishlist";
+
 import { getExpectedDeliveryTime } from "@utils/deliveryTime";
 import CustomerServices from "@services/CustomerServices";
 import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import SuggestedProducts from "@components/product/SuggestedProducts";
+
 import AishaProductHero from "@components/product/AishaProductHero";
 
 const ProductScreen = ({ product, attributes, relatedProducts }) => {
@@ -67,10 +39,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     try { const c = Cookies.get("userInfo"); return c ? JSON.parse(c) : null; } catch (e) { return null; }
   })() : null;
 
-  const sessionRole = session?.user?.role;
-  const contextRole = userState?.userInfo?.role;
-  const cookieRole = cookieUserInfo?.role;
-  const userRole = sessionRole || contextRole || cookieRole || null;
+
 
   // also expose a userInfo object for other usages (cookies/context/session)
   const userInfo = session?.user || userState?.userInfo || cookieUserInfo || null;
@@ -78,9 +47,8 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   const { lang, showingTranslateValue, getNumber, currency, getNumberTwo } =
     useUtilsFunction();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
-  const { handleAddItem, item, setItem } = useAddToCart();
-  const { setItems, addItem } = useCart();
-  const { storeCustomizationSetting, globalSetting } = useGetSetting();
+  const { handleAddItem } = useAddToCart();
+  const { globalSetting } = useGetSetting();
 
   // Handle Product View Tracking
   useEffect(() => {
@@ -121,27 +89,26 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
   const [value, setValue] = useState("");
   const [price, setPrice] = useState(0);
-  const [activeImage, setActiveImage] = useState("");
   const [originalPrice, setOriginalPrice] = useState(0);
+  const [activeImage, setActiveImage] = useState("");
+  const [selectedColorVar, setSelectedColorVar] = useState(null);
   const [stock, setStock] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [selectVariant, setSelectVariant] = useState({});
-  const [isReadMore, setIsReadMore] = useState(true);
   const [selectVa, setSelectVa] = useState({});
   const [variantTitle, setVariantTitle] = useState([]);
-  const [variants, setVariants] = useState([]);
+  const [, setVariants] = useState([]);
   const [dynamicTitle, setDynamicTitle] = useState("");
   const [dynamicDescription, setDynamicDescription] = useState("");
   const [variantDynamicSections, setVariantDynamicSections] = useState(null);
   const [variantMediaSections, setVariantMediaSections] = useState(null);
-  const isUpdatingUrlRef = useRef(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [currentImages, setCurrentImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
-  const [shareUrl, setShareUrl] = useState("");
   const [activeTab, setActiveTab] = useState("product-description");
   const [showStickyBottomBar, setShowStickyBottomBar] = useState(false);
-  const [expectedDeliveryTime, setExpectedDeliveryTime] = useState(null);
+  const [, setShareUrl] = useState("");
+  const [, setExpectedDeliveryTime] = useState(null);
 
   // Fetch shipping address if user is logged in
   const { data: shippingAddressData } = useQuery({
@@ -153,22 +120,6 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     select: (data) => data?.shippingAddress,
     enabled: !!userInfo?.id,
   });
-
-  // Simple stock derivation to avoid infinite variant loops
-  useEffect(() => {
-    if (!product) return;
-
-    if (Array.isArray(product.variants) && product.variants.length > 0) {
-      // sum of variant quantities as overall stock
-      const total = product.variants.reduce(
-        (sum, v) => sum + (Number(v.quantity) || 0),
-        0
-      );
-      setStock(total);
-    } else {
-      setStock(Number(product.stock) || 0);
-    }
-  }, [product]);
 
   // Get product media (images + optional video) - supports up to 5 items
   const productImages = useMemo(() => {
@@ -196,6 +147,64 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
     return media.slice(0, 5);
   }, [product?.image, product?.video]);
+
+  // Combine Default Color and Color Variants
+  const combinedColorVariants = useMemo(() => {
+    const list = [];
+    if (product?.defaultColorName) {
+      list.push({
+        colorName: product.defaultColorName,
+        colorCode: product.defaultColorCode || "#000000",
+        images: productImages || [],
+        stock: Number(product.stock) || 0,
+        sku: product.sku || "",
+        isDefault: true,
+      });
+    }
+    if (product?.colorVariants && Array.isArray(product.colorVariants)) {
+      list.push(...product.colorVariants.map(cv => ({ ...cv, isDefault: false })));
+    }
+    return list;
+  }, [product, productImages]);
+
+  // Initialize color variant selection
+  useEffect(() => {
+    if (combinedColorVariants && combinedColorVariants.length > 0) {
+      setSelectedColorVar(combinedColorVariants[0]);
+    } else {
+      setSelectedColorVar(null);
+    }
+  }, [combinedColorVariants]);
+
+  // Simple stock derivation to avoid infinite variant loops
+  useEffect(() => {
+    if (!product) return;
+    if (product.defaultColorName || (product.colorVariants && product.colorVariants.length > 0)) return;
+
+    if (Array.isArray(product.variants) && product.variants.length > 0) {
+      // sum of variant quantities as overall stock
+      const total = product.variants.reduce(
+        (sum, v) => sum + (Number(v.quantity) || 0),
+        0
+      );
+      setStock(total);
+    } else {
+      setStock(Number(product.stock) || 0);
+    }
+  }, [product]);
+
+  // Update images, active image, and stock based on color variant selection
+  useEffect(() => {
+    if (selectedColorVar) {
+      const imgs = selectedColorVar.images || [];
+      const newImages = imgs.length > 0 ? imgs : productImages;
+      setCurrentImages(newImages);
+      if (newImages.length > 0) {
+        setActiveImage(newImages[0]);
+      }
+      setStock(selectedColorVar.stock);
+    }
+  }, [selectedColorVar, productImages]);
 
   // Keep a sharable URL in sync with current selection (includes query params)
   useEffect(() => {
@@ -272,22 +281,14 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
         }) || [];
       }
 
-      const res = result?.map(
-        ({
-          originalPrice,
-          price,
-          discount,
-          quantity,
-          barcode,
-          sku,
-          productId,
-          image,
-          images,
-          title,
-          description,
-          ...rest
-        }) => ({ ...rest })
-      );
+      const res = result?.map((item) => {
+        const itemCopy = { ...item };
+        const keysToDelete = ["originalPrice", "price", "discount", "quantity", "barcode", "sku", "productId", "image", "images", "title", "description"];
+        keysToDelete.forEach((key) => {
+          delete itemCopy[key];
+        });
+        return itemCopy;
+      });
 
       const filterKey = Object.keys(Object.assign({}, ...res));
       const selectVar = filterKey?.reduce(
@@ -807,7 +808,10 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       return notifyError("Please select all variants first!");
     }
 
-    const { variants, categories, description, ...updatedProduct } = product;
+    const updatedProduct = { ...product };
+    delete updatedProduct.variants;
+    delete updatedProduct.categories;
+    delete updatedProduct.description;
 
     // Ensure we have a valid price
     const currentPrice = price > 0
@@ -818,28 +822,24 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       ? originalPrice
       : getNumber(selectVariant?.originalPrice ?? product?.prices?.originalPrice ?? currentPrice);
 
+    const colorSuffix = selectedColorVar ? `-${selectedColorVar.colorName}` : "";
+    const variantSuffix = hasVariants ? `-${variantTitle?.map((att) => selectVariant[att._id]).join("-")}` : "";
+    const itemId = `${p._id}${colorSuffix}${variantSuffix}`;
+
+    const baseTitle = dynamicTitle || showingTranslateValue(product?.title);
+    const colorText = selectedColorVar ? ` - ${selectedColorVar.colorName}` : "";
+    const variantText = hasVariants ? "-" + variantTitle?.map(att => att.variants?.find(v => v._id === selectVariant[att._id])).map(el => showingTranslateValue(el?.name)).join("-") : "";
+    const itemTitle = `${baseTitle}${colorText}${variantText}`;
+
     const newItem = {
       ...updatedProduct,
       isCombination: hasVariants,
-      id: `${!hasVariants || p.variants.length === 0
-          ? p._id
-          : p._id +
-          "-" +
-          variantTitle?.map((att) => selectVariant[att._id]).join("-")
-        }`,
-
-      title: `${!hasVariants || p.variants.length === 0
-          ? dynamicTitle || showingTranslateValue(product?.title)
-          : (dynamicTitle || showingTranslateValue(product?.title)) +
-          "-" +
-          variantTitle
-            ?.map((att) =>
-              att.variants?.find((v) => v._id === selectVariant[att._id])
-            )
-            .map((el) => showingTranslateValue(el?.name))
-        }`,
-      image: activeImage || product.image?.[0] || product.images?.[0],
+      id: itemId,
+      title: itemTitle,
+      image: selectedColorVar?.images?.[0] || activeImage || product.image?.[0] || product.images?.[0],
       variant: selectVariant,
+      color: selectedColorVar?.colorName || undefined,
+      colorVariants: product.colorVariants || [],
       price: currentPrice,
       originalPrice: currentOriginalPrice,
     };
@@ -847,182 +847,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     handleAddItem(newItem, quantity);
   };
 
-  const handleAddToWishlist = (p) => {
-    if (typeof window === "undefined") return;
 
-    try {
-      const result = addToWishlist(p);
-
-      if (!result.ok && result.reason === "exists") {
-        notifyError("Product already in wishlist");
-        return;
-      }
-
-      if (!result.ok) {
-        notifyError("Failed to add to wishlist");
-        return;
-      }
-
-      notifySuccess("Product added to wishlist");
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      notifyError("Failed to add to wishlist");
-    }
-  };
-
-  const handleAddToCompare = (p) => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const storedCompare = localStorage.getItem("compare");
-      let compare = storedCompare ? JSON.parse(storedCompare) : [];
-
-      // Check if product already exists in compare
-      const exists = compare.some((item) => item._id === p._id);
-
-      if (exists) {
-        notifyError("Product already in compare list");
-        return;
-      }
-
-      // Limit compare list to 4 products
-      if (compare.length >= 4) {
-        notifyError("You can compare maximum 4 products");
-        return;
-      }
-
-      // Add product to compare
-      compare.push(p);
-      localStorage.setItem("compare", JSON.stringify(compare));
-      notifySuccess("Product added to compare list");
-    } catch (error) {
-      console.error("Error adding to compare:", error);
-      notifyError("Failed to add to compare list");
-    }
-  };
-
-  const handleBuyNow = (p) => {
-    try {
-      // Check stock first - handle products with and without variants
-      if (stock <= 0) {
-        return notifyError("Insufficient stock");
-      }
-
-      // Check if variants need to be selected
-      const hasVariants = product?.variants && product.variants.length > 0;
-      if (
-        hasVariants &&
-        (!selectVariant || Object.keys(selectVariant).length === 0)
-      ) {
-        return notifyError("Please select all variants first!");
-      }
-
-      // Prepare product item for direct checkout
-      const { variants, categories, description, ...updatedProduct } = product;
-
-      // Ensure we have a valid price
-      const currentPrice = price > 0
-        ? price
-        : getNumber(selectVariant?.price ?? product?.prices?.price ?? 0);
-      const currentOriginalPrice = originalPrice > 0
-        ? originalPrice
-        : getNumber(selectVariant?.originalPrice ?? product?.prices?.originalPrice ?? currentPrice);
-
-      const minQtyBuy = item;
-      const newItem = {
-        ...updatedProduct,
-        id: `${!hasVariants || (p.variants && p.variants.length <= 1)
-            ? p._id
-            : p._id +
-            variantTitle?.map((att) => selectVariant[att._id]).join("-")
-          }`,
-        title: `${!hasVariants || (p.variants && p.variants.length <= 1)
-            ? dynamicTitle || showingTranslateValue(product?.title)
-            : (dynamicTitle || showingTranslateValue(product?.title)) +
-            "-" +
-            variantTitle
-              ?.map((att) =>
-                att.variants?.find((v) => v._id === selectVariant[att._id])
-              )
-              .map((el) => showingTranslateValue(el?.name))
-          }`,
-        image: activeImage || product.image?.[0],
-        variant: selectVariant || {},
-        price: currentPrice,
-        originalPrice: currentOriginalPrice,
-        quantity: minQtyBuy,
-      };
-
-      // Replace entire cart with only this product (Flipkart style - Buy Now replaces cart)
-      setItems([newItem]);
-
-      // Flipkart-style: bypass login and go directly to checkout
-      setTimeout(() => {
-        router.push("/checkout");
-      }, 150);
-    } catch (error) {
-      console.error("Buy Now error:", error);
-      notifyError("Something went wrong. Please try again.");
-    }
-  };
-
-  // Share current product + variant selection URL
-  const handleShareCurrentVariant = async () => {
-    const urlToShare =
-      (typeof window !== "undefined" && window.location.href) ||
-      shareUrl ||
-      `https://Manchanda Fabrics-store-nine.vercel.app/product/${router.query.slug}`;
-
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: dynamicTitle || showingTranslateValue(product?.title),
-          text: dynamicDescription || showingTranslateValue(product?.description),
-          url: urlToShare,
-        });
-        return;
-      }
-
-      if (
-        typeof navigator !== "undefined" &&
-        navigator.clipboard &&
-        navigator.clipboard.writeText
-      ) {
-        await navigator.clipboard.writeText(urlToShare);
-        notifySuccess("Link copied to clipboard!");
-        return;
-      }
-
-      notifySuccess("Share this link: " + urlToShare);
-    } catch (err) {
-      if (err?.name === "AbortError") return;
-      notifyError("Unable to share link. Please try again.");
-    }
-  };
-
-  const handleChangeImage = (img) => {
-    if (img) {
-      setActiveImage(img);
-    }
-  };
-
-  // Update images when variant changes - create variant-specific image list
-  const variantImages = useMemo(() => {
-    if (!selectVariant || Object.keys(selectVariant).length === 0) {
-      return productImages;
-    }
-
-    // Get images for selected variant
-    const variantImgs = [];
-    if (Array.isArray(selectVariant?.images) && selectVariant.images.length > 0) {
-      variantImgs.push(...selectVariant.images);
-    } else if (selectVariant?.image) {
-      variantImgs.push(selectVariant.image);
-    }
-
-    // If variant has images, use them; otherwise use all product images
-    return variantImgs.length > 0 ? variantImgs : productImages;
-  }, [selectVariant, productImages]);
 
   const { t } = useTranslation("common");
 
@@ -1078,14 +903,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     );
   }, [relatedProducts, product?._id, router.query?.slug]);
 
-  // Helper to create URL-friendly slugs for attribute/variant names
-  const slugify = (str = "") =>
-    str
-      ?.toString()
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+
 
   // NOTE: Variant URL syncing disabled to avoid navigation loops during Buy Now flow.
   // If you want to re-enable deep-linking by variant, restore the previous
@@ -1140,7 +958,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                 </nav>
               </div>
               <AishaProductHero
-                product={product}
+                product={{ ...product, colorVariants: combinedColorVariants }}
                 dynamicTitle={dynamicTitle}
                 dynamicDescription={dynamicDescription}
                 productImages={productImages}
@@ -1164,6 +982,8 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                 onAddToCart={() => handleAddToCart(product)}
                 quantity={quantity}
                 onQuantityChange={setQuantity}
+                selectedColorVar={selectedColorVar}
+                setSelectedColorVar={setSelectedColorVar}
                 t={t}
               />
 

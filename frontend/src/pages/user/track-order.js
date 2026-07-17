@@ -9,7 +9,6 @@ import Cookies from 'js-cookie';
 import Dashboard from '@pages/user/dashboard';
 import OrderServices from '@services/OrderServices';
 import OrderTracking from '@components/order/OrderTracking';
-import Loading from '@components/preloader/Loading';
 import { setToken } from '@services/httpServices';
 
 const TrackOrder = () => {
@@ -27,7 +26,7 @@ const TrackOrder = () => {
     }
   }, []);
 
-  const { data: order, isLoading, error, refetch } = useOrderQuery(id);
+  const { data: order, isLoading, error } = useOrderQuery(id);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -83,8 +82,8 @@ const TrackOrder = () => {
             </div>
             <h3 className="text-xl font-bold text-red-800">Order Not Found</h3>
             <p className="text-sm text-red-600 mt-2 max-w-sm mx-auto leading-relaxed">
-              We couldn't find an order with ID <span className="font-mono font-bold">"{orderIdInput}"</span>. 
-              Please verify the ID from your "My Orders" section or confirmation email.
+              We couldn&apos;t find an order with ID <span className="font-mono font-bold">&quot;{orderIdInput}&quot;</span>. 
+              Please verify the ID from your &quot;My Orders&quot; section or confirmation email.
             </p>
           </div>
         ) : order ? (

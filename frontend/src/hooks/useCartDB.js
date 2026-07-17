@@ -67,7 +67,7 @@ const useCartDB = () => {
                 const dbId = resolveDbProductId(product);
                 if (dbId) {
                     try {
-                        await CustomerServices.addToCartDB(customerId, dbId, quantity);
+                        await CustomerServices.addToCartDB(customerId, dbId, quantity, product.color);
                     } catch (err) {
                         console.error("[useCartDB] addToCartDB failed:", err?.message || err);
                     }
@@ -85,6 +85,8 @@ const useCartDB = () => {
      */
     const updateQuantityWithDB = useCallback(
         async (itemId, newQuantity) => {
+            const item = getItem(itemId);
+            const color = item?.color || null;
             // 1. Update local cart immediately (optimistic)
             if (newQuantity <= 0) {
                 removeItem(itemId);
@@ -97,14 +99,14 @@ const useCartDB = () => {
                 const dbId = resolveDbProductId(itemId);
                 if (dbId) {
                     try {
-                        await CustomerServices.updateCartItemDB(customerId, dbId, newQuantity);
+                        await CustomerServices.updateCartItemDB(customerId, dbId, newQuantity, color);
                     } catch (err) {
                         console.error("[useCartDB] updateCartItemDB failed:", err?.message || err);
                     }
                 }
             }
         },
-        [updateItemQuantity, removeItem, customerId, resolveDbProductId]
+        [updateItemQuantity, removeItem, customerId, resolveDbProductId, getItem]
     );
 
     /**
@@ -114,6 +116,8 @@ const useCartDB = () => {
      */
     const removeItemWithDB = useCallback(
         async (itemId) => {
+            const item = getItem(itemId);
+            const color = item?.color || null;
             // 1. Update local cart immediately (optimistic)
             removeItem(itemId);
 
@@ -122,14 +126,14 @@ const useCartDB = () => {
                 const dbId = resolveDbProductId(itemId);
                 if (dbId) {
                     try {
-                        await CustomerServices.removeFromCartDB(customerId, dbId);
+                        await CustomerServices.removeFromCartDB(customerId, dbId, color);
                     } catch (err) {
                         console.error("[useCartDB] removeFromCartDB failed:", err?.message || err);
                     }
                 }
             }
         },
-        [removeItem, customerId, resolveDbProductId]
+        [removeItem, customerId, resolveDbProductId, getItem]
     );
 
     /**

@@ -1,12 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { IoBagHandle, IoRefreshOutline, IoReceiptOutline, IoTimeOutline } from "react-icons/io5";
-import { FiShoppingCart, FiEye, FiStar, FiPackage, FiTruck, FiCheck, FiX, FiClock } from "react-icons/fi";
+import { FiShoppingCart, FiEye, FiStar, FiPackage, FiTruck } from "react-icons/fi";
 import ReactPaginate from "react-paginate";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
-import { useCart } from "react-use-cart";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import { setToken } from "@services/httpServices";
@@ -19,7 +17,6 @@ import Loading from "@components/preloader/Loading";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import ReviewModal from "@components/reviews/ReviewModal";
 import { SidebarContext } from "@context/SidebarContext";
-import { UserContext } from "@context/UserContext";
 import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
 import { notifySuccess, notifyError } from "@utils/toast";
 import useCartDB from "@hooks/useCartDB";
@@ -101,11 +98,9 @@ const ProductStrip = ({ cart = [] }) => {
 
 /* ─── Main Component ─── */
 const MyOrders = () => {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const { currentPage, handleChangePage, isLoading, setIsLoading, setCartDrawerOpen } =
     useContext(SidebarContext);
-  const { state: userState } = useContext(UserContext);
 
   const { storeCustomizationSetting } = useGetSetting();
   const { showingTranslateValue, currency } = useUtilsFunction();
@@ -256,8 +251,8 @@ const MyOrders = () => {
                   No Orders Yet
                 </h3>
                 <p className="text-sm text-gray-500 mb-6 max-w-xs">
-                  Looks like you haven't placed any orders. Start shopping and
-                  they'll appear here.
+                  Looks like you haven&apos;t placed any orders. Start shopping and
+                  they&apos;ll appear here.
                 </p>
                 <Link
                   href="/"

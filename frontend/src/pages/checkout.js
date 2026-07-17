@@ -2,12 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import {
-  IoReturnUpBackOutline,
-  IoArrowForward,
-  IoBagHandle,
-  IoWalletSharp,
   IoClose,
   IoChevronForward,
   IoLocationOutline,
@@ -16,20 +11,15 @@ import {
 } from "react-icons/io5";
 import { FiLoader, FiEdit } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
-import { ImCreditCard } from "react-icons/im";
+
 import useTranslation from "next-translate/useTranslation";
 import { getUserSession } from "@lib/auth";
 
 //internal import
 
 import Layout from "@layout/Layout";
-import Label from "@components/form/Label";
 import Error from "@components/form/Error";
-import CartItem from "@components/cart/CartItem";
-import InputArea from "@components/form/InputArea";
 import useGetSetting from "@hooks/useGetSetting";
-import InputShipping from "@components/form/InputShipping";
-import InputPayment from "@components/form/InputPayment";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
@@ -37,11 +27,10 @@ import CustomerServices from "@services/CustomerServices";
 import LocationServices from "@services/LocationServices";
 import SwitchToggle from "@components/form/SwitchToggle";
 import { notifySuccess, notifyError } from "@utils/toast";
-import { isProfileComplete, getDisplayEmail } from "@utils/profileAuth";
+import { getDisplayEmail } from "@utils/profileAuth";
 
 const Checkout = () => {
   const { t } = useTranslation("common");
-  const router = useRouter();
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -114,9 +103,7 @@ const Checkout = () => {
   }, [shippingAddresses]);
 
   const {
-    error,
     couponInfo,
-    couponRef,
     total,
     isEmpty,
     items,
@@ -124,8 +111,6 @@ const Checkout = () => {
     register,
     errors,
     watch,
-    showCard,
-    setShowCard,
     handleSubmit,
     submitHandler,
     handleShippingCost,
@@ -407,47 +392,6 @@ const Checkout = () => {
     }
   };
 
-  // Handle address deletion
-  const handleDeleteAddress = async (addressId) => {
-    // GUEST: just clear the selected address from state
-    if (!userInfo || !userInfo._id) {
-      if (selectedAddress?._id === addressId) {
-        setSelectedAddress(null);
-      }
-      notifySuccess("Address removed");
-      return;
-    }
-
-    try {
-      const response = await CustomerServices.deleteShippingAddress({
-        userId: userInfo._id,
-        shippingId: addressId
-      });
-
-      if (response.message || response.success) {
-        await refetchAddresses();
-        // If deleted address was selected, select first available
-        if (selectedAddress?._id === addressId) {
-          const updatedResponse = await CustomerServices.getShippingAddress({ userId: userInfo._id });
-          const updatedAddresses = Array.isArray(updatedResponse?.shippingAddress)
-            ? updatedResponse.shippingAddress
-            : [];
-          if (updatedAddresses.length > 0) {
-            setSelectedAddress(updatedAddresses[0]);
-          } else {
-            setSelectedAddress(null);
-          }
-        }
-        notifySuccess("Address deleted successfully");
-      } else {
-        notifyError(response.message || "Failed to delete address");
-      }
-    } catch (error) {
-      console.error("Error deleting address:", error);
-      notifyError(error?.response?.data?.message || error?.message || "Failed to delete address");
-    }
-  };
-
   const totals = calculateTotals();
 
   return (
@@ -555,7 +499,7 @@ const Checkout = () => {
                               </div>
                             ) : (
                               <div className="bg-white border border-[#E6D1CB]/40 rounded-[20px] p-8 text-center shadow-sm">
-                                <p className="text-[#3B2A25]/60 mb-4">You don't have any saved addresses yet.</p>
+                                <p className="text-[#3B2A25]/60 mb-4">You don&apos;t have any saved addresses yet.</p>
                               </div>
                             );
                           })()}
@@ -916,6 +860,11 @@ const Checkout = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm sm:text-base font-bold text-[#3B2A25] truncate">{item.title}</h4>
+                            {item.color && (
+                              <p className="text-xs font-semibold text-emerald-700 mt-0.5">
+                                Color: {item.color}
+                              </p>
+                            )}
                             {item.variant && (
                               <p className="text-xs text-[#3B2A25]/60 mt-0.5">
                                 {typeof item.variant === "object"

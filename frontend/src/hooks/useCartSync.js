@@ -63,12 +63,13 @@ const useCartSync = () => {
           const product = cartItem.productId;
           if (!product || !product._id) return;
 
-          const id = product._id;
+          const color = cartItem.color;
+          const id = color ? `${product._id}-${color}` : product._id;
           const backendQty = cartItem.quantity || 1;
 
           const localItem = getItem(id);
           const hasVariantInCart = items.some((item) =>
-            String(item.id).startsWith(String(id) + "-")
+            String(item.id).startsWith(String(product._id) + "-")
           );
 
           if (localItem) {
@@ -76,29 +77,29 @@ const useCartSync = () => {
             if (backendQty > localItem.quantity) {
               itemsToProcess.push({ type: "update", id, quantity: backendQty });
             }
-          } else if (!hasVariantInCart) {
+          } else if (!hasVariantInCart || color) {
             const effectivePrice =
               product.prices?.price || product.prices?.originalPrice || 0;
+
+            const colorVar = color && Array.isArray(product.colorVariants)
+              ? product.colorVariants.find(cv => cv.colorName === color)
+              : null;
+            const effectiveStock = colorVar ? colorVar.stock : (product.stock !== undefined ? product.stock : undefined);
+            const effectiveImage = colorVar?.images?.[0] || (Array.isArray(product.image) ? product.image[0] : product.image || "");
+            const effectiveTitle = color ? `${product.title?.en || product.title || "Product"} - ${color}` : (product.title?.en || product.title || "Product");
 
             itemsToProcess.push({
               type: "add",
               item: {
                 id: id,
                 price: effectivePrice,
-                title: product.title?.en || product.title || "Product",
-                image: Array.isArray(product.image)
-                  ? product.image[0]
-                  : typeof product.image === "string"
-                    ? product.image
-                    : "",
+                title: effectiveTitle,
+                image: effectiveImage,
+                color: color || undefined,
                 quantity: backendQty,
                 slug: product.slug,
-                stock:
-                  product?.stock !== undefined
-                    ? product.stock
-                    : product?.variants && product.variants[0]
-                      ? product.variants[0].quantity
-                      : undefined,
+                stock: effectiveStock,
+                colorVariants: product.colorVariants || [],
               },
               quantity: backendQty,
             });
@@ -126,12 +127,17 @@ const useCartSync = () => {
         );
 
         const localOnlyItems = items.filter((localItem) => {
-          // Resolve db-compatible id (strip variant suffix if any)
           const rawId = String(localItem.id);
           const baseId = rawId.includes("-")
             ? rawId.slice(0, rawId.indexOf("-"))
             : rawId;
-          return !dbProductIds.has(baseId);
+          const color = localItem.color || null;
+          
+          return !backendCart.some(
+            (c) =>
+              c.productId?._id?.toString() === baseId &&
+              (color ? c.color === color : !c.color)
+          );
         });
 
         // Push each local-only item up to DB in parallel
@@ -145,7 +151,8 @@ const useCartSync = () => {
               return CustomerServices.addToCartDB(
                 userId,
                 baseId,
-                localItem.quantity
+                localItem.quantity,
+                localItem.color
               );
             })
           );
