@@ -10,14 +10,12 @@ import useTranslation from "next-translate/useTranslation";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 
 const MOBILE_CATEGORIES = [
-  { label: "Cotton Suits", slug: "cotton-suits" },
   { label: "Gaji Silk", slug: "gaji-silk" },
-  { label: "Kanjivaram Silk", slug: "kanjivaram-silk" },
+  { label: "Cotton Suits", slug: "cotton-suits" },
   { label: "Party Wear", slug: "party-wear" },
-  { label: "Bangalori Silk", slug: "bangalori-silk-pure" },
-  { label: "Muslin", slug: "muslin" },
-  { label: "Kota Doria", slug: "kota-doria" },
-  { label: "Applique Work", slug: "applique-work" },
+  { label: "Batik", slug: "batik" },
+  { label: "Bangalori Silk Pure", slug: "bangalori-silk-pure" },
+  { label: "Glace Cotton", slug: "glace-cotton" },
   { label: "New Arrivals", slug: "new-arrivals" },
 ];
 

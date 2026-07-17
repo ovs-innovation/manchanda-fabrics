@@ -3,7 +3,7 @@ const Setting = require("../models/Setting");
 const STORE_BRAND_NAME = "Manchanda Fabrics";
 
 const STORE_DEFAULT_ADDRESS =
-  "12-A, Krishna Market, Chandni Chowk, Delhi - 110006";
+  "12-A, Krishna Cloth Market, Chandni Chowk - 110006";
 
 const pickLang = (value, lang = "en") => {
   if (!value) return "";

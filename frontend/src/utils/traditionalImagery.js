@@ -33,14 +33,12 @@ export const LOCAL_BANNERS = {
 export const HERO_FALLBACK = LOCAL_BANNERS.appliqueSuit;
 
 export const HOME_CATEGORY_CARDS = [
-  { title: "Cotton Suits", image: traditionalPhoto("cottonSuitPastel", 600), slug: "cotton-suits" },
   { title: "Gaji Silk", image: LOCAL_BANNERS.gajiSilk, slug: "gaji-silk" },
-  { title: "Kanjivaram Silk", image: traditionalPhoto("festiveSuitRed", 600), slug: "kanjivaram-silk" },
-  { title: "Party Wear Suits", image: traditionalPhoto("anarkaliSuit", 600), slug: "party-wear-suits" },
-  { title: "Mul Cotton", image: LOCAL_BANNERS.mulCotton, slug: "mul-cotton" },
+  { title: "Cotton Suits", image: traditionalPhoto("cottonSuitPastel", 600), slug: "cotton-suits" },
+  { title: "Party Wear", image: traditionalPhoto("anarkaliSuit", 600), slug: "party-wear" },
+  { title: "Batik", image: "/Suit/s10.jpg", slug: "batik" },
   { title: "Bangalori Silk Pure", image: LOCAL_BANNERS.bangaloriSilk, slug: "bangalori-silk-pure" },
-  { title: "Muslin", image: traditionalPhoto("cottonFabric", 600), slug: "muslin" },
-  { title: "Kota Doria", image: traditionalPhoto("straightSuit", 600), slug: "kota-doria" },
+  { title: "Glace Cotton", image: "/Suit/s4.jpg", slug: "glace-cotton" },
 ];
 
 export const HOME_FESTIVALS = [
@@ -52,9 +50,9 @@ export const HOME_FESTIVALS = [
   },
   {
     name: "Mehendi",
-    slug: "applique-work",
-    tag: "Festive Greens",
-    bg: LOCAL_BANNERS.appliqueSuit,
+    slug: "batik",
+    tag: "Artistic Prints",
+    bg: "/Suit/s10.jpg",
   },
   {
     name: "Wedding",
@@ -78,9 +76,9 @@ export const HOME_FESTIVALS = [
 
 export const HOME_PREMIUM_COLLECTIONS = [
   {
-    title: "Kanjivaram Silk Suits",
-    desc: "Pure zari straight suits inspired by South Indian heritage",
-    slug: "kanjivaram-silk",
+    title: "Gaji Silk",
+    desc: "Premium Gaji Silk sarees and suits with heritage weaves",
+    slug: "gaji-silk",
     bg: traditionalPhoto("festiveSuitRed", 800),
   },
   {
@@ -90,16 +88,16 @@ export const HOME_PREMIUM_COLLECTIONS = [
     bg: traditionalPhoto("embroideredSuit", 800),
   },
   {
-    title: "Kota Doria Suits",
-    desc: "Lightweight summer suit sets from Rajasthan weaves",
-    slug: "kota-doria",
-    bg: traditionalPhoto("straightSuit", 800),
+    title: "Cotton Suits",
+    desc: "Breathable and elegant premium cotton suit sets",
+    slug: "cotton-suits",
+    bg: traditionalPhoto("cottonSuitPastel", 800),
   },
   {
-    title: "Jamdani Cotton Sets",
-    desc: "Handwoven motifs on breathable cotton suit fabrics",
-    slug: "jamdani-cotton",
-    bg: traditionalPhoto("cottonFabric", 800),
+    title: "Glace Cotton",
+    desc: "Shiny and premium Glace Cotton suits",
+    slug: "glace-cotton",
+    bg: traditionalPhoto("straightSuit", 800),
   },
 ];
 
@@ -124,25 +122,25 @@ export const CATEGORY_DEPT_CARDS = [
     title: "Straight Suit Sets",
     description: "Biba-style straight kurta, palazzo & dupatta sets.",
     image: traditionalPhoto("straightSuit", 400),
-    searchQuery: "suits",
+    searchQuery: "cotton-suits",
   },
   {
     title: "Anarkali Suits",
     description: "Flowing anarkali sets for weddings & celebrations.",
     image: traditionalPhoto("anarkaliSuit", 400),
-    searchQuery: "party-wear-suits",
+    searchQuery: "party-wear",
   },
   {
     title: "Festive Suit Sets",
     description: "Embroidered salwar suits for every occasion.",
     image: traditionalPhoto("festiveSuitRed", 400),
-    searchQuery: "party-wear-suits",
+    searchQuery: "party-wear",
   },
   {
     title: "Unstitched Fabrics",
     description: "Premium cotton, silk & muslin for custom tailoring.",
     image: traditionalPhoto("fabricWeave", 400),
-    searchQuery: "fabrics",
+    searchQuery: "gaji-silk",
   },
 ];
 
@@ -151,7 +149,7 @@ export const SLIDER_DEFAULTS = [
     img: traditionalPhoto("anarkaliSuit", 1200),
     title: "Festive Suit Collection",
     subtitle: "Straight & anarkali sets for every celebration",
-    link: "/search?category=party-wear-suits",
+    link: "/search?category=party-wear",
   },
   {
     img: traditionalPhoto("cottonSuitPastel", 1200),

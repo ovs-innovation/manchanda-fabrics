@@ -7,19 +7,14 @@ import useTranslation from "next-translate/useTranslation";
 
 const CATALOG_CATEGORIES = [
   {
-    label: "Cotton Suits",
-    slug: "cotton-suits",
-    desc: "Light, breathable summer elegance",
-  },
-  {
     label: "Gaji Silk",
     slug: "gaji-silk",
     desc: "Smooth drape with luxurious sheen",
   },
   {
-    label: "Kanjivaram Silk",
-    slug: "kanjivaram-silk",
-    desc: "South India's heritage weave",
+    label: "Cotton Suits",
+    slug: "cotton-suits",
+    desc: "Light, breathable summer elegance",
   },
   {
     label: "Party Wear",
@@ -27,24 +22,19 @@ const CATALOG_CATEGORIES = [
     desc: "Glamour for every celebration",
   },
   {
-    label: "Bangalori Silk",
+    label: "Batik",
+    slug: "batik",
+    desc: "Artistic Batik print suits",
+  },
+  {
+    label: "Bangalori Silk Pure",
     slug: "bangalori-silk-pure",
     desc: "Rich resham embroidery & borders",
   },
   {
-    label: "Muslin",
-    slug: "muslin",
-    desc: "Airy fine-thread luxury cotton",
-  },
-  {
-    label: "Kota Doria",
-    slug: "kota-doria",
-    desc: "Rajasthan's timeless light weave",
-  },
-  {
-    label: "Applique Work",
-    slug: "applique-work",
-    desc: "Handcrafted artisan embellishments",
+    label: "Glace Cotton",
+    slug: "glace-cotton",
+    desc: "Shiny and premium Glace Cotton suits",
   },
 ];
 

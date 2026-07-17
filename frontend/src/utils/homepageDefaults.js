@@ -50,10 +50,10 @@ export const DEFAULT_HOMEPAGE = {
     copyrightName: "VastoraTech",
     copyrightUrl: "https://vastoratech.com/",
     collectionLinks: [
-      { title: "Cotton Suits", href: "/collections/cotton-suits" },
       { title: "Gaji Silk", href: "/collections/gaji-silk" },
-      { title: "Kanjivaram Silk", href: "/collections/kanjivaram-silk" },
+      { title: "Cotton Suits", href: "/collections/cotton-suits" },
       { title: "Party Wear", href: "/collections/party-wear" },
+      { title: "Batik", href: "/collections/batik" },
     ],
     quickLinks: [
       { title: "About Us", href: "/about-us" },
@@ -63,10 +63,8 @@ export const DEFAULT_HOMEPAGE = {
       { title: "Contact us", href: "/contact-us" },
     ],
     specialCollection: [
-      { title: "Bangalori Silk", href: "/collections/bangalori-silk-pure" },
-      { title: "Muslin", href: "/collections/muslin" },
-      { title: "Kota Doria", href: "/collections/kota-doria" },
-      { title: "Applique Work", href: "/collections/applique-work" },
+      { title: "Bangalori Silk Pure", href: "/collections/bangalori-silk-pure" },
+      { title: "Glace Cotton", href: "/collections/glace-cotton" },
     ],
   },
   whatsappNumbers: ["919891595929"],

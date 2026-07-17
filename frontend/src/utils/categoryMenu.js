@@ -36,26 +36,12 @@ export const buildMobileCategoryMenu = (categories, showingTranslateValue) => {
   if (!flat.length) return [];
 
   const allowedSlugs = [
-    "cotton-suits",
     "gaji-silk",
-    "kanjivaram-silk",
+    "cotton-suits",
     "party-wear",
-    "mul-cotton",
-    "bangalori-silk-pure",
-    "muslin",
-    "kota-doria",
-    "bandhani",
     "batik",
-    "georgette",
-    "organza",
-    "crepe",
-    "jamdani-cotton",
-    "linen-cotton",
-    "glace-cotton",
-    "modal",
-    "applique-work",
-    "crush-tissue",
-    "pakistani-style-suits"
+    "bangalori-silk-pure",
+    "glace-cotton"
   ];
 
   // Filter categories whose slug is allowed

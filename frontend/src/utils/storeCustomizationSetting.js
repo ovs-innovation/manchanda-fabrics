@@ -314,8 +314,8 @@ export const storeCustomization = {
       de: "Rufen Sie uns an",
     },
     call_box_phone: {
-      en: "029-00124667",
-      de: "029-00124667",
+      en: "+91-9891595929",
+      de: "+91-9891595929",
     },
     call_box_text: {
       en: "Distinctively disseminate focused solutions clicks-and-mortar ministate. ",
@@ -326,8 +326,8 @@ export const storeCustomization = {
       de: "Visit Us",
     },
     address_box_address_one: {
-      en: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006",
-      de: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006",
+      en: "12-A, Krishna Cloth Market, Chandni Chowk - 110006",
+      de: "12-A, Krishna Cloth Market, Chandni Chowk - 110006",
     },
     address_box_address_two: {
       en: "",

@@ -32,8 +32,11 @@ const Search = ({ products, attributes }) => {
   const { count: wishlistCount } = useWishlist();
   const isSidebarAction = useRef(false);
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setIsLoading(false);
+    setMounted(true);
   }, [products, setIsLoading]);
 
   // Maintain local products state so we can refetch when query params change (category/_id etc.)
@@ -391,7 +394,7 @@ const Search = ({ products, attributes }) => {
               </button>
               <button onClick={() => router.push("/wishlist")} className="relative">
                 <FiHeart size={22} />
-                {wishlistCount > 0 && (
+                {mounted && wishlistCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                     {wishlistCount}
                   </span>
@@ -399,7 +402,7 @@ const Search = ({ products, attributes }) => {
               </button>
               <button onClick={() => router.push("/cart")} className="relative">
                 <FiShoppingCart size={22} />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                     {totalItems}
                   </span>

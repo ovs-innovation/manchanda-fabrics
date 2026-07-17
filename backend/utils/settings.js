@@ -338,8 +338,8 @@ const setting = [
           de: "Rufen Sie uns an",
         },
         call_box_phone: {
-          en: "029-00124667",
-          de: "029-00124667",
+          en: "+91-9891595929",
+          de: "+91-9891595929",
         },
         call_box_text: {
           en: "Distinctively disseminate focused solutions clicks-and-mortar ministate. ",

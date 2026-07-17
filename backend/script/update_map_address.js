@@ -18,8 +18,8 @@ async function run() {
   const contact_us = {
     ...doc.setting?.contact_us,
     address_box_address_one: {
-      en: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006",
-      de: "12, Katra Neel Rd, New Krishna Cloth Market, Kucha Ghasiram, Chandni Chowk, Delhi - 110006"
+      en: "12-A, Krishna Cloth Market, Chandni Chowk - 110006",
+      de: "12-A, Krishna Cloth Market, Chandni Chowk - 110006"
     }
   };
 
