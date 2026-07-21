@@ -72,8 +72,8 @@ const Navbar = () => {
               <img
                 src={logo}
                 alt="MANCHANDA FABRICS"
-                className="w-auto object-contain"
-                style={{ height: "clamp(58px, calc(3vw + 46px), 72px)" }}
+                className="w-auto max-w-[165px] xs:max-w-[180px] object-contain drop-shadow-sm"
+                style={{ height: "clamp(60px, calc(4vw + 44px), 72px)" }}
                 draggable="false"
               />
             </Link>

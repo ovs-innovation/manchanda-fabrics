@@ -30,7 +30,7 @@ const normalizePricesPayload = (prices = {}) => {
   const originalPrice = Math.max(0, Number(prices.originalPrice) || 0);
   const discount = Math.max(0, Number(prices.discount) || 0);
   const discountType = prices.discountType || "flat";
-  
+
   // If salePrice is explicitly provided and valid, prioritize it as the final customer-facing price
   const salePriceVal = Number(prices.salePrice);
   const explicitPrice = (Number.isFinite(salePriceVal) && salePriceVal > 0)
@@ -61,10 +61,10 @@ const normalizePricesPayload = (prices = {}) => {
 
 const flattenVariants = (variants) => {
   if (!Array.isArray(variants) || variants.length === 0) return [];
-  
+
   const isNested = variants.some(v => v && typeof v === "object" && (Array.isArray(v.sizes) || v.sizes));
   if (!isNested) return variants;
-  
+
   const flat = [];
   variants.forEach((colorVar) => {
     if (!colorVar) return;
@@ -74,7 +74,7 @@ const flattenVariants = (variants) => {
     const basePrice = colorVar.price;
     const baseOriginalPrice = colorVar.originalPrice;
     const baseSku = colorVar.sku || "";
-    
+
     const sizes = colorVar.sizes || [];
     sizes.forEach((sizeVar) => {
       if (!sizeVar) return;
@@ -83,7 +83,7 @@ const flattenVariants = (variants) => {
       const sku = sizeVar.sku || (baseSku ? `${baseSku}-${size.replace(/\s+/g, "")}` : "");
       const price = typeof sizeVar.price === "number" ? sizeVar.price : basePrice;
       const originalPrice = typeof sizeVar.originalPrice === "number" ? sizeVar.originalPrice : baseOriginalPrice;
-      
+
       flat.push({
         _id: sizeVar._id || `v-${color.toLowerCase()}-${size.replace(/\s+/g, "").toLowerCase()}`,
         color: color,
@@ -983,7 +983,10 @@ const getShowingStoreProducts = async (req, res) => {
 
       manchandaHomepagePayload = {
         heroVideo: homepageSettings.heroVideo || "/main.mp4",
-        heroWelcome: homepageSettings.heroWelcome || "Welcome",
+        heroWelcome:
+          !homepageSettings.heroWelcome || homepageSettings.heroWelcome === "Welcome"
+            ? "Welcome to"
+            : homepageSettings.heroWelcome,
         heroBrandName: homepageSettings.heroBrandName || "Manchanda Fabrics",
         heroTagline: homepageSettings.heroTagline || "",
         heroCtaText: homepageSettings.heroCtaText || "Explore Latest Collections",

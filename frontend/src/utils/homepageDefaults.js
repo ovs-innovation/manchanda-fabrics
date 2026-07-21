@@ -1,6 +1,6 @@
 export const DEFAULT_HOMEPAGE = {
   heroVideo: "/main1.mp4",
-  heroWelcome: "Welcome",
+  heroWelcome: "Welcome to",
   heroBrandName: "Manchanda Fabrics",
   heroTagline: "Luxury Indian Ethnic Boutique",
   heroCtaText: "Explore Latest Collections",

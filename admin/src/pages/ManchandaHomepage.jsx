@@ -488,11 +488,10 @@ const ManchandaHomepage = () => {
               <Link
                 key={tab.key}
                 to={tab.path}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  active
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${active
                     ? "bg-store-500 text-white"
                     : "text-store-700/80 hover:bg-store-100 dark:text-store-200/80 dark:hover:bg-store-800/40"
-                }`}
+                  }`}
               >
                 <Icon /> {tab.label}
               </Link>
