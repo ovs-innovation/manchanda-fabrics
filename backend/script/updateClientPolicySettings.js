@@ -42,24 +42,16 @@ const run = async () => {
     // 2. Refund & Return Policy
     customSet.setting.refund_return_policy = {
       title: { en: "Return & Refund Policy" },
-      description: { en: `<p>We do not offer returns, refunds, or exchanges for change of mind, sizing concerns, or personal preferences.</p>
-<p>Exchanges will only be considered if:</p>
+      description: { en: `<p style="background-color: #fbf2f2; border-left: 4px solid #B0322F; padding: 16px 20px; font-weight: 600; color: #2c2320; border-radius: 4px; font-size: 1.05rem; margin-bottom: 1.5rem;">All sales are final. We do not provide any return, refund, or exchange under any circumstances.</p>
+<h2>Return & Exchange Policy</h2>
+<p>At Manchanda Fabrics, every article is carefully checked by our team for defects before it is packed and shipped. Please read our policy below before placing your order.</p>
 <ul>
-  <li>You receive the wrong item</li>
-  <li>The item is damaged</li>
-  <li>The sizing is wrong</li>
+  <li>Orders cannot be cancelled, returned, or exchanged once they have been placed.</li>
+  <li>We have a proper team that checks for defects and handles packaging, so we make sure there is no defect in our articles.</li>
 </ul>
-<p>If this is the case, an unboxing video is mandatory.</p>
-<p><strong>*Important Unboxing Instructions*</strong></p>
-<p>A clear, continuous unboxing video is mandatory for all claims. The video must show the sealed package being opened from start to finish in a single recording.</p>
-<p>Please note:</p>
-<ul>
-  <li>Claims must be reported within 3 days of delivery</li>
-  <li>Requests without a valid unboxing video will not be accepted</li>
-  <li>Edited, cut, or pre-opened package videos will be rejected</li>
-</ul>
-<p>If a claim is approved, the product will be exchanged only for the same model. No refunds or exchanges for different products will be provided.</p>
-<p>All claims are subject to verification and approval by our team.</p>` }
+<p>Kindly check your suit size and product details carefully before ordering.</p>
+<h2>Need Help?</h2>
+<p>If you have any questions before placing your order, please contact us on WhatsApp or through our Contact page. We are always happy to help you choose the right product.</p>` }
     };
 
     // 3. Shipping & Delivery Policy

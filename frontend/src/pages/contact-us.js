@@ -10,6 +10,7 @@ import {
   FiMapPin,
   FiClock,
   FiSend,
+  FiUser,
 } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram, FaFacebookF, FaUsers } from "react-icons/fa";
 
@@ -134,11 +135,20 @@ export default function ContactUs() {
 
   const CONTACT_INFO = [
     {
+      icon: <FiUser className="text-2xl" />,
+      title: "Contact Person",
+      value: "Pradeep Kumar Manchanda",
+      sub: "Founder & Proprietor",
+      href: null,
+      breakAll: false,
+    },
+    {
       icon: <FiPhone className="text-2xl" />,
       title: showingTranslateValue(contact?.call_box_title) || "Call / WhatsApp",
       value: phone,
       sub: showingTranslateValue(contact?.call_box_text) || "Mon–Sat, 11 AM – 8 PM",
       href: `tel:${phone.replace(/\s/g, "")}`,
+      breakAll: false,
     },
     {
       icon: <FiMail className="text-2xl" />,
@@ -146,6 +156,7 @@ export default function ContactUs() {
       value: email,
       sub: "We reply within 24 hours",
       href: `mailto:${email.trim()}`,
+      breakAll: true,
     },
     {
       icon: <FiMapPin className="text-2xl" />,
@@ -153,6 +164,7 @@ export default function ContactUs() {
       value: address,
       sub: "Tap for Google Maps directions",
       href: MAPS_URL,
+      breakAll: false,
     },
     {
       icon: <FiClock className="text-2xl" />,
@@ -160,6 +172,7 @@ export default function ContactUs() {
       value: "Mon – Sat: 11 AM – 8 PM",
       sub: "Sunday: Closed",
       href: null,
+      breakAll: false,
     },
   ];
   const [formState, setFormState] = React.useState({
@@ -205,23 +218,27 @@ export default function ContactUs() {
             {t("contact-page-title")}
           </h1>
           <div className="h-[2px] w-16 bg-[#E6D1CB] mx-auto mb-7" />
-          <p className="text-white/75 text-base lg:text-lg max-w-2xl mx-auto leading-relaxed font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
+          <p className="text-white/75 text-base lg:text-lg max-w-2xl mx-auto leading-relaxed font-light mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
             {t("Have a question about our sarees, suits, or fabrics? We're here to help you find your perfect ethnic ensemble.")}
           </p>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
+            <span>Contact Person:</span>
+            <span className="font-semibold text-white">Pradeep Kumar Manchanda</span>
+          </div>
         </div>
       </section>
 
       {/* Contact Cards */}
       <section className="py-28 lg:py-36 bg-[#FAF7F5]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
           {CONTACT_INFO.map((info, i) => {
             const card = (
-              <div className="flex flex-col items-center text-center px-5 py-8 lg:px-6 lg:py-10 bg-white border border-[#E6D1CB] rounded-2xl shadow-sm group hover:border-[#9C6A5A]/60 hover:shadow-lg hover:-translate-y-1 transform duration-300 h-full w-full" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <div className="flex flex-col items-center text-center px-4 py-8 lg:px-5 lg:py-10 bg-white border border-[#E6D1CB] rounded-2xl shadow-sm group hover:border-[#9C6A5A]/60 hover:shadow-lg hover:-translate-y-1 transform duration-300 h-full w-full" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 <div className="w-16 h-16 rounded-full bg-[#FAF7F5] border border-[#E6D1CB] flex items-center justify-center text-[#9C6A5A] mb-4 group-hover:bg-[#9C6A5A] group-hover:text-white transition-all duration-300">
                   {info.icon}
                 </div>
                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#9C6A5A] mb-1.5">{info.title}</h3>
-                <p className="text-base lg:text-lg font-semibold text-[#3B2A25] leading-snug break-all">{info.value}</p>
+                <p className={`text-sm sm:text-base font-semibold text-[#3B2A25] leading-snug max-w-full px-1 ${info.breakAll ? "break-all [overflow-wrap:anywhere]" : "break-words [word-break:normal]"}`}>{info.value}</p>
                 <p className="text-xs text-[#3B2A25]/55 mt-1.5">{info.sub}</p>
               </div>
             );
