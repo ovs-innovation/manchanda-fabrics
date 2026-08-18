@@ -24,7 +24,7 @@ const FounderStory = ({ founder: founderProp }) => {
   };
 
   // Use dynamic images from setting if available (and not Unsplash saree images), otherwise fall back to local premium suit images
-  const mainImageSrc = "/Family/family 2.jpeg";
+  const mainImageSrc = "/Family/family_2.jpeg";
   const secondaryImageSrc = "/Family/Family_1.jpg";
 
   return (
@@ -32,11 +32,10 @@ const FounderStory = ({ founder: founderProp }) => {
       <div className="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={fadeUp}
-            custom={0}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.05 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative lg:col-span-7"
           >
             <div className="relative aspect-[3/2] overflow-hidden shadow-2xl">
@@ -67,11 +66,10 @@ const FounderStory = ({ founder: founderProp }) => {
           </motion.div>
 
           <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={fadeUp}
-            custom={0.2}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.05 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
             className="lg:col-span-5 flex flex-col justify-center space-y-8 lg:pl-4 mt-10 lg:mt-0"
           >
             <span

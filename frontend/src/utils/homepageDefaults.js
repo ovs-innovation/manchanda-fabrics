@@ -89,41 +89,42 @@ export const DEFAULT_HOMEPAGE = {
 };
 
 export function mergeHomepage(apiData = {}) {
+  const safeData = apiData && typeof apiData === "object" ? apiData : {};
   return {
     ...DEFAULT_HOMEPAGE,
-    ...apiData,
-    founder: { ...DEFAULT_HOMEPAGE.founder, ...(apiData.founder || {}) },
+    ...safeData,
+    founder: { ...DEFAULT_HOMEPAGE.founder, ...(safeData.founder || {}) },
     footer: {
       ...DEFAULT_HOMEPAGE.footer,
-      ...(apiData.footer || {}),
+      ...(safeData.footer || {}),
       collectionLinks:
-        Array.isArray(apiData.footer?.collectionLinks) && apiData.footer.collectionLinks.length > 0
-          ? apiData.footer.collectionLinks
+        Array.isArray(safeData.footer?.collectionLinks) && safeData.footer.collectionLinks.length > 0
+          ? safeData.footer.collectionLinks
           : DEFAULT_HOMEPAGE.footer.collectionLinks,
       quickLinks:
-        Array.isArray(apiData.footer?.quickLinks) && apiData.footer.quickLinks.length > 0
-          ? apiData.footer.quickLinks
+        Array.isArray(safeData.footer?.quickLinks) && safeData.footer.quickLinks.length > 0
+          ? safeData.footer.quickLinks
           : DEFAULT_HOMEPAGE.footer.quickLinks,
       specialCollection:
-        Array.isArray(apiData.footer?.specialCollection) && apiData.footer.specialCollection.length > 0
-          ? apiData.footer.specialCollection
+        Array.isArray(safeData.footer?.specialCollection) && safeData.footer.specialCollection.length > 0
+          ? safeData.footer.specialCollection
           : DEFAULT_HOMEPAGE.footer.specialCollection,
     },
     videoShopping: {
       ...DEFAULT_HOMEPAGE.videoShopping,
-      ...(apiData.videoShopping || {}),
+      ...(safeData.videoShopping || {}),
     },
     stores:
-      Array.isArray(apiData.stores) && apiData.stores.length > 0
-        ? apiData.stores
+      Array.isArray(safeData.stores) && safeData.stores.length > 0
+        ? safeData.stores
         : DEFAULT_HOMEPAGE.stores,
     whatsappNumbers:
-      Array.isArray(apiData.whatsappNumbers) && apiData.whatsappNumbers.length > 0
-        ? apiData.whatsappNumbers
+      Array.isArray(safeData.whatsappNumbers) && safeData.whatsappNumbers.length > 0
+        ? safeData.whatsappNumbers
         : DEFAULT_HOMEPAGE.whatsappNumbers,
     marqueePhrases:
-      Array.isArray(apiData.marqueePhrases) && apiData.marqueePhrases.length > 0
-        ? apiData.marqueePhrases
+      Array.isArray(safeData.marqueePhrases) && safeData.marqueePhrases.length > 0
+        ? safeData.marqueePhrases
         : DEFAULT_HOMEPAGE.marqueePhrases,
   };
 }

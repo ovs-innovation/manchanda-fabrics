@@ -1,20 +1,28 @@
 require("./env");
 const mongoose = require("mongoose");
 
+const dns = require("dns");
+
 const connectDB = async () => {
   try {
     if (!process.env.MONGO_URI) {
       throw new Error("MONGO_URI is not defined in environment variables. Please set MONGO_URI in your .env file.");
+    }
+
+    // Set fallback public DNS servers for reliable mongodb+srv:// SRV record resolution
+    try {
+      dns.setServers(["8.8.8.8", "1.1.1.1"]);
+    } catch (e) {
+      // Ignore if setServers is not supported in environment
     }
     
     // Cleanup URI (remove any trailing spaces or hidden characters)
     const mongoUri = process.env.MONGO_URI.trim();
 
     await mongoose.connect(mongoUri, {
-      useFindAndModify: false,
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
+      serverSelectionTimeoutMS: 10000,
     });
     console.log("✅ MongoDB Connected Successfully!");
   } catch (err) {

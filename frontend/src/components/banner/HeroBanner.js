@@ -57,7 +57,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
   return (
     <div
       id="hero-section"
-      className="relative w-full h-[75vh] min-h-[480px] max-h-[640px] md:h-screen md:min-h-[600px] md:max-h-none bg-[#111111] overflow-hidden flex items-center justify-center"
+      className="relative w-full h-[48vh] min-h-[320px] max-h-[440px] md:h-screen md:min-h-[600px] bg-[#111111] overflow-hidden flex items-center justify-center"
     >
       {/* ── 1. DESKTOP VIDEO (Hidden on mobile, block on md+) ── */}
       <video
@@ -73,47 +73,19 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         src={desktopVideo}
       />
 
-      {/* ── 2. MOBILE HERO VIDEO (Responsive video switching) ── */}
-      {mobileVideo ? (
-        /* Dedicated 9:16 Portrait Mobile Video (object-cover) */
-        <video
-          ref={mobileVideoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          onLoadedMetadata={handleMobileMetadata}
-          onTimeUpdate={handleMobileTimeUpdate}
-          className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
-          src={mobileVideo}
-        />
-      ) : (
-        /* Fallback for Landscape Video: object-contain over blurred background so branding is 100% uncropped */
-        <div className="block md:hidden absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover object-center blur-2xl opacity-60 scale-110"
-            src={desktopVideo}
-          />
-          <video
-            ref={mobileVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            onLoadedMetadata={handleMobileMetadata}
-            onTimeUpdate={handleMobileTimeUpdate}
-            className="relative w-full h-full object-contain object-center z-[1]"
-            src={desktopVideo}
-          />
-        </div>
-      )}
+      {/* ── 2. MOBILE HERO VIDEO (Full zoom object-cover — no black empty space) ── */}
+      <video
+        ref={mobileVideoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        onLoadedMetadata={handleMobileMetadata}
+        onTimeUpdate={handleMobileTimeUpdate}
+        className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
+        src={mobileVideo || desktopVideo}
+      />
 
       {/* ── 3. DARK OVERLAY FOR READABILITY ── */}
       <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/70 via-black/55 to-black/75 pointer-events-none" />
