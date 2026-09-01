@@ -1,4 +1,4 @@
-import useUtilsFunction from "@hooks/useUtilsFunction";
+import useUtilsFunction, { formatPrice } from "@hooks/useUtilsFunction";
 
 const Price = ({
   product,
@@ -10,8 +10,11 @@ const Price = ({
   showTaxLabel,
   hideDiscountAndMRP = false,
 }) => {
-  // console.log("price", price, "originalPrice", originalPrice, "card", card);
-  const { getNumberTwo } = useUtilsFunction();
+  const { currency: defaultCurrency } = useUtilsFunction();
+  const rawCurr = currency || defaultCurrency;
+  const effectiveCurrency =
+    rawCurr && rawCurr !== "$" && rawCurr !== "USD" ? rawCurr : "₹";
+
   const taxRateValue = Number(product?.taxRate ?? 0);
   const shouldShowTax =
     typeof showTaxLabel === "boolean" ? showTaxLabel : !card;
@@ -22,31 +25,36 @@ const Price = ({
     : "";
 
   // Get discount percentage from prop or product
-  // Show discount as percentage, not as amount (without decimals)
   let discountPercentage = 0;
   
   if (discount && discount > 0) {
-    // If discount is percentage (<= 100), use it directly
-    // If discount > 100, it might be amount, convert to percentage
     if (discount <= 100) {
       discountPercentage = Math.round(discount);
     } else if (originalPrice > 0) {
-      // It's an amount, convert to percentage and round
       discountPercentage = Math.round((discount / originalPrice) * 100);
     }
   } else if (product?.prices?.discount) {
-    // Fallback to product discount if discount prop is not available
     const productDiscount = Number(product.prices.discount);
     if (productDiscount > 0 && productDiscount <= 100) {
       discountPercentage = Math.round(productDiscount);
     } else if (productDiscount > 100 && originalPrice > 0) {
-      // It's an amount, convert to percentage and round
       discountPercentage = Math.round((productDiscount / originalPrice) * 100);
     }
   }
 
   // Use passed `price` prop if provided, otherwise fallback to product prices
-  const effectivePrice = Math.max(0, typeof price === 'number' && !Number.isNaN(price) ? price : Number(product?.prices?.price || 0));
+  const effectivePrice = Math.max(
+    0,
+    typeof price === "number" && !Number.isNaN(price)
+      ? price
+      : Number(product?.prices?.price || 0)
+  );
+  const effectiveOriginalPrice = Math.max(
+    0,
+    typeof originalPrice === "number" && !Number.isNaN(originalPrice)
+      ? originalPrice
+      : Number(product?.prices?.originalPrice || 0)
+  );
 
   return (
     <div className="font-serif product-price font-bold">
@@ -59,10 +67,10 @@ const Price = ({
                 : "inline-block text-2xl"
             }
           >
-            {currency}
-            {getNumberTwo(Math.max(0, price))}
+            {effectiveCurrency}
+            {formatPrice(Math.max(0, price))}
           </span>
-          {(!hideDiscountAndMRP && originalPrice > price) ? (
+          {!hideDiscountAndMRP && effectiveOriginalPrice > price ? (
             <>
               <del
                 className={
@@ -71,8 +79,8 @@ const Price = ({
                     : "text-lg font-normal text-gray-400 ml-1"
                 }
               >
-                {currency}
-                {getNumberTwo(originalPrice)}
+                {effectiveCurrency}
+                {formatPrice(effectiveOriginalPrice)}
               </del>
               <span
                 className={
@@ -95,10 +103,10 @@ const Price = ({
                 : "inline-block text-2xl"
             }
           >
-            {currency}
-            {getNumberTwo(effectivePrice)}
+            {effectiveCurrency}
+            {formatPrice(effectivePrice)}
           </span>
-          {(!hideDiscountAndMRP && originalPrice > effectivePrice) ? (
+          {!hideDiscountAndMRP && effectiveOriginalPrice > effectivePrice ? (
             <>
               <del
                 className={
@@ -107,8 +115,8 @@ const Price = ({
                     : "text-lg font-normal text-gray-400 ml-1"
                 }
               >
-                {currency}
-                {getNumberTwo(originalPrice)}
+                {effectiveCurrency}
+                {formatPrice(effectiveOriginalPrice)}
               </del>
               <span
                 className={

@@ -14,8 +14,8 @@ const formatInr = (value) => {
   const n = Number(value || 0);
   if (!Number.isFinite(n) || n <= 0) return null;
   return n.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: n % 1 === 0 ? 0 : 2,
   });
 };
 

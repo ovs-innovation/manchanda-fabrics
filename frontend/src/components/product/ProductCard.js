@@ -58,10 +58,8 @@ const ProductCard = ({
   const { addItem, updateItemQuantity, inCart, getItem } = useCart();
   const { handleIncreaseQuantity } = useAddToCart();
   const { globalSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const { showingTranslateValue, currency } = useUtilsFunction();
   const router = useRouter();
-
-  const currency = globalSetting?.default_currency || "₹";
 
   const sizeAttribute = attributes?.find(
     (att) =>

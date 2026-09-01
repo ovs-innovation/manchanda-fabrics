@@ -7,14 +7,19 @@ import Image from "next/image";
 //internal import
 import useAddToCart from "@hooks/useAddToCart";
 import useCartDB from "@hooks/useCartDB";
+import useUtilsFunction, { formatPrice } from "@hooks/useUtilsFunction";
 import { SidebarContext } from "@context/SidebarContext";
 import { notifyError } from "@utils/toast";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
-const CartItem = ({ item, currency = "₹" }) => {
+const CartItem = ({ item, currency: propCurrency }) => {
   const { closeCartDrawer } = useContext(SidebarContext);
   const { handleIncreaseQuantity } = useAddToCart();
   const { updateQuantityWithDB, removeItemWithDB } = useCartDB();
+  const { currency: defaultCurrency } = useUtilsFunction();
+  const rawCurr = propCurrency || defaultCurrency;
+  const currency =
+    rawCurr && rawCurr !== "$" && rawCurr !== "USD" ? rawCurr : "₹";
 
   // Calculate MRP and discount - Check multiple possible price fields
   const originalPrice =
@@ -26,7 +31,7 @@ const CartItem = ({ item, currency = "₹" }) => {
   const discount = originalPrice > currentPrice ? originalPrice - currentPrice : 0;
   const discountPercentage =
     originalPrice > currentPrice
-      ? ((discount / originalPrice) * 100).toFixed(0)
+      ? Math.round((discount / originalPrice) * 100)
       : 0;
 
   const handleDecrease = async () => {
@@ -38,6 +43,13 @@ const CartItem = ({ item, currency = "₹" }) => {
   };
 
   /**
+   * Increase quantity handler - checks stock before increasing
+   */
+  const handleIncrease = async () => {
+    handleIncreaseQuantity(item);
+  };
+
+  /**
    * Handle remove — removes from local cart + DB.
    */
   const handleRemove = async () => {
@@ -45,38 +57,39 @@ const CartItem = ({ item, currency = "₹" }) => {
   };
 
   return (
-    <div className="group w-full h-auto flex justify-start items-start bg-white py-4 px-4 mb-3 rounded-xl border border-gray-200 hover:border-emerald-300 shadow-md hover:shadow-xl transition-all duration-300 relative">
-      {/* Enhanced Image Container */}
-      <div className="relative flex rounded-xl border-2 border-gray-100 shadow-sm hover:shadow-md overflow-hidden flex-shrink-0 cursor-pointer mr-4 transition-all duration-300 group-hover:border-emerald-200 bg-gray-50">
+    <div className="flex gap-4 p-4 border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+      {/* Product Image */}
+      <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
         <Image
-          key={item.id}
           src={
             (Array.isArray(item.image) ? item.image[0] : item.image) ||
             (Array.isArray(item.images) ? item.images[0] : item.images) ||
             PRODUCT_PLACEHOLDER
           }
-          width={70}
-          height={70}
-          alt={item.title}
-          className="object-cover"
+          alt={item.title || "Product"}
+          layout="fill"
+          objectFit="cover"
+          className="hover:scale-105 transition-transform duration-200"
         />
       </div>
 
-      {/* Content Section */}
-      <div className="flex flex-col w-full overflow-hidden flex-1">
-        {/* Product Title */}
+      {/* Product Details */}
+      <div className="flex flex-col flex-grow min-w-0">
+        {/* Title */}
         <Link
-          href={`/product/${item.slug || item.id || item._id}`}
+          href={`/product/${item.slug || item.id}`}
           onClick={closeCartDrawer}
-          className="truncate text-sm md:text-base font-semibold text-gray-800 hover:text-emerald-600 transition-colors duration-200 line-clamp-2 mb-1.5"
+          className="text-sm font-medium text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1 mb-1"
         >
           {item.title}
         </Link>
 
-        {item.color && (
-          <p className="text-xs text-gray-600 mb-1 flex items-center gap-1 font-medium">
-            <span>Color:</span>
-            <span className="font-semibold text-neutral-800">{item.color}</span>
+        {/* Variant Info */}
+        {item.variant && (
+          <p className="text-xs text-gray-500 mb-1">
+            {typeof item.variant === "object"
+              ? Object.values(item.variant).filter(Boolean).join(", ")
+              : item.variant}
           </p>
         )}
 
@@ -84,7 +97,7 @@ const CartItem = ({ item, currency = "₹" }) => {
         {originalPrice > currentPrice && (
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs text-gray-500 line-through font-medium">
-              MRP: {currency}{originalPrice.toFixed(2)}
+              MRP: {currency}{formatPrice(originalPrice)}
             </span>
             <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
               {discountPercentage}% OFF
@@ -96,7 +109,7 @@ const CartItem = ({ item, currency = "₹" }) => {
         <span className="text-xs text-gray-500 mb-2 font-medium">
             Unit Price:{" "}
             <span className="text-emerald-600 font-semibold">
-            {currency}{item.price.toFixed(2)}
+            {currency}{formatPrice(item.price)}
           </span>
         </span>
 
@@ -106,7 +119,7 @@ const CartItem = ({ item, currency = "₹" }) => {
           <div className="flex flex-col">
             <span className="text-xs text-gray-500 font-medium">Total</span>
             <span className="font-bold text-base md:text-lg text-gray-900 leading-tight">
-              {currency}{(item.price * item.quantity).toFixed(2)}
+              {currency}{formatPrice(item.price * item.quantity)}
             </span>
           </div>
 

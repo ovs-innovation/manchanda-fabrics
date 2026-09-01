@@ -105,7 +105,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [currentImages, setCurrentImages] = useState([]);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState("product-description");
+  const [activeTab, setActiveTab] = useState("");
   const [showStickyBottomBar, setShowStickyBottomBar] = useState(false);
   const [, setShareUrl] = useState("");
   const [, setExpectedDeliveryTime] = useState(null);
@@ -174,7 +174,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     } else {
       setSelectedColorVar(null);
     }
-  }, [combinedColorVariants]);
+  }, [product?._id, combinedColorVariants]);
 
   // Simple stock derivation to avoid infinite variant loops
   useEffect(() => {
@@ -537,20 +537,16 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   ]);
 
   useEffect(() => {
-    // Initialize gallery images and active image when product media changes
+    // Reset and sync gallery images, active image, title, and description when product changes
     const initialImage = productImages[0] || "";
     setActiveImage(initialImage);
-    setCurrentImages((prev) =>
-      prev && prev.length > 0 ? prev : productImages
-    );
-    // Initialize dynamic title and description on mount
-    if (!dynamicTitle) {
-      setDynamicTitle(showingTranslateValue(product?.title));
-    }
-    if (!dynamicDescription) {
-      setDynamicDescription(showingTranslateValue(product?.description));
-    }
-  }, [productImages]);
+    setCurrentImages(productImages);
+    setDynamicTitle(showingTranslateValue(product?.title));
+    setDynamicDescription(showingTranslateValue(product?.description));
+    setValue("");
+    setSelectVa({});
+    setSelectVariant({});
+  }, [product?._id, product?.slug, productImages]);
 
   // Calculate expected delivery time
   useEffect(() => {
@@ -735,7 +731,6 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   useEffect(() => {
     const handleScroll = () => {
       const sections = [
-        "product-description",
         "specification",
         "additional-information",
         "faq"
@@ -747,13 +742,9 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       // Mobile: Header (~64px) + Tabs (~60px) + Buffer = ~140px
       const offset = isDesktop ? 180 : 140;
 
-      // Check if product-description section is reached to show sticky bottom bar (mobile only)
-      const productDescriptionElement = document.getElementById("product-description");
-      if (productDescriptionElement && !isDesktop) {
-        const rect = productDescriptionElement.getBoundingClientRect();
-        // Show sticky bottom bar when product description section reaches top
-        const shouldShowSticky = rect.top <= offset;
-        setShowStickyBottomBar(shouldShowSticky);
+      // Show sticky bottom bar when scrolled past the product hero (mobile only)
+      if (!isDesktop) {
+        setShowStickyBottomBar(window.scrollY > 400);
       } else {
         setShowStickyBottomBar(false);
       }
@@ -1010,72 +1001,42 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                           )}
 
                           {/* Premium Tab Navigation */}
-                          <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-neutral-200/50 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
-                            <div className="max-w-screen-2xl mx-auto px-4 lg:px-12">
-                              <div className="flex gap-6 overflow-x-auto tab-navigation-container">
-                                {product?.productDescription?.enabled !== false && (
-                                  <button
-                                    data-tab="product-description"
-                                    onClick={() => handleTabClick("product-description")}
-                                    className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "product-description"
-                                        ? "text-[#111111]"
-                                        : "text-gray-400 hover:text-gray-600"
-                                      }`}
-                                  >
-                                    Description
-                                    {activeTab === "product-description" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
-                                    )}
-                                  </button>
-                                )}
-                                {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
-                                  <button
-                                    data-tab="specification"
-                                    onClick={() => handleTabClick("specification")}
-                                    className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "specification"
-                                        ? "text-[#111111]"
-                                        : "text-gray-400 hover:text-gray-600"
-                                      }`}
-                                  >
-                                    Specification
-                                    {activeTab === "specification" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
-                                    )}
-                                  </button>
-                                )}
-                                {productFaqs.length > 0 && (
-                                  <button
-                                    data-tab="faq"
-                                    onClick={() => handleTabClick("faq")}
-                                    className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "faq"
-                                        ? "text-[#111111]"
-                                        : "text-gray-400 hover:text-gray-600"
-                                      }`}
-                                  >
-                                    FAQs
-                                    {activeTab === "faq" && (
-                                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
-                                    )}
-                                  </button>
-                                )}
+                          {(product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) || productFaqs.length > 0) && (
+                            <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-neutral-200/50 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
+                              <div className="max-w-screen-2xl mx-auto px-4 lg:px-12">
+                                <div className="flex gap-6 overflow-x-auto tab-navigation-container">
+                                  {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
+                                    <button
+                                      data-tab="specification"
+                                      onClick={() => handleTabClick("specification")}
+                                      className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "specification"
+                                          ? "text-[#111111]"
+                                          : "text-gray-400 hover:text-gray-600"
+                                        }`}
+                                    >
+                                      Specification
+                                      {activeTab === "specification" && (
+                                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
+                                      )}
+                                    </button>
+                                  )}
+                                  {productFaqs.length > 0 && (
+                                    <button
+                                      data-tab="faq"
+                                      onClick={() => handleTabClick("faq")}
+                                      className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "faq"
+                                          ? "text-[#111111]"
+                                          : "text-gray-400 hover:text-gray-600"
+                                        }`}
+                                    >
+                                      FAQs
+                                      {activeTab === "faq" && (
+                                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </div>
-
-                          {/* Product Description Section */}
-                          {product?.productDescription?.enabled !== false && product?.productDescription?.description && (
-                            <div id="product-description" className="mt-8 py-6 bg-transparent">
-                              <div className="flex items-center gap-3 mb-4">
-                                {product.productDescription.icon && (
-                                  <img src={product.productDescription.icon} alt="" className="w-10 h-10" />
-                                )}
-                                <h2 className="text-xl font-semibold text-gray-800">
-                                  {product.productDescription.title || "Product Description"} of {dynamicTitle || showingTranslateValue(product?.title)}
-                                </h2>
-                              </div>
-                              <p className="text-sm text-gray-600 leading-relaxed text-justify">
-                                {product.productDescription.description}
-                              </p>
                             </div>
                           )}
 
@@ -1286,7 +1247,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                                     <div className="flex items-baseline gap-2">
                                       <span className="text-xl font-black text-gray-900 tracking-tight">
                                         {currency}
-                                        {getNumberTwo(
+                                        {formatPrice(
                                           price > 0 ? price : getNumber((product?.variants?.[0]?.price ?? product?.prices?.price) || 0)
                                         )}
                                       </span>
@@ -1381,27 +1342,38 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 export const getServerSideProps = async (context) => {
   const { slug } = context.params;
 
-  const [data, attributes] = await Promise.all([
-    ProductServices.getShowingStoreProducts({
-      category: "",
-      slug: slug,
-    }),
+  try {
+    const [directProduct, storeData, attributes] = await Promise.all([
+      ProductServices.getProductBySlug(slug).catch(() => null),
+      ProductServices.getShowingStoreProducts({
+        category: "",
+        slug: slug,
+      }).catch(() => null),
+      AttributeServices.getShowingAttributes({}).catch(() => []),
+    ]);
 
-    AttributeServices.getShowingAttributes({}),
-  ]);
-  let product = {};
+    const product =
+      directProduct?._id
+        ? directProduct
+        : storeData?.products?.find((p) => p.slug === slug) || {};
 
-  if (slug) {
-    product = data?.products?.find((p) => p.slug === slug);
+    return {
+      props: {
+        product,
+        attributes: attributes || [],
+        relatedProducts: storeData?.relatedProducts || [],
+      },
+    };
+  } catch (error) {
+    console.error("Error in getServerSideProps product:", error);
+    return {
+      props: {
+        product: {},
+        attributes: [],
+        relatedProducts: [],
+      },
+    };
   }
-
-  return {
-    props: {
-      product,
-      attributes,
-      relatedProducts: data?.relatedProducts,
-    },
-  };
 };
 
 export default ProductScreen;

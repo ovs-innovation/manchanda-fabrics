@@ -21,7 +21,10 @@ const canUseVideo = (src) => {
 const formatInr = (value) => {
   const n = Number(value || 0);
   if (!Number.isFinite(n)) return null;
-  return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n.toLocaleString("en-IN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: n % 1 === 0 ? 0 : 2,
+  });
 };
 
 const pickImage = (item) =>

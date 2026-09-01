@@ -222,12 +222,12 @@ const VariantCard = ({
             {variant.originalPrice > variant.price && (
               <p className="text-xs text-gray-400 line-through">
                 {currency}
-                {getNumberTwo(variant.originalPrice)}
+                {formatPrice(variant.originalPrice)}
               </p>
             )}
             <p className="font-semibold text-store-600">
               {currency}
-              {getNumberTwo(variant.price)}
+              {formatPrice(variant.price)}
             </p>
           </div>
           <div className="text-right">

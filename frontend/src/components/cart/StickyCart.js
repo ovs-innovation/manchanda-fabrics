@@ -5,18 +5,13 @@ import { useCart } from "react-use-cart";
 
 //internal import
 import useGetSetting from "@hooks/useGetSetting";
+import useUtilsFunction, { formatPrice } from "@hooks/useUtilsFunction";
 import { SidebarContext } from "@context/SidebarContext";
 
 const StickyCart = () => {
   const { totalItems, totalUniqueItems, cartTotal } = useCart();
   const { toggleCartDrawer } = useContext(SidebarContext);
-  const { storeCustomizationSetting } = useGetSetting();
-  const storeColor = storeCustomizationSetting?.theme?.color || "green";
-
-
-  const { globalSetting } = useGetSetting();
-
-  const currency = globalSetting?.default_currency || "$";
+  const { currency } = useUtilsFunction();
 
   return (
     <button aria-label="Cart" onClick={toggleCartDrawer} className="absolute">
@@ -31,7 +26,7 @@ const StickyCart = () => {
         </div>
         <div className={`flex flex-col items-center justify-center bg-store-700 p-2 text-white text-base font-serif font-medium rounded-bl-lg mx-auto`}>
           {currency}
-          {cartTotal.toFixed(2)}
+          {formatPrice(cartTotal)}
         </div>
       </div>
     </button>

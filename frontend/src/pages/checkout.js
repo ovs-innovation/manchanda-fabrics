@@ -49,7 +49,7 @@ const Checkout = () => {
     isDefault: false
   });
   const userInfo = getUserSession();
-  const { showingTranslateValue, currency } = useUtilsFunction();
+  const { showingTranslateValue, currency, formatPrice } = useUtilsFunction();
 
   // Custom Redesign State
   const [currentStep, setCurrentStep] = useState(1);
@@ -561,7 +561,7 @@ const Checkout = () => {
                             <div>
                               <div className="flex justify-between items-baseline mb-1">
                                 <h3 className="text-lg font-bold text-[#3B2A25]">Standard</h3>
-                                <span className="font-bold text-[#6D3D2E]">{currency}49.00</span>
+                                <span className="font-bold text-[#6D3D2E]">{currency}{formatPrice(49)}</span>
                               </div>
                               <p className="text-sm text-[#3B2A25]/60">3–5 Business Days</p>
                             </div>
@@ -591,7 +591,7 @@ const Checkout = () => {
                             <div>
                               <div className="flex justify-between items-baseline mb-1">
                                 <h3 className="text-lg font-bold text-[#3B2A25]">Express</h3>
-                                <span className="font-bold text-[#6D3D2E]">₹99.00</span>
+                                <span className="font-bold text-[#6D3D2E]">{currency}{formatPrice(99)}</span>
                               </div>
                               <p className="text-sm text-[#3B2A25]/60">1–2 Business Days</p>
                             </div>
@@ -875,7 +875,7 @@ const Checkout = () => {
                           </div>
                           <div className="text-right shrink-0">
                             <span className="text-sm font-bold text-[#3B2A25]">
-                              {currency}{(item.price * item.quantity).toFixed(2)}
+                              {currency}{formatPrice(item.price * item.quantity)}
                             </span>
                           </div>
                         </div>
@@ -919,7 +919,7 @@ const Checkout = () => {
 
                           <div className="flex justify-between items-center">
                             <div className="text-sm text-emerald-800 font-medium">
-                              You save <span className="font-bold text-lg text-emerald-600">{currency}{discountAmount.toFixed(2)}</span>
+                              You save <span className="font-bold text-lg text-emerald-600">{currency}{formatPrice(discountAmount)}</span>
                             </div>
 
                             <div className="flex items-center gap-3">
@@ -1014,7 +1014,7 @@ const Checkout = () => {
                     <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/80">
                       Total MRP
                       <span className="ml-auto font-bold text-[#3B2A25]">
-                        {currency}{totals.totalMRP.toFixed(2)}
+                        {currency}{formatPrice(totals.totalMRP)}
                       </span>
                     </div>
 
@@ -1023,7 +1023,7 @@ const Checkout = () => {
                       <div className="flex items-center text-sm w-full font-medium text-[#C8A15A]">
                         Total Discount
                         <span className="ml-auto font-bold">
-                          -{currency}{totals.totalDiscount.toFixed(2)}
+                          -{currency}{formatPrice(totals.totalDiscount)}
                         </span>
                       </div>
                     )}
@@ -1033,7 +1033,7 @@ const Checkout = () => {
                       <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/60">
                         GST (included in price)
                         <span className="ml-auto font-bold text-[#3B2A25]/80">
-                          {currency}{Number(taxSummary.inclusiveTax).toFixed(2)}
+                          {currency}{formatPrice(taxSummary.inclusiveTax)}
                         </span>
                       </div>
                     )}
@@ -1041,7 +1041,7 @@ const Checkout = () => {
                       <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/60">
                         GST (added at checkout)
                         <span className="ml-auto font-bold text-[#3B2A25]/80">
-                          {currency}{Number(taxSummary.exclusiveTax).toFixed(2)}
+                          {currency}{formatPrice(taxSummary.exclusiveTax)}
                         </span>
                       </div>
                     )}
@@ -1051,7 +1051,7 @@ const Checkout = () => {
                       <div className="flex items-center text-sm w-full font-medium text-[#C8A15A]">
                         {isCouponApplied ? "Coupon Offer" : showingTranslateValue(storeCustomizationSetting?.checkout?.discount)}
                         <span className="ml-auto font-bold">
-                          -{currency}{discountAmount.toFixed(2)}
+                          -{currency}{formatPrice(discountAmount)}
                         </span>
                       </div>
                     )}
@@ -1060,7 +1060,7 @@ const Checkout = () => {
                     <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/80">
                       Shipping Cost
                       <span className={`ml-auto font-bold ${shippingCost === 0 ? 'text-[#C8A15A] uppercase tracking-widest' : 'text-[#3B2A25]'}`}>
-                        {shippingCost === 0 ? 'FREE' : `${currency}${shippingCost.toFixed(2)}`}
+                        {shippingCost === 0 ? 'FREE' : `${currency}${formatPrice(shippingCost)}`}
                       </span>
                     </div>
                   </div>
@@ -1076,7 +1076,7 @@ const Checkout = () => {
                         </span>
                       </div>
                       <span className="font-serif font-extrabold text-3xl text-[#6D3D2E]">
-                        {currency}{parseFloat(total).toFixed(2)}
+                        {currency}{formatPrice(total)}
                       </span>
                     </div>
                   </div>

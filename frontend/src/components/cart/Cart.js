@@ -14,7 +14,7 @@ const Cart = () => {
   const router = useRouter();
   const { isEmpty, items, cartTotal } = useCart();
   const { closeCartDrawer } = useContext(SidebarContext);
-  const { currency } = useUtilsFunction();
+  const { currency, formatPrice } = useUtilsFunction();
   const userInfo = getUserSession();
   const { storeCustomizationSetting } = useGetSetting();
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
@@ -30,8 +30,8 @@ const Cart = () => {
 
   const formattedTotal = useMemo(() => {
     const n = Number(cartTotal || 0);
-    return Number.isFinite(n) ? n.toFixed(2) : "0.00";
-  }, [cartTotal]);
+    return formatPrice(n);
+  }, [cartTotal, formatPrice]);
 
   const handleCheckout = () => {
     if (items?.length <= 0) {

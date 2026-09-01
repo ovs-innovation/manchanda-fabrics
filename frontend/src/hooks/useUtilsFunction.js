@@ -2,13 +2,25 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import useGetSetting from "./useGetSetting";
 
+export const formatPrice = (value = 0) => {
+  const num = Math.max(0, parseFloat(value) || 0);
+  return num.toLocaleString("en-IN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: num % 1 === 0 ? 0 : 2,
+  });
+};
+
 const useUtilsFunction = () => {
   const router = useRouter();
   const lang = router?.locale || "en";
 
   const { globalSetting } = useGetSetting();
 
-  const currency = globalSetting?.default_currency || "$";
+  const rawCurrency = globalSetting?.default_currency;
+  const currency =
+    rawCurrency && rawCurrency !== "$" && rawCurrency !== "USD"
+      ? rawCurrency
+      : "₹";
 
   //for date and time format
   const showTimeFormat = (data, timeFormat) => {
@@ -51,6 +63,7 @@ const useUtilsFunction = () => {
   return {
     lang,
     currency,
+    formatPrice,
     getNumber,
     getNumberTwo,
     showTimeFormat,

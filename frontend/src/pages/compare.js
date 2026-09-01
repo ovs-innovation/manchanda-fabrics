@@ -18,14 +18,13 @@ const Compare = () => {
   const router = useRouter();
   const { addItem } = useCart();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const { showingTranslateValue, currency } = useUtilsFunction();
   const [compareItems, setCompareItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const displayedCompareItems = compareItems;
 
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
-  const currency = globalSetting?.default_currency || "₹";
 
   useEffect(() => {
     // Load compare list from localStorage

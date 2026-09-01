@@ -3,16 +3,13 @@ import { useCart } from "react-use-cart";
 import { FiPlus, FiMinus } from "react-icons/fi";
 
 //internal imports
-import useGetSetting from "@hooks/useGetSetting";
+import useUtilsFunction, { formatPrice } from "@hooks/useUtilsFunction";
 import { notifyError } from "@utils/toast";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
 const CheckoutCard = ({ item }) => {
   const { updateItemQuantity } = useCart();
-
-  const { globalSetting } = useGetSetting();
-
-  const currency = globalSetting?.default_currency || "$";
+  const { currency } = useUtilsFunction();
 
   return (
     <div
@@ -38,8 +35,8 @@ const CheckoutCard = ({ item }) => {
               {item?.title?.substring(0, 5)}
             </span>
             <span className="text-xs text-gray-400 mb-2">
-              Item Price{currency}
-              {item.price.toFixed(2)}
+              Item Price: {currency}
+              {formatPrice(item.price)}
             </span>
           </p>
           <div className="h-8 w-20 flex flex-wrap items-center justify-evenly p-1 border border-gray-100 bg-white text-gray-600 rounded-md">
@@ -71,7 +68,7 @@ const CheckoutCard = ({ item }) => {
           </div>
 
           <div className="font-bold text-sm text-heading leading-5">
-            <span>{currency}{(item.price * item.quantity).toFixed(2)}</span>
+            <span>{currency}{formatPrice(item.price * item.quantity)}</span>
           </div>
         </div>
       </div>
