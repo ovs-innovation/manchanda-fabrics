@@ -154,7 +154,7 @@ const Footer = () => {
         {/* Columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-10 pt-10">
           <div className="lg:col-span-3">
-            <SectionTitle>{t("Get In Touch")}</SectionTitle>
+            <SectionTitle>MANCHANDA FAB</SectionTitle>
             <div className="space-y-2">
               {phoneList.map((phone) => (
                 <p key={phone} className={`${linkClass} flex items-center gap-2`}>
