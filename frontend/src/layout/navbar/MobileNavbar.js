@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 import { useCart } from "react-use-cart";
 import { FiAlignLeft, FiHeart, FiUser, FiShoppingBag, FiGlobe } from "react-icons/fi";
 
-import { getUserSession } from "@lib/auth";
 import { SidebarContext } from "@context/SidebarContext";
+import { UserContext } from "@context/UserContext";
 import CategoryDrawer from "@components/drawer/CategoryDrawer";
 import CartDrawer from "@components/drawer/CartDrawer";
 import useWishlist from "@hooks/useWishlist";
@@ -14,15 +14,22 @@ import { pickBrandLogo } from "@utils/brandAssets";
 import { setAppLocale } from "@utils/locale";
 
 const MobileNavbar = () => {
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { toggleCategoryDrawer, toggleCartDrawer } = useContext(SidebarContext);
+  const { state: userState } = useContext(UserContext);
   const { totalUniqueItems } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { globalSetting, storeCustomizationSetting } = useGetSetting();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const currentLang = router.locale === "hi" ? "hi" : "en";
   const toggleLang = () =>
     setAppLocale(router, currentLang === "en" ? "hi" : "en");
-  const userInfo = getUserSession();
+  const userInfo = userState?.userInfo;
   const adminLogo = pickBrandLogo(
     globalSetting?.logo,
     storeCustomizationSetting?.navbar?.logo,
@@ -30,11 +37,6 @@ const MobileNavbar = () => {
   );
   const logo =
     adminLogo && adminLogo.startsWith("http") ? adminLogo : "/manchandalogo.png";
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) return null;
 
@@ -96,21 +98,19 @@ const MobileNavbar = () => {
                 </span>
               )}
             </Link>
-            {userInfo?.image ? (
-              <Link href="/user/dashboard" className="p-1.5" aria-label="Account">
-                <img
-                  src={userInfo.image}
-                  alt="Account"
-                  className="w-7 h-7 rounded-full object-cover border border-[#E6D1CB]"
-                />
-              </Link>
-            ) : userInfo?.name ? (
-              <Link
-                href="/user/dashboard"
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-[#9C6A5A] text-[#9C6A5A] text-[10px] font-semibold"
-                aria-label="Account"
-              >
-                {userInfo.name[0].toUpperCase()}
+            {userInfo ? (
+              <Link href="/user/dashboard" className="p-1.5 flex items-center justify-center" aria-label="Account">
+                {userInfo.image ? (
+                  <img
+                    src={userInfo.image}
+                    alt={userInfo.name || "Account"}
+                    className="w-7 h-7 rounded-full object-cover border border-[#E6D1CB]"
+                  />
+                ) : (
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#9C6A5A] bg-[#9C6A5A]/10 text-[#9C6A5A] text-[11px] font-bold">
+                    {userInfo.name ? userInfo.name[0].toUpperCase() : <FiUser className="w-3.5 h-3.5" />}
+                  </div>
+                )}
               </Link>
             ) : (
               <Link

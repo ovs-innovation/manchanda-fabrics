@@ -8,8 +8,8 @@ import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 
 //internal imports
-import { getUserSession } from "@lib/auth";
 import { SidebarContext } from "@context/SidebarContext";
+import { UserContext } from "@context/UserContext";
 import CategoryDrawer from "@components/drawer/CategoryDrawer";
 import useGetSetting from "@hooks/useGetSetting";
 import useWishlist from "@hooks/useWishlist";
@@ -18,27 +18,29 @@ import SearchSuggestions from "@components/search/SearchSuggestions";
 import CustomerNotificationBell from "@components/notification/CustomerNotificationBell";
 import { pickBrandLogo } from "@utils/brandAssets";
 const MobileFooter = () => {
+  const [mounted, setMounted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showSignDropdown, setShowSignDropdown] = useState(false);
   const searchInputRef = useRef(null);
-  const { toggleCategoryDrawer, showSearch, setShowSearch } = useContext(SidebarContext);
-  const userInfo = getUserSession();
   const router = useRouter();
-  const { t } = useTranslation("common");
+  const { toggleCategoryDrawer, showSearch, setShowSearch } = useContext(SidebarContext);
+  const { state: userState } = useContext(UserContext);
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const userInfo = userState?.userInfo;
+  const { t } = useTranslation("common");
   const storeColor = storeCustomizationSetting?.theme?.color || "green";
   const adminLogo = pickBrandLogo(
     globalSetting?.logo,
     storeCustomizationSetting?.navbar?.logo
   );
   const logo = adminLogo || "/manchandalogo.png";
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     return null;

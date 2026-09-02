@@ -97,6 +97,9 @@ const Home = ({
 
         <HomeWhatsAppBand whatsappNumbers={homepage.whatsappNumbers} />
 
+        {/* 2 ── Shop By Categories (real store categories, circle avatars like ref) */}
+        <HomeCategoryCircles categories={circleCategories} counts={categoryCounts} />
+
         {/* 3 ── New Arrivals (exact ref layout) */}
         <section className="py-24 sm:py-28 bg-white border-b border-black/5">
           <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
@@ -117,7 +120,7 @@ const Home = ({
               </div>
               <Link
                 href="/search"
-                className="group inline-flex items-center gap-3 self-start lg:self-auto px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white"
+                className="group hidden lg:inline-flex items-center gap-3 px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 <span>{t("View All")}</span>
@@ -129,15 +132,32 @@ const Home = ({
             </div>
 
             {newArrivals?.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                {newArrivals.slice(0, 8).map((product) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    attributes={attributes}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                  {newArrivals.slice(0, 4).map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      attributes={attributes}
+                    />
+                  ))}
+                </div>
+
+                {/* Mobile View All Button (shows below 4 products on mobile only) */}
+                <div className="mt-10 flex justify-center lg:hidden">
+                  <Link
+                    href="/search"
+                    className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    <span>{t("View All")}</span>
+                    <ChevronRight
+                      size={20}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
+                  </Link>
+                </div>
+              </>
             ) : (
               <div
                 className="py-16 text-center text-[#7A7A7A] bg-white border border-neutral-100 text-sm"
@@ -186,10 +206,7 @@ const Home = ({
           </section>
         )}
 
-        {/* 5 ── Shop By Categories (real store categories, circle avatars like ref) */}
-        <HomeCategoryCircles categories={circleCategories} counts={categoryCounts} />
-
-        {/* 6 ── Shop Latest Collection (reels-style product carousel like ref) */}
+        {/* 5 ── Shop Latest Collection (reels-style product carousel like ref) */}
         <HomeShopLatestCarousel items={reelProducts.slice(0, 4)} />
 
         {/* 7 ── Scrolling marquee strip like ref */}

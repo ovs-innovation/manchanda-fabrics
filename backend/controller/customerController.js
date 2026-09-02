@@ -1918,18 +1918,31 @@ const addToCart = async (req, res) => {
       return res.status(404).send({ message: "Customer not found." });
     }
 
+    const isSameColor = (c1, c2) => {
+      const norm1 = (!c1 || c1 === "null" || c1 === "undefined") ? "" : String(c1).trim().toLowerCase();
+      const norm2 = (!c2 || c2 === "null" || c2 === "undefined") ? "" : String(c2).trim().toLowerCase();
+      return norm1 === norm2;
+    };
+
+    const isColorMatch = (cColor, targetColor) => {
+      const normC = (!cColor || cColor === "null" || cColor === "undefined") ? "" : String(cColor).trim().toLowerCase();
+      const normTarget = (!targetColor || targetColor === "null" || targetColor === "undefined") ? "" : String(targetColor).trim().toLowerCase();
+      if (!normTarget) return true; // If no color specified, match any item with this productId
+      return normC === normTarget;
+    };
+
     const qty = Math.max(1, Number(quantity));
     const existingItem = customer.cart.find(
       (c) =>
         c.productId &&
         c.productId.toString() === productId.toString() &&
-        c.color === color
+        isSameColor(c.color, color)
     );
 
     if (existingItem) {
       existingItem.quantity = existingItem.quantity + qty;
     } else {
-      customer.cart.push({ productId, quantity: qty, color });
+      customer.cart.push({ productId, quantity: qty, color: color || undefined });
     }
 
     await customer.save();
@@ -1966,6 +1979,19 @@ const updateCartItem = async (req, res) => {
       return res.status(404).send({ message: "Customer not found." });
     }
 
+    const isSameColor = (c1, c2) => {
+      const norm1 = (!c1 || c1 === "null" || c1 === "undefined") ? "" : String(c1).trim().toLowerCase();
+      const norm2 = (!c2 || c2 === "null" || c2 === "undefined") ? "" : String(c2).trim().toLowerCase();
+      return norm1 === norm2;
+    };
+
+    const isColorMatch = (cColor, targetColor) => {
+      const normC = (!cColor || cColor === "null" || cColor === "undefined") ? "" : String(cColor).trim().toLowerCase();
+      const normTarget = (!targetColor || targetColor === "null" || targetColor === "undefined") ? "" : String(targetColor).trim().toLowerCase();
+      if (!normTarget) return true;
+      return normC === normTarget;
+    };
+
     const qty = Number(quantity);
 
     if (qty <= 0) {
@@ -1975,7 +2001,7 @@ const updateCartItem = async (req, res) => {
           !(
             c.productId &&
             c.productId.toString() === productId.toString() &&
-            c.color === color
+            isColorMatch(c.color, color)
           )
       );
     } else {
@@ -1983,12 +2009,12 @@ const updateCartItem = async (req, res) => {
         (c) =>
           c.productId &&
           c.productId.toString() === productId.toString() &&
-          c.color === color
+          isSameColor(c.color, color)
       );
       if (item) {
         item.quantity = qty;
       } else {
-        customer.cart.push({ productId, quantity: qty, color });
+        customer.cart.push({ productId, quantity: qty, color: color || undefined });
       }
     }
 
@@ -2020,12 +2046,19 @@ const removeFromCart = async (req, res) => {
       return res.status(404).send({ message: "Customer not found." });
     }
 
+    const isColorMatch = (cColor, targetColor) => {
+      const normC = (!cColor || cColor === "null" || cColor === "undefined") ? "" : String(cColor).trim().toLowerCase();
+      const normTarget = (!targetColor || targetColor === "null" || targetColor === "undefined") ? "" : String(targetColor).trim().toLowerCase();
+      if (!normTarget) return true;
+      return normC === normTarget;
+    };
+
     customer.cart = customer.cart.filter(
       (c) =>
         !(
           c.productId &&
           c.productId.toString() === productId.toString() &&
-          c.color === color
+          isColorMatch(c.color, color)
         )
     );
 

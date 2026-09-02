@@ -15,28 +15,27 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
   if (!list.length) return null;
 
   return (
-    <section className="py-16 sm:py-20 bg-white">
+    <section className="py-20 sm:py-24 bg-white border-b border-black/5">
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-        <p className="text-center text-[13px] text-neutral-500">
-          {t("Browse by Style & Need")}
-        </p>
+        <div className="mb-12 sm:mb-16">
+          <p className="text-[13px] text-neutral-500">
+            {t("Browse by Style & Need")}
+          </p>
+          <h2
+            className="text-4xl sm:text-5xl font-semibold text-[#111111]"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {t("Shop By Categories")}
+          </h2>
+          <p
+            className="mt-4 text-sm text-[#7A7A7A] max-w-2xl font-light"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {t("Easily find what you’re looking for – all neatly sorted by category.")}
+          </p>
+        </div>
 
-        <div className="mt-10">
-          <div className="flex items-start justify-between gap-8">
-            <div>
-              <h2
-                className="text-3xl sm:text-4xl font-semibold text-[#111111]"
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                {t("Shop By Categories")}
-              </h2>
-              <p className="mt-3 text-sm text-neutral-500">
-                {t("Easily find what you’re looking for – all neatly sorted by category.")}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8 sm:gap-10 items-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8 sm:gap-10 items-start">
             {list.map((cat) => (
               <Link
                 key={cat.slug}
@@ -72,8 +71,7 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
             ))}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 
