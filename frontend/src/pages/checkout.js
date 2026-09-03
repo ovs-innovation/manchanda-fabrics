@@ -129,6 +129,9 @@ const Checkout = () => {
     setValue,
     isCouponApplied,
     handleRemoveCoupon,
+    emptyCart,
+    phonePeModalData,
+    setPhonePeModalData,
   } = useCheckoutSubmit(storeSetting);
 
   const selectedPaymentMethod = watch("paymentMethod");
@@ -628,145 +631,52 @@ const Checkout = () => {
                         <p className="text-sm text-[#3B2A25]/60 mb-4">All transactions are secure and encrypted.</p>
 
                         <div className="border border-[#E6D1CB]/40 rounded-[20px] overflow-hidden bg-white mb-6">
-                          {/* Option 1: Credit / Debit Card */}
-                          <label className={`flex flex-col p-6 cursor-pointer border-b border-[#E6D1CB]/40 transition-colors ${selectedPaymentMethod === 'Card' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
+                          {/* Option 1: PhonePe Gateway */}
+                          <label className={`flex flex-col p-6 cursor-pointer border-b border-[#E6D1CB]/40 transition-colors ${selectedPaymentMethod === 'PhonePe' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
                             <div className="flex items-start">
                               <div className="flex items-center h-5">
                                 <input
                                   type="radio"
-                                  value="Card"
+                                  value="PhonePe"
                                   {...register("paymentMethod", { required: "Payment Method is required!" })}
-                                  className="w-5 h-5 text-[#C8A15A] focus:ring-[#C8A15A] border-gray-300"
+                                  className="w-5 h-5 text-[#5f259f] focus:ring-[#5f259f] border-gray-300"
                                   defaultChecked
                                 />
                               </div>
                               <div className="ml-4 flex-1">
                                 <div className="flex justify-between items-center">
-                                  <span className="block text-sm font-bold text-[#3B2A25]">Credit / Debit Card</span>
-                                  <div className="flex gap-1.5 flex-wrap items-center">
-                                    {/* Mastercard */}
-                                    <span className="inline-flex items-center justify-center w-[34px] h-[22px] rounded bg-[#1A1A1A] shadow-xs px-1">
-                                      <div className="flex -space-x-1.5">
-                                        <div className="w-3.5 h-3.5 rounded-full bg-[#EB001B]"></div>
-                                        <div className="w-3.5 h-3.5 rounded-full bg-[#F79E1B]/95"></div>
-                                      </div>
-                                    </span>
-                                    {/* Visa */}
-                                    <span className="inline-flex items-center justify-center w-[34px] h-[22px] rounded bg-[#1A1F71] text-white font-black italic text-[9px] tracking-wider shadow-xs">
-                                      VISA
-                                    </span>
-                                    {/* RuPay */}
-                                    <span className="inline-flex items-center justify-center w-[42px] h-[22px] rounded bg-white border border-[#E6D1CB]/50 text-[8px] font-black italic shadow-xs">
-                                      <span className="text-[#00529B]">Ru</span><span className="text-[#E57E24]">Pay</span>
-                                    </span>
-                                    {/* +3 */}
-                                    <span className="inline-flex items-center justify-center w-[24px] h-[22px] rounded bg-white border border-[#E6D1CB]/50 text-[9px] font-bold text-[#00529B]">
-                                      +3
+                                  <div className="flex items-center gap-2">
+                                    <span className="block text-sm font-bold text-[#3B2A25]">PhonePe Gateway (UPI, QR, Cards & Netbanking)</span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#5f259f] text-white">Recommended</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-[#5f259f] text-white font-extrabold text-[11px] tracking-wider">
+                                      PhonePe
                                     </span>
                                   </div>
                                 </div>
-                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay securely using your Visa, Mastercard, or RuPay card.</span>
+                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay securely via PhonePe, Google Pay, Paytm, UPI QR, Credit/Debit Card or Net Banking.</span>
                               </div>
                             </div>
-
-                            {/* Card Details form inside the card option */}
-                            {selectedPaymentMethod === 'Card' && (
-                              <div className="mt-6 pt-6 border-t border-[#E6D1CB]/40 space-y-4 animate-fade-in">
-                                <div>
-                                  <label className="block text-xs font-semibold text-[#3B2A25]/70 mb-1.5 uppercase tracking-wider">Card Number</label>
-                                  <input
-                                    type="text"
-                                    placeholder="1234 5678 9012 3456"
-                                    {...register("cardNumber", { required: selectedPaymentMethod === 'Card' ? "Card number is required" : false })}
-                                    className="w-full h-[50px] px-4 rounded-[12px] border border-[#E6D1CB]/60 focus:outline-none focus:border-[#9C6A5A] text-sm text-[#3B2A25]"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="block text-xs font-semibold text-[#3B2A25]/70 mb-1.5 uppercase tracking-wider">Expiration Date</label>
-                                    <input
-                                      type="text"
-                                      placeholder="MM/YY"
-                                      {...register("cardExpiry", { required: selectedPaymentMethod === 'Card' ? "Expiry is required" : false })}
-                                      className="w-full h-[50px] px-4 rounded-[12px] border border-[#E6D1CB]/60 focus:outline-none focus:border-[#9C6A5A] text-sm text-[#3B2A25]"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs font-semibold text-[#3B2A25]/70 mb-1.5 uppercase tracking-wider">Security Code (CVV)</label>
-                                    <input
-                                      type="password"
-                                      placeholder="123"
-                                      maxLength={4}
-                                      {...register("cardCVC", { required: selectedPaymentMethod === 'Card' ? "CVV is required" : false })}
-                                      className="w-full h-[50px] px-4 rounded-[12px] border border-[#E6D1CB]/60 focus:outline-none focus:border-[#9C6A5A] text-sm text-[#3B2A25]"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-semibold text-[#3B2A25]/70 mb-1.5 uppercase tracking-wider">Name on Card</label>
-                                  <input
-                                    type="text"
-                                    placeholder="John Doe"
-                                    {...register("cardName", { required: selectedPaymentMethod === 'Card' ? "Cardholder name is required" : false })}
-                                    className="w-full h-[50px] px-4 rounded-[12px] border border-[#E6D1CB]/60 focus:outline-none focus:border-[#9C6A5A] text-sm text-[#3B2A25]"
-                                  />
-                                </div>
-                              </div>
-                            )}
                           </label>
 
-                          {/* Option 2: UPI ID */}
-                          <label className={`flex flex-col p-6 cursor-pointer border-b border-[#E6D1CB]/40 transition-colors ${selectedPaymentMethod === 'UPI' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
+                          {/* Option 2: Cash on Delivery (COD) */}
+                          <label className={`flex flex-col p-6 cursor-pointer transition-colors ${selectedPaymentMethod === 'Cash' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
                             <div className="flex items-start">
                               <div className="flex items-center h-5">
                                 <input
                                   type="radio"
-                                  value="UPI"
+                                  value="Cash"
                                   {...register("paymentMethod", { required: "Payment Method is required!" })}
-                                  className="w-5 h-5 text-[#C8A15A] focus:ring-[#C8A15A] border-gray-300"
+                                  className="w-5 h-5 text-[#9C6A5A] focus:ring-[#9C6A5A] border-gray-300"
                                 />
                               </div>
                               <div className="ml-4 flex-1">
                                 <div className="flex justify-between items-center">
-                                  <span className="block text-sm font-bold text-[#3B2A25]">UPI ID</span>
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[9px] font-black text-emerald-600 shadow-sm">UPI</span>
+                                  <span className="block text-sm font-bold text-[#3B2A25]">Cash on Delivery (COD)</span>
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-extrabold text-[10px] uppercase">COD</span>
                                 </div>
-                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay instantly using any UPI app (PhonePe, Google Pay, Paytm).</span>
-                              </div>
-                            </div>
-
-                            {/* UPI ID input inside the option */}
-                            {selectedPaymentMethod === 'UPI' && (
-                              <div className="mt-6 pt-6 border-t border-[#E6D1CB]/40 space-y-4 animate-fade-in">
-                                <div>
-                                  <label className="block text-xs font-semibold text-[#3B2A25]/70 mb-1.5 uppercase tracking-wider">UPI ID / VPA</label>
-                                  <input
-                                    type="text"
-                                    placeholder="username@upi"
-                                    {...register("upiId", { required: selectedPaymentMethod === 'UPI' ? "UPI ID is required" : false })}
-                                    className="w-full h-[50px] px-4 rounded-[12px] border border-[#E6D1CB]/60 focus:outline-none focus:border-[#9C6A5A] text-sm text-[#3B2A25]"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </label>
-
-                          {/* Option 3: Razorpay (Wallets & Netbanking) */}
-                          <label className={`flex flex-col p-6 cursor-pointer transition-colors ${selectedPaymentMethod === 'RazorPay' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
-                            <div className="flex items-start">
-                              <div className="flex items-center h-5">
-                                <input
-                                  type="radio"
-                                  value="RazorPay"
-                                  {...register("paymentMethod", { required: "Payment Method is required!" })}
-                                  className="w-5 h-5 text-[#C8A15A] focus:ring-[#C8A15A] border-gray-300"
-                                />
-                              </div>
-                              <div className="ml-4 flex-1">
-                                <div className="flex justify-between items-center">
-                                  <span className="block text-sm font-bold text-[#3B2A25]">Razorpay Secure (Netbanking & Wallets)</span>
-                                </div>
-                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay securely via Net Banking, Wallets, or international cards.</span>
+                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay with cash upon delivery of your order.</span>
                               </div>
                             </div>
                           </label>

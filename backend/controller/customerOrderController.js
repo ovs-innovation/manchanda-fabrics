@@ -704,6 +704,180 @@ const requestRefund = async (req, res) => {
   }
 };
 
+const {
+  initiatePhonePePayment,
+  checkPhonePeStatus,
+  verifyWebhookChecksum,
+} = require("../lib/phonepe/phonepe");
+
+// Create PhonePe Payment (Creates order in DB with status "Pending" and returns PhonePe pay page URL)
+const createPhonePeOrder = async (req, res) => {
+  try {
+    const orderData = req.body;
+    const merchantTransactionId = `MT${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
+
+    const newOrder = new Order({
+      ...orderData,
+      status: "Pending",
+      paymentMethod: "PhonePe",
+      paymentDetails: {
+        merchantTransactionId,
+        paymentStatus: "Pending",
+      },
+    });
+
+    const savedOrder = await newOrder.save();
+
+    const backendDomain = (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_STORE_DOMAIN || "https://manchandafabric.in")
+      .split(",")[0]
+      .trim()
+      .replace(/\/+$/, "");
+
+    const redirectUrl = `${backendDomain}/api/order/phonepe-callback?transactionId=${merchantTransactionId}&orderId=${savedOrder._id}`;
+    const callbackUrl = `${backendDomain}/api/order/phonepe-webhook`;
+
+    const phonepeResponse = await initiatePhonePePayment({
+      merchantTransactionId,
+      amount: savedOrder.total,
+      redirectUrl,
+      callbackUrl,
+      mobileNumber: savedOrder.user_info?.contact || savedOrder.user_info?.phone || "9911368854",
+    });
+
+    return res.send({
+      success: true,
+      url: phonepeResponse.redirectUrl,
+      merchantTransactionId,
+      orderId: savedOrder._id,
+    });
+  } catch (err) {
+    console.error("[PhonePe Controller Error]", err.message);
+    res.status(400).send({
+      success: false,
+      message: err.message || "PhonePe payment initiation failed.",
+    });
+  }
+};
+
+// Handle PhonePe Redirect Callback from user browser
+const handlePhonePeCallback = async (req, res) => {
+  const { transactionId, orderId } = req.query;
+  const frontendDomain = (process.env.NEXT_PUBLIC_STORE_DOMAIN || process.env.STORE_URL || process.env.FRONTEND_URL || "https://manchandafabric.in")
+    .split(",")[0]
+    .trim()
+    .replace(/\/+$/, "");
+
+  try {
+    if (!transactionId) {
+      return res.redirect(302, `${frontendDomain}/checkout?error=invalid_transaction`);
+    }
+
+    const statusResult = await checkPhonePeStatus(transactionId);
+    const state = statusResult?.state || statusResult?.data?.state || statusResult?.code;
+    const isSuccess = state === "COMPLETED" || state === "PAYMENT_SUCCESS" || statusResult?.success;
+
+    const targetOrder = orderId
+      ? await Order.findById(orderId)
+      : await Order.findOne({ "paymentDetails.merchantTransactionId": transactionId });
+
+    if (targetOrder) {
+      if (isSuccess) {
+        targetOrder.status = "Processing";
+        targetOrder.paymentDetails = {
+          ...targetOrder.paymentDetails,
+          merchantTransactionId: transactionId,
+          providerReferenceId: statusResult.paymentId || statusResult.data?.providerReferenceId || `PE_${Date.now()}`,
+          paymentState: state,
+          paymentStatus: "COMPLETED",
+          completedAt: new Date(),
+        };
+        await targetOrder.save();
+        return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
+      } else {
+        targetOrder.status = "Cancel";
+        targetOrder.paymentDetails = {
+          ...targetOrder.paymentDetails,
+          merchantTransactionId: transactionId,
+          paymentStatus: "FAILED",
+          failedAt: new Date(),
+        };
+        await targetOrder.save();
+        return res.redirect(302, `${frontendDomain}/checkout?error=payment_failed`);
+      }
+    }
+
+    return res.redirect(302, `${frontendDomain}/checkout`);
+  } catch (err) {
+    console.error("Error handling PhonePe callback:", err);
+    return res.redirect(302, `${frontendDomain}/checkout?error=server_error`);
+  }
+};
+
+// Handle PhonePe Server-to-Server Webhook
+const handlePhonePeWebhook = async (req, res) => {
+  try {
+    const xVerifyHeader = req.headers["x-verify"];
+    const responsePayload = req.body.response;
+
+    if (xVerifyHeader && responsePayload) {
+      const isValid = verifyWebhookChecksum(responsePayload, xVerifyHeader);
+      if (!isValid) {
+        console.warn("Invalid PhonePe webhook checksum header.");
+        return res.status(400).send({ message: "Invalid signature checksum" });
+      }
+    }
+
+    let decoded = {};
+    if (responsePayload) {
+      const jsonString = Buffer.from(responsePayload, "base64").toString("utf-8");
+      decoded = JSON.parse(jsonString);
+    }
+
+    const merchantTransactionId = decoded?.data?.merchantTransactionId;
+    const code = decoded?.code;
+
+    if (merchantTransactionId) {
+      const order = await Order.findOne({ "paymentDetails.merchantTransactionId": merchantTransactionId });
+      if (order) {
+        if (code === "PAYMENT_SUCCESS") {
+          order.status = "Processing";
+          order.paymentDetails = {
+            ...order.paymentDetails,
+            merchantTransactionId,
+            providerReferenceId: decoded?.data?.providerReferenceId,
+            paymentStatus: "COMPLETED",
+            completedAt: new Date(),
+          };
+          await order.save();
+        } else if (code === "PAYMENT_ERROR" || code === "PAYMENT_DECLINED") {
+          order.status = "Cancel";
+          order.paymentDetails = {
+            ...order.paymentDetails,
+            paymentStatus: "FAILED",
+          };
+          await order.save();
+        }
+      }
+    }
+
+    res.send({ success: true });
+  } catch (err) {
+    console.error("PhonePe webhook error:", err);
+    res.status(500).send({ message: err.message });
+  }
+};
+
+// Check PhonePe Status API
+const getPhonePeStatusApi = async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const result = await checkPhonePeStatus(transactionId);
+    res.send(result);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
 module.exports = {
   addOrder,
   getOrderById,
@@ -713,4 +887,8 @@ module.exports = {
   addRazorpayOrder,
   sendEmailInvoiceToCustomer,
   requestRefund,
+  createPhonePeOrder,
+  handlePhonePeCallback,
+  handlePhonePeWebhook,
+  getPhonePeStatusApi,
 };

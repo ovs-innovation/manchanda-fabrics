@@ -23,26 +23,61 @@ import { mergeHomepage } from "@utils/homepageDefaults";
 
 /* ── Main Page ── */
 const Home = ({
-  popularProducts,
-  bestSellingProducts,
+  popularProducts: popularProp,
+  bestSellingProducts: bestSellingProp,
   attributes,
   categories,
-  allProducts,
+  allProducts: allProductsProp,
   homepage: homepageProp,
 }) => {
   const { t } = useTranslation("common");
   const homepage = mergeHomepage(homepageProp);
   const videoShopping = homepage.videoShopping || {};
 
-  const newArrivals = popularProducts || [];
-  const catalog = allProducts?.length ? allProducts : newArrivals;
+  const [productsState, setProductsState] = React.useState({
+    popularProducts: popularProp || [],
+    bestSellingProducts: bestSellingProp || [],
+    allProducts: allProductsProp || [],
+  });
+
+  React.useEffect(() => {
+    // If SSG returned empty products (e.g. backend was down during build/revalidate), fetch client-side
+    if (!productsState.allProducts?.length && !productsState.popularProducts?.length) {
+      Promise.allSettled([
+        ProductServices.getShowingStoreProducts({}),
+        ProductServices.getShowingProducts(),
+        ProductServices.getShowingStoreProducts({ tag: "new-arrival" }),
+      ]).then(([dataResult, allProductsResult, newArrivalsResult]) => {
+        const data = dataResult.status === "fulfilled" ? dataResult.value : null;
+        const allProds = allProductsResult.status === "fulfilled" ? allProductsResult.value : [];
+        const newArrData = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : null;
+        const popProds =
+          newArrData?.popularProducts && newArrData.popularProducts.length > 0
+            ? newArrData.popularProducts
+            : data?.popularProducts || [];
+
+        setProductsState({
+          popularProducts: popProds || [],
+          bestSellingProducts: data?.bestSellingProducts || [],
+          allProducts: allProds || [],
+        });
+      });
+    }
+  }, []);
+
+  const popularProducts = productsState.popularProducts || [];
+  const bestSellingProducts = productsState.bestSellingProducts || [];
+  const allProducts = productsState.allProducts || [];
+
+  const catalog = allProducts.length ? allProducts : popularProducts;
+  const newArrivals = popularProducts.length ? popularProducts : catalog;
 
   // Unique products for reel section — trending picks first, then fallback
   const reelProducts = (() => {
     const trending = (bestSellingProducts || []).filter((p) => p?._id || p?.slug);
     if (trending.length > 0) return trending;
 
-    const merged = [...(popularProducts || []), ...(allProducts || []), ...(catalog || [])];
+    const merged = [...popularProducts, ...allProducts, ...catalog];
     const seen = new Set();
     return merged.filter((p) => {
       const id = p?._id || p?.slug;

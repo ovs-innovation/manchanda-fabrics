@@ -55,6 +55,9 @@ const allowedOrigins = process.env.FRONTEND_URL
       process.env.FRONTEND_URL,
       process.env.ADMIN_URL,
       process.env.STORE_URL,
+      process.env.NEXT_PUBLIC_STORE_DOMAIN,
+      "https://manchandafabric.in",
+      "https://www.manchandafabric.in",
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       "http://localhost:4100",
@@ -64,7 +67,7 @@ const allowedOrigins = process.env.FRONTEND_URL
       "exp://192.168.1.6:8081",
       "exp://192.168.1.6:8082",
     ].filter(Boolean)
-  : ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4100", "http://127.0.0.1:4100", "http://localhost:5055", "*"];
+  : ["https://manchandafabric.in", "https://www.manchandafabric.in", "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4100", "http://127.0.0.1:4100", "http://localhost:5055", "*"];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -93,10 +96,10 @@ app.get("/", (req, res) => {
 });
 
 // Short redirect for QR codes (keeps QR content small)
-// Example: http://localhost:8090/o/69819e2bff190a2118afe968  ->  http://localhost:3000/order/69819e2bff190a2118afe968
+// Example: https://manchandafabric.in/o/69819e2bff190a2118afe968  ->  https://manchandafabric.in/order/69819e2bff190a2118afe968
 
 app.get("/o/:id", (req, res) => {
-  const frontendBaseUrl = (process.env.FRONTEND_URL || process.env.STORE_URL || "http://localhost:3000").split(',')[0].trim().replace(/\/+$/, "");
+  const frontendBaseUrl = (process.env.NEXT_PUBLIC_STORE_DOMAIN || process.env.FRONTEND_URL || process.env.STORE_URL || "https://manchandafabric.in").split(',')[0].trim().replace(/\/+$/, "");
   return res.redirect(302, `${frontendBaseUrl}/order/${req.params.id}`);
 });
 

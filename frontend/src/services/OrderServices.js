@@ -32,6 +32,10 @@ const OrderServices = {
   requestRefund: async (id, body) => {
     return requests.put(`/order/refund/${id}`, body);
   },
+
+  createPhonePePayment: async (body) => {
+    return requests.post("/order/create-phonepe-payment", body);
+  },
 };
 
 export default OrderServices;

@@ -311,6 +311,9 @@ const useCheckoutSubmit = (storeSetting) => {
 
       // Handle payment based on method
       switch (data.paymentMethod) {
+        case "PhonePe":
+          await handlePaymentWithPhonePe(orderInfo);
+          break;
         case "RazorPay":
           await handlePaymentWithRazorpay(orderInfo);
           break;
@@ -509,6 +512,35 @@ const useCheckoutSubmit = (storeSetting) => {
   const handleCashPayment = async (orderInfo) => {
     const orderResponse = await OrderServices.addOrder(orderInfo);
     await handleOrderSuccess(orderResponse, orderInfo);
+  };
+
+  const [phonePeModalData, setPhonePeModalData] = useState(null);
+
+  //handle phonepe payment
+  const handlePaymentWithPhonePe = async (orderInfo) => {
+    try {
+      setIsCheckoutSubmit(true);
+      const res = await OrderServices.createPhonePePayment(orderInfo);
+
+      if (res?.success && res?.url) {
+        emptyCart();
+        if (typeof window !== "undefined") {
+          window.location.href = res.url;
+          return;
+        }
+      } else {
+        notifyError(res?.message || "Failed to generate PhonePe payment URL.");
+        setIsCheckoutSubmit(false);
+      }
+    } catch (err) {
+      console.error("PhonePe payment initiation error:", err);
+      notifyError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "PhonePe payment initiation failed."
+      );
+      setIsCheckoutSubmit(false);
+    }
   };
 
   //handle razorpay payment
@@ -792,6 +824,9 @@ const useCheckoutSubmit = (storeSetting) => {
     taxSummary,
     setValue,
     handleRemoveCoupon,
+    emptyCart,
+    phonePeModalData,
+    setPhonePeModalData,
   };
 };
 

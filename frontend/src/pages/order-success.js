@@ -104,10 +104,11 @@ const OrderSuccess = () => {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/">
-                <a className="h-[58px] px-8 rounded-[18px] text-base font-bold text-white bg-[#8B5E4B] hover:bg-[#724D3D] transition-all flex items-center justify-center shadow-lg">
-                  Continue Shopping
-                </a>
+              <Link
+                href="/"
+                className="h-[58px] px-8 rounded-[18px] text-base font-bold text-white bg-[#8B5E4B] hover:bg-[#724D3D] transition-all flex items-center justify-center shadow-lg"
+              >
+                Continue Shopping
               </Link>
             </div>
           </div>

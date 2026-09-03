@@ -1497,7 +1497,7 @@ const getCustomerById = async (req, res) => {
   }
 };
 
-// Shipping address create or update - supports multiple addresses
+// Shipping address create or update - supports multiple addresses with automatic deduplication
 const addShippingAddress = async (req, res) => {
   try {
     const customerId = req.params.id;
@@ -1508,25 +1508,63 @@ const addShippingAddress = async (req, res) => {
       return res.status(404).send({ message: "Customer not found." });
     }
 
-    // Ensure shippingAddress is an array (handle migration from Object to Array)
-    if (!Array.isArray(customer.shippingAddress)) {
-      // If it's an object, convert to array
-      if (customer.shippingAddress && typeof customer.shippingAddress === 'object' && Object.keys(customer.shippingAddress).length > 0) {
-        customer.shippingAddress = [customer.shippingAddress];
-      } else {
-        customer.shippingAddress = [];
+    // Convert Mongoose subdocuments to clean plain JavaScript objects
+    const rawList = Array.isArray(customer.shippingAddress) ? customer.shippingAddress : [];
+    const plainAddresses = rawList.map(item => {
+      if (!item) return {};
+      const obj = typeof item.toObject === "function" ? item.toObject() : { ...item };
+      // Remove Mongoose internal properties
+      delete obj.$__;
+      delete obj.$isSingleNested;
+      delete obj._doc;
+      delete obj.ownerDocument;
+      delete obj.emitter;
+      return obj;
+    });
+
+    const cleanInput = {
+      name: newShippingAddress.name || "",
+      address: newShippingAddress.address || "",
+      city: newShippingAddress.city || "",
+      country: newShippingAddress.country || "",
+      zipCode: newShippingAddress.zipCode || "",
+      phone: newShippingAddress.phone || newShippingAddress.contact || "",
+      addressType: ["Home", "Work", "Other"].includes(newShippingAddress.addressType) ? newShippingAddress.addressType : "Home",
+      isDefault: Boolean(newShippingAddress.isDefault),
+    };
+
+    if (cleanInput.isDefault) {
+      plainAddresses.forEach(addr => { addr.isDefault = false; });
+    }
+
+    const norm = (str) => (str || "").toString().trim().toLowerCase();
+    const existingIndex = plainAddresses.findIndex(addr =>
+      norm(addr.address) === norm(cleanInput.address) &&
+      norm(addr.zipCode) === norm(cleanInput.zipCode) &&
+      norm(addr.name) === norm(cleanInput.name)
+    );
+
+    if (existingIndex !== -1) {
+      plainAddresses[existingIndex] = {
+        ...plainAddresses[existingIndex],
+        ...cleanInput,
+      };
+    } else {
+      plainAddresses.push(cleanInput);
+    }
+
+    // Deduplicate any pre-existing duplicates
+    const seen = new Set();
+    const uniqueAddresses = [];
+    for (const addr of plainAddresses) {
+      const key = `${norm(addr.name)}|${norm(addr.address)}|${norm(addr.city)}|${norm(addr.zipCode)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueAddresses.push(addr);
       }
     }
 
-    // If this is set as default, unset all other defaults
-    if (newShippingAddress.isDefault) {
-      customer.shippingAddress.forEach(addr => {
-        addr.isDefault = false;
-      });
-    }
-
-    // Add new address to array
-    customer.shippingAddress.push(newShippingAddress);
+    customer.shippingAddress = uniqueAddresses;
     await customer.save();
 
     return res.send({
@@ -1562,6 +1600,19 @@ const getShippingAddress = async (req, res) => {
       addresses = [customer.shippingAddress];
     }
 
+    // Deduplicate list of addresses
+    const norm = (str) => (str || "").toString().trim().toLowerCase();
+    const seen = new Set();
+    const uniqueAddresses = [];
+    for (const addr of addresses) {
+      const key = `${norm(addr.name)}|${norm(addr.address)}|${norm(addr.city)}|${norm(addr.zipCode)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueAddresses.push(addr);
+      }
+    }
+    addresses = uniqueAddresses;
+
     // If specific address ID requested
     if (addressId) {
       const address = addresses.find(
@@ -1577,7 +1628,7 @@ const getShippingAddress = async (req, res) => {
       return res.send({ shippingAddress: address });
     }
 
-    // Return all addresses
+    // Return unique addresses
     res.send({
       shippingAddress: addresses,
       success: true

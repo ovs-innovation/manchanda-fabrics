@@ -9,6 +9,10 @@ const {
   createOrderByRazorPay,
   sendEmailInvoiceToCustomer,
   requestRefund,
+  createPhonePeOrder,
+  handlePhonePeCallback,
+  handlePhonePeWebhook,
+  getPhonePeStatusApi,
 } = require("../controller/customerOrderController");
 
 const { emailVerificationLimit } = require("../lib/email-sender/sender");
@@ -26,8 +30,14 @@ router.post("/add/razorpay", isAuthOptional, addRazorpayOrder);
 //add a order by razorpay
 router.post("/create/razorpay", isAuthOptional, createOrderByRazorPay);
 
+// PhonePe Payment Routes
+router.post("/create-phonepe-payment", isAuthOptional, createPhonePeOrder);
+router.all("/phonepe-callback", handlePhonePeCallback);
+router.post("/phonepe-webhook", handlePhonePeWebhook);
+router.get("/phonepe-status/:transactionId", isAuthOptional, getPhonePeStatusApi);
+
 //get a order by id
-router.get("/:id", isAuth, getOrderById);
+router.get("/:id", isAuthOptional, getOrderById);
 
 //get all order by a user
 router.get("/", isAuth, getOrderCustomer);
