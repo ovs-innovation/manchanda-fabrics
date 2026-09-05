@@ -3,8 +3,23 @@ import Cookies from "js-cookie";
 
 // console.log("base url", import.meta.env.VITE_APP_API_BASE_URL);
 
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_APP_API_BASE_URL;
+  if (envUrl) {
+    // If configured with https://manchandafabric.in/api without the api. subdomain
+    if (envUrl.includes("https://manchandafabric.in/api")) {
+      return envUrl.replace("https://manchandafabric.in/api", "https://api.manchandafabric.in/api");
+    }
+    return envUrl;
+  }
+  if (typeof window !== "undefined" && window.location.hostname.includes("manchandafabric.in")) {
+    return "https://api.manchandafabric.in/api";
+  }
+  return "http://localhost:8092/api";
+};
+
 const instance = axios.create({
-  baseURL: `${import.meta.env.VITE_APP_API_BASE_URL}`,
+  baseURL: getBaseUrl(),
   timeout: 50000,
   headers: {
     Accept: "application/json",

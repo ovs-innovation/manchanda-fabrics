@@ -49,32 +49,47 @@ const app = express();
 // app.enable('trust proxy');
 app.set("trust proxy", 1);
 
-// CORS configuration - allow frontend domain + localhost for dev
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [
-      process.env.FRONTEND_URL,
-      process.env.ADMIN_URL,
-      process.env.STORE_URL,
-      process.env.NEXT_PUBLIC_STORE_DOMAIN,
-      "https://manchandafabric.in",
-      "https://www.manchandafabric.in",
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://localhost:4100",
-      "http://127.0.0.1:4100",
-      "http://localhost:5055",
-      "http://127.0.0.1:5055",
-      "exp://192.168.1.6:8081",
-      "exp://192.168.1.6:8082",
-    ].filter(Boolean)
-  : ["https://manchandafabric.in", "https://www.manchandafabric.in", "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4100", "http://127.0.0.1:4100", "http://localhost:5055", "*"];
+// CORS configuration - allow frontend domain, admin domain + localhost for dev
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_URL,
+  process.env.STORE_URL,
+  process.env.NEXT_PUBLIC_STORE_DOMAIN,
+  "https://manchandafabric.in",
+  "https://www.manchandafabric.in",
+  "https://admin.manchandafabric.in",
+  "https://api.manchandafabric.in",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:4100",
+  "http://127.0.0.1:4100",
+  "http://localhost:5055",
+  "http://127.0.0.1:5055",
+  "exp://192.168.1.6:8081",
+  "exp://192.168.1.6:8082",
+].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes("*")) return true;
+  if (allowedOrigins.some((o) => origin === o || origin.startsWith(o))) return true;
+  try {
+    const { hostname } = new URL(origin);
+    if (hostname === "manchandafabric.in" || hostname.endsWith(".manchandafabric.in")) {
+      return true;
+    }
+  } catch (e) {
+    // Ignore invalid URL parse
+  }
+  return false;
+};
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.some(o => origin.startsWith(o))) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
