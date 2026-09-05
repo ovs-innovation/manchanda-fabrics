@@ -162,6 +162,15 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    shippingCost: {
+      type: Number,
+      default: 0,
+      min: [0, "Shipping cost cannot be negative"],
+    },
+    isShippingFree: {
+      type: Boolean,
+      default: false,
+    },
     brand: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",

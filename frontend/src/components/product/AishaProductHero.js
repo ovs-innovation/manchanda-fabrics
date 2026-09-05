@@ -194,6 +194,14 @@ const AishaProductHero = ({
             <span className="font-medium text-[#111111]">{t("Available")}:</span>{" "}
             {stock > 0 ? t("Available") : t("stockOut")}
           </p>
+          <p>
+            <span className="font-medium text-[#111111]">Shipping:</span>{" "}
+            {product?.isShippingFree || Number(product?.shippingCost || 0) === 0 ? (
+              <span className="text-emerald-700 font-semibold">Free Shipping</span>
+            ) : (
+              <span>{currency}{product?.shippingCost}</span>
+            )}
+          </p>
           {categoryName && (
             <p>
               <span className="font-medium text-[#111111]">{t("category")}:</span>{" "}

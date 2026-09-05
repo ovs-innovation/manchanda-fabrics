@@ -40,6 +40,10 @@ exports.formatProductForCSV = (product) => {
 
     isPriceInclusive: product.isPriceInclusive ? "Yes" : "No",
 
+    shippingCost: product.shippingCost || 0,
+
+    isShippingFree: product.isShippingFree ? "Yes" : "No",
+
     hsnCode: product.hsnCode || "",
 
     isCombination: product.isCombination ? "Yes" : "No",
@@ -104,6 +108,10 @@ exports.formatCSVToProduct = (row) => {
     taxRate: Number(row.taxRate),
 
     isPriceInclusive: row.isPriceInclusive === "Yes",
+
+    shippingCost: Number(row.shippingCost || 0),
+
+    isShippingFree: row.isShippingFree === "Yes",
 
     hsnCode: row.hsnCode,
 

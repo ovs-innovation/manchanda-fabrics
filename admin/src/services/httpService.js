@@ -57,6 +57,28 @@ instance.interceptors.request.use(function (config) {
   };
 });
 
+// Add a response interceptor
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const msg = error.response.data?.message || "";
+      if (
+        msg.includes("invalid signature") ||
+        msg.includes("jwt expired") ||
+        msg.includes("Authorization header") ||
+        msg.includes("not authorized")
+      ) {
+        Cookies.remove("adminInfo");
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 const responseBody = (response) => response.data;
 
 const requests = {

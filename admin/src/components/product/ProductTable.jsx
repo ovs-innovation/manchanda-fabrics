@@ -102,6 +102,16 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
             </TableCell>
 
             <TableCell>
+              {product?.isShippingFree || Number(product?.shippingCost || 0) === 0 ? (
+                <Badge type="neutral">Free</Badge>
+              ) : (
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {currency}{getNumberTwo(product?.shippingCost)}
+                </span>
+              )}
+            </TableCell>
+
+            <TableCell>
               <span className={`text-sm font-semibold ${product.stock <= 10 ? "text-red-600" : ""}`}>
                 {Math.max(0, product.stock)}
                 {product.stock <= 10 && product.stock > 0 && (

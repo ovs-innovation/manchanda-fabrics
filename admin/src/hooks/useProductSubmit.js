@@ -538,6 +538,8 @@ const useProductSubmit = (id) => {
         sareeLength: data.sareeLength || "",
         colorFamily: data.colorFamily || "",
         collectionName: data.collectionName || "",
+        shippingCost: data.isShippingFree ? 0 : Math.max(0, Number(data.shippingCost || 0)),
+        isShippingFree: Boolean(data.isShippingFree),
       };
 
       // console.log("productData ===========>", productData, "data", data);
@@ -827,6 +829,8 @@ const useProductSubmit = (id) => {
                 : Number(res?.taxRate || 0)
             );
             setValue("isPriceInclusive", Boolean(res?.isPriceInclusive));
+            setValue("shippingCost", res?.shippingCost !== undefined ? Number(res.shippingCost) : 0);
+            setValue("isShippingFree", Boolean(res?.isShippingFree));
             setValue("discountType", res?.prices?.discountType || "flat");
             setValue("gender", res.gender || "");
             setValue("productType", res.productType || "");

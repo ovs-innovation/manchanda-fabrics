@@ -162,6 +162,9 @@ const ProductDetails = () => {
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-medium pl-4">
                   MRP: {currency}{getNumberTwo(data?.prices?.originalPrice)}
                 </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium pl-4">
+                  Shipping: {data?.isShippingFree || Number(data?.shippingCost || 0) === 0 ? "Free Shipping" : `${currency}${getNumberTwo(data?.shippingCost)}`}
+                </span>
               </div>
               <p className="text-sm leading-6 text-gray-500 dark:text-gray-400 md:leading-7">
                 {showingTranslateValue(data?.description)}

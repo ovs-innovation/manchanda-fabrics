@@ -360,6 +360,48 @@ const AddProduct = () => {
                 </div>
               </section>
 
+              {/* Shipping Cost */}
+              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
+                <h2 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3 flex items-center justify-between">
+                  <span>Shipping Cost Details</span>
+                  <span className="text-xs font-normal text-gray-500">
+                    Add or remove shipping cost for this product
+                  </span>
+                </h2>
+
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <input
+                      type="checkbox"
+                      id="isShippingFree"
+                      {...register("isShippingFree")}
+                      className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                    />
+                    <label htmlFor="isShippingFree" className="text-sm font-semibold text-gray-700 dark:text-gray-200 cursor-pointer">
+                      Free Shipping (Remove shipping cost for this product)
+                    </label>
+                  </div>
+
+                  {!watch("isShippingFree") && (
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
+                        Product Shipping Cost (₹)
+                      </label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...register("shippingCost")}
+                        placeholder="e.g. 49"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Specify custom shipping cost for this product. Enter 0 or check "Free Shipping" above to remove shipping cost.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
               {/* Variants */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">
                 <SimpleVariantManager variants={variants} setVariants={setVariants} />

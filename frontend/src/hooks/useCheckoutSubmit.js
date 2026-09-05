@@ -19,6 +19,7 @@ import CustomerServices from "@services/CustomerServices";
 import { isProfileComplete, getDisplayEmail } from "@utils/profileAuth";
 import NotificationServices from "@services/NotificationServices";
 import ShiprocketServices from "@services/ShiprocketServices";
+import ProductServices from "@services/ProductServices";
 import useCartDB from "@hooks/useCartDB";
 import { isUsableImageUrl } from "@utils/brandAssets";
 import { normalizeCartItemPricing } from "@utils/invoicePricing";
@@ -69,6 +70,12 @@ const useCheckoutSubmit = (storeSetting) => {
 
   const hasShippingAddress =
     !isLoading && data && Object.keys(data)?.length > 0;
+
+  const { data: storeProducts } = useQuery({
+    queryKey: ["storeProductsForShipping"],
+    queryFn: async () => await ProductServices.getShowingProducts(),
+    staleTime: 60 * 1000,
+  });
 
   const {
     register,
@@ -189,9 +196,31 @@ const useCheckoutSubmit = (storeSetting) => {
       nextTaxSummary.inclusiveTax + nextTaxSummary.exclusiveTax;
     setTaxSummary(nextTaxSummary);
 
+    const calculatedShipping = items?.reduce((acc, item) => {
+      const dbId = item._id || item.productId || (typeof item.id === 'string' ? item.id.split('-')[0] : item.id);
+      const liveProduct = storeProducts?.find(
+        (p) => String(p._id) === String(dbId) || String(p.id) === String(dbId) || String(p.productId) === String(dbId)
+      );
+
+      const isFree = liveProduct ? Boolean(liveProduct.isShippingFree) : Boolean(item.isShippingFree);
+      const cost = liveProduct && liveProduct.shippingCost !== undefined
+        ? Number(liveProduct.shippingCost || 0)
+        : (item.shippingCost !== undefined ? Number(item.shippingCost || 0) : 0);
+
+      if (isFree) {
+        return acc;
+      }
+      if (cost > 0) {
+        return acc + cost;
+      }
+      return acc;
+    }, 0) ?? 0;
+
+    setShippingCost(calculatedShipping);
+
     let totalValue = 0;
     const subTotal = parseFloat(
-      cartTotal + Number(shippingCost) + nextTaxSummary.exclusiveTax
+      cartTotal + calculatedShipping + nextTaxSummary.exclusiveTax
     ).toFixed(2);
 
     let calculatedDiscountAmount = 0;
@@ -207,7 +236,7 @@ const useCheckoutSubmit = (storeSetting) => {
 
     setDiscountAmount(discountAmountTotal);
     setTotal(totalValue);
-  }, [items, cartTotal, shippingCost, discountPercentage]);
+  }, [items, cartTotal, discountPercentage, storeProducts]);
 
   const submitHandler = async (data) => {
     try {

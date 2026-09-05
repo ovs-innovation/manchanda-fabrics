@@ -650,6 +650,8 @@ const updateProduct = async (req, res) => {
       product.hsnCode = hsnCode;
       product.taxRate = taxRate;
       product.isPriceInclusive = isPriceInclusive;
+      product.shippingCost = req.body.shippingCost !== undefined ? Math.max(0, Number(req.body.shippingCost || 0)) : (product.shippingCost || 0);
+      product.isShippingFree = req.body.isShippingFree !== undefined ? Boolean(req.body.isShippingFree) : (product.isShippingFree || false);
       product.variantFilters = req.body.variantFilters || [];
       if (Object.prototype.hasOwnProperty.call(req.body, "dynamicSections")) {
         product.dynamicSections = sanitizeDynamicSections(

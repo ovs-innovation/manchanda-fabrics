@@ -18,9 +18,9 @@ const {
   handleProductQuantity,
   checkStock,
 } = require("../lib/stock-controller/others");
-const { 
+const {
   customerInvoiceEmailBody,
-  orderConfirmationBody 
+  orderConfirmationBody
 } = require("../lib/email-sender/templates/order-to-customer");
 const { newOrderAdminEmailBody } = require("../lib/email-sender/templates/order-to-admin/new-order");
 const { sendSMS } = require("../lib/sms-sender/sender");
@@ -47,7 +47,7 @@ const getEmailLogoUrl = async () => {
       storeCustomizationSetting?.setting?.seo?.favicon ||
       "";
     if (adminLogo && String(adminLogo).trim()) return String(adminLogo).trim();
-  } catch (_) {}
+  } catch (_) { }
 
   if (process.env.STORE_LOGO_URL) return process.env.STORE_LOGO_URL;
   const base = (process.env.STORE_URL || "https://manchandafabrics.com").replace(/\/$/, "");
@@ -130,7 +130,7 @@ const sendOrderNotifications = async (order) => {
 
     if (!customerEmail && !order.confirmationSmsSent && order.user_info.contact) {
       const smsMessage = `Hi ${order.user_info.name}, your order #${order.invoice} of ${currency}${order.total} has been placed successfully at ${shopName}. Track here: ${process.env.STORE_URL}/user/dashboard`;
-      
+
       const variables = {
         name: order.user_info.name,
         orderid: order.invoice,
@@ -186,14 +186,14 @@ const sendOrderNotifications = async (order) => {
       }];
     }
 
-    await Order.updateOne({ _id: order._id }, { 
-      $set: { 
+    await Order.updateOne({ _id: order._id }, {
+      $set: {
         confirmationEmailSent: order.confirmationEmailSent,
         confirmationSmsSent: order.confirmationSmsSent,
         invoiceEmailSent: order.invoiceEmailSent,
         adminNewOrderEmailSent: order.adminNewOrderEmailSent,
         trackingHistory: order.trackingHistory
-      } 
+      }
     });
 
   } catch (error) {
@@ -210,7 +210,7 @@ const populateBrandNames = async (order) => {
         .filter(item => item.brand && mongoose.Types.ObjectId.isValid(item.brand))
         .map(item => item.brand)
     )];
-    
+
     // Fetch brand names if there are brand IDs
     if (brandIds.length > 0) {
       const brands = await Brand.find({ _id: { $in: brandIds } }).select('_id name');
@@ -220,7 +220,7 @@ const populateBrandNames = async (order) => {
         const nameObj = brand.name || {};
         brandMap[brand._id.toString()] = nameObj.en || nameObj[Object.keys(nameObj)[0]] || '-';
       });
-      
+
       // Replace brand IDs with brand names in cart items
       order.cart = order.cart.map(item => {
         if (item.brand && brandMap[item.brand]) {
@@ -256,7 +256,7 @@ const addOrder = async (req, res) => {
     const order = await newOrder.save();
     res.status(201).send(order);
     handleProductQuantity(order.cart);
-    
+
     // Send notifications after order is created (non-blocking)
     sendOrderNotifications(order);
   } catch (err) {
@@ -475,7 +475,7 @@ const addRazorpayOrder = async (req, res) => {
     const order = await newOrder.save();
     res.status(201).send(order);
     handleProductQuantity(order.cart);
-    
+
     // Send notifications after order is created (non-blocking)
     sendOrderNotifications(order);
   } catch (err) {
@@ -594,13 +594,13 @@ const getOrderById = async (req, res) => {
   try {
     // console.log("getOrderById");
     const order = await Order.findById(req.params.id);
-    
+
     // Populate brand names in cart items
     let orderWithBrandNames = await populateBrandNames(order.toObject());
-    
+
     // Populate taxRate and HSN from Product collection
     orderWithBrandNames.cart = await populateCartTaxFields(orderWithBrandNames.cart);
-    
+
     res.send(orderWithBrandNames);
   } catch (err) {
     res.status(500).send({
@@ -684,7 +684,7 @@ const requestRefund = async (req, res) => {
     if (!order) {
       return res.status(404).send({ message: "Order not found" });
     }
-    
+
     // Only allow refund if order is Delivered
     if (order.status !== "Delivered") {
       return res.status(400).send({ message: "Refund can only be requested for Delivered orders." });
@@ -696,7 +696,7 @@ const requestRefund = async (req, res) => {
       note: req.body.note || "",
       requestedAt: new Date(),
     };
-    
+
     await order.save();
     res.send({ message: "Refund Requested Successfully!", order });
   } catch (err) {

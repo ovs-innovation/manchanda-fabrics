@@ -833,6 +833,8 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       colorVariants: product.colorVariants || [],
       price: currentPrice,
       originalPrice: currentOriginalPrice,
+      shippingCost: product.shippingCost !== undefined ? Number(product.shippingCost) : 0,
+      isShippingFree: Boolean(product.isShippingFree),
     };
 
     handleAddItem(newItem, quantity);

@@ -84,6 +84,8 @@ const ProductCard = ({
         price: product.prices?.price || 0,
         originalPrice: product.prices?.originalPrice || product.prices?.price || 0,
         image: product.image?.[0] || product.images?.[0],
+        shippingCost: product.shippingCost !== undefined ? Number(product.shippingCost) : 0,
+        isShippingFree: Boolean(product.isShippingFree),
       },
       1
     );
