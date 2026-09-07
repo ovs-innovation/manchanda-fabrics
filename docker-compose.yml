@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: manchanda-backend
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-8092}:8092"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=8092
+      - NODE_ENV=production
+    networks:
+      - manchanda-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://api.manchandafabric.in/api}
+        NEXT_PUBLIC_API_SOCKET_URL: ${NEXT_PUBLIC_API_SOCKET_URL:-https://api.manchandafabric.in}
+        NEXT_PUBLIC_STORE_DOMAIN: ${NEXT_PUBLIC_STORE_DOMAIN:-https://manchandafabric.in}
+        NEXT_PUBLIC_CLOUDINARY_URL: ${NEXT_PUBLIC_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/detqbiabu/image/upload}
+        NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET:-ml_default}
+        NEXT_PUBLIC_CLOUDINARY_API_KEY: ${NEXT_PUBLIC_CLOUDINARY_API_KEY:-988826349828863}
+        NEXT_PUBLIC_PHONE_OTP_PROVIDER: ${NEXT_PUBLIC_PHONE_OTP_PROVIDER:-firebase}
+    container_name: manchanda-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    env_file:
+      - ./frontend/.env
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - manchanda-net
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_API_BASE_URL: ${VITE_APP_API_BASE_URL:-https://api.manchandafabric.in/api}
+        VITE_APP_API_SOCKET_URL: ${VITE_APP_API_SOCKET_URL:-https://api.manchandafabric.in}
+        VITE_APP_CLOUD_NAME: ${VITE_APP_CLOUD_NAME:-detqbiabu}
+        VITE_APP_CLOUDINARY_API_KEY: ${VITE_APP_CLOUDINARY_API_KEY:-988826349828863}
+        VITE_APP_CLOUDINARY_UPLOAD_PRESET: ${VITE_APP_CLOUDINARY_UPLOAD_PRESET:-ml_default}
+        VITE_APP_CLOUDINARY_URL: ${VITE_APP_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/detqbiabu/image/upload}
+    container_name: manchanda-admin
+    restart: always
+    ports:
+      - "${ADMIN_PORT:-4100}:80"
+    depends_on:
+      - backend
+    networks:
+      - manchanda-net
+
+networks:
+  manchanda-net:
+    name: manchanda-net
+    driver: bridge
