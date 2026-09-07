@@ -32,7 +32,7 @@ services:
     container_name: manchanda-frontend
     restart: always
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT:-3021}:3000"
     env_file:
       - ./frontend/.env
     environment:
@@ -57,7 +57,7 @@ services:
     container_name: manchanda-admin
     restart: always
     ports:
-      - "${ADMIN_PORT:-4100}:80"
+      - "${ADMIN_PORT:-3020}:80"
     depends_on:
       - backend
     networks:
