@@ -155,11 +155,28 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
     return () => obs.disconnect();
   }, [carouselItems]);
 
+  const swiperRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const swiper = swiperRef.current;
+      if (!swiper || !swiper.autoplay) return;
+      if (window.innerWidth >= 640) {
+        if (swiper.autoplay.running) swiper.autoplay.stop();
+      } else {
+        if (!swiper.autoplay.running) swiper.autoplay.start();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (!carouselItems.length) return null;
 
   return (
     <section className="py-16 sm:py-20 bg-white">
-      <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16">
         <h2
           className="text-center text-4xl sm:text-5xl font-semibold text-[#111111]"
           style={{ fontFamily: "'Poppins', sans-serif" }}
@@ -179,9 +196,28 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }}
-            loop={carouselItems.length > 2}
-            spaceBetween={14}
-            slidesPerView={1}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+              if (typeof window !== "undefined") {
+                if (window.innerWidth >= 640) {
+                  swiper.autoplay?.stop();
+                } else {
+                  swiper.autoplay?.start();
+                }
+              }
+            }}
+            onBreakpoint={(swiper) => {
+              if (typeof window !== "undefined") {
+                if (window.innerWidth >= 640) {
+                  swiper.autoplay?.stop();
+                } else {
+                  swiper.autoplay?.start();
+                }
+              }
+            }}
+            loop={carouselItems.length >= 4}
+            spaceBetween={10}
+            slidesPerView={2}
             breakpoints={{
               640: { slidesPerView: 2.3, spaceBetween: 16 },
               1024: { slidesPerView: 3.7, spaceBetween: 18 },
@@ -201,7 +237,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                   <button
                     type="button"
                     onClick={() => item.product && setSelected({ product: item.product, video, image })}
-                    className="block w-full text-left bg-white rounded-[14px] shadow-[0_6px_16px_rgba(0,0,0,0.08)] overflow-hidden border border-black/5 cursor-pointer"
+                    className="block w-full text-left bg-white rounded-[12px] sm:rounded-[14px] shadow-[0_4px_14px_rgba(0,0,0,0.08)] overflow-hidden border border-black/5 cursor-pointer"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <div className="aspect-[9/16] bg-neutral-100 overflow-hidden relative">
@@ -232,7 +268,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       )}
 
                       {image && (
-                        <div className="absolute bottom-2.5 left-2.5 w-10 h-10 rounded overflow-hidden border-2 border-white shadow-md">
+                        <div className="absolute bottom-2 left-2 w-7 h-7 sm:w-10 sm:h-10 rounded overflow-hidden border sm:border-2 border-white shadow-md">
                           <img
                             src={image}
                             alt={title}
@@ -243,12 +279,12 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       )}
                     </div>
 
-                    <div className="px-3 py-2.5">
-                      <p className="text-[12px] sm:text-[13px] font-medium text-[#111111] truncate leading-snug">
+                    <div className="px-2.5 py-2 sm:px-3 sm:py-2.5">
+                      <p className="text-[11px] sm:text-[13px] font-medium text-[#111111] truncate leading-snug">
                         {title}
                       </p>
                       {priceText && (
-                        <p className="mt-0.5 text-[11px] sm:text-[12px] text-neutral-500">{priceText}</p>
+                        <p className="mt-0.5 text-[10px] sm:text-[12px] text-neutral-500 font-semibold">{priceText}</p>
                       )}
                     </div>
                   </button>
@@ -262,17 +298,30 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
       <style jsx global>{`
         .home-reels-swiper .swiper-button-prev,
         .home-reels-swiper .swiper-button-next {
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 9999px;
           background: #ffffff;
           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
           color: #111111;
         }
+        @media (min-width: 640px) {
+          .home-reels-swiper .swiper-button-prev,
+          .home-reels-swiper .swiper-button-next {
+            width: 40px;
+            height: 40px;
+          }
+        }
         .home-reels-swiper .swiper-button-prev::after,
         .home-reels-swiper .swiper-button-next::after {
-          font-size: 15px;
+          font-size: 12px;
           font-weight: 700;
+        }
+        @media (min-width: 640px) {
+          .home-reels-swiper .swiper-button-prev::after,
+          .home-reels-swiper .swiper-button-next::after {
+            font-size: 15px;
+          }
         }
       `}</style>
 
