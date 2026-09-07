@@ -5,10 +5,10 @@ echo "========================================="
 echo " Manchanda Fabrics - Docker Deployment   "
 echo "========================================="
 
-# 1. Stop any old PM2 processes if running
+# 1. Stop only Manchanda PM2 processes if running
 if command -v pm2 &> /dev/null; then
-    echo "Stopping PM2 processes to free ports (8092, 3000, 4100)..."
-    pm2 stop all || true
+    echo "Stopping Manchanda PM2 processes to free ports (8092, 3000, 4100)..."
+    pm2 stop manchanda-backend manchanda-frontend manchanda-admin || true
 fi
 
 # 2. Rebuild and launch containers
