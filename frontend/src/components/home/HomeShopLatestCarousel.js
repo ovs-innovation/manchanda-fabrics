@@ -1,9 +1,10 @@
 import useTranslation from "next-translate/useTranslation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import "swiper/css/autoplay";
 
 import ReelModal from "@components/home/ReelModal";
 import ProductServices from "@services/ProductServices";
@@ -171,8 +172,14 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
 
         <div className="mt-10 relative home-reels-swiper">
           <Swiper
-            modules={[Navigation]}
+            modules={[Navigation, Autoplay]}
             navigation
+            autoplay={{
+              delay: 3500,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            loop={carouselItems.length > 2}
             spaceBetween={14}
             slidesPerView={1}
             breakpoints={{

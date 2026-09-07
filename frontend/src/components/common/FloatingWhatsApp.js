@@ -17,7 +17,7 @@ const FloatingWhatsApp = () => {
   const whatsappNumber =
     normalizeNumber(storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp) ||
     normalizeNumber(storeCustomizationSetting?.footer?.social_whatsapp) ||
-    "919891595929";
+    "919650544554";
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 2000);
@@ -27,7 +27,7 @@ const FloatingWhatsApp = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-24 lg:bottom-8 right-4 lg:right-8 z-[99] flex items-end justify-end flex-col group pointer-events-none">
+    <div className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 z-[99] flex items-end justify-end flex-col group pointer-events-none">
       {/* Tooltip */}
       <div 
         className={`bg-white text-[#3B2A25] px-4 py-3 rounded-2xl shadow-xl border border-[#E6D1CB] mb-4 mr-2 transition-all duration-500 transform origin-bottom-right max-w-[200px] pointer-events-auto

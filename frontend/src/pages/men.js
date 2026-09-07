@@ -30,7 +30,7 @@ const MenCollection = ({ products, attributes }) => {
               No items available in this collection.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 lg:gap-10">
               {products.map((product) => (
                 <ProductCard key={product._id} product={product} attributes={attributes} />
               ))}

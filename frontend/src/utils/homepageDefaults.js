@@ -46,7 +46,7 @@ export const DEFAULT_HOMEPAGE = {
     hours: "Mon – Sat · 11 AM – 8 PM (Sun closed)",
     instagram: "https://www.instagram.com/manchandafabrics",
     facebook: "",
-    whatsapp: "919891595929",
+    whatsapp: "919650544554",
     copyrightName: "VastoraTech",
     copyrightUrl: "https://vastoratech.com/",
     collectionLinks: [
@@ -67,11 +67,11 @@ export const DEFAULT_HOMEPAGE = {
       { title: "Glace Cotton", href: "/collections/glace-cotton" },
     ],
   },
-  whatsappNumbers: ["919891595929"],
+  whatsappNumbers: ["919650544554"],
   videoShopping: {
     enabled: true,
     businessHours: "11:30 AM – 8:00 PM",
-    whatsapp: "919891595929",
+    whatsapp: "919650544554",
     buttonText: "Start Video Shopping",
     title: "Live Video Shopping",
     subtitle: "Shop with us through a live video call.",

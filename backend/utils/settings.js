@@ -338,8 +338,8 @@ const setting = [
           de: "Rufen Sie uns an",
         },
         call_box_phone: {
-          en: "+91-9891595929",
-          de: "+91-9891595929",
+          en: "+91-9650544554",
+          de: "+91-9650544554",
         },
         call_box_text: {
           en: "Distinctively disseminate focused solutions clicks-and-mortar ministate. ",
@@ -871,10 +871,10 @@ const setting = [
         social_twitter: "https://twitter.com/",
         social_instagram: "https://www.instagram.com/",
         social_linkedin: "https://www.linkedin.com/",
-        social_whatsapp: "https://web.whatsapp.com/",
+        social_whatsapp: "919650544554",
         payment_method_img:
           "https://res.cloudinary.com/ahossain/image/upload/v1697688607/settings/payment-logo_qhslgz.webp",
-        bottom_contact: "+6599887766",
+        bottom_contact: "+91-9650544554",
       },
       slug: {
         right_box_status: true,

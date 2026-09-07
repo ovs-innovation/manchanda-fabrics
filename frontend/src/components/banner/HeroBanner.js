@@ -57,7 +57,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
   return (
     <div
       id="hero-section"
-      className="relative w-full h-[48vh] min-h-[320px] max-h-[440px] md:h-screen md:min-h-[600px] bg-[#111111] overflow-hidden flex items-center justify-center"
+      className="relative w-full h-[70vh] min-h-[450px] max-h-[650px] md:h-screen md:min-h-[600px] md:max-h-none bg-[#111111] overflow-hidden flex items-center justify-center"
     >
       {/* ── 1. DESKTOP VIDEO (Hidden on mobile, block on md+) ── */}
       <video

@@ -183,23 +183,23 @@ const ProductCard = ({
       )}
 
       <article
-        className="group flex h-full w-full flex-col overflow-hidden bg-white"
+        className="group flex h-full w-full flex-col overflow-hidden bg-white rounded-2xl border border-neutral-100/80 shadow-xs hover:shadow-md transition-all duration-300"
         style={{ fontFamily: "'Poppins', sans-serif" }}
       >
         {/* Image Container */}
         <div
           onClick={goToProduct}
-          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden bg-neutral-50"
+          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-t-2xl bg-neutral-50"
         >
           {isSoldOut && (
-            <span className="absolute left-3 top-3 z-20 bg-[#111111] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white">
+            <span className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 z-20 bg-[#111111] text-white text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md shadow-xs">
               {t("Sold Out")}
             </span>
           )}
 
-          {/* Sale badge (Aisha style "-x%") */}
+          {/* Sale badge (White pill badge like reference image 2) */}
           {hasSale && !hideDiscount && !isSoldOut && (
-            <span className="absolute left-3 top-3 z-20 bg-[#111111] px-3 py-1.5 text-[10px] font-semibold tracking-[0.1em] text-white">
+            <span className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 z-20 bg-white/95 text-[#111111] text-[11px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md shadow-xs border border-black/5">
               -{discountPercent}%
             </span>
           )}
@@ -217,34 +217,23 @@ const ProductCard = ({
             <Image src={PRODUCT_PLACEHOLDER} fill className="object-cover" alt="product placeholder" />
           )}
 
-          {/* Hover actions: Add to Cart + Quickshop (Aisha style) */}
+          {/* Floating Action Button: Circular shopping bag button bottom-right (exact match to image 2) */}
           {!hidePriceAndAdd && !isSoldOut && (
-            <div className="absolute inset-x-3 bottom-3 z-20 flex flex-col gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
-              <button
-                type="button"
-                onClick={handleAddClick}
-                className="w-full bg-[#111111] text-white text-[11px] font-semibold uppercase tracking-[0.2em] py-3 hover:bg-black transition-colors"
-              >
-                {hasSizeVariants ? t("Select Options") : t("Add to Cart")}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setModalOpen(true);
-                }}
-                className="w-full bg-white text-[#111111] text-[11px] font-semibold uppercase tracking-[0.2em] py-3 border border-neutral-200 hover:border-[#111111] transition-colors"
-              >
-                {t("Quickshop")}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleAddClick}
+              title={hasSizeVariants ? t("Select Options") : t("Add to Cart")}
+              className="absolute right-2.5 bottom-2.5 sm:right-3 sm:bottom-3 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white text-[#111111] shadow-md flex items-center justify-center hover:bg-[#111111] hover:text-white transition-all active:scale-90 cursor-pointer border border-black/5"
+            >
+              <FiShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-800 hover:text-white transition-colors" />
+            </button>
           )}
         </div>
 
-        {/* Details (Aisha: centered title + Regular price) */}
-        <div className="flex flex-1 flex-col items-center gap-1.5 px-3 py-5 text-center bg-white">
+        {/* Details (Left aligned, title line-clamp, bold price + strikethrough like reference image 2) */}
+        <div className="flex flex-1 flex-col items-start justify-between gap-1 px-3 py-3 text-left bg-white">
           {combinedColorVariants && combinedColorVariants.length > 1 && (
-            <div className="flex items-center justify-center gap-1.5 mb-2 flex-wrap">
+            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               {combinedColorVariants.map((colorVar, idx) => (
                 <button
                   key={idx}
@@ -261,11 +250,11 @@ const ProductCard = ({
                       setPreviewColorImg(colorVar.images[0]);
                     }
                   }}
-                  className="w-4 h-4 rounded-full border border-neutral-300 flex items-center justify-center hover:border-[#111111] transition-all"
+                  className="w-3.5 h-3.5 rounded-full border border-neutral-300 flex items-center justify-center hover:border-[#111111] transition-all"
                   title={colorVar.colorName}
                 >
                   <span
-                    className="w-2.5 h-2.5 rounded-full block border border-neutral-200/50"
+                    className="w-2 h-2 rounded-full block border border-neutral-200/50"
                     style={{ backgroundColor: colorVar.colorCode || "#000000" }}
                   />
                 </button>
@@ -276,25 +265,24 @@ const ProductCard = ({
           <h3
             onClick={goToProduct}
             title={title}
-            className="cursor-pointer text-[14px] font-normal leading-snug text-[#111111] hover:underline underline-offset-4 transition-colors line-clamp-2"
+            className="cursor-pointer text-[13px] sm:text-[14px] font-medium leading-snug text-[#111111] hover:text-black line-clamp-1 transition-colors"
           >
             {title}
           </h3>
 
           {!hidePriceAndAdd && (
-            <div className="flex items-baseline justify-center gap-2 text-[14px]">
+            <div className="flex items-baseline justify-start gap-1.5 flex-wrap text-[13px] sm:text-[14px]">
               {hasSale ? (
                 <>
-                  <span className="text-neutral-400 line-through">
-                    {currency}{formatCardPrice(originalPriceValue)}
-                  </span>
-                  <span className="text-[#111111] font-medium">
+                  <span className="text-[#111111] font-bold">
                     {currency}{formatCardPrice(currentPrice)}
+                  </span>
+                  <span className="text-neutral-400 line-through text-[11px] sm:text-xs font-normal">
+                    {currency}{formatCardPrice(originalPriceValue)}
                   </span>
                 </>
               ) : (
-                <span className="text-[#111111]">
-                  <span className="text-neutral-500 text-[13px] mr-1.5">{t("Regular price")}</span>
+                <span className="text-[#111111] font-bold">
                   {currency}{formatCardPrice(currentPrice)}
                 </span>
               )}

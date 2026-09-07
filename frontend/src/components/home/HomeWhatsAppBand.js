@@ -41,29 +41,29 @@ const HomeWhatsAppBand = ({ whatsappNumbers: numbersProp }) => {
 
   return (
     <section className="bg-[#1fa64a]">
-      <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16 py-14 sm:py-16 text-center">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16 py-10 sm:py-16 text-center">
         <h2
-          className="text-3xl sm:text-5xl font-semibold text-white"
+          className="text-2xl sm:text-4xl md:text-5xl font-semibold text-white leading-tight"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           {t("You Can also order from WhatsApp")}
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-white/85">
+        <p className="mt-2.5 sm:mt-3 text-xs sm:text-base text-white/90 max-w-lg mx-auto">
           {t("Message us directly and our team will help you place your order.")}
         </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto">
           {numbers.map((digits) => (
             <a
               key={digits}
               href={makeLink(digits)}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-3 rounded-full bg-white text-[#111111] pl-5 pr-8 py-3.5 text-[15px] font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full bg-white text-[#111111] px-5 sm:pl-5 sm:pr-8 py-3.5 text-sm sm:text-[15px] font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <FaWhatsapp className="text-[#25D366] text-xl shrink-0" />
-              {displayPhone(digits)}
+              <span>{displayPhone(digits)}</span>
             </a>
           ))}
         </div>

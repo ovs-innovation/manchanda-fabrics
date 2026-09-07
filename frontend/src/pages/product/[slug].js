@@ -44,7 +44,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   // also expose a userInfo object for other usages (cookies/context/session)
   const userInfo = session?.user || userState?.userInfo || cookieUserInfo || null;
 
-  const { lang, showingTranslateValue, getNumber, currency, getNumberTwo } =
+  const { lang, showingTranslateValue, getNumber, currency, getNumberTwo, formatPrice } =
     useUtilsFunction();
   const { isLoading, setIsLoading } = useContext(SidebarContext);
   const { handleAddItem } = useAddToCart();

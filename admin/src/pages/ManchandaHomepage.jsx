@@ -278,7 +278,7 @@ const ManchandaHomepage = () => {
           <Input label="Section Title" value={vs.title} onChange={(v) => updateVideoShopping({ title: v })} />
           <Input label="Section Description" value={vs.subtitle} onChange={(v) => updateVideoShopping({ subtitle: v })} />
           <Input label="Business Hours" value={vs.businessHours} onChange={(v) => updateVideoShopping({ businessHours: v })} placeholder="11:30 AM – 8:00 PM" />
-          <Input label="WhatsApp Number" value={vs.whatsapp} onChange={(v) => updateVideoShopping({ whatsapp: v })} placeholder="919891595929" />
+          <Input label="WhatsApp Number" value={vs.whatsapp} onChange={(v) => updateVideoShopping({ whatsapp: v })} placeholder="919650544554" />
           <Input label="Button Text" value={vs.buttonText} onChange={(v) => updateVideoShopping({ buttonText: v })} placeholder="Start Video Shopping" />
           <p className="text-sm font-medium mb-2">Section Image (Optional)</p>
           <Uploader imageUrl={vs.image} setImageUrl={(url) => updateVideoShopping({ image: url })} folder="homepage" />
@@ -408,7 +408,7 @@ const ManchandaHomepage = () => {
             label="WhatsApp number (with country code)"
             value={f.whatsapp}
             onChange={(v) => updateFooter({ whatsapp: v })}
-            placeholder="919891595929"
+            placeholder="919650544554"
           />
         </div>
 

@@ -9,7 +9,7 @@ const VariantSpecification = ({
   onVariantSelect,
   selectedVariant 
 }) => {
-  const { showingTranslateValue, getNumber, getNumberTwo, currency } = useUtilsFunction();
+  const { showingTranslateValue, getNumber, getNumberTwo, currency, formatPrice } = useUtilsFunction();
 
   // Get variant display name
   const getVariantName = (variant) => {

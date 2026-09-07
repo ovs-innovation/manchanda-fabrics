@@ -10,7 +10,7 @@ const WhatsAppSection = () => {
   const phone1 =
     storeCustomizationSetting?.manchandaHomepage?.footer?.whatsapp ||
     storeCustomizationSetting?.footer?.social_whatsapp ||
-    "919891595929";
+    "919650544554";
 
   const makeLink = (num) =>
     `https://wa.me/${num.replace(/\D/g, "")}?text=${encodeURIComponent(

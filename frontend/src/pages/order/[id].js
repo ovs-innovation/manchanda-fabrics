@@ -150,15 +150,7 @@ const Order = ({ params }) => {
                 content={() => printRef.current}
               />
 
-               {data.trackingNumber && (
-                 <>
-                   <button 
-                     onClick={() => router.push(`/user/track-order?id=${data._id}`)}
-                     className="flex items-center justify-center bg-blue-500 text-white transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md hover:bg-blue-600 shadow-sm"
-                   >
-                     Track Shipment <FiTruck className="ml-2" />
-                   </button>
-                   
+
                    <button 
                      onClick={() => handleCopyTracking(data.trackingNumber)}
                      className="flex items-center justify-center bg-gray-100 text-gray-700 transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md hover:bg-gray-200 shadow-sm"

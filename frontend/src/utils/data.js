@@ -179,7 +179,7 @@ const contactData = [
     title: "contact-page-box2-title",
     info: "contact-page-box2-info",
     icon: FiPhoneCall,
-    contact: "+91-9891595929",
+    contact: "+91-9650544554",
     className: "bg-yellow-100",
   },
   {

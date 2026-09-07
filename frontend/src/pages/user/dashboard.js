@@ -114,12 +114,6 @@ const Dashboard = ({ title, description, children }) => {
       icon: FiUser,
     },
     {
-      title: t("Track Order"),
-      href: "/user/track-order",
-      icon: FiTruck,
-    },
-
-    {
       title: showingTranslateValue(
         storeCustomizationSetting?.dashboard?.update_profile
       ),

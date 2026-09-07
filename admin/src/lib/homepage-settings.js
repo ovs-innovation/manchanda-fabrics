@@ -46,7 +46,7 @@ export const DEFAULT_FOOTER = {
   hours: "Mon – Sat · 11 AM – 8 PM (Sun closed)",
   instagram: "https://www.instagram.com/manchandafabrics",
   facebook: "",
-  whatsapp: "919891595929",
+  whatsapp: "919650544554",
   copyrightName: "VastoraTech",
   copyrightUrl: "https://vastoratech.com/",
   collectionLinks: [
@@ -79,11 +79,11 @@ export const DEFAULT_MANCHANDA_HOMEPAGE = {
   founder: DEFAULT_FOUNDER,
   stores: DEFAULT_STORES,
   footer: DEFAULT_FOOTER,
-  whatsappNumbers: ["919891595929"],
+  whatsappNumbers: ["919650544554"],
   videoShopping: {
     enabled: true,
     businessHours: "11:30 AM – 8:00 PM",
-    whatsapp: "919891595929",
+    whatsapp: "919650544554",
     buttonText: "Start Video Shopping",
     title: "Live Video Shopping",
     subtitle: "Shop with us through a live video call.",

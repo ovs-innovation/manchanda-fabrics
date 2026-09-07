@@ -136,20 +136,20 @@ const Home = ({
         <HomeCategoryCircles categories={circleCategories} counts={categoryCounts} />
 
         {/* 3 ── New Arrivals (exact ref layout) */}
-        <section className="py-24 sm:py-28 bg-white border-b border-black/5">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+        <section className="py-16 sm:py-28 bg-white border-b border-black/5">
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 mb-10 sm:mb-16">
               <div>
-                <p className="text-[13px] text-neutral-500 text-center lg:text-left">
+                <p className="text-[12px] sm:text-[13px] text-neutral-500 text-center lg:text-left">
                   {t("Be the First to Try Our New Collection")}
                 </p>
                 <h2
-                  className="text-4xl sm:text-5xl font-semibold text-[#111111]"
+                  className="text-3xl sm:text-5xl font-semibold text-[#111111] text-center lg:text-left"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("New Arrivals")}
                 </h2>
-                <p className="mt-4 text-sm text-[#7A7A7A] max-w-2xl font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <p className="mt-2 sm:mt-4 text-xs sm:text-sm text-[#7A7A7A] max-w-2xl font-light text-center lg:text-left" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   {t("New season, new vibes, new arrivals – because you deserve the freshest picks.")}
                 </p>
               </div>
@@ -168,7 +168,7 @@ const Home = ({
 
             {newArrivals?.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                   {newArrivals.slice(0, 4).map((product) => (
                     <ProductCard
                       key={product._id}
@@ -227,7 +227,7 @@ const Home = ({
                     {videoShopping.subtitle || t("Stylists On Call (English & Hindi)")}
                   </p>
                   <a
-                    href={`https://wa.me/${videoShopping.whatsapp || "919891595929"}`}
+                    href={`https://wa.me/${videoShopping.whatsapp || "919650544554"}`}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-6 inline-flex items-center justify-center bg-[#1fa64a] hover:bg-[#178a3d] transition-colors text-white px-6 sm:px-8 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] rounded"

@@ -81,9 +81,13 @@ const Footer = () => {
 
   const collectionLinks = footer.collectionLinks || [];
   const rawQuickLinks = footer.quickLinks || [];
-  const quickLinks = rawQuickLinks.some((l) => l.href === "/about-us")
-    ? rawQuickLinks
-    : [{ title: "About Us", href: "/about-us" }, ...rawQuickLinks];
+  let quickLinks = [...rawQuickLinks].filter((l) => l.href !== "/user/track-order");
+  if (!quickLinks.some((l) => l.href === "/user/my-orders")) {
+    quickLinks.unshift({ title: "My Orders", href: "/user/my-orders" });
+  }
+  if (!quickLinks.some((l) => l.href === "/about-us")) {
+    quickLinks.unshift({ title: "About Us", href: "/about-us" });
+  }
   const specialCollection = footer.specialCollection || [];
   const storeHours = footer.hours?.trim() || "";
   const brandStory = footer.brandStory || "";
