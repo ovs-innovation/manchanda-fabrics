@@ -18,6 +18,7 @@ const fadeUp = {
 
 const AboutUs = () => {
   const { t } = useTranslation("common");
+  const [isStoryExpanded, setIsStoryExpanded] = React.useState(false);
 
   const COLLECTIONS = [
     {
@@ -51,9 +52,9 @@ const AboutUs = () => {
       <div className="min-h-screen bg-[#F8F5F1] text-[#111111] overflow-x-hidden">
         
         {/* Section 1: Hero Legacy */}
-        <section className="py-24 sm:py-32 bg-[#F8F5F1]">
+        <section className="py-12 sm:py-20 lg:py-28 bg-[#F8F5F1]">
           <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24 items-center">
               
               {/* Left Column: Text Content */}
               <motion.div
@@ -62,7 +63,7 @@ const AboutUs = () => {
                 viewport={{ once: true, amount: 0.3 }}
                 variants={fadeUp}
                 custom={0}
-                className="flex flex-col justify-center space-y-8"
+                className="flex flex-col justify-center space-y-6 sm:space-y-8"
               >
                 <span
                   className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"
@@ -73,7 +74,7 @@ const AboutUs = () => {
                 </span>
 
                 <h1
-                  className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-light leading-[1.15] text-[#111111]"
+                  className="text-3xl sm:text-4xl lg:text-[50px] xl:text-[56px] font-light leading-[1.2] text-[#111111]"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   A Legacy of <br />
@@ -86,29 +87,61 @@ const AboutUs = () => {
                 <div className="w-14 h-[1.5px] bg-[#C8A45D]" />
 
                 <div
-                  className="space-y-6 text-[15px] text-[#3A3A3A] leading-[1.9] font-light font-sans"
+                  className="space-y-4 sm:space-y-5 text-[14px] sm:text-[15px] text-[#3A3A3A] leading-[1.8] sm:leading-[1.9] font-light font-sans"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   <p>
                     Established in 1990 in the historical lanes of Chandni Chowk, Delhi, Manchanda Fabrics was founded on a simple vision: to bring the finest hand-selected ethnic textiles to discerning women. What started as a humble family store has matured into a cherished heritage of trust, quality, and celebration.
                   </p>
-                  <p>
-                    We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.
-                  </p>
-                  <p>
-                    Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.
-                  </p>
+
+                  {/* On desktop: always visible. On mobile: expandable with smooth toggle */}
+                  <div className={`space-y-4 sm:space-y-5 ${isStoryExpanded ? "block" : "hidden lg:block"}`}>
+                    <p>
+                      We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.
+                    </p>
+                    <p>
+                      Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.
+                    </p>
+                  </div>
+
+                  {/* Mobile Read More Toggle */}
+                  <div className="lg:hidden pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsStoryExpanded(!isStoryExpanded)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#C8A45D] hover:text-[#111111] transition-colors"
+                    >
+                      <span>{isStoryExpanded ? "Show Less" : "Read Full Story"}</span>
+                      <span className="text-sm">{isStoryExpanded ? "↑" : "↓"}</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="pt-4">
+                {/* Quick Highlight Stats on Mobile & Desktop */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-2 border-y border-black/5">
+                  <div className="text-center sm:text-left py-1">
+                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">1990</span>
+                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Established</span>
+                  </div>
+                  <div className="text-center sm:text-left py-1 border-x border-black/5 px-2 sm:px-4">
+                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">100%</span>
+                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Handpicked</span>
+                  </div>
+                  <div className="text-center sm:text-left py-1">
+                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">30+ Yrs</span>
+                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Heritage</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 sm:pt-4">
                   <Link
                     href="/search"
-                    className="group inline-flex items-center gap-3 px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white bg-transparent"
+                    className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white bg-transparent"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <span>{t("Explore Collections")}</span>
                     <ChevronRight
-                      size={20}
+                      size={18}
                       className="transition-transform duration-300 group-hover:translate-x-1"
                     />
                   </Link>
@@ -136,92 +169,6 @@ const AboutUs = () => {
                   <div className="absolute inset-0 border border-[#C8A45D]/20 pointer-events-none" />
                 </div>
                 <div className="absolute -top-6 -left-4 sm:-left-8 w-[2px] h-24 bg-gradient-to-b from-[#C8A45D] to-transparent hidden sm:block" />
-              </motion.div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Section 2: Family Story */}
-        <section className="bg-[#3B2A25] text-[#E6D1CB] py-24 sm:py-32">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-              
-              {/* Left Side Copy */}
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                custom={0}
-                className="lg:col-span-5 flex flex-col justify-center space-y-8"
-              >
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  <span className="w-8 h-[1px] bg-[#C8A45D]" />
-                  {t("OUR ORIGIN")}
-                </span>
-
-                <h2
-                  className="text-4xl sm:text-5xl font-light leading-[1.2] text-[#FAF7F5]"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  One Family. <br />
-                  <em className="not-italic font-normal italic text-[#C8A45D]">
-                    One Shop. One Dream.
-                  </em>
-                </h2>
-
-                <div className="w-14 h-[1.5px] bg-[#C8A45D]" />
-
-                <div
-                  className="space-y-6 text-[15px] text-[#E6D1CB]/85 leading-[1.9] font-light text-justify"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  <p>
-                    Our journey started in 1990 when our father opened a small shop in the iconic market of Chandni Chowk, Delhi. Equipped with a passionate appreciation for authentic Indian fabrics and a commitment to honest pricing, we served our community face-to-face.
-                  </p>
-                  <p>
-                    Decades later, we continue to run our operations with the same hands-on dedication. Pradeep personally handpicks and inspects the quality of every single bale, while Shallu handles orders and support with local warmth. Their three daughters—Sanjana, Saisha, and Sanaya—work together to bring our collections to the online world.
-                  </p>
-                  <p>
-                    We do not outsource. We do not have high-rise corporate offices. We are a family business spanning three generations, doing the honest work ourselves, just as we did thirty years ago.
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Right Side: Three Elegant Vertical Images */}
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                custom={0.2}
-                className="lg:col-span-7 grid grid-cols-3 gap-3 sm:gap-6"
-              >
-                {[
-                  { src: "/Suit/s8.jpg", alt: "Premium Cotton Suit", offset: false },
-                  { src: "/Suit/s9.jpg", alt: "Premium Gaji Silk Suit", offset: true },
-                  { src: "/Suit/s10.jpg", alt: "Premium Mul Cotton Suit", offset: false },
-                ].map((img, i) => (
-                  <div
-                    key={i}
-                    className={`group relative overflow-hidden rounded-[14px] aspect-[3/5] bg-neutral-900 shadow-lg ${
-                      img.offset ? "mt-6 sm:mt-10" : ""
-                    }`}
-                  >
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 20vw"
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
-                  </div>
-                ))}
               </motion.div>
 
             </div>

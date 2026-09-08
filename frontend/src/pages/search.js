@@ -502,9 +502,6 @@ const Search = ({ products, attributes }) => {
                       <option className="bg-white text-[#3B2A25]" value="best-selling">
                         Best Selling
                       </option>
-                      <option className="bg-white text-[#3B2A25]" value="most-discounted">
-                        Most Discounted
-                      </option>
                     </select>
                   </span>
                 </div>
@@ -604,16 +601,6 @@ const Search = ({ products, attributes }) => {
                   }`}
               >
                 Best Selling
-              </button>
-              <button
-                onClick={() => {
-                  handleSortChange("most-discounted");
-                  setIsSortModalOpen(false);
-                }}
-                className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "most-discounted" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
-                  }`}
-              >
-                Most Discounted
               </button>
               <button
                 onClick={() => {

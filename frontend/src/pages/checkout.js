@@ -1,109 +1,105 @@
-import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
-  IoClose,
   IoChevronForward,
   IoLocationOutline,
   IoLockClosedOutline,
-  IoShieldCheckmarkOutline
+  IoShieldCheckmarkOutline,
+  IoHelpCircleOutline
 } from "react-icons/io5";
-import { FiLoader, FiEdit } from "react-icons/fi";
+import { FiLoader, FiShoppingBag } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 
-import useTranslation from "next-translate/useTranslation";
 import { getUserSession } from "@lib/auth";
 
-//internal import
-
+// Internal imports
 import Layout from "@layout/Layout";
 import Error from "@components/form/Error";
-import useGetSetting from "@hooks/useGetSetting";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
 import LocationServices from "@services/LocationServices";
-import SwitchToggle from "@components/form/SwitchToggle";
 import { notifySuccess, notifyError } from "@utils/toast";
 import { getDisplayEmail } from "@utils/profileAuth";
 
+const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry"
+];
+
 const Checkout = () => {
-  const { t } = useTranslation("common");
-  const [showAddressModal, setShowAddressModal] = useState(false);
-  const [editingAddress, setEditingAddress] = useState(null);
-  const [selectedAddress, setSelectedAddress] = useState(null);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [isLocationLoading, setIsLocationLoading] = useState(false);
   const formRef = useRef(null);
-  const [portalReady, setPortalReady] = useState(false);
-  const [addressForm, setAddressForm] = useState({
-    name: "",
-    address: "",
-    city: "",
-    country: "",
-    zipCode: "",
-    phone: "",
-    addressType: "Home",
-    isDefault: false
-  });
+
+  const [agreeToTerms, setAgreeToTerms] = useState(true);
+  const [saveInfoForNextTime, setSaveInfoForNextTime] = useState(true);
+  const [useShippingAsBilling, setUseShippingAsBilling] = useState(true);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
+
   const userInfo = getUserSession();
-  const { showingTranslateValue, currency, formatPrice } = useUtilsFunction();
-
-  // Custom Redesign State
-  const [currentStep, setCurrentStep] = useState(1);
-  const [localShippingMethod, setLocalShippingMethod] = useState("Standard");
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!showAddressModal) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [showAddressModal]);
-  const { storeCustomizationSetting } = useGetSetting();
+  const { currency, formatPrice } = useUtilsFunction();
 
   const { data: storeSetting } = useQuery({
     queryKey: ["storeSetting"],
     queryFn: async () => await SettingServices.getStoreSetting(),
-    staleTime: 4 * 60 * 1000, // Api request after 4 minutes
+    staleTime: 4 * 60 * 1000,
   });
 
-  // Fetch user's shipping addresses
-  const { data: shippingAddressesResponse, refetch: refetchAddresses } = useQuery({
+  // Fetch user's saved shipping addresses
+  const { data: shippingAddressesResponse } = useQuery({
     queryKey: ["shippingAddresses", userInfo?._id],
     queryFn: async () => {
-      if (!userInfo?._id) return null;
+      if (!userInfo?._id) return [];
       const response = await CustomerServices.getShippingAddress({ userId: userInfo._id });
       return response?.shippingAddress || [];
     },
     enabled: !!userInfo?._id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Normalize shippingAddresses to always be an array
   const shippingAddresses = Array.isArray(shippingAddressesResponse)
     ? shippingAddressesResponse
     : shippingAddressesResponse
       ? [shippingAddressesResponse]
       : [];
 
-  // Set default selected address on load
-  React.useEffect(() => {
-    if (shippingAddresses && shippingAddresses.length > 0 && !selectedAddress) {
-      const defaultAddress = shippingAddresses.find(addr => addr.isDefault) || shippingAddresses[0];
-      setSelectedAddress(defaultAddress);
-    }
-  }, [shippingAddresses]);
-
   const {
-    couponInfo,
     total,
     isEmpty,
     items,
@@ -113,47 +109,173 @@ const Checkout = () => {
     watch,
     handleSubmit,
     submitHandler,
-    handleShippingCost,
-    handleCouponCode,
     discountAmount,
     shippingCost,
     isCheckoutSubmit,
-    useExistingAddress,
-    hasShippingAddress,
-    isCouponAvailable,
-    availableCoupons,
-    selectedCouponCode,
-    setSelectedCouponCode,
-    handleDefaultShippingAddress,
     taxSummary,
     setValue,
-    isCouponApplied,
-    handleRemoveCoupon,
-    emptyCart,
-    phonePeModalData,
-    setPhonePeModalData,
   } = useCheckoutSubmit(storeSetting);
 
-  const selectedPaymentMethod = watch("paymentMethod");
+  const selectedPaymentMethod = watch("paymentMethod") || "PhonePe";
+  const watchZipCode = watch("zipCode");
 
-  // Update form values when selected address changes
-  React.useEffect(() => {
-    if (selectedAddress && setValue) {
-      const nameParts = (selectedAddress.name || "").split(" ");
-      setValue("firstName", nameParts[0] || "");
-      setValue("lastName", nameParts.slice(1).join(" ") || "");
-      setValue("email", getDisplayEmail(userInfo) || "");
-      setValue("contact", selectedAddress.phone || "");
-      setValue("address", selectedAddress.address || "");
-      setValue("address2", "");
-      setValue("city", selectedAddress.city || "");
-      setValue("state", selectedAddress.country || "");
-      setValue("country", selectedAddress.country || "India");
-      setValue("zipCode", selectedAddress.zipCode || "");
+  const populateAddressFields = useCallback((addr) => {
+    if (!addr) return;
+    const nameParts = (addr.name || "").trim().split(" ");
+    setValue("firstName", nameParts[0] || "");
+    setValue("lastName", nameParts.slice(1).join(" ") || "");
+    setValue("contact", addr.phone || userInfo?.phone || "");
+    setValue("address", addr.address || "");
+    setValue("address2", addr.address2 || "");
+    setValue("city", addr.city || "");
+    setValue("state", addr.country || addr.state || "");
+    setValue("country", "India");
+    setValue("zipCode", addr.zipCode || "");
+  }, [setValue, userInfo]);
+
+  // Default values initialization
+  useEffect(() => {
+    setValue("country", "India");
+    setValue("paymentMethod", "PhonePe");
+    setValue("shippingOption", "Standard");
+
+    const displayEmail = getDisplayEmail(userInfo);
+    if (displayEmail) {
+      setValue("email", displayEmail);
     }
-  }, [selectedAddress, setValue, userInfo]);
+    if (userInfo?.phone) {
+      setValue("contact", userInfo.phone);
+    }
+    if (userInfo?.name) {
+      const parts = userInfo.name.trim().split(" ");
+      setValue("firstName", parts[0] || "");
+      setValue("lastName", parts.slice(1).join(" ") || "");
+    }
+  }, [setValue, userInfo]);
 
-  // Calculate totals for order summary
+  // Handle saved address auto-fill
+  useEffect(() => {
+    if (shippingAddresses && shippingAddresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = shippingAddresses.find(addr => addr.isDefault) || shippingAddresses[0];
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr._id || defaultAddr.id || "default");
+        populateAddressFields(defaultAddr);
+      }
+    }
+  }, [shippingAddresses, selectedAddressId, populateAddressFields]);
+
+  const handleSavedAddressChange = (e) => {
+    const val = e.target.value;
+    setSelectedAddressId(val);
+    if (val === "new") {
+      setValue("firstName", "");
+      setValue("lastName", "");
+      setValue("address", "");
+      setValue("address2", "");
+      setValue("city", "");
+      setValue("state", "");
+      setValue("zipCode", "");
+    } else {
+      const found = shippingAddresses.find(
+        (a) => (a._id || a.id) === val
+      );
+      if (found) populateAddressFields(found);
+    }
+  };
+
+  // Auto fetch location by PIN code
+  useEffect(() => {
+    const fetchLocationByPin = async () => {
+      if (watchZipCode && watchZipCode.length === 6 && /^\d+$/.test(watchZipCode)) {
+        try {
+          const response = await fetch(`https://api.postalpincode.in/pincode/${watchZipCode}`);
+          const data = await response.json();
+          if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const postOffice = data[0].PostOffice[0];
+            const city = postOffice.District || postOffice.Block || postOffice.Name;
+            const state = postOffice.State;
+            if (city) setValue("city", city);
+            if (state) setValue("state", state);
+            notifySuccess(`Detected: ${city}, ${state}`);
+          }
+        } catch (error) {
+          console.error("Error fetching PIN details:", error);
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      fetchLocationByPin();
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [watchZipCode, setValue]);
+
+  // Handle Use Current Location
+  const handleUseCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      notifyError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLocationLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const geocodeData = await LocationServices.getReverseGeocode({ lat: latitude, lng: longitude });
+
+          if (geocodeData.status === 'OK' && geocodeData.results && geocodeData.results.length > 0) {
+            const result = geocodeData.results[0];
+
+            let street = "";
+            let city = "";
+            let state = "";
+            let zip = "";
+
+            const streetNumber = result.address_components.find(c => c.types.includes("street_number"))?.long_name || "";
+            const route = result.address_components.find(c => c.types.includes("route"))?.long_name || "";
+            const sublocality = result.address_components.find(c => c.types.includes("sublocality"))?.long_name || "";
+
+            street = [streetNumber, route, sublocality].filter(Boolean).join(", ");
+            if (!street) {
+              street = result.formatted_address.split(",")[0];
+            }
+
+            city = result.address_components.find(c => c.types.includes("locality"))?.long_name || "";
+            state = result.address_components.find(c => c.types.includes("administrative_area_level_1"))?.long_name || "";
+            zip = result.address_components.find(c => c.types.includes("postal_code"))?.long_name || "";
+
+            if (street) setValue("address", street);
+            if (city) setValue("city", city);
+            if (state) setValue("state", state);
+            if (zip) setValue("zipCode", zip);
+
+            notifySuccess("Location detected successfully!");
+          } else {
+            notifyError("Unable to fetch current location. Please fill manually.");
+          }
+        } catch (error) {
+          console.error("Location error:", error);
+          notifyError("Unable to fetch current location.");
+        } finally {
+          setIsLocationLoading(false);
+        }
+      },
+      (error) => {
+        setIsLocationLoading(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          notifyError("Location permission denied. Please allow location access.");
+        } else {
+          notifyError("Unable to fetch current location.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  // Calculate MRP savings
   const calculateTotals = () => {
     let totalMRP = 0;
     let totalDiscount = 0;
@@ -176,1040 +298,629 @@ const Checkout = () => {
     };
   };
 
-  // Handle address form input changes
-  const handleAddressChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setAddressForm({
-      ...addressForm,
-      [name]: type === 'checkbox' ? checked : value
-    });
-  };
-
-  // Auto fetch location by pincode
-  React.useEffect(() => {
-    const fetchLocation = async () => {
-      if (addressForm.zipCode && addressForm.zipCode.length === 6 && /^\d+$/.test(addressForm.zipCode)) {
-        try {
-          const response = await fetch(`https://api.postalpincode.in/pincode/${addressForm.zipCode}`);
-          const data = await response.json();
-          if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
-            const postOffice = data[0].PostOffice[0];
-            setAddressForm(prev => ({
-              ...prev,
-              city: postOffice.District || postOffice.Block || postOffice.Name,
-              country: postOffice.State
-            }));
-            notifySuccess(`Location fetched: ${postOffice.District || postOffice.Block || postOffice.Name}, ${postOffice.State}`);
-          }
-        } catch (error) {
-          console.error("Error fetching location details:", error);
-        }
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      fetchLocation();
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [addressForm.zipCode]);
-
-  // Handle Use Current Location
-  const handleUseCurrentLocation = async () => {
-    if (!navigator.geolocation) {
-      notifyError("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setIsLocationLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const geocodeData = await LocationServices.getReverseGeocode({ lat: latitude, lng: longitude });
-
-          if (geocodeData.status === 'OK' && geocodeData.results && geocodeData.results.length > 0) {
-            const result = geocodeData.results[0];
-
-            // Extract address components
-            let street = "";
-            let city = "";
-            let state = "";
-            let zip = "";
-
-            // Street address parts
-            const streetNumber = result.address_components.find(c => c.types.includes("street_number"))?.long_name || "";
-            const route = result.address_components.find(c => c.types.includes("route"))?.long_name || "";
-            const sublocality = result.address_components.find(c => c.types.includes("sublocality"))?.long_name || "";
-
-            street = [streetNumber, route, sublocality].filter(Boolean).join(", ");
-
-            // If street is still empty, use formatted_address part
-            if (!street) {
-              street = result.formatted_address.split(",")[0];
-            }
-
-            city = result.address_components.find(c => c.types.includes("locality"))?.long_name || "";
-            state = result.address_components.find(c => c.types.includes("administrative_area_level_1"))?.long_name || "";
-            zip = result.address_components.find(c => c.types.includes("postal_code"))?.long_name || "";
-
-            setAddressForm(prev => ({
-              ...prev,
-              address: street || prev.address,
-              city: city || prev.city,
-              country: state || prev.country,
-              zipCode: zip || prev.zipCode
-            }));
-
-            notifySuccess("Location updated successfully!");
-          } else {
-            notifyError("Unable to fetch current location. Please try again.");
-          }
-        } catch (error) {
-          console.error("Location error:", error);
-          notifyError("Unable to fetch current location. Please try again.");
-        } finally {
-          setIsLocationLoading(false);
-        }
-      },
-      (error) => {
-        setIsLocationLoading(false);
-        if (error.code === error.PERMISSION_DENIED) {
-          notifyError("Location permission denied. Please allow location access.");
-        } else {
-          notifyError("Unable to fetch current location. Please try again.");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  };
-
-  // Open modal for adding new address
-  const handleAddAddress = () => {
-    setEditingAddress(null);
-    setAddressForm({
-      name: userInfo?.name || "",
-      address: "",
-      city: "",
-      country: "",
-      zipCode: "",
-      phone: userInfo?.phone || "",
-      addressType: "Home",
-      isDefault: shippingAddresses.length === 0
-    });
-    setShowAddressModal(true);
-  };
-
-  // Open modal for editing address
-  const handleEditAddress = (address) => {
-    setEditingAddress(address);
-    setAddressForm({
-      name: address.name || "",
-      address: address.address || "",
-      city: address.city || "",
-      country: address.country || "",
-      zipCode: address.zipCode || "",
-      phone: address.phone || "",
-      addressType: address.addressType || "Home",
-      isDefault: address.isDefault || false
-    });
-    setShowAddressModal(true);
-  };
-
-  // Handle address submission (add or update)
-  const handleAddressSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // GUEST CHECKOUT: If no user session, save address only in local state
-      if (!userInfo || !userInfo._id) {
-        const guestAddress = {
-          ...addressForm,
-          _id: `guest-${Date.now()}`,
-          isDefault: true,
-        };
-        setSelectedAddress(guestAddress);
-        setShowAddressModal(false);
-        setAddressForm({
-          name: "",
-          address: "",
-          city: "",
-          country: "",
-          zipCode: "",
-          phone: "",
-          addressType: "Home",
-          isDefault: false
-        });
-        notifySuccess("Address saved for this order!");
-        return;
-      }
-
-      let response;
-      if (editingAddress && editingAddress._id) {
-        // Update existing address
-        response = await CustomerServices.updateShippingAddress({
-          userId: userInfo._id,
-          shippingId: editingAddress._id,
-          shippingAddressData: addressForm
-        });
-      } else {
-        // Add new address
-        response = await CustomerServices.addShippingAddress({
-          userId: userInfo._id,
-          shippingAddressData: addressForm
-        });
-      }
-
-      if (response.success || response.message) {
-        setShowAddressModal(false);
-        setEditingAddress(null);
-        // Reset form
-        setAddressForm({
-          name: "",
-          address: "",
-          city: "",
-          country: "",
-          zipCode: "",
-          phone: "",
-          addressType: "Home",
-          isDefault: false
-        });
-        // Refetch addresses to get the latest
-        await refetchAddresses();
-        // If this was set as default or is first address, select it
-        if (addressForm.isDefault || shippingAddresses.length === 0) {
-          const updatedResponse = await CustomerServices.getShippingAddress({ userId: userInfo._id });
-          const updatedAddresses = Array.isArray(updatedResponse?.shippingAddress)
-            ? updatedResponse.shippingAddress
-            : [];
-          const newDefault = updatedAddresses.find(addr => addr.isDefault) || updatedAddresses[updatedAddresses.length - 1];
-          if (newDefault) setSelectedAddress(newDefault);
-        }
-        notifySuccess(editingAddress ? "Address updated successfully" : "Address added successfully");
-      } else {
-        notifyError(response.message || "Failed to save address");
-      }
-    } catch (error) {
-      console.error("Error saving address:", error);
-      notifyError(error?.response?.data?.message || error?.message || "Failed to save address");
-    }
-  };
-
   const totals = calculateTotals();
 
   return (
-    <>
-      <Layout title="Checkout" description="this is checkout page">
-        <div className="bg-[#FCF9F5] min-h-screen">
-          <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-10">
-            <div className="py-8 sm:py-12 w-full flex flex-col lg:flex-row lg:gap-16 xl:gap-20">
+    <Layout title="Checkout" description="Complete your order with Manchanda Fabrics">
+      <div className="bg-[#FAF9F7] min-h-screen text-[#2D2A26]">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
-              {/* LEFT SIDE (65%) */}
-              <div className="w-full lg:w-[60%] xl:w-[65%] flex flex-col min-w-0 pb-20 lg:pb-0">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16 items-start">
 
-                {/* Progress Indicator */}
-                <div className="flex items-center gap-2 mb-10 text-xs sm:text-sm font-semibold tracking-widest uppercase">
-                  <Link href="/cart" className="text-[#3B2A25]/60 hover:text-[#9C6A5A] transition-colors">Cart</Link>
-                  <IoChevronForward className="text-[#3B2A25]/40" />
-                  <button onClick={() => setCurrentStep(1)} className={`${currentStep >= 1 ? 'text-[#C8A15A]' : 'text-[#3B2A25]/60'}`}>Information</button>
-                  <IoChevronForward className="text-[#3B2A25]/40" />
-                  <button onClick={() => selectedAddress && setCurrentStep(3)} disabled={!selectedAddress} className={`${currentStep >= 3 ? 'text-[#C8A15A]' : 'text-[#3B2A25]/60'} ${!selectedAddress ? 'cursor-not-allowed' : ''}`}>Payment</button>
-                </div>
+            {/* ================= LEFT COLUMN: FORM (60%) ================= */}
+            <div className="w-full lg:w-[58%] xl:w-[60%] flex flex-col min-w-0">
 
-                <div className="mt-2 lg:mt-0">
-                  <form ref={formRef} onSubmit={handleSubmit(submitHandler)}>
-
-                    {/* STEP 1: INFORMATION */}
-                    {currentStep === 1 && (
-                      <div className="animate-fade-in-up">
-                        <div className="flex justify-between items-end mb-6">
-                          <h2 className="text-2xl sm:text-3xl font-serif text-[#3B2A25] font-light">
-                            Contact & Delivery
-                          </h2>
-                          {hasShippingAddress && (
-                            <SwitchToggle
-                              id="shipping-address"
-                              title="Use Default"
-                              processOption={useExistingAddress}
-                              handleProcess={handleDefaultShippingAddress}
-                            />
-                          )}
-                        </div>
-
-                        {/* Saved Addresses as Premium Cards */}
-                        <div className="space-y-4 mb-8">
-                          {(() => {
-                            // For guests, show selectedAddress if it exists and starts with 'guest-'
-                            const guestAddress = !userInfo?._id && selectedAddress ? [selectedAddress] : [];
-                            const displayAddresses = shippingAddresses && shippingAddresses.length > 0
-                              ? shippingAddresses
-                              : guestAddress;
-
-                            return displayAddresses.length > 0 ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {displayAddresses.map((address) => {
-                                  const isSelected = selectedAddress?._id === address._id || selectedAddress?.id === address.id;
-                                  return (
-                                    <div
-                                      key={address._id || address.id || Math.random()}
-                                      onClick={() => {
-                                        setSelectedAddress(address);
-                                        // Update hook form
-                                        const nameParts = (address.name || "").split(" ");
-                                        setValue("firstName", nameParts[0] || "");
-                                        setValue("lastName", nameParts.slice(1).join(" ") || "");
-                                        setValue("email", getDisplayEmail(userInfo) || "");
-                                        setValue("contact", address.phone || "");
-                                        setValue("address", address.address || "");
-                                        setValue("address2", "");
-                                        setValue("city", address.city || "");
-                                        setValue("state", address.country || "");
-                                        setValue("country", address.country || "India");
-                                        setValue("zipCode", address.zipCode || "");
-                                      }}
-                                      className={`relative cursor-pointer transition-all duration-300 rounded-[20px] p-5 border-2 ${isSelected
-                                          ? 'border-[#9C6A5A] bg-[#FAF7F5] shadow-[0_8px_30px_rgb(156,106,90,0.12)] transform -translate-y-1'
-                                          : 'border-[#E6D1CB]/40 bg-white hover:border-[#9C6A5A]/50 hover:shadow-md'
-                                        }`}
-                                    >
-                                      {isSelected && (
-                                        <div className="absolute top-4 right-4 text-[#C8A15A]">
-                                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                          </svg>
-                                        </div>
-                                      )}
-                                      <div className="mb-3">
-                                        <span className="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9C6A5A] bg-[#9C6A5A]/10 rounded-full">
-                                          {address.addressType || 'Home'}
-                                        </span>
-                                      </div>
-                                      <h3 className="text-base font-bold text-[#3B2A25] mb-1">{address.name}</h3>
-                                      <p className="text-sm text-[#3B2A25]/70 leading-relaxed mb-3">
-                                        {address.address}, {address.city}, {address.country} {address.zipCode}
-                                      </p>
-                                      <p className="text-sm font-medium text-[#3B2A25] flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-[#C8A15A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                        {address.phone}
-                                      </p>
-
-                                      <div className="absolute bottom-4 right-4 flex gap-2">
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); handleEditAddress(address); }} className="p-2 text-[#3B2A25]/40 hover:text-[#9C6A5A] transition-colors"><FiEdit size={16} /></button>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            ) : (
-                              <div className="bg-white border border-[#E6D1CB]/40 rounded-[20px] p-8 text-center shadow-sm">
-                                <p className="text-[#3B2A25]/60 mb-4">You don&apos;t have any saved addresses yet.</p>
-                              </div>
-                            );
-                          })()}
-
-                          <button
-                            type="button"
-                            onClick={handleAddAddress}
-                            className="w-full sm:w-auto mt-4 px-6 py-4 border-2 border-dashed border-[#C8A15A]/40 rounded-[20px] text-[#9C6A5A] font-semibold text-sm uppercase tracking-widest hover:border-[#C8A15A] hover:bg-[#FAF7F5] transition-all flex items-center justify-center gap-2"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                            Add New Address
-                          </button>
-                        </div>
-
-                        <div className="flex justify-end pt-6 border-t border-[#E6D1CB]/40">
-                          <button
-                            type="button"
-                            disabled={!selectedAddress}
-                            onClick={() => setCurrentStep(3)}
-                            className={`h-[58px] px-10 rounded-[18px] text-base font-bold tracking-wider text-white transition-all transform hover:-translate-y-1 shadow-lg ${selectedAddress ? 'bg-[#6D3D2E] hover:bg-[#4A291E]' : 'bg-gray-400 cursor-not-allowed shadow-none hover:translate-y-0'
-                              }`}
-                          >
-                            Continue to Payment
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {/* STEP 2: SHIPPING METHOD */}
-                    {currentStep === 2 && (
-                      <div className="animate-fade-in-up">
-                        <div className="flex items-center gap-4 mb-8">
-                          <h2 className="text-2xl sm:text-3xl font-serif text-[#3B2A25] font-light">
-                            Shipping Method
-                          </h2>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
-                          {/* Standard Delivery */}
-                          <div
-                            onClick={() => {
-                              setLocalShippingMethod("Standard");
-                              handleShippingCost(49);
-                            }}
-                            className={`relative cursor-pointer transition-all duration-300 rounded-[20px] p-6 border-2 flex flex-col justify-between min-h-[140px] ${localShippingMethod === "Standard"
-                                ? 'border-[#9C6A5A] bg-[#FAF7F5] shadow-[0_8px_30px_rgb(156,106,90,0.12)] transform -translate-y-1'
-                                : 'border-[#E6D1CB]/40 bg-white hover:border-[#9C6A5A]/50 hover:shadow-md'
-                              }`}
-                          >
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="w-10 h-10 rounded-full bg-[#9C6A5A]/10 flex items-center justify-center text-[#9C6A5A]">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                              </div>
-                              {localShippingMethod === "Standard" && (
-                                <div className="text-[#C8A15A]">
-                                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex justify-between items-baseline mb-1">
-                                <h3 className="text-lg font-bold text-[#3B2A25]">Standard</h3>
-                                <span className="font-bold text-[#6D3D2E]">{currency}{formatPrice(49)}</span>
-                              </div>
-                              <p className="text-sm text-[#3B2A25]/60">3–5 Business Days</p>
-                            </div>
-                          </div>
-
-                          {/* Express Delivery */}
-                          <div
-                            onClick={() => {
-                              setLocalShippingMethod("Express");
-                              handleShippingCost(99);
-                            }}
-                            className={`relative cursor-pointer transition-all duration-300 rounded-[20px] p-6 border-2 flex flex-col justify-between min-h-[140px] ${localShippingMethod === "Express"
-                                ? 'border-[#9C6A5A] bg-[#FAF7F5] shadow-[0_8px_30px_rgb(156,106,90,0.12)] transform -translate-y-1'
-                                : 'border-[#E6D1CB]/40 bg-white hover:border-[#9C6A5A]/50 hover:shadow-md'
-                              }`}
-                          >
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="w-10 h-10 rounded-full bg-[#C8A15A]/10 flex items-center justify-center text-[#C8A15A]">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                              </div>
-                              {localShippingMethod === "Express" && (
-                                <div className="text-[#C8A15A]">
-                                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <div className="flex justify-between items-baseline mb-1">
-                                <h3 className="text-lg font-bold text-[#3B2A25]">Express</h3>
-                                <span className="font-bold text-[#6D3D2E]">{currency}{formatPrice(99)}</span>
-                              </div>
-                              <p className="text-sm text-[#3B2A25]/60">1–2 Business Days</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-center pt-6 border-t border-[#E6D1CB]/40">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentStep(1)}
-                            className="text-[#9C6A5A] font-semibold text-sm tracking-wider hover:text-[#6D3D2E] flex items-center gap-2"
-                          >
-                            <IoChevronForward className="rotate-180" /> Return to Information
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCurrentStep(3)}
-                            className="h-[58px] px-10 rounded-[18px] text-base font-bold tracking-wider text-white bg-[#6D3D2E] hover:bg-[#4A291E] transition-all transform hover:-translate-y-1 shadow-lg"
-                          >
-                            Continue to Payment
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* STEP 3: PAYMENT */}
-                    {currentStep === 3 && (
-                      <div className="animate-fade-in-up">
-                        <div className="flex items-center gap-4 mb-8">
-                          <h2 className="text-2xl sm:text-3xl font-serif text-[#3B2A25] font-light">
-                            Payment
-                          </h2>
-                        </div>
-                        <p className="text-sm text-[#3B2A25]/60 mb-4">All transactions are secure and encrypted.</p>
-
-                        <div className="border border-[#E6D1CB]/40 rounded-[20px] overflow-hidden bg-white mb-6">
-                          {/* Option 1: PhonePe Gateway */}
-                          <label className={`flex flex-col p-6 cursor-pointer border-b border-[#E6D1CB]/40 transition-colors ${selectedPaymentMethod === 'PhonePe' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
-                            <div className="flex items-start">
-                              <div className="flex items-center h-5">
-                                <input
-                                  type="radio"
-                                  value="PhonePe"
-                                  {...register("paymentMethod", { required: "Payment Method is required!" })}
-                                  className="w-5 h-5 text-[#5f259f] focus:ring-[#5f259f] border-gray-300"
-                                  defaultChecked
-                                />
-                              </div>
-                              <div className="ml-4 flex-1">
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    <span className="block text-sm font-bold text-[#3B2A25]">PhonePe Gateway (UPI, QR, Cards & Netbanking)</span>
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#5f259f] text-white">Recommended</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-[#5f259f] text-white font-extrabold text-[11px] tracking-wider">
-                                      PhonePe
-                                    </span>
-                                  </div>
-                                </div>
-                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay securely via PhonePe, Google Pay, Paytm, UPI QR, Credit/Debit Card or Net Banking.</span>
-                              </div>
-                            </div>
-                          </label>
-
-                          {/* Option 2: Cash on Delivery (COD) */}
-                          <label className={`flex flex-col p-6 cursor-pointer transition-colors ${selectedPaymentMethod === 'Cash' ? 'bg-[#FAF7F5]' : 'hover:bg-gray-50'}`}>
-                            <div className="flex items-start">
-                              <div className="flex items-center h-5">
-                                <input
-                                  type="radio"
-                                  value="Cash"
-                                  {...register("paymentMethod", { required: "Payment Method is required!" })}
-                                  className="w-5 h-5 text-[#9C6A5A] focus:ring-[#9C6A5A] border-gray-300"
-                                />
-                              </div>
-                              <div className="ml-4 flex-1">
-                                <div className="flex justify-between items-center">
-                                  <span className="block text-sm font-bold text-[#3B2A25]">Cash on Delivery (COD)</span>
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-extrabold text-[10px] uppercase">COD</span>
-                                </div>
-                                <span className="block text-xs text-[#3B2A25]/60 mt-1">Pay with cash upon delivery of your order.</span>
-                              </div>
-                            </div>
-                          </label>
-                        </div>
-                        <Error errorMessage={errors.paymentMethod} />
-
-                        {/* Terms and Conditions */}
-                        <div className="mb-8 flex items-start gap-3 bg-[#FAF7F5] p-5 rounded-[16px]">
-                          <div className="flex items-center h-5">
-                            <input
-                              type="checkbox"
-                              id="agreeToTerms"
-                              checked={agreeToTerms}
-                              onChange={(e) => setAgreeToTerms(e.target.checked)}
-                              className="w-5 h-5 text-[#9C6A5A] focus:ring-[#9C6A5A] border-gray-300 rounded cursor-pointer"
-                            />
-                          </div>
-                          <label htmlFor="agreeToTerms" className="text-sm text-[#3B2A25]/80 font-medium cursor-pointer leading-relaxed">
-                            I agree to the{" "}
-                            <Link href="/terms" className="text-[#9C6A5A] hover:text-[#6D3D2E] underline font-bold">Terms & Conditions</Link>
-                            {" "}and{" "}
-                            <Link href="/privacy" className="text-[#9C6A5A] hover:text-[#6D3D2E] underline font-bold">Privacy Policy</Link>
-                          </label>
-                        </div>
-
-                        {/* Trust Badges */}
-                        <div className="flex flex-wrap justify-center gap-6 mb-8 text-[#3B2A25]/50">
-                          <div className="flex items-center gap-2"><IoLockClosedOutline size={20} /><span className="text-xs font-bold uppercase tracking-wider">Secure Checkout</span></div>
-                          <div className="flex items-center gap-2"><IoShieldCheckmarkOutline size={20} /><span className="text-xs font-bold uppercase tracking-wider">256-bit Encryption</span></div>
-                        </div>
-
-                        <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 pt-6 border-t border-[#E6D1CB]/40">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentStep(1)}
-                            className="text-[#9C6A5A] font-semibold text-sm tracking-wider hover:text-[#6D3D2E] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
-                          >
-                            <IoChevronForward className="rotate-180" /> Return to Information
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              if (!agreeToTerms) {
-                                notifyError("Please agree to Terms & Conditions to place order");
-                                return;
-                              }
-                              if (formRef.current) formRef.current.requestSubmit();
-                            }}
-                            disabled={isEmpty || isCheckoutSubmit || !agreeToTerms}
-                            className={`w-full sm:w-auto h-[58px] px-10 rounded-[18px] text-base font-bold tracking-wider text-white transition-all transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2 ${isEmpty || isCheckoutSubmit || !agreeToTerms
-                                ? 'bg-gray-400 cursor-not-allowed shadow-none hover:translate-y-0'
-                                : 'bg-[#6D3D2E] hover:bg-[#4A291E]'
-                              }`}
-                          >
-                            {isCheckoutSubmit ? (
-                              <><img src="/loader/spinner.gif" alt="Loading" width={20} height={20} /> Processing...</>
-                            ) : (
-                              <><IoLockClosedOutline size={18} /> Pay & Place Order</>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </form>
-                </div>
+              {/* Minimal Clean Breadcrumb */}
+              <div className="flex items-center gap-2 mb-6 text-xs text-gray-500 font-medium">
+                <Link href="/cart" className="hover:text-black transition-colors">
+                  Cart
+                </Link>
+                <IoChevronForward className="text-gray-400 text-[10px]" />
+                <span className="text-gray-900 font-semibold">Information &amp; Payment</span>
               </div>
 
-              <div className="w-full lg:w-[40%] xl:w-[35%] flex flex-col self-start mt-8 lg:mt-0 lg:sticky lg:top-10 lg:max-h-[calc(100dvh-5rem)] lg:overflow-y-auto scrollbar-hide">
-                <div className="border border-[#E6D1CB]/40 p-6 sm:p-8 lg:p-10 rounded-[20px] bg-[#FAF7F5] shadow-[0_8px_30px_rgb(156,106,90,0.06)] relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#C8A15A]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#9C6A5A]/5 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+              <form ref={formRef} onSubmit={handleSubmit(submitHandler)} className="space-y-8">
 
-                  <h2 className="font-semibold font-serif text-2xl pb-6 border-b border-[#E6D1CB]/40 text-[#3B2A25] relative z-10">
-                    {showingTranslateValue(
-                      storeCustomizationSetting?.checkout?.order_summary
-                    )}
-                  </h2>
-
-                  {/* Cart Items */}
-                  <div className="py-6 border-b border-[#E6D1CB]/40 relative z-10">
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {items.map((item) => (
-                        <div key={item.id} className="flex gap-4 items-center">
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-[#E6D1CB]/40 shrink-0 bg-white">
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#3B2A25] text-white text-xs flex items-center justify-center rounded-full font-bold shadow-md z-10 border-2 border-[#FAF7F5]">
-                              {item.quantity}
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm sm:text-base font-bold text-[#3B2A25] truncate">{item.title}</h4>
-                            {item.color && (
-                              <p className="text-xs font-semibold text-emerald-700 mt-0.5">
-                                Color: {item.color}
-                              </p>
-                            )}
-                            {item.variant && (
-                              <p className="text-xs text-[#3B2A25]/60 mt-0.5">
-                                {typeof item.variant === "object"
-                                  ? Object.values(item.variant).filter(Boolean).join(", ")
-                                  : item.variant}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className="text-sm font-bold text-[#3B2A25]">
-                              {currency}{formatPrice(item.price * item.quantity)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-
-                      {isEmpty && (
-                        <div className="text-center py-6">
-                          <p className="text-sm text-[#3B2A25]/60">Your cart is empty.</p>
-                        </div>
-                      )}
-                    </div>
+                {/* 1. CONTACT SECTION */}
+                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                  <div className="mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                      Contact
+                    </h2>
                   </div>
 
-                  {/* Coupon Section */}
-                  <div className="relative z-10 mt-6">
-                    <form className="w-full">
-                      {couponInfo.couponCode ? (
-                        <div className="relative bg-emerald-50 border-2 border-dashed border-emerald-400 rounded-lg p-5 w-full overflow-hidden shadow-sm">
-                          {/* Cutouts for coupon effect */}
-                          <div className="absolute top-1/2 -left-3 transform -translate-y-1/2 w-6 h-6 bg-white rounded-full border-r-2 border-dashed border-emerald-400 z-10"></div>
-                          <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 w-6 h-6 bg-white rounded-full border-l-2 border-dashed border-emerald-400 z-10"></div>
-
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-xs uppercase font-bold tracking-widest text-emerald-600 flex items-center gap-1">
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" /></svg>
-                                Coupon Applied
-                              </span>
-                              <span className="text-xl sm:text-2xl font-black text-emerald-800 tracking-widest uppercase font-serif">
-                                {couponInfo.couponCode}
-                              </span>
-                            </div>
-                            <div className="bg-emerald-500 text-[#3B2A25] p-1.5 rounded-full shadow-sm mt-1">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </div>
-                          </div>
-
-                          <div className="border-t-2 border-dashed border-emerald-200 my-4 relative"></div>
-
-                          <div className="flex justify-between items-center">
-                            <div className="text-sm text-emerald-800 font-medium">
-                              You save <span className="font-bold text-lg text-emerald-600">{currency}{formatPrice(discountAmount)}</span>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <button
-                                type="button"
-                                onClick={handleRemoveCoupon}
-                                className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider"
-                              >
-                                Remove
-                              </button>
-                              <span className="text-emerald-300">|</span>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveCoupon()}
-                                className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors uppercase tracking-wider"
-                              >
-                                Change
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <p className="text-xs text-gray-500 italic mb-2">
-                            * Applying a new coupon will replace the existing coupon.
-                          </p>
-                          {availableCoupons && availableCoupons.length > 0 ? (
-                            <>
-                              <select
-                                value={selectedCouponCode}
-                                onChange={(e) => setSelectedCouponCode(e.target.value)}
-                                className="form-select py-2 px-3 md:px-4 w-full appearance-none transition ease-in-out border text-input text-sm rounded-md h-12 duration-200 bg-white border-[#E6D1CB]/60 focus:ring-0 focus:outline-none focus:border-[#9C6A5A]"
-                              >
-                                <option value="">
-                                  {t("Select a coupon")}
-                                </option>
-                                {availableCoupons.map((coupon) => (
-                                  <option key={coupon._id} value={coupon.couponCode}>
-                                    {coupon.couponCode} — Min ₹
-                                    {Number(coupon.minimumAmount || 0).toFixed(2)}
-                                  </option>
-                                ))}
-                              </select>
-
-                              <div className="flex flex-col sm:flex-row items-start justify-end">
-                                {isCouponAvailable ? (
-                                  <button
-                                    disabled
-                                    type="button"
-                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-semibold text-center justify-center border border-[#E6D1CB]/60 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 bg-gray-100 h-12 text-sm lg:text-base w-full sm:w-auto`}
-                                  >
-                                    <img
-                                      src="/loader/spinner.gif"
-                                      alt="Loading"
-                                      width={20}
-                                      height={10}
-                                    />
-                                    <span className=" ml-2 font-light">Processing</span>
-                                  </button>
-                                ) : (
-                                  <button
-                                    disabled={isCouponAvailable || !selectedCouponCode}
-                                    onClick={handleCouponCode}
-                                    className={`md:text-sm leading-4 inline-flex items-center cursor-pointer bg-[#9C6A5A] transition ease-in-out duration-300 font-semibold text-center justify-center border border-[#E6D1CB]/60 rounded-md placeholder-white focus-visible:outline-none focus:outline-none px-5 md:px-6 lg:px-8 py-3 md:py-3.5 lg:py-3 mt-3 sm:mt-0 sm:ml-3 md:mt-0 md:ml-3 lg:mt-0 lg:ml-3 hover:text-[#3B2A25] hover:bg-[#FAF7F5] h-12 text-sm text-[#3B2A25] lg:text-base w-full sm:w-auto ${!selectedCouponCode ? "opacity-60 cursor-not-allowed" : ""
-                                      }`}
-                                  >
-                                    {showingTranslateValue(
-                                      storeCustomizationSetting?.checkout?.apply_button
-                                    ) || "Apply"}
-                                  </button>
-                                )}
-                              </div>
-
-                              {discountAmount > 0 && (
-                                <p className="text-xs text-green-600 font-semibold">
-                                  You save {currency}
-                                  {discountAmount.toFixed(2)} with this coupon.
-                                </p>
-                              )}
-                            </>
-                          ) : (
-                            <p className="text-xs text-gray-500">
-                              No coupons available for this order amount.
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </form>
-                  </div>
-                  <div className="py-6 relative z-10 space-y-3">
-                    {/* Total MRP */}
-                    <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/80">
-                      Total MRP
-                      <span className="ml-auto font-bold text-[#3B2A25]">
-                        {currency}{formatPrice(totals.totalMRP)}
-                      </span>
-                    </div>
-
-                    {/* Total Discount */}
-                    {totals.totalDiscount > 0 && (
-                      <div className="flex items-center text-sm w-full font-medium text-[#C8A15A]">
-                        Total Discount
-                        <span className="ml-auto font-bold">
-                          -{currency}{formatPrice(totals.totalDiscount)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Tax Display */}
-                    {taxSummary?.inclusiveTax > 0 && (
-                      <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/60">
-                        GST (included in price)
-                        <span className="ml-auto font-bold text-[#3B2A25]/80">
-                          {currency}{formatPrice(taxSummary.inclusiveTax)}
-                        </span>
-                      </div>
-                    )}
-                    {taxSummary?.exclusiveTax > 0 && (
-                      <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/60">
-                        GST (added at checkout)
-                        <span className="ml-auto font-bold text-[#3B2A25]/80">
-                          {currency}{formatPrice(taxSummary.exclusiveTax)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Coupon Offer / Additional Discount */}
-                    {discountAmount > 0 && (
-                      <div className="flex items-center text-sm w-full font-medium text-[#C8A15A]">
-                        {isCouponApplied ? "Coupon Offer" : showingTranslateValue(storeCustomizationSetting?.checkout?.discount)}
-                        <span className="ml-auto font-bold">
-                          -{currency}{formatPrice(discountAmount)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Shipping Cost */}
-                    <div className="flex items-center text-sm w-full font-medium text-[#3B2A25]/80">
-                      Shipping Cost
-                      <span className={`ml-auto font-bold ${shippingCost === 0 ? 'text-[#C8A15A] uppercase tracking-widest' : 'text-[#3B2A25]'}`}>
-                        {shippingCost === 0 ? 'FREE' : `${currency}${formatPrice(shippingCost)}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 border-t border-[#E6D1CB]/40 relative z-10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="font-serif font-bold text-lg text-[#3B2A25]">
-                          Estimated Payable
-                        </span>
-                        <span className="text-xs text-[#3B2A25]/60 uppercase tracking-widest mt-1">
-                          INCLUDES TAXES
-                        </span>
-                      </div>
-                      <span className="font-serif font-extrabold text-3xl text-[#6D3D2E]">
-                        {currency}{formatPrice(total)}
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Layout>
-
-      {/* Address Modal — portal + high z-index so it sits above header/categories */}
-      {portalReady && showAddressModal && createPortal(
-        <div className="fixed inset-0 z-[10050]">
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
-            onClick={() => setShowAddressModal(false)}
-          />
-
-          {/* Modal Panel - full screen on mobile, below header on desktop */}
-          <div className="absolute right-0 w-full sm:max-w-md lg:max-w-lg flex flex-col top-16 h-[calc(100dvh-4rem)] lg:top-[148px] lg:h-[calc(100dvh-148px)]">
-            <div className="flex flex-col flex-1 min-h-0 bg-white shadow-xl">
-              {/* Header */}
-              <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E6D1CB]/60">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 pr-2">
-                  {editingAddress ? "Edit Shipping Address" : "Add Shipping Address"}
-                </h3>
-                <button
-                  type="button"
-                  className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition-colors"
-                  onClick={() => {
-                    setShowAddressModal(false);
-                    setEditingAddress(null);
-                    setAddressForm({
-                      name: "",
-                      address: "",
-                      city: "",
-                      country: "",
-                      zipCode: "",
-                      phone: "",
-                      addressType: "Home",
-                      isDefault: false
-                    });
-                  }}
-                >
-                  <IoClose className="h-6 w-6" />
-                </button>
-              </div>
-
-              <form
-                onSubmit={handleAddressSubmit}
-                className="flex flex-col flex-1 min-h-0"
-              >
-                <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4">
-                  <div className="space-y-4">
-                    {/* Use Current Location Button */}
-                    <div className="mb-4">
-                      <button
-                        type="button"
-                        onClick={handleUseCurrentLocation}
-                        disabled={isLocationLoading}
-                        className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-semibold text-sm hover:bg-emerald-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isLocationLoading ? (
-                          <FiLoader className="animate-spin" size={18} />
-                        ) : (
-                          <IoLocationOutline size={18} />
-                        )}
-                        {isLocationLoading ? "Fetching Location..." : "Use Current Location"}
-                      </button>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
-                      </label>
+                  <div className="space-y-3">
+                    <div className="relative">
                       <input
-                        type="text"
-                        name="name"
-                        value={addressForm.name}
-                        onChange={handleAddressChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                        placeholder="John Doe"
+                        type="email"
+                        id="email"
+                        placeholder="Email or mobile phone number"
+                        {...register("email", {
+                          required: "Email address is required",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: "Please enter a valid email address",
+                          },
+                        })}
+                        className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${
+                          errors.email
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                        }`}
                       />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Street Address
-                      </label>
-                      <textarea
-                        name="address"
-                        value={addressForm.address}
-                        onChange={handleAddressChange}
-                        required
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                        placeholder="123 Main St, Apt 4B"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={addressForm.city}
-                          onChange={handleAddressChange}
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                          placeholder="New York"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          State/Province
-                        </label>
-                        <input
-                          type="text"
-                          name="country"
-                          value={addressForm.country}
-                          onChange={handleAddressChange}
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                          placeholder="NY"
-                        />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer">
+                        <IoHelpCircleOutline size={18} />
+                        <span className="sr-only">Help</span>
                       </div>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ZIP/Postal Code
-                      </label>
-                      <input
-                        type="text"
-                        name="zipCode"
-                        value={addressForm.zipCode}
-                        onChange={handleAddressChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                        placeholder="10001"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={addressForm.phone}
-                        onChange={handleAddressChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                        placeholder="+1 (555) 123-4567"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Address Type
-                        </label>
-                        <select
-                          name="addressType"
-                          value={addressForm.addressType}
-                          onChange={handleAddressChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-transparent"
-                        >
-                          <option value="Home">Home</option>
-                          <option value="Work">Work</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-
-                      <div className="flex items-center pt-0 sm:pt-7">
-                        <input
-                          type="checkbox"
-                          name="isDefault"
-                          checked={addressForm.isDefault}
-                          onChange={handleAddressChange}
-                          className="h-4 w-4 text-[#9C6A5A] focus:ring-store-500 border-gray-300 rounded"
-                        />
-                        <label className="ml-2 block text-sm text-gray-700">
-                          Set as default address
-                        </label>
-                      </div>
-                    </div>
+                    <Error errorMessage={errors.email?.message} />
                   </div>
                 </div>
 
-                {/* Footer Buttons - always visible */}
-                <div className="flex-shrink-0 border-t border-[#E6D1CB]/60 px-4 sm:px-6 py-3 sm:py-4 bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:space-x-3 sm:gap-0">
+                {/* 2. DELIVERY SECTION */}
+                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                      Delivery
+                    </h2>
                     <button
                       type="button"
-                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-store-500"
-                      onClick={() => setShowAddressModal(false)}
+                      onClick={handleUseCurrentLocation}
+                      disabled={isLocationLoading}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6D3D2E] hover:text-black transition-colors disabled:opacity-50"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-2.5 border border-transparent rounded-md text-sm font-medium text-[#3B2A25] bg-[#FAF7F5] hover:bg-[#9C6A5A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-store-500"
-                    >
-                      {editingAddress ? "Update Address" : "Save Address"}
+                      {isLocationLoading ? (
+                        <FiLoader className="animate-spin" size={14} />
+                      ) : (
+                        <IoLocationOutline size={14} />
+                      )}
+                      <span>Use current location</span>
                     </button>
                   </div>
+
+                  {/* Saved Address Selector (if logged in & has addresses) */}
+                  {shippingAddresses && shippingAddresses.length > 0 && (
+                    <div className="mb-4">
+                      <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                        Saved addresses
+                      </label>
+                      <select
+                        value={selectedAddressId}
+                        onChange={handleSavedAddressChange}
+                        className="w-full h-11 px-3 text-sm rounded-lg border border-gray-300 bg-gray-50/50 focus:bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black cursor-pointer transition-colors"
+                      >
+                        {shippingAddresses.map((addr, idx) => (
+                          <option key={addr._id || addr.id || idx} value={addr._id || addr.id || idx}>
+                            {addr.name || "Address"} — {addr.address}, {addr.city} ({addr.zipCode}) {addr.isDefault ? "[Default]" : ""}
+                          </option>
+                        ))}
+                        <option value="new">+ Enter a different address</option>
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="space-y-3.5">
+                    {/* Country / Region */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                        Country / Region
+                      </label>
+                      <select
+                        {...register("country", { required: "Country is required" })}
+                        className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-black focus:ring-1 focus:ring-black cursor-pointer"
+                        defaultValue="India"
+                      >
+                        <option value="India">India</option>
+                      </select>
+                    </div>
+
+                    {/* First name & Last name */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="First name (optional)"
+                          {...register("firstName")}
+                          className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Last name"
+                          {...register("lastName", { required: "Last name is required" })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.lastName
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <Error errorMessage={errors.lastName?.message} />
+                      </div>
+                    </div>
+
+                    {/* Street Address */}
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Address (House/Flat No., Street, Area)"
+                        {...register("address", { required: "Address is required" })}
+                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                          errors.address
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                        }`}
+                      />
+                      <Error errorMessage={errors.address?.message} />
+                    </div>
+
+                    {/* Apartment, suite (optional) */}
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Apartment, suite, landmark, etc. (optional)"
+                        {...register("address2")}
+                        className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                      />
+                    </div>
+
+                    {/* City, State, PIN code */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="City"
+                          {...register("city", { required: "City is required" })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.city
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <Error errorMessage={errors.city?.message} />
+                      </div>
+
+                      <div>
+                        <select
+                          {...register("state", { required: "State is required" })}
+                          defaultValue=""
+                          className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${
+                            errors.state
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        >
+                          <option value="" disabled>State</option>
+                          {INDIAN_STATES.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                        <Error errorMessage={errors.state?.message} />
+                      </div>
+
+                      <div>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          placeholder="PIN code"
+                          {...register("zipCode", {
+                            required: "PIN code is required",
+                            pattern: {
+                              value: /^[0-9]{6}$/,
+                              message: "Valid 6-digit PIN required"
+                            }
+                          })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.zipCode
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <Error errorMessage={errors.zipCode?.message} />
+                      </div>
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          placeholder="Phone (10 digits)"
+                          {...register("contact", {
+                            required: "Phone number is required",
+                            pattern: {
+                              value: /^[0-9]{10}$/,
+                              message: "Enter a valid 10-digit mobile number"
+                            }
+                          })}
+                          className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.contact
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer" title="In case there are questions regarding your order">
+                          <IoHelpCircleOutline size={18} />
+                        </div>
+                      </div>
+                      <Error errorMessage={errors.contact?.message} />
+                    </div>
+
+                    {/* Save this information checkbox */}
+                    <label className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-600 cursor-pointer pt-1 select-none">
+                      <input
+                        type="checkbox"
+                        checked={saveInfoForNextTime}
+                        onChange={(e) => setSaveInfoForNextTime(e.target.checked)}
+                        className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer"
+                      />
+                      <span>Save this information for next time</span>
+                    </label>
+                  </div>
                 </div>
+
+                {/* 3. PAYMENT SECTION */}
+                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                  <div className="mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                      Payment
+                    </h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      All transactions are secure and encrypted.
+                    </p>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-200 mb-5">
+
+                    {/* Option 1: PhonePe Gateway */}
+                    <label
+                      className={`flex flex-col p-4 cursor-pointer transition-colors ${
+                        selectedPaymentMethod === "PhonePe" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            value="PhonePe"
+                            {...register("paymentMethod", { required: "Payment Method is required!" })}
+                            className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
+                            defaultChecked
+                          />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900">
+                                PhonePe Secure Gateway
+                              </span>
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#5f259f] text-white">
+                                Recommended
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              UPI, Google Pay, PhonePe, Paytm, Cards &amp; Netbanking
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Payment brand badges */}
+                        <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-extrabold text-[#5f259f]">
+                            PhonePe
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-emerald-700">
+                            UPI
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-blue-700">
+                            VISA
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-red-600">
+                            Master
+                          </span>
+                        </div>
+                      </div>
+                    </label>
+
+                    {/* Option 2: Razorpay (if enabled in settings) */}
+                    {storeSetting?.razorpay_status && (
+                      <label
+                        className={`flex flex-col p-4 cursor-pointer transition-colors ${
+                          selectedPaymentMethod === "RazorPay" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              value="RazorPay"
+                              {...register("paymentMethod", { required: "Payment Method is required!" })}
+                              className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
+                            />
+                            <div>
+                              <span className="text-sm font-semibold text-gray-900">
+                                Razorpay Secure (Cards, Wallets &amp; Netbanking)
+                              </span>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                International Cards, Netbanking &amp; Wallets
+                              </p>
+                            </div>
+                          </div>
+                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-[#0C2340]">
+                            Razorpay
+                          </span>
+                        </div>
+                      </label>
+                    )}
+
+                    {/* Option 3: Cash on Delivery (COD) */}
+                    <label
+                      className={`flex flex-col p-4 cursor-pointer transition-colors ${
+                        selectedPaymentMethod === "Cash" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            value="Cash"
+                            {...register("paymentMethod", { required: "Payment Method is required!" })}
+                            className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-sm font-semibold text-gray-900">
+                              Cash on Delivery (COD)
+                            </span>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Pay in cash upon doorstep delivery
+                            </p>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase">
+                          COD
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+                  <Error errorMessage={errors.paymentMethod?.message} />
+
+                  {/* Billing address match */}
+                  <div className="mb-4">
+                    <label className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-700 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={useShippingAsBilling}
+                        onChange={(e) => setUseShippingAsBilling(e.target.checked)}
+                        className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer"
+                      />
+                      <span>Use shipping address as billing address</span>
+                    </label>
+                  </div>
+
+                  {/* Terms & Conditions Agreement */}
+                  <div className="mb-6 p-3.5 rounded-lg bg-gray-50 border border-gray-200">
+                    <label className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        id="agreeToTerms"
+                        checked={agreeToTerms}
+                        onChange={(e) => setAgreeToTerms(e.target.checked)}
+                        className="w-4 h-4 mt-0.5 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer shrink-0"
+                      />
+                      <span>
+                        I agree to the{" "}
+                        <Link href="/terms-and-conditions" target="_blank" className="text-[#6D3D2E] underline font-medium hover:text-[#4A291E]">
+                          Terms &amp; Conditions
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/privacy-policy" target="_blank" className="text-[#6D3D2E] underline font-medium hover:text-[#4A291E]">
+                          Privacy Policy
+                        </Link>
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Pay Now Main Action Button */}
+                  <button
+                    type="submit"
+                    disabled={isEmpty || isCheckoutSubmit || !agreeToTerms}
+                    className={`w-full h-14 rounded-xl text-base font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 ${
+                      isEmpty || isCheckoutSubmit || !agreeToTerms
+                        ? "bg-gray-400 cursor-not-allowed shadow-none"
+                        : "bg-[#6D3D2E] hover:bg-[#4A291E] active:scale-[0.99]"
+                    }`}
+                  >
+                    {isCheckoutSubmit ? (
+                      <>
+                        <FiLoader className="animate-spin text-white" size={20} />
+                        <span>Processing order...</span>
+                      </>
+                    ) : (
+                      <>
+                        <IoLockClosedOutline size={18} />
+                        <span>
+                          {selectedPaymentMethod === "Cash"
+                            ? `Place Order (${currency}${formatPrice(total)})`
+                            : `Pay now — ${currency}${formatPrice(total)}`}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Security Assurance Badges */}
+                  <div className="flex items-center justify-center gap-6 mt-5 text-gray-400 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <IoLockClosedOutline size={16} />
+                      <span>Secure 256-bit SSL</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <IoShieldCheckmarkOutline size={16} />
+                      <span>Encrypted Checkout</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Copyright */}
+                <div className="pt-2 text-center text-xs text-gray-500 space-y-2">
+                  <p>All rights reserved Manchanda Fabrics</p>
+                  <div className="flex justify-center gap-4 text-[11px] text-gray-400">
+                    <Link href="/refund-return-policy" className="hover:underline">Refund policy</Link>
+                    <span>•</span>
+                    <Link href="/shipping-delivery-policy" className="hover:underline">Shipping policy</Link>
+                    <span>•</span>
+                    <Link href="/privacy-policy" className="hover:underline">Privacy policy</Link>
+                    <span>•</span>
+                    <Link href="/terms-and-conditions" className="hover:underline">Terms of service</Link>
+                  </div>
+                </div>
+
               </form>
             </div>
+
+
+            {/* ================= RIGHT COLUMN: ORDER SUMMARY (40% - Sticky) ================= */}
+            <div className="w-full lg:w-[42%] xl:w-[40%] flex flex-col self-start lg:sticky lg:top-24">
+              <div className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-200/80 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+
+                <div className="flex items-center justify-between pb-5 border-b border-gray-200">
+                  <h3 className="font-semibold text-lg text-gray-900 flex items-center gap-2">
+                    <FiShoppingBag className="text-gray-500" />
+                    <span>Order Summary</span>
+                  </h3>
+                  <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                    {items.length} {items.length === 1 ? "item" : "items"}
+                  </span>
+                </div>
+
+                {/* Cart Items List */}
+                <div className="py-5 border-b border-gray-200 space-y-4 max-h-[340px] overflow-y-auto pr-1">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3.5">
+                      {/* Thumbnail with overlay quantity badge */}
+                      <div className="relative w-16 h-16 rounded-xl border border-gray-200/80 bg-gray-50 overflow-visible shrink-0 flex items-center justify-center">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                        <span className="absolute -top-2 -right-2 w-5 h-5 bg-neutral-700 text-white text-[11px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                          {item.quantity}
+                        </span>
+                      </div>
+
+                      {/* Product Title & Details */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate leading-snug">
+                          {item.title}
+                        </h4>
+                        {item.color && (
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Color: <span className="font-medium text-gray-700">{item.color}</span>
+                          </p>
+                        )}
+                        {item.variant && (
+                          <p className="text-xs text-gray-500 mt-0.5 truncate">
+                            {typeof item.variant === "object"
+                              ? Object.values(item.variant).filter(Boolean).join(", ")
+                              : item.variant}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price */}
+                      <div className="text-right shrink-0">
+                        <span className="text-sm font-bold text-gray-900">
+                          {currency}{formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {isEmpty && (
+                    <div className="text-center py-6 text-gray-400 text-sm">
+                      Your cart is empty.
+                    </div>
+                  )}
+                </div>
+
+                {/* Subtotal & Breakdown Lines */}
+                <div className="py-5 border-b border-gray-200 space-y-2.5 text-sm">
+                  {/* Total MRP */}
+                  {totals.totalMRP > cartTotal && (
+                    <div className="flex justify-between text-gray-500">
+                      <span>Total MRP</span>
+                      <span>{currency}{formatPrice(totals.totalMRP)}</span>
+                    </div>
+                  )}
+
+                  {/* MRP Discount */}
+                  {totals.totalDiscount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Bag Discount</span>
+                      <span>-{currency}{formatPrice(totals.totalDiscount)}</span>
+                    </div>
+                  )}
+
+                  {/* Subtotal */}
+                  <div className="flex justify-between text-gray-700 font-medium">
+                    <span>Subtotal</span>
+                    <span>{currency}{formatPrice(cartTotal)}</span>
+                  </div>
+
+                  {/* Shipping */}
+                  <div className="flex justify-between text-gray-700 font-medium">
+                    <span>Shipping</span>
+                    <span className={shippingCost === 0 ? "text-emerald-700 font-bold uppercase text-xs" : ""}>
+                      {shippingCost === 0 ? "FREE" : `${currency}${formatPrice(shippingCost)}`}
+                    </span>
+                  </div>
+
+                  {/* Coupon Discount */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-bold">
+                      <span>Coupon Discount</span>
+                      <span>-{currency}{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
+
+                  {/* GST Taxes */}
+                  {taxSummary?.inclusiveTax > 0 && (
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>GST (included in prices)</span>
+                      <span>{currency}{formatPrice(taxSummary.inclusiveTax)}</span>
+                    </div>
+                  )}
+                  {taxSummary?.exclusiveTax > 0 && (
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>GST (added)</span>
+                      <span>{currency}{formatPrice(taxSummary.exclusiveTax)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Total */}
+                <div className="pt-5 flex items-baseline justify-between">
+                  <div>
+                    <span className="text-base font-bold text-gray-900 block">Total</span>
+                    <span className="text-xs text-gray-500">Including taxes</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-semibold text-gray-500 mr-1.5 uppercase">INR</span>
+                    <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                      {currency}{formatPrice(total)}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-        </div>,
-        document.body
-      )}
-    </>
+
+        </div>
+      </div>
+    </Layout>
   );
 };
 

@@ -493,12 +493,6 @@ const CollectionsSlug = ({ products, attributes }) => {
                       >
                         Best Selling
                       </option>
-                      <option
-                        className="bg-white text-[#3B2A25]"
-                        value="most-discounted"
-                      >
-                        Most Discounted
-                      </option>
                     </select>
                   </span>
                 </div>
@@ -565,7 +559,6 @@ const CollectionsSlug = ({ products, attributes }) => {
                 ["High", "Price: High to Low"],
                 ["newest", "Latest"],
                 ["best-selling", "Best Selling"],
-                ["most-discounted", "Most Discounted"],
                 ["All", "Default"],
               ].map(([val, label]) => (
                 <button
