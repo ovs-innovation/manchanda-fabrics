@@ -244,7 +244,14 @@ const addOrder = async (req, res) => {
       });
     }
 
-    // console.log("addOrder: Creating order for user:", req.user ? req.user._id : "Guest (null)");
+    if (req.body.paymentMethod === "Cash" || req.body.paymentMethod === "COD") {
+      const storeSetting = await Setting.findOne({ name: "storeSetting" });
+      if (storeSetting?.setting?.cod_status === false) {
+        return res.status(400).send({
+          message: "Cash on Delivery is currently disabled by the store.",
+        });
+      }
+    }
 
     const cartWithTax = await populateCartTaxFields(req.body.cart || []);
 
@@ -738,6 +745,17 @@ const {
 // Create PhonePe Payment (Creates order in DB with status "Pending" and returns PhonePe pay page URL)
 const createPhonePeOrder = async (req, res) => {
   try {
+    const storeSetting = await Setting.findOne({ name: "storeSetting" });
+    const isDigitalOff =
+      storeSetting?.setting?.digital_payment_status === false ||
+      storeSetting?.setting?.phonepe_status === false;
+
+    if (isDigitalOff) {
+      return res.status(400).send({
+        message: "Digital payment is currently disabled by the store.",
+      });
+    }
+
     const orderData = req.body;
     const merchantTransactionId = `MT${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 

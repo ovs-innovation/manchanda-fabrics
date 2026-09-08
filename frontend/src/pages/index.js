@@ -8,11 +8,10 @@ import ProductServices from "@services/ProductServices";
 import ProductCard from "@components/product/ProductCard";
 import HeroBanner from "@components/banner/HeroBanner";
 import AttributeServices from "@services/AttributeServices";
-import FounderStory from "@components/founder/FounderStory";
 import HomeWhatsAppBand from "@components/home/HomeWhatsAppBand";
 import HomeCategoryCircles from "@components/home/HomeCategoryCircles";
 import HomeShopLatestCarousel from "@components/home/HomeShopLatestCarousel";
-import HomeStoresGrid from "@components/home/HomeStoresGrid";
+
 import HomeMarqueeStrip from "@components/home/HomeMarqueeStrip";
 import HomeTrustBadges from "@components/home/HomeTrustBadges";
 import CategoryServices from "@services/CategoryServices";
@@ -250,11 +249,9 @@ const Home = ({
         {/* 7 ── Scrolling marquee strip like ref */}
         <HomeMarqueeStrip phrases={homepage.marqueePhrases} />
 
-        <FounderStory founder={homepage.founder} />
-
         <HomeTrustBadges />
 
-        <HomeStoresGrid stores={homepage.stores} />
+
 
 
 

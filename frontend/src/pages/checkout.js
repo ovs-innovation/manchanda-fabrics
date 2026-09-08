@@ -4,7 +4,6 @@ import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import {
   IoChevronForward,
-  IoLocationOutline,
   IoLockClosedOutline,
   IoShieldCheckmarkOutline,
   IoHelpCircleOutline
@@ -21,7 +20,6 @@ import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
-import LocationServices from "@services/LocationServices";
 import { notifySuccess, notifyError } from "@utils/toast";
 import { getDisplayEmail } from "@utils/profileAuth";
 
@@ -71,16 +69,16 @@ const Checkout = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(true);
   const [saveInfoForNextTime, setSaveInfoForNextTime] = useState(true);
   const [useShippingAsBilling, setUseShippingAsBilling] = useState(true);
-  const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const userInfo = getUserSession();
   const { currency, formatPrice } = useUtilsFunction();
 
-  const { data: storeSetting } = useQuery({
+  const { data: storeSetting, isLoading: isStoreSettingLoading } = useQuery({
     queryKey: ["storeSetting"],
     queryFn: async () => await SettingServices.getStoreSetting(),
-    staleTime: 4 * 60 * 1000,
+    staleTime: 5 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   // Fetch user's saved shipping addresses
@@ -118,7 +116,17 @@ const Checkout = () => {
     setValue,
   } = useCheckoutSubmit(storeSetting);
 
-  const selectedPaymentMethod = watch("paymentMethod") || "PhonePe";
+  const isDigitalPaymentEnabled =
+    storeSetting?.digital_payment_status != null
+      ? Boolean(storeSetting.digital_payment_status)
+      : (storeSetting?.phonepe_status != null
+          ? Boolean(storeSetting.phonepe_status)
+          : true);
+
+  const isCodEnabled = storeSetting?.cod_status !== false;
+
+  const selectedPaymentMethod =
+    watch("paymentMethod") || (isDigitalPaymentEnabled ? "PhonePe" : (isCodEnabled ? "Cash" : "PhonePe"));
   const watchZipCode = watch("zipCode");
 
   const populateAddressFields = useCallback((addr) => {
@@ -138,8 +146,10 @@ const Checkout = () => {
   // Default values initialization
   useEffect(() => {
     setValue("country", "India");
-    setValue("paymentMethod", "PhonePe");
     setValue("shippingOption", "Standard");
+
+    const defaultPayment = isDigitalPaymentEnabled ? "PhonePe" : (isCodEnabled ? "Cash" : "PhonePe");
+    setValue("paymentMethod", defaultPayment);
 
     const displayEmail = getDisplayEmail(userInfo);
     if (displayEmail) {
@@ -153,7 +163,22 @@ const Checkout = () => {
       setValue("firstName", parts[0] || "");
       setValue("lastName", parts.slice(1).join(" ") || "");
     }
-  }, [setValue, userInfo]);
+  }, [setValue, userInfo, isDigitalPaymentEnabled, isCodEnabled]);
+
+  // Dynamically switch payment method if the selected one is disabled by admin
+  useEffect(() => {
+    if (!storeSetting) return;
+
+    if (!isDigitalPaymentEnabled && selectedPaymentMethod === "PhonePe") {
+      if (isCodEnabled) {
+        setValue("paymentMethod", "Cash");
+      }
+    } else if (!isCodEnabled && selectedPaymentMethod === "Cash") {
+      if (isDigitalPaymentEnabled) {
+        setValue("paymentMethod", "PhonePe");
+      }
+    }
+  }, [storeSetting, isDigitalPaymentEnabled, isCodEnabled, selectedPaymentMethod, setValue]);
 
   // Handle saved address auto-fill
   useEffect(() => {
@@ -212,70 +237,6 @@ const Checkout = () => {
 
     return () => clearTimeout(timer);
   }, [watchZipCode, setValue]);
-
-  // Handle Use Current Location
-  const handleUseCurrentLocation = async () => {
-    if (!navigator.geolocation) {
-      notifyError("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setIsLocationLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const geocodeData = await LocationServices.getReverseGeocode({ lat: latitude, lng: longitude });
-
-          if (geocodeData.status === 'OK' && geocodeData.results && geocodeData.results.length > 0) {
-            const result = geocodeData.results[0];
-
-            let street = "";
-            let city = "";
-            let state = "";
-            let zip = "";
-
-            const streetNumber = result.address_components.find(c => c.types.includes("street_number"))?.long_name || "";
-            const route = result.address_components.find(c => c.types.includes("route"))?.long_name || "";
-            const sublocality = result.address_components.find(c => c.types.includes("sublocality"))?.long_name || "";
-
-            street = [streetNumber, route, sublocality].filter(Boolean).join(", ");
-            if (!street) {
-              street = result.formatted_address.split(",")[0];
-            }
-
-            city = result.address_components.find(c => c.types.includes("locality"))?.long_name || "";
-            state = result.address_components.find(c => c.types.includes("administrative_area_level_1"))?.long_name || "";
-            zip = result.address_components.find(c => c.types.includes("postal_code"))?.long_name || "";
-
-            if (street) setValue("address", street);
-            if (city) setValue("city", city);
-            if (state) setValue("state", state);
-            if (zip) setValue("zipCode", zip);
-
-            notifySuccess(t("Location detected successfully!"));
-          } else {
-            notifyError(t("Unable to fetch current location. Please fill manually."));
-          }
-        } catch (error) {
-          console.error("Location error:", error);
-          notifyError(t("Unable to fetch current location."));
-        } finally {
-          setIsLocationLoading(false);
-        }
-      },
-      (error) => {
-        setIsLocationLoading(false);
-        if (error.code === error.PERMISSION_DENIED) {
-          notifyError(t("Location permission denied. Please allow location access."));
-        } else {
-          notifyError(t("Unable to fetch current location."));
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  };
 
   // Calculate MRP savings
   const calculateTotals = () => {
@@ -336,7 +297,7 @@ const Checkout = () => {
                       <input
                         type="email"
                         id="email"
-                        placeholder={t("Email or mobile phone number")}
+                        placeholder={t("Email address *")}
                         {...register("email", {
                           required: t("Email address is required"),
                           pattern: {
@@ -361,23 +322,13 @@ const Checkout = () => {
 
                 {/* 2. DELIVERY SECTION */}
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      {t("Delivery")}
+                      {t("Delivery Address")}
                     </h2>
-                    <button
-                      type="button"
-                      onClick={handleUseCurrentLocation}
-                      disabled={isLocationLoading}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6D3D2E] hover:text-black transition-colors disabled:opacity-50"
-                    >
-                      {isLocationLoading ? (
-                        <FiLoader className="animate-spin" size={14} />
-                      ) : (
-                        <IoLocationOutline size={14} />
-                      )}
-                      <span>{t("Use current location")}</span>
-                    </button>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {t("Please enter complete delivery details. All fields marked with * are mandatory.")}
+                    </p>
                   </div>
 
                   {/* Saved Address Selector (if logged in & has addresses) */}
@@ -405,7 +356,7 @@ const Checkout = () => {
                     {/* Country / Region */}
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                        {t("Country / Region")}
+                        {t("Country / Region")} *
                       </label>
                       <select
                         {...register("country", { required: t("Country is required") })}
@@ -421,16 +372,27 @@ const Checkout = () => {
                       <div>
                         <input
                           type="text"
-                          placeholder={t("First name (optional)")}
-                          {...register("firstName")}
-                          className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                          placeholder={t("First name *")}
+                          {...register("firstName", {
+                            required: t("First name is required"),
+                            validate: (v) => (v && v.trim().length > 0) || t("First name is required"),
+                          })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.firstName
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
                         />
+                        <Error errorMessage={errors.firstName?.message} />
                       </div>
                       <div>
                         <input
                           type="text"
-                          placeholder={t("Last name")}
-                          {...register("lastName", { required: t("Last name is required") })}
+                          placeholder={t("Last name *")}
+                          {...register("lastName", {
+                            required: t("Last name is required"),
+                            validate: (v) => (v && v.trim().length > 0) || t("Last name is required"),
+                          })}
                           className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                             errors.lastName
                               ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -445,8 +407,11 @@ const Checkout = () => {
                     <div>
                       <input
                         type="text"
-                        placeholder={t("Address (House/Flat No., Street, Area)")}
-                        {...register("address", { required: t("Address is required") })}
+                        placeholder={t("Address (House/Flat No., Street, Area) *")}
+                        {...register("address", {
+                          required: t("Street address is required"),
+                          validate: (v) => (v && v.trim().length > 0) || t("Street address is required"),
+                        })}
                         className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                           errors.address
                             ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -456,14 +421,22 @@ const Checkout = () => {
                       <Error errorMessage={errors.address?.message} />
                     </div>
 
-                    {/* Apartment, suite (optional) */}
+                    {/* Apartment, suite, landmark */}
                     <div>
                       <input
                         type="text"
-                        placeholder={t("Apartment, suite, landmark, etc. (optional)")}
-                        {...register("address2")}
-                        className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                        placeholder={t("Apartment, suite, landmark, etc. *")}
+                        {...register("address2", {
+                          required: t("Apartment, suite, or landmark is required"),
+                          validate: (v) => (v && v.trim().length > 0) || t("Apartment, suite, or landmark is required"),
+                        })}
+                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                          errors.address2
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                        }`}
                       />
+                      <Error errorMessage={errors.address2?.message} />
                     </div>
 
                     {/* City, State, PIN code */}
@@ -471,8 +444,11 @@ const Checkout = () => {
                       <div>
                         <input
                           type="text"
-                          placeholder={t("City")}
-                          {...register("city", { required: t("City is required") })}
+                          placeholder={t("City *")}
+                          {...register("city", {
+                            required: t("City is required"),
+                            validate: (v) => (v && v.trim().length > 0) || t("City is required"),
+                          })}
                           className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                             errors.city
                               ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -492,7 +468,7 @@ const Checkout = () => {
                               : "border-gray-300 focus:border-black focus:ring-black"
                           }`}
                         >
-                          <option value="" disabled>{t("State")}</option>
+                          <option value="" disabled>{t("State *")}</option>
                           {INDIAN_STATES.map((s) => (
                             <option key={s} value={s}>
                               {s}
@@ -506,7 +482,7 @@ const Checkout = () => {
                         <input
                           type="text"
                           maxLength={6}
-                          placeholder={t("PIN code")}
+                          placeholder={t("PIN code (6 digits) *")}
                           {...register("zipCode", {
                             required: t("PIN code is required"),
                             pattern: {
@@ -530,7 +506,7 @@ const Checkout = () => {
                         <input
                           type="tel"
                           maxLength={10}
-                          placeholder={t("Phone (10 digits)")}
+                          placeholder={t("Phone (10 digits) *")}
                           {...register("contact", {
                             required: t("Phone number is required"),
                             pattern: {
@@ -577,113 +553,93 @@ const Checkout = () => {
 
                   <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-200 mb-5">
 
-                    {/* Option 1: PhonePe Gateway */}
-                    <label
-                      className={`flex flex-col p-4 cursor-pointer transition-colors ${
-                        selectedPaymentMethod === "PhonePe" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            value="PhonePe"
-                            {...register("paymentMethod", { required: t("Payment Method is required!") })}
-                            className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
-                            defaultChecked
-                          />
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-900">
-                                {t("PhonePe Secure Gateway")}
-                              </span>
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#5f259f] text-white">
-                                {t("Recommended")}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              {t("UPI, Google Pay, PhonePe, Paytm, Cards & Netbanking")}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Payment brand badges */}
-                        <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-extrabold text-[#5f259f]">
-                            PhonePe
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-emerald-700">
-                            UPI
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-blue-700">
-                            VISA
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-red-600">
-                            Master
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Option 2: Razorpay (if enabled in settings) */}
-                    {storeSetting?.razorpay_status && (
+                    {/* Option 1: PhonePe Gateway - Controlled via Admin Panel */}
+                    {isDigitalPaymentEnabled && (
                       <label
                         className={`flex flex-col p-4 cursor-pointer transition-colors ${
-                          selectedPaymentMethod === "RazorPay" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
+                          selectedPaymentMethod === "PhonePe" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <input
                               type="radio"
-                              value="RazorPay"
+                              value="PhonePe"
+                              {...register("paymentMethod", { required: t("Payment Method is required!") })}
+                              className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  {t("PhonePe Secure Gateway")}
+                                </span>
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#5f259f] text-white">
+                                  {t("Recommended")}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {t("UPI, Google Pay, PhonePe, Paytm, Cards & Netbanking")}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Payment brand badges */}
+                          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                            <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-extrabold text-[#5f259f]">
+                              PhonePe
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-emerald-700">
+                              UPI
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-blue-700">
+                              VISA
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-red-600">
+                              Master
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+                    )}
+
+
+
+                    {/* Option 3: Cash on Delivery (COD) - Controlled via Admin Panel */}
+                    {isCodEnabled && (
+                      <label
+                        className={`flex flex-col p-4 cursor-pointer transition-colors ${
+                          selectedPaymentMethod === "Cash" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              value="Cash"
                               {...register("paymentMethod", { required: t("Payment Method is required!") })}
                               className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
                             />
                             <div>
                               <span className="text-sm font-semibold text-gray-900">
-                                {t("Razorpay Secure (Cards, Wallets & Netbanking)")}
+                                {t("Cash on Delivery (COD)")}
                               </span>
                               <p className="text-xs text-gray-500 mt-0.5">
-                                {t("International Cards, Netbanking & Wallets")}
+                                {t("Pay in cash upon doorstep delivery")}
                               </p>
                             </div>
                           </div>
-                          <span className="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[10px] font-bold text-[#0C2340]">
-                            Razorpay
+                          <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase">
+                            COD
                           </span>
                         </div>
                       </label>
                     )}
 
-                    {/* Option 3: Cash on Delivery (COD) */}
-                    <label
-                      className={`flex flex-col p-4 cursor-pointer transition-colors ${
-                        selectedPaymentMethod === "Cash" ? "bg-[#FAF7F5]" : "bg-white hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            value="Cash"
-                            {...register("paymentMethod", { required: t("Payment Method is required!") })}
-                            className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
-                          />
-                          <div>
-                            <span className="text-sm font-semibold text-gray-900">
-                              {t("Cash on Delivery (COD)")}
-                            </span>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              {t("Pay in cash upon doorstep delivery")}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase">
-                          COD
-                        </span>
+                    {!isDigitalPaymentEnabled && !isCodEnabled && (
+                      <div className="p-5 text-center text-sm text-amber-800 bg-amber-50">
+                        {t("No payment methods are currently active. Please contact customer support.")}
                       </div>
-                    </label>
+                    )}
                   </div>
                   <Error errorMessage={errors.paymentMethod?.message} />
 

@@ -26,7 +26,6 @@ const PaymentSettings = () => {
   const [paymentOptions, setPaymentOptions] = useState({
     cashOnDelivery: true,
     digitalPayment: true,
-    offlinePayment: true,
     combinedPayment: true,
     remainingCOD: true,
     remainingDigital: true,
@@ -38,12 +37,15 @@ const PaymentSettings = () => {
         const res = await SettingServices.getStoreSetting();
         if (res) {
           setPaymentOptions({
-            cashOnDelivery: res.cod_status ?? true,
-            digitalPayment: res.razorpay_status ?? true,
-            offlinePayment: res.offline_payment_status ?? true,
-            combinedPayment: res.combined_payment_status ?? true,
-            remainingCOD: res.remaining_cod_status ?? true,
-            remainingDigital: res.remaining_digital_status ?? true,
+            cashOnDelivery: res.cod_status !== undefined ? Boolean(res.cod_status) : true,
+            digitalPayment: res.digital_payment_status != null
+              ? Boolean(res.digital_payment_status)
+              : (res.phonepe_status != null
+                  ? Boolean(res.phonepe_status)
+                  : true),
+            combinedPayment: res.combined_payment_status !== undefined ? Boolean(res.combined_payment_status) : true,
+            remainingCOD: res.remaining_cod_status !== undefined ? Boolean(res.remaining_cod_status) : true,
+            remainingDigital: res.remaining_digital_status !== undefined ? Boolean(res.remaining_digital_status) : true,
           });
         }
       } catch (err) {
@@ -55,8 +57,43 @@ const PaymentSettings = () => {
     fetchPaymentSettings();
   }, []);
 
-  const toggleOption = (key) => {
-    setPaymentOptions(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleOption = async (key) => {
+    const nextValue = !paymentOptions[key];
+    const newOptions = { ...paymentOptions, [key]: nextValue };
+    setPaymentOptions(newOptions);
+
+    // Auto-save immediately so changes reflect instantly on the website checkout
+    try {
+      const payload = {
+        name: "storeSetting",
+        setting: {
+          cod_status: newOptions.cashOnDelivery,
+          digital_payment_status: newOptions.digitalPayment,
+          phonepe_status: newOptions.digitalPayment,
+          razorpay_status: newOptions.digitalPayment,
+          offline_payment_status: false,
+          combined_payment_status: newOptions.combinedPayment,
+          remaining_cod_status: newOptions.remainingCOD,
+          remaining_digital_status: newOptions.remainingDigital,
+        },
+      };
+
+      await SettingServices.updateStoreSetting(payload);
+      setIsUpdate(true);
+
+      const titleMap = {
+        cashOnDelivery: "Cash On Delivery (COD)",
+        digitalPayment: "Digital / Online Payment",
+        combinedPayment: "Combined Payment",
+        remainingCOD: "Remaining COD",
+        remainingDigital: "Remaining Digital",
+      };
+      const label = titleMap[key] || key;
+      notifySuccess(`${label} turned ${nextValue ? "ON (Active)" : "OFF (Disabled)"}!`);
+    } catch (err) {
+      console.error("Failed to auto-save payment setting:", err);
+      notifyError(err?.response?.data?.message || err.message || "Failed to update setting");
+    }
   };
 
   const handleSave = async () => {
@@ -66,8 +103,10 @@ const PaymentSettings = () => {
         name: "storeSetting",
         setting: {
           cod_status: paymentOptions.cashOnDelivery,
+          digital_payment_status: paymentOptions.digitalPayment,
+          phonepe_status: paymentOptions.digitalPayment,
           razorpay_status: paymentOptions.digitalPayment,
-          offline_payment_status: paymentOptions.offlinePayment,
+          offline_payment_status: false,
           combined_payment_status: paymentOptions.combinedPayment,
           remaining_cod_status: paymentOptions.remainingCOD,
           remaining_digital_status: paymentOptions.remainingDigital,
@@ -92,30 +131,37 @@ const PaymentSettings = () => {
           
           {/* Payment Options Grid */}
           <section className="bg-white border border-[#f1f5f9] rounded-[24px] p-8 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-             <div className="mb-10">
+             <div className="mb-6">
                 <h3 className="text-[20px] font-bold text-[#202938] dark:text-white mb-2">Payment Options</h3>
-                <p className="text-[14px] text-[#73849b]">Setup your business payment options from here</p>
+                <p className="text-[14px] text-[#73849b]">Setup and toggle your business payment options for the website</p>
+             </div>
+
+             {/* Guidance notice */}
+             <div className="mb-8 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-800/40 dark:bg-emerald-950/20">
+                <div className="flex-shrink-0 mt-0.5">
+                   <div className="bg-emerald-600 rounded-full h-6 w-6 flex items-center justify-center text-white font-bold text-xs">
+                      <FiInfo className="h-3.5 w-3.5" />
+                   </div>
+                </div>
+                <div className="text-[14px] text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                   <span className="font-bold">Website Checkout Control:</span> Toggle the <span className="font-bold">Cash On Delivery</span> switch ON or OFF below and click <strong>Save Information</strong>. When turned OFF, Cash on Delivery is immediately hidden from the website checkout page.
+                </div>
              </div>
 
              <div className="bg-[#f8fafc] p-10 rounded-3xl dark:bg-gray-900/40">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                    <PaymentOptionCard
                       title="Cash On Delivery"
-                      description="Let your customers pay when they receive their orders. A convenient option for those who prefer to pay with cash."
+                      description="Let your customers pay when they receive their orders. When toggled OFF, this option is hidden on the website checkout page."
                       checked={paymentOptions.cashOnDelivery}
                       onClick={() => toggleOption("cashOnDelivery")}
+                      isCod={true}
                    />
                    <PaymentOptionCard
                       title="Digital Payment"
-                      description="Enable customers to pay instantly using online payment gateways. To activate, please configure your payment gateway settings."
+                      description="Enable customers to pay instantly using online payment gateways (PhonePe, UPI, Netbanking & Cards)."
                       checked={paymentOptions.digitalPayment}
                       onClick={() => toggleOption("digitalPayment")}
-                   />
-                   <PaymentOptionCard
-                      title="Offline payment"
-                      description="Let customers complete payment outside the system. After placing the order, they will upload the payment proof for verification by the admin."
-                      checked={paymentOptions.offlinePayment}
-                      onClick={() => toggleOption("offlinePayment")}
                    />
                 </div>
              </div>
@@ -216,22 +262,43 @@ const PaymentSettings = () => {
   );
 };
 
-const PaymentOptionCard = ({ title, description, checked, onClick }) => (
+const PaymentOptionCard = ({ title, description, checked, onClick, isCod = false }) => (
   <div 
      onClick={onClick}
-     className={`p-8 bg-white border-2 rounded-[24px] cursor-pointer transition-all duration-300 shadow-sm relative group ${
+     className={`p-7 bg-white border-2 rounded-[24px] cursor-pointer transition-all duration-300 shadow-sm relative group flex flex-col justify-between ${
         checked ? 'border-[#0e7e87] ring-1 ring-[#0e7e87]/10' : 'border-[#e6ebf5] hover:border-[#0e7e87]/40 dark:border-gray-700'
      }`}
   >
-     <div className="flex items-center gap-4 mb-4">
-        <div className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
-           checked ? 'bg-[#0e7e87] text-white' : 'border-2 border-gray-200 dark:border-gray-700 group-hover:border-[#0e7e87]'
-        }`}>
-           {checked && <FiCheck className="w-4 h-4 stroke-[3]" />}
+     <div>
+        <div className="flex items-center justify-between gap-3 mb-4">
+           <div className="flex items-center gap-3">
+              <div className={`w-6 h-6 rounded flex items-center justify-center transition-all ${
+                 checked ? 'bg-[#0e7e87] text-white' : 'border-2 border-gray-200 dark:border-gray-700 group-hover:border-[#0e7e87]'
+              }`}>
+                 {checked && <FiCheck className="w-4 h-4 stroke-[3]" />}
+              </div>
+              <h4 className="text-[17px] font-bold text-[#202938] dark:text-white group-hover:text-[#0e7e87] transition-colors">{title}</h4>
+           </div>
+           <div onClick={(e) => e.stopPropagation()}>
+              <SwitchToggle
+                 processOption={checked}
+                 handleProcess={onClick}
+              />
+           </div>
         </div>
-        <h4 className="text-[17px] font-bold text-[#202938] dark:text-white group-hover:text-[#0e7e87] transition-colors">{title}</h4>
+        <p className="text-[14px] leading-relaxed text-[#73849b] group-hover:text-[#42526b] transition-colors">{description}</p>
      </div>
-     <p className="text-[14px] leading-relaxed text-[#73849b] group-hover:text-[#42526b] transition-colors">{description}</p>
+
+     <div className="mt-6 pt-3.5 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Website Checkout:</span>
+        <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+           checked 
+             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800' 
+             : 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800'
+        }`}>
+           {checked ? "Active / ON" : "Disabled / OFF"}
+        </span>
+     </div>
   </div>
 );
 

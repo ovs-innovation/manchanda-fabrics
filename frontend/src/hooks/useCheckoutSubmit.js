@@ -249,8 +249,9 @@ const useCheckoutSubmit = (storeSetting) => {
               `${data.firstName || ""} ${data.lastName || ""}`.trim() ||
               userInfo?.name,
             phone: data.contact,
-            address: data.address,
+            address: data.address2 ? `${data.address}, ${data.address2}` : data.address,
             city: data.city,
+            state: data.state,
             country: data.country,
             zipCode: data.zipCode,
           };
@@ -285,8 +286,10 @@ const useCheckoutSubmit = (storeSetting) => {
         contact: data.contact,
         email: data.email,
         address: data.address,
+        address2: data.address2 || "",
         country: data.country,
         city: data.city,
+        state: data.state || "",
         zipCode: data.zipCode,
       };
 
@@ -338,14 +341,24 @@ const useCheckoutSubmit = (storeSetting) => {
         });
       }
 
+      const isDigitalOff =
+        storeSetting?.digital_payment_status === false ||
+        storeSetting?.phonepe_status === false;
+
       // Handle payment based on method
       switch (data.paymentMethod) {
         case "PhonePe":
+          if (isDigitalOff) {
+            notifyError("Online payment is currently disabled.");
+            setIsCheckoutSubmit(false);
+            return;
+          }
           await handlePaymentWithPhonePe(orderInfo);
           break;
         case "RazorPay":
-          await handlePaymentWithRazorpay(orderInfo);
-          break;
+          notifyError("Razorpay is not supported. Please use PhonePe or COD.");
+          setIsCheckoutSubmit(false);
+          return;
         case "Card":
         case "UPI":
           // User requested that visual card/UPI fields show and order is successfully placed
@@ -361,6 +374,11 @@ const useCheckoutSubmit = (storeSetting) => {
           await handleCashPayment(orderInfo);
           break;
         case "Cash":
+          if (storeSetting?.cod_status === false) {
+            notifyError("Cash on Delivery is currently unavailable.");
+            setIsCheckoutSubmit(false);
+            return;
+          }
           await handleCashPayment(orderInfo);
           break;
         default:
