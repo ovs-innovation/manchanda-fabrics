@@ -1,3 +1,5 @@
+import { translateProductTitle } from "./fashionTranslations";
+
 /** Persist and switch Next.js locale (en default, hi supported). */
 export const setAppLocale = (router, newLocale) => {
   if (!router || !newLocale) return;
@@ -18,9 +20,10 @@ export const getSavedLocale = () => {
 };
 
 /** Translate UI labels stored in English (e.g. category/product names). */
-export const translateLabel = (text, t) => {
+export const translateLabel = (text, t, locale = "en") => {
   if (!text) return "";
   const key = String(text).trim();
   const translated = t(key);
-  return translated && translated !== key ? translated : key;
+  if (translated && translated !== key) return translated;
+  return translateProductTitle(key, locale || "hi");
 };

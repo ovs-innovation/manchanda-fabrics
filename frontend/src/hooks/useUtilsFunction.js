@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import useTranslation from "next-translate/useTranslation";
 import useGetSetting from "./useGetSetting";
+import { translateProductTitle } from "@utils/fashionTranslations";
 
 export const formatPrice = (value = 0) => {
   const num = Math.max(0, parseFloat(value) || 0);
@@ -55,6 +56,7 @@ const useUtilsFunction = () => {
       if (lang === "hi") {
         const translated = t(trimmed);
         if (translated && translated !== trimmed) return translated;
+        return translateProductTitle(trimmed, "hi");
       }
       return data;
     }
@@ -70,6 +72,7 @@ const useUtilsFunction = () => {
       const trimmedFinal = String(finalVal).trim();
       const translated = t(trimmedFinal);
       if (translated && translated !== trimmedFinal) return translated;
+      return translateProductTitle(trimmedFinal, "hi");
     }
     return finalVal;
   };
