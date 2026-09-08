@@ -42,4 +42,13 @@ const PrivacyPolicy = () => {
   );
 };
 
+export const getServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: "/terms-and-conditions",
+      permanent: false,
+    },
+  };
+};
+
 export default PrivacyPolicy;

@@ -318,8 +318,8 @@ export const storeCustomization = {
       de: "+91-9650544554",
     },
     call_box_text: {
-      en: "Distinctively disseminate focused solutions clicks-and-mortar ministate. ",
-      de: "Distinctively disseminate focused solutions clicks-and-mortar ministate.",
+      en: "Call / WhatsApp Us",
+      de: "Call / WhatsApp Us",
     },
     address_box_title: {
       en: "Visit Us",

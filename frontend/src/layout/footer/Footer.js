@@ -81,7 +81,12 @@ const Footer = () => {
 
   const collectionLinks = footer.collectionLinks || [];
   const rawQuickLinks = footer.quickLinks || [];
-  let quickLinks = [...rawQuickLinks].filter((l) => l.href !== "/user/track-order");
+  let quickLinks = [...rawQuickLinks].filter(
+    (l) =>
+      l.href !== "/user/track-order" &&
+      l.href !== "/refund-return-policy" &&
+      l.href !== "/privacy-policy"
+  );
   if (!quickLinks.some((l) => l.href === "/user/my-orders")) {
     quickLinks.unshift({ title: "My Orders", href: "/user/my-orders" });
   }

@@ -42,6 +42,17 @@ const ContactUs = ({ isSave, errors, register, isSubmitting }) => {
             <div className="bg-[#f9fafb] rounded-2xl p-8 border border-gray-100 space-y-5">
               <h3 className="font-bold text-gray-800">{t("CallUs")}</h3>
               <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Card Title</label>
+                <InputAreaTwo
+                  register={register}
+                  label="Card Title"
+                  name="call_box_title"
+                  type="text"
+                  placeholder="Call Us"
+                />
+                <Error errorName={errors.call_box_title} />
+              </div>
+              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Phone / WhatsApp</label>
                 <InputAreaTwo
                   register={register}
@@ -51,6 +62,17 @@ const ContactUs = ({ isSave, errors, register, isSubmitting }) => {
                   placeholder="+91 98765 43210"
                 />
                 <Error errorName={errors.call_box_phone} />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                <InputAreaTwo
+                  register={register}
+                  label="Description"
+                  name="call_box_text"
+                  type="text"
+                  placeholder="Call / WhatsApp Us"
+                />
+                <Error errorName={errors.call_box_text} />
               </div>
             </div>
 

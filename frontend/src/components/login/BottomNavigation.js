@@ -103,18 +103,14 @@ const BottomNavigation = ({ or, route, desc, pageName, loginTitle, hideSignUp, h
         </div>
       )}
 
-      {/* Privacy Policy & Terms & Conditions Button */}
+      {/* Terms & Conditions Button */}
       <div className="mt-4 mb-4">
         <Link
-          href="/privacy-policy"
-          className=" font-semibold py-3 px-6 rounded-md transition-colors duration-300 flex items-center justify-center text-center w-full gap-2"
-         
+          href="/terms-and-conditions"
+          className="font-semibold py-3 px-6 rounded-md transition-colors duration-300 flex items-center justify-center text-center w-full gap-2 text-store-600 hover:text-store-800"
         >
           <span className="text-sm leading-tight underline underline-offset-2">
-            {showingTranslateValue(storeCustomizationSetting?.privacy_policy?.title) || "Privacy Policy"} and  
-          </span>
-          <span className="text-sm leading-tight underline underline-offset-2">
-            {showingTranslateValue(storeCustomizationSetting?.term_and_condition?.title) || " Terms & Conditions"}
+            {showingTranslateValue(storeCustomizationSetting?.term_and_condition?.title) || "Terms & Conditions"}
           </span>
         </Link>
       </div>

@@ -1,10 +1,9 @@
-import React from "react";
+require("../config/env");
+const mongoose = require("mongoose");
+const { connectDB } = require("../config/db");
+const Setting = require("../models/Setting");
 
-import useGetSetting from "@hooks/useGetSetting";
-import useUtilsFunction from "@hooks/useUtilsFunction";
-import PolicyPage from "@components/policy/PolicyPage";
-
-const DEFAULT_CONTENT = `<p>Welcome to <strong>Manchanda Fabrics</strong>. By visiting our website, exploring our catalog, or purchasing our products, you engage in our service and agree to be bound by the following Terms &amp; Conditions, including our No Return &amp; Exchange Policy and Privacy Policy. Please read them carefully.</p>
+const COMBINED_TERMS_HTML = `<p>Welcome to <strong>Manchanda Fabrics</strong>. By visiting our website, exploring our catalog, or purchasing our products, you engage in our service and agree to be bound by the following Terms &amp; Conditions, including our No Return &amp; Exchange Policy and Privacy Policy. Please read them carefully.</p>
 
 <h2>1. General Online Store Terms</h2>
 <p>By using this website, you confirm that you are at least the age of majority in your jurisdiction. All products, services, and content provided on this website are for personal and legitimate use only. You may not use our products or platform for any unauthorized or unlawful activity.</p>
@@ -60,27 +59,51 @@ All sales are final. We strictly do not accept any returns, refunds, or exchange
   <li><strong>Email:</strong> manchandafabrics@gmail.com</li>
 </ul>`;
 
-const TermAndConditions = () => {
-  const { showingTranslateValue } = useUtilsFunction();
-  const { storeCustomizationSetting, loading, error } = useGetSetting();
+const updateTermsAndFooter = async () => {
+  try {
+    await connectDB();
+    console.log("Connected to database...");
 
-  return (
-    <PolicyPage
-      metaTitle="Terms & Conditions"
-      metaDescription="Terms and conditions of Manchanda Fabrics"
-      eyebrow="Legal"
-      title={
-        showingTranslateValue(storeCustomizationSetting?.term_and_condition?.title) ||
-        "Terms & Conditions"
-      }
-      intro="A few simple terms for shopping with Manchanda Fabrics."
-      loading={loading}
-      error={error}
-      cmsData={
-        storeCustomizationSetting?.term_and_condition?.description || DEFAULT_CONTENT
-      }
-    />
-  );
+    const doc = await Setting.findOne({ name: "storeCustomizationSetting" });
+    if (!doc) {
+      console.log("storeCustomizationSetting not found!");
+      process.exit(1);
+    }
+
+    if (!doc.setting) doc.setting = {};
+
+    // 1. Update Terms & Conditions content
+    if (!doc.setting.term_and_condition) doc.setting.term_and_condition = {};
+    doc.setting.term_and_condition.title = {
+      en: "Terms & Conditions",
+      de: "Terms & Conditions",
+    };
+    doc.setting.term_and_condition.description = {
+      en: COMBINED_TERMS_HTML,
+      de: COMBINED_TERMS_HTML,
+    };
+
+    // 2. Update Footer quickLinks in manchandaHomepage
+    if (!doc.setting.manchandaHomepage) doc.setting.manchandaHomepage = {};
+    if (!doc.setting.manchandaHomepage.footer) doc.setting.manchandaHomepage.footer = {};
+    
+    doc.setting.manchandaHomepage.footer.quickLinks = [
+      { title: "About Us", href: "/about-us" },
+      { title: "My Orders", href: "/user/my-orders" },
+      { title: "Terms & Conditions", href: "/terms-and-conditions" },
+      { title: "Contact us", href: "/contact-us" },
+    ];
+
+    doc.markModified("setting");
+    await doc.save();
+
+    console.log("Successfully updated Terms & Conditions and Footer quickLinks in MongoDB!");
+    await mongoose.connection.close();
+    process.exit(0);
+  } catch (err) {
+    console.error("Error updating DB:", err);
+    process.exit(1);
+  }
 };
 
-export default TermAndConditions;
+updateTermsAndFooter();

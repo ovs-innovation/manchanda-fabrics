@@ -146,7 +146,7 @@ export default function ContactUs() {
       icon: <FiPhone className="text-2xl" />,
       title: showingTranslateValue(contact?.call_box_title) || "Call / WhatsApp",
       value: phone,
-      sub: showingTranslateValue(contact?.call_box_text) || "Mon–Sat, 11 AM – 8 PM",
+      sub: showingTranslateValue(contact?.call_box_text) || "Call / WhatsApp Us",
       href: `tel:${phone.replace(/\s/g, "")}`,
       breakAll: false,
     },
@@ -306,7 +306,6 @@ export default function ContactUs() {
                     className="w-full px-6 py-5 h-[64px] text-[18px] border border-[#E6D1CB] rounded-xl bg-[#FAF7F5] text-[#3B2A25] focus:outline-none focus:border-[#9C6A5A] focus:ring-2 focus:ring-[#9C6A5A]/15 transition-all" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     <option value="">{t("Select a topic…")}</option>
                     <option value="order">{t("Order Query")}</option>
-                    <option value="saree">{t("Saree Enquiry")}</option>
                     <option value="suit">{t("Suit Enquiry")}</option>
                     <option value="fabric">{t("Fabric / Bulk Order")}</option>
                     <option value="return">{t("Return / Exchange")}</option>

@@ -53,125 +53,97 @@ const AboutUs = () => {
         
         {/* Section 1: Hero Legacy */}
         <section className="py-12 sm:py-20 lg:py-28 bg-[#F8F5F1]">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24 items-center">
-              
-              {/* Left Column: Text Content */}
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                custom={0}
-                className="flex flex-col justify-center space-y-6 sm:space-y-8"
+          <div className="max-w-4xl mx-auto px-6 sm:px-12">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
+              custom={0}
+              className="flex flex-col justify-center space-y-6 sm:space-y-8"
+            >
+              <span
+                className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex items-center gap-3"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  <span className="w-8 h-[1px] bg-[#C8A45D]" />
-                  {t("ABOUT MANCHANDA FABRICS")}
-                </span>
+                <span className="w-8 h-[1px] bg-[#C8A45D]" />
+                {t("ABOUT MANCHANDA FABRICS")}
+              </span>
 
-                <h1
-                  className="text-3xl sm:text-4xl lg:text-[50px] xl:text-[56px] font-light leading-[1.2] text-[#111111]"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
-                  A Legacy of <br />
-                  <em className="not-italic font-normal italic text-[#C8A45D]">
-                    Premium Women's Ethnic Wear
-                  </em> <br />
-                  Since 1990
-                </h1>
+              <h1
+                className="text-3xl sm:text-4xl lg:text-[50px] xl:text-[56px] font-light leading-[1.2] text-[#111111]"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                A Legacy of <br />
+                <em className="not-italic font-normal italic text-[#C8A45D]">
+                  Premium Women's Ethnic Wear
+                </em> <br />
+                Since 1990
+              </h1>
 
-                <div className="w-14 h-[1.5px] bg-[#C8A45D]" />
+              <div className="w-14 h-[1.5px] bg-[#C8A45D]" />
 
-                <div
-                  className="space-y-4 sm:space-y-5 text-[14px] sm:text-[15px] text-[#3A3A3A] leading-[1.8] sm:leading-[1.9] font-light font-sans"
-                  style={{ fontFamily: "'Poppins', sans-serif" }}
-                >
+              <div
+                className="space-y-4 sm:space-y-5 text-[14px] sm:text-[15px] text-[#3A3A3A] leading-[1.8] sm:leading-[1.9] font-light font-sans"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                <p>
+                  Established in 1990 in the historical lanes of Chandni Chowk, Delhi, Manchanda Fabrics was founded on a simple vision: to bring the finest hand-selected ethnic textiles to discerning women. What started as a humble family store has matured into a cherished heritage of trust, quality, and celebration.
+                </p>
+
+                {/* On desktop: always visible. On mobile: expandable with smooth toggle */}
+                <div className={`space-y-4 sm:space-y-5 ${isStoryExpanded ? "block" : "hidden lg:block"}`}>
                   <p>
-                    Established in 1990 in the historical lanes of Chandni Chowk, Delhi, Manchanda Fabrics was founded on a simple vision: to bring the finest hand-selected ethnic textiles to discerning women. What started as a humble family store has matured into a cherished heritage of trust, quality, and celebration.
+                    We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.
                   </p>
-
-                  {/* On desktop: always visible. On mobile: expandable with smooth toggle */}
-                  <div className={`space-y-4 sm:space-y-5 ${isStoryExpanded ? "block" : "hidden lg:block"}`}>
-                    <p>
-                      We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.
-                    </p>
-                    <p>
-                      Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.
-                    </p>
-                  </div>
-
-                  {/* Mobile Read More Toggle */}
-                  <div className="lg:hidden pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsStoryExpanded(!isStoryExpanded)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#C8A45D] hover:text-[#111111] transition-colors"
-                    >
-                      <span>{isStoryExpanded ? "Show Less" : "Read Full Story"}</span>
-                      <span className="text-sm">{isStoryExpanded ? "↑" : "↓"}</span>
-                    </button>
-                  </div>
+                  <p>
+                    Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.
+                  </p>
                 </div>
 
-                {/* Quick Highlight Stats on Mobile & Desktop */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-2 border-y border-black/5">
-                  <div className="text-center sm:text-left py-1">
-                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">1990</span>
-                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Established</span>
-                  </div>
-                  <div className="text-center sm:text-left py-1 border-x border-black/5 px-2 sm:px-4">
-                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">100%</span>
-                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Handpicked</span>
-                  </div>
-                  <div className="text-center sm:text-left py-1">
-                    <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">30+ Yrs</span>
-                    <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Heritage</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 sm:pt-4">
-                  <Link
-                    href="/search"
-                    className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white bg-transparent"
-                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                {/* Mobile Read More Toggle */}
+                <div className="lg:hidden pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsStoryExpanded(!isStoryExpanded)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#C8A45D] hover:text-[#111111] transition-colors"
                   >
-                    <span>{t("Explore Collections")}</span>
-                    <ChevronRight
-                      size={18}
-                      className="transition-transform duration-300 group-hover:translate-x-1"
-                    />
-                  </Link>
+                    <span>{isStoryExpanded ? "Show Less" : "Read Full Story"}</span>
+                    <span className="text-sm">{isStoryExpanded ? "↑" : "↓"}</span>
+                  </button>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Right Column: Hero Image */}
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                variants={fadeUp}
-                custom={0.2}
-                className="relative"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden shadow-2xl">
-                  <Image
-                    src="/p3.jpeg"
-                    alt="Manchanda Fabrics Premium Women's Suit Collection"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover object-top transition-transform duration-700 hover:scale-105"
-                    priority
+              {/* Quick Highlight Stats on Mobile & Desktop */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-2 border-y border-black/5">
+                <div className="text-center sm:text-left py-1">
+                  <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">1990</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Established</span>
+                </div>
+                <div className="text-center sm:text-left py-1 border-x border-black/5 px-2 sm:px-4">
+                  <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">100%</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Handpicked</span>
+                </div>
+                <div className="text-center sm:text-left py-1">
+                  <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">30+ Yrs</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Heritage</span>
+                </div>
+              </div>
+
+              <div className="pt-2 sm:pt-4">
+                <Link
+                  href="/search"
+                  className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white bg-transparent"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  <span>{t("Explore Collections")}</span>
+                  <ChevronRight
+                    size={18}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
                   />
-                  <div className="absolute inset-0 border border-[#C8A45D]/20 pointer-events-none" />
-                </div>
-                <div className="absolute -top-6 -left-4 sm:-left-8 w-[2px] h-24 bg-gradient-to-b from-[#C8A45D] to-transparent hidden sm:block" />
-              </motion.div>
-
-            </div>
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 

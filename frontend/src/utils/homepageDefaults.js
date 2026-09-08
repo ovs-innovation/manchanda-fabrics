@@ -58,8 +58,6 @@ export const DEFAULT_HOMEPAGE = {
     quickLinks: [
       { title: "About Us", href: "/about-us" },
       { title: "Terms & Conditions", href: "/terms-and-conditions" },
-      { title: "No Exchange & Return", href: "/refund-return-policy" },
-      { title: "Privacy Policy", href: "/privacy-policy" },
       { title: "Contact us", href: "/contact-us" },
     ],
     specialCollection: [

@@ -545,15 +545,15 @@ const useStoreHomeSubmit = () => {
 
             call_box_title: handleRemoveEmptyKey({
               ...resData?.contact_us?.call_box_title,
-              [language]: data.callUs_box_title || "",
+              [language]: data.callUs_box_title || data.call_box_title || "",
             }),
             call_box_phone: handleRemoveEmptyKey({
               ...resData?.contact_us?.call_box_phone,
-              [language]: data.callUs_box_phone || "",
+              [language]: data.callUs_box_phone || data.call_box_phone || "",
             }),
             call_box_text: handleRemoveEmptyKey({
               ...resData?.contact_us?.call_box_text,
-              [language]: data.callUs_box_text || "",
+              [language]: data.callUs_box_text || data.call_box_text || "",
             }),
 
             address_box_title: handleRemoveEmptyKey({
@@ -1995,15 +1995,27 @@ const useStoreHomeSubmit = () => {
           );
           setValue(
             "callUs_box_title",
-            res?.contact_us?.call_box_title[language || "en"]
+            res?.contact_us?.call_box_title?.[language || "en"] || ""
+          );
+          setValue(
+            "call_box_title",
+            res?.contact_us?.call_box_title?.[language || "en"] || ""
           );
           setValue(
             "callUs_box_phone",
-            res?.contact_us?.call_box_phone[language || "en"]
+            res?.contact_us?.call_box_phone?.[language || "en"] || ""
+          );
+          setValue(
+            "call_box_phone",
+            res?.contact_us?.call_box_phone?.[language || "en"] || ""
           );
           setValue(
             "callUs_box_text",
-            res?.contact_us?.call_box_text[language || "en"]
+            res?.contact_us?.call_box_text?.[language || "en"] || ""
+          );
+          setValue(
+            "call_box_text",
+            res?.contact_us?.call_box_text?.[language || "en"] || ""
           );
           setValue(
             "address_box_title",
