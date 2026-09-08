@@ -50,7 +50,7 @@ const AboutUs = () => {
   return (
     <Layout title="About Us" description="Our Heritage & Story - Manchanda Fabrics">
       <div className="min-h-screen bg-[#F8F5F1] text-[#111111] overflow-x-hidden">
-        
+
         {/* Section 1: Hero Legacy */}
         <section className="py-12 sm:py-20 lg:py-28 bg-[#F8F5F1]">
           <div className="max-w-4xl mx-auto px-6 sm:px-12">
@@ -71,13 +71,13 @@ const AboutUs = () => {
               </span>
 
               <h1
-                className="text-3xl sm:text-4xl lg:text-[50px] xl:text-[56px] font-light leading-[1.2] text-[#111111]"
-                style={{ fontFamily: "'Poppins', sans-serif" }}
+                className="text-3xl sm:text-4xl lg:text-[42px] xl:text-[46px] font-light text-[#111111]"
+                style={{ fontFamily: "'Poppins', sans-serif", lineHeight: 1.32 }}
               >
                 {t("A Legacy of")} <br />
-                <em className="not-italic font-normal italic text-[#C8A45D]">
+                <span className="text-[#C8A45D] font-normal">
                   {t("Premium Women's Ethnic Wear")}
-                </em> <br />
+                </span> <br />
                 {t("Since 1990")}
               </h1>
 
@@ -150,7 +150,7 @@ const AboutUs = () => {
         {/* Section 3: Premium Collection Cards */}
         <section className="py-24 sm:py-32 bg-[#F8F5F1]">
           <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            
+
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -265,10 +265,10 @@ const AboutUs = () => {
               variants={fadeUp}
               className="bg-white border border-black/5 rounded-[14px] p-8 md:p-14 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-[0_6px_24px_rgba(0,0,0,0.02)]"
             >
-              
+
               {/* Stats Area */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 w-full lg:w-auto text-left lg:border-r lg:border-black/5 pr-0 lg:pr-16">
-                
+
                 {/* Stat 1 */}
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#F8F5F1] flex items-center justify-center text-[#C8A45D]">
