@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { IoClose, IoStar } from "react-icons/io5";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import useTranslation from "next-translate/useTranslation";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
@@ -17,6 +18,7 @@ const FilterSidebar = ({
   setSelectedColor,
   onClearAll,
 }) => {
+  const { t } = useTranslation("common");
   const { showingTranslateValue, currency } = useUtilsFunction();
   const [categories, setCategories] = useState([]);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -69,12 +71,12 @@ const FilterSidebar = ({
   return (
     <div className="font-sans">
       <div className="pb-4 border-b border-[#E6D1CB]/60 flex justify-between items-center">
-        <h2 className="text-base font-bold uppercase tracking-widest text-[#3B2A25]">Filters</h2>
+        <h2 className="text-base font-bold uppercase tracking-widest text-[#3B2A25]">{t("Filters")}</h2>
         <button
           onClick={onClearAll}
           className="text-[#9C6A5A] text-xs font-bold uppercase hover:underline"
         >
-          Clear All
+          {t("Clear All")}
         </button>
       </div>
 
@@ -120,18 +122,18 @@ const FilterSidebar = ({
                 if (cat) tags.push({ id: catId, name: cat.name, isParent: false });
               }
 
-              return tags.map((t) => (
-                <span key={t.id} className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
-                  {showingTranslateValue(t.name)}
+              return tags.map((tItem) => (
+                <span key={tItem.id} className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
+                  {showingTranslateValue(tItem.name)}
                   <IoClose
                     className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                     onClick={() => {
-                      if (t.isParent) {
-                        const parent = categories.find((c) => c._id === t.id);
-                        const childIds = parent?.children?.map((c) => c._id) || [t.id];
+                      if (tItem.isParent) {
+                        const parent = categories.find((c) => c._id === tItem.id);
+                        const childIds = parent?.children?.map((c) => c._id) || [tItem.id];
                         handleCategoryChange(childIds);
                       } else {
-                        handleCategoryChange(t.id);
+                        handleCategoryChange(tItem.id);
                       }
                     }}
                   />
@@ -161,7 +163,7 @@ const FilterSidebar = ({
           )}
           {selectedRating > 0 && (
             <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
-              {selectedRating}★ & above
+              {selectedRating}★ {t("& above")}
               <IoClose
                 className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedRating(0)}
@@ -170,7 +172,7 @@ const FilterSidebar = ({
           )}
           {selectedDiscount > 0 && (
             <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
-              {selectedDiscount}%+ Off
+              {selectedDiscount}%+ {t("Discount")}
               <IoClose
                 className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedDiscount(0)}
@@ -179,7 +181,7 @@ const FilterSidebar = ({
           )}
           {selectedColor && (
             <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
-              Color: {selectedColor}
+              {t("Color")}: {t(selectedColor)}
               <IoClose
                 className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
                 onClick={() => setSelectedColor("")}
@@ -195,7 +197,7 @@ const FilterSidebar = ({
           onClick={() => toggleSection("category")}
           className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
-          Categories
+          {t("Categories")}
           {openSections.category ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.category && (
@@ -213,7 +215,7 @@ const FilterSidebar = ({
                 htmlFor="cat-all"
                 className="ml-2 text-sm font-bold text-[#3B2A25]/85 cursor-pointer flex-1 hover:text-[#9C6A5A] transition-colors"
               >
-                All Categories
+                {t("All Categories")}
               </label>
             </div>
             {categories.map((cat) => {
@@ -292,7 +294,7 @@ const FilterSidebar = ({
 
       {/* Price */}
       <div className="border-b border-[#E6D1CB]/50 py-4">
-        <h3 className="text-sm font-bold uppercase text-[#3B2A25] mb-4">Price</h3>
+        <h3 className="text-sm font-bold uppercase text-[#3B2A25] mb-4">{t("Price")}</h3>
         <div className="flex items-center gap-2">
           <select
             value={priceRange.min}
@@ -306,7 +308,7 @@ const FilterSidebar = ({
             <option value="10000">10000 {currency}</option>
             <option value="50000">50000 {currency}</option>
           </select>
-          <span className="text-[#3B2A25]/60 text-xs">to</span>
+          <span className="text-[#3B2A25]/60 text-xs">{t("to")}</span>
           <select
             value={priceRange.max}
             onChange={(e) => handlePriceChange(e, "max")}
@@ -344,7 +346,7 @@ const FilterSidebar = ({
           onClick={() => toggleSection("rating")}
           className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
-          Customer Ratings
+          {t("Customer Ratings")}
           {openSections.rating ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.rating && (
@@ -363,7 +365,7 @@ const FilterSidebar = ({
                   className="text-[#9C6A5A] bg-white border-[#E6D1CB]/60 focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                 />
                 <div className="ml-2 flex items-center text-sm text-[#3B2A25]/80 font-medium group-hover:text-[#9C6A5A] transition-colors">
-                  {rating} <IoStar className="text-[#9C6A5A] ml-1 mr-1" /> & above
+                  {rating} <IoStar className="text-[#9C6A5A] ml-1 mr-1" /> {t("& above")}
                 </div>
               </div>
             ))}
@@ -377,7 +379,7 @@ const FilterSidebar = ({
           onClick={() => toggleSection("discount")}
           className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
-          Discount
+          {t("Discount")}
           {openSections.discount ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.discount && (
@@ -396,7 +398,7 @@ const FilterSidebar = ({
                   className="text-[#9C6A5A] bg-white border-[#E6D1CB]/60 focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
                 />
                 <label className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer group-hover:text-[#9C6A5A] transition-colors">
-                  {discount}% or more
+                  {discount}{t("% or more")}
                 </label>
               </div>
             ))}
@@ -410,7 +412,7 @@ const FilterSidebar = ({
           onClick={() => toggleSection("color")}
           className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
-          Color
+          {t("Color")}
           {openSections.color ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
         </button>
         {openSections.color && (
@@ -448,7 +450,7 @@ const FilterSidebar = ({
                     className="w-3 h-3 rounded-full inline-block mr-2 border border-gray-200"
                     style={{ backgroundColor: color.code }}
                   />
-                  {color.name}
+                  {t(color.name)}
                 </div>
               </div>
             ))}

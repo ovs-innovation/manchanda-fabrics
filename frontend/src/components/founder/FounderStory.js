@@ -77,17 +77,17 @@ const FounderStory = ({ founder: founderProp }) => {
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
               <span className="w-8 h-[1px] bg-[#C8A45D]" />
-              {founder.eyebrow || t("Our Heritage")}
+              {t(founder.eyebrow) || t("Our Heritage")}
             </span>
 
             <h2
               className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.15] text-[#111111]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              {founder.titleLine1 || t("Our")}
+              {t(founder.titleLine1) || t("Our")}
               <br />
               <em className="not-italic font-normal italic text-[#C8A45D]">
-                {founder.titleHighlight || t("Story")}
+                {t(founder.titleHighlight) || t("Story")}
               </em>
             </h2>
 
@@ -97,9 +97,9 @@ const FounderStory = ({ founder: founderProp }) => {
               className="space-y-5 text-[15px] text-[#3A3A3A] leading-[1.9] font-light"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              {founder.paragraph1 ? <p>{founder.paragraph1}</p> : null}
-              {founder.paragraph2 ? <p>{founder.paragraph2}</p> : null}
-              {founder.paragraph3 ? <p>{founder.paragraph3}</p> : null}
+              {founder.paragraph1 ? <p>{t(founder.paragraph1)}</p> : null}
+              {founder.paragraph2 ? <p>{t(founder.paragraph2)}</p> : null}
+              {founder.paragraph3 ? <p>{t(founder.paragraph3)}</p> : null}
             </div>
 
             <div className="pt-2">
@@ -107,13 +107,13 @@ const FounderStory = ({ founder: founderProp }) => {
                 className="text-2xl text-[#111111] mb-1"
                 style={{ fontFamily: "'Poppins', sans-serif", fontStyle: "italic" }}
               >
-                {founder.signature || "Manchanda Fabrics"}
+                {t(founder.signature) || "Manchanda Fabrics"}
               </p>
               <p
                 className="text-[11px] uppercase tracking-[0.2em] text-[#7A7A7A]"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                {founder.estLine || t("Est. 1990 · Premium Indian Ethnic Wear")}
+                {t(founder.estLine) || t("Est. 1990 · Premium Indian Ethnic Wear")}
               </p>
             </div>
           </motion.div>

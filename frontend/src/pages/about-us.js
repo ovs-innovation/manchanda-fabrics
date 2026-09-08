@@ -74,11 +74,11 @@ const AboutUs = () => {
                 className="text-3xl sm:text-4xl lg:text-[50px] xl:text-[56px] font-light leading-[1.2] text-[#111111]"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                A Legacy of <br />
+                {t("A Legacy of")} <br />
                 <em className="not-italic font-normal italic text-[#C8A45D]">
-                  Premium Women's Ethnic Wear
+                  {t("Premium Women's Ethnic Wear")}
                 </em> <br />
-                Since 1990
+                {t("Since 1990")}
               </h1>
 
               <div className="w-14 h-[1.5px] bg-[#C8A45D]" />
@@ -88,16 +88,16 @@ const AboutUs = () => {
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 <p>
-                  Established in 1990 in the historical lanes of Chandni Chowk, Delhi, Manchanda Fabrics was founded on a simple vision: to bring the finest hand-selected ethnic textiles to discerning women. What started as a humble family store has matured into a cherished heritage of trust, quality, and celebration.
+                  {t("Established in 1990 in the historical lanes of Chandni Chowk, Delhi, Manchanda Fabrics was founded on a simple vision: to bring the finest hand-selected ethnic textiles to discerning women. What started as a humble family store has matured into a cherished heritage of trust, quality, and celebration.")}
                 </p>
 
                 {/* On desktop: always visible. On mobile: expandable with smooth toggle */}
                 <div className={`space-y-4 sm:space-y-5 ${isStoryExpanded ? "block" : "hidden lg:block"}`}>
                   <p>
-                    We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.
+                    {t("We specialize in exquisite suit sets and unstitched fabrics, ranging from breezy summer cottons to luxurious celebratory silks. Every weave in our collection is handpicked directly from artisans across India, ensuring we offer only the most genuine threads and designs.")}
                   </p>
                   <p>
-                    Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.
+                    {t("Today, our family remains at the heart of everything we do. Pradeep oversees quality and sourcing directly from weavers, Shallu personally manages customer relations with absolute care, and their daughters Sanjana, Saisha, and Sanaya drive our digital journey. From our family to yours, we weave love, honesty, and heritage into every fabric we ship.")}
                   </p>
                 </div>
 
@@ -108,7 +108,7 @@ const AboutUs = () => {
                     onClick={() => setIsStoryExpanded(!isStoryExpanded)}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#C8A45D] hover:text-[#111111] transition-colors"
                   >
-                    <span>{isStoryExpanded ? "Show Less" : "Read Full Story"}</span>
+                    <span>{isStoryExpanded ? t("Show Less") : t("Read Full Story")}</span>
                     <span className="text-sm">{isStoryExpanded ? "↑" : "↓"}</span>
                   </button>
                 </div>
@@ -118,15 +118,15 @@ const AboutUs = () => {
               <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 pb-2 border-y border-black/5">
                 <div className="text-center sm:text-left py-1">
                   <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">1990</span>
-                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Established</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">{t("Established")}</span>
                 </div>
                 <div className="text-center sm:text-left py-1 border-x border-black/5 px-2 sm:px-4">
                   <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">100%</span>
-                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Handpicked</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">{t("Handpicked")}</span>
                 </div>
                 <div className="text-center sm:text-left py-1">
-                  <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">30+ Yrs</span>
-                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">Heritage</span>
+                  <span className="block text-xl sm:text-2xl font-semibold text-[#111111]">{t("30+ Yrs")}</span>
+                  <span className="text-[10px] sm:text-xs text-neutral-500 font-light uppercase tracking-wider">{t("Heritage")}</span>
                 </div>
               </div>
 
@@ -171,7 +171,7 @@ const AboutUs = () => {
                 className="text-4xl sm:text-5xl font-light text-[#111111] leading-tight"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                Curated <em className="not-italic font-normal italic text-[#C8A45D]">Suits & Fabrics</em>
+                {t("Curated")} <em className="not-italic font-normal italic text-[#C8A45D]">{t("Suits & Fabrics")}</em>
               </h2>
             </motion.div>
 
@@ -192,7 +192,7 @@ const AboutUs = () => {
                   <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
                     <Image
                       src={c.image}
-                      alt={c.title}
+                      alt={t(c.title)}
                       fill
                       sizes="(max-width: 768px) 50vw, 25vw"
                       className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
@@ -202,14 +202,14 @@ const AboutUs = () => {
                   <div className="p-6 flex flex-col flex-1 justify-between bg-white">
                     <div>
                       <h3 className="text-base font-semibold text-[#111111] group-hover:underline underline-offset-4 decoration-1 transition-all">
-                        {c.title}
+                        {t(c.title)}
                       </h3>
                       <p className="mt-2 text-xs text-[#7A7A7A] font-light leading-relaxed">
-                        {c.desc}
+                        {t(c.desc)}
                       </p>
                     </div>
                     <div className="mt-6 pt-4 border-t border-black/5 flex items-center justify-between text-[#C8A45D] text-[11px] font-semibold uppercase tracking-[0.15em]">
-                      <span>View Collection</span>
+                      <span>{t("View Collection")}</span>
                       <ChevronRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
                     </div>
                   </div>
@@ -276,7 +276,7 @@ const AboutUs = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>10,000+</div>
-                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Happy Patrons</div>
+                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Happy Patrons")}</div>
                   </div>
                 </div>
 
@@ -287,7 +287,7 @@ const AboutUs = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>15,000+</div>
-                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Orders Shipped</div>
+                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Orders Shipped")}</div>
                   </div>
                 </div>
 
@@ -298,7 +298,7 @@ const AboutUs = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>150+</div>
-                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>Artisan Partners</div>
+                    <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Artisan Partners")}</div>
                   </div>
                 </div>
 

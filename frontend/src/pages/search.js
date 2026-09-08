@@ -423,14 +423,14 @@ const Search = ({ products, attributes }) => {
           className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           <FiList size={18} />
-          Sort
+          {t("Sort")}
         </button>
         <button
           onClick={toggleFilterDrawer}
           className="flex-1 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
         >
           <FiFilter size={18} />
-          Filter
+          {t("Filter")}
         </button>
       </div>
 
@@ -497,10 +497,10 @@ const Search = ({ products, attributes }) => {
                         {t("highToLow")}
                       </option>
                       <option className="bg-white text-[#3B2A25]" value="newest">
-                        Latest
+                        {t("Latest")}
                       </option>
                       <option className="bg-white text-[#3B2A25]" value="best-selling">
-                        Best Selling
+                        {t("Best Selling")}
                       </option>
                     </select>
                   </span>
@@ -556,7 +556,7 @@ const Search = ({ products, attributes }) => {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50 lg:hidden">
           <div className="bg-white w-full rounded-t-2xl p-6 animate-slide-up">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Sort By</h3>
+              <h3 className="text-lg font-semibold">{t("Sort By")}</h3>
               <button className="p-2 border border-store-400 rounded-lg" onClick={() => setIsSortModalOpen(false)}>
                 <IoClose size={24} />
               </button>
@@ -570,7 +570,7 @@ const Search = ({ products, attributes }) => {
                 className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "Low" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                   }`}
               >
-                Price: Low to High
+                {t("Price: Low to High")}
               </button>
               <button
                 onClick={() => {
@@ -580,7 +580,7 @@ const Search = ({ products, attributes }) => {
                 className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "High" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                   }`}
               >
-                Price: High to Low
+                {t("Price: High to Low")}
               </button>
               <button
                 onClick={() => {
@@ -590,7 +590,7 @@ const Search = ({ products, attributes }) => {
                 className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "newest" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                   }`}
               >
-                Latest
+                {t("Latest")}
               </button>
               <button
                 onClick={() => {
@@ -600,7 +600,7 @@ const Search = ({ products, attributes }) => {
                 className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "best-selling" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                   }`}
               >
-                Best Selling
+                {t("Best Selling")}
               </button>
               <button
                 onClick={() => {
@@ -610,7 +610,7 @@ const Search = ({ products, attributes }) => {
                 className={`w-full text-left py-2 px-4 rounded-lg ${sortedField === "All" ? "bg-[#FAF7F5] text-[#9C6A5A] font-semibold" : "text-gray-700"
                   }`}
               >
-                Default
+                {t("Default")}
               </button>
             </div>
           </div>

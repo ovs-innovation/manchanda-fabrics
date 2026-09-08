@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import useTranslation from "next-translate/useTranslation";
 import useGetSetting from "@hooks/useGetSetting";
 
 const FloatingWhatsApp = () => {
+  const { t } = useTranslation("common");
   const { storeCustomizationSetting } = useGetSetting();
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -35,8 +37,8 @@ const FloatingWhatsApp = () => {
       >
         <div className="relative">
           <p className="text-sm font-semibold leading-snug text-[#3B2A25]" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            Need any help? 🌸<br/>
-            <span className="text-[#3B2A25]/75 font-normal text-xs">Chat with Manchanda Fabrics!</span>
+            {t("Need any help? 🌸")}<br/>
+            <span className="text-[#3B2A25]/75 font-normal text-xs">{t("Chat with Manchanda Fabrics!")}</span>
           </p>
           {/* Arrow pointing down right */}
           <div className="absolute -bottom-5 right-2 w-3 h-3 bg-white border-b border-r border-[#E6D1CB] transform rotate-45"></div>

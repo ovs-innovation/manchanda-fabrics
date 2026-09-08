@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useCart } from "react-use-cart";
 import { FiPlus, FiMinus, FiTrash2 } from "react-icons/fi";
 import Image from "next/image";
+import useTranslation from "next-translate/useTranslation";
 
 //internal import
 import useAddToCart from "@hooks/useAddToCart";
@@ -13,6 +14,7 @@ import { notifyError } from "@utils/toast";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
 const CartItem = ({ item, currency: propCurrency }) => {
+  const { t } = useTranslation("common");
   const { closeCartDrawer } = useContext(SidebarContext);
   const { handleIncreaseQuantity } = useAddToCart();
   const { updateQuantityWithDB, removeItemWithDB } = useCartDB();
@@ -81,15 +83,15 @@ const CartItem = ({ item, currency: propCurrency }) => {
           onClick={closeCartDrawer}
           className="text-sm font-medium text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1 mb-1"
         >
-          {item.title}
+          {t(item.title)}
         </Link>
 
         {/* Variant Info */}
         {item.variant && (
           <p className="text-xs text-gray-500 mb-1">
             {typeof item.variant === "object"
-              ? Object.values(item.variant).filter(Boolean).join(", ")
-              : item.variant}
+              ? Object.values(item.variant).filter(Boolean).map(v => t(v)).join(", ")
+              : t(item.variant)}
           </p>
         )}
 
@@ -97,7 +99,7 @@ const CartItem = ({ item, currency: propCurrency }) => {
         {originalPrice > currentPrice && (
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs text-gray-500 line-through font-medium">
-              MRP: {currency}{formatPrice(originalPrice)}
+              {t("MRP")}: {currency}{formatPrice(originalPrice)}
             </span>
             <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
               {discountPercentage}% OFF
@@ -107,7 +109,7 @@ const CartItem = ({ item, currency: propCurrency }) => {
 
         {/* Item Price */}
         <span className="text-xs text-gray-500 mb-2 font-medium">
-            Unit Price:{" "}
+            {t("Unit Price")}:{" "}
             <span className="text-emerald-600 font-semibold">
             {currency}{formatPrice(item.price)}
           </span>
@@ -117,7 +119,7 @@ const CartItem = ({ item, currency: propCurrency }) => {
         <div className="flex items-center justify-between mt-auto pt-2">
           {/* Total Price */}
           <div className="flex flex-col">
-            <span className="text-xs text-gray-500 font-medium">Total</span>
+            <span className="text-xs text-gray-500 font-medium">{t("Total")}</span>
             <span className="font-bold text-base md:text-lg text-gray-900 leading-tight">
               {currency}{formatPrice(item.price * item.quantity)}
             </span>

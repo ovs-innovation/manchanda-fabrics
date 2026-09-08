@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import { IoClose, IoChevronDown, IoChevronForward } from "react-icons/io5";
 import {
   FiHome,
@@ -22,6 +23,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import { buildMobileCategoryMenu, getCategorySlug } from "@utils/categoryMenu";
 
 const Category = () => {
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { categoryDrawerOpen, closeCategoryDrawer } =
     useContext(SidebarContext);
@@ -96,7 +98,7 @@ const Category = () => {
                 className="flex items-center rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
               >
                 <FiHome className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
-                <span>Home</span>
+                <span>{t("Home")}</span>
               </Link>
             </li>
 
@@ -113,7 +115,7 @@ const Category = () => {
               >
                 <div className="flex items-center">
                   <FiLayers className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
-                  <span>Category</span>
+                  <span>{t("Category")}</span>
                 </div>
                 <IoChevronDown
                   className={`text-sm transition-transform duration-200 ${
@@ -128,14 +130,14 @@ const Category = () => {
                   {isLoading ? (
                     <div className="py-2 text-xs text-[#3B2A25]/60 flex items-center gap-2">
                       <Loading loading={true} />
-                      <span>Loading categories...</span>
+                      <span>{t("Loading categories...")}</span>
                     </div>
                   ) : error ? (
                     <p className="text-xs text-red-500 py-1">
                       {error?.response?.data?.message || error?.message}
                     </p>
                   ) : menuCategories.length === 0 ? (
-                    <p className="text-xs text-[#3B2A25]/60 py-2">No categories found.</p>
+                    <p className="text-xs text-[#3B2A25]/60 py-2">{t("No categories found.")}</p>
                   ) : (
                     menuCategories.map((parentCategory) => {
                       const hasChildren = parentCategory.children?.length > 0;
@@ -181,7 +183,7 @@ const Category = () => {
                                 onClick={() => navigateToCategory(parentCategory)}
                                 className="w-full text-left px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#9C6A5A] hover:underline"
                               >
-                                All {showingTranslateValue(parentCategory?.name)}
+                                {t("All")} {showingTranslateValue(parentCategory?.name)}
                               </button>
                               {parentCategory.children.map((subcategory) => (
                                 <button
@@ -221,7 +223,7 @@ const Category = () => {
                   className="flex items-center rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
                 >
                   <item.icon className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
-                  <span>{item.title}</span>
+                  <span>{t(item.title)}</span>
                 </Link>
               </li>
             ))}

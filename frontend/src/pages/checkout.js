@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import {
   IoChevronForward,
   IoLocationOutline,
@@ -64,6 +65,7 @@ const INDIAN_STATES = [
 ];
 
 const Checkout = () => {
+  const { t } = useTranslation("common");
   const formRef = useRef(null);
 
   const [agreeToTerms, setAgreeToTerms] = useState(true);
@@ -252,13 +254,13 @@ const Checkout = () => {
             if (state) setValue("state", state);
             if (zip) setValue("zipCode", zip);
 
-            notifySuccess("Location detected successfully!");
+            notifySuccess(t("Location detected successfully!"));
           } else {
-            notifyError("Unable to fetch current location. Please fill manually.");
+            notifyError(t("Unable to fetch current location. Please fill manually."));
           }
         } catch (error) {
           console.error("Location error:", error);
-          notifyError("Unable to fetch current location.");
+          notifyError(t("Unable to fetch current location."));
         } finally {
           setIsLocationLoading(false);
         }
@@ -266,9 +268,9 @@ const Checkout = () => {
       (error) => {
         setIsLocationLoading(false);
         if (error.code === error.PERMISSION_DENIED) {
-          notifyError("Location permission denied. Please allow location access.");
+          notifyError(t("Location permission denied. Please allow location access."));
         } else {
-          notifyError("Unable to fetch current location.");
+          notifyError(t("Unable to fetch current location."));
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -313,10 +315,10 @@ const Checkout = () => {
               {/* Minimal Clean Breadcrumb */}
               <div className="flex items-center gap-2 mb-6 text-xs text-gray-500 font-medium">
                 <Link href="/cart" className="hover:text-black transition-colors">
-                  Cart
+                  {t("Cart")}
                 </Link>
                 <IoChevronForward className="text-gray-400 text-[10px]" />
-                <span className="text-gray-900 font-semibold">Information &amp; Payment</span>
+                <span className="text-gray-900 font-semibold">{t("Information & Payment")}</span>
               </div>
 
               <form ref={formRef} onSubmit={handleSubmit(submitHandler)} className="space-y-8">
@@ -325,7 +327,7 @@ const Checkout = () => {
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                   <div className="mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      Contact
+                      {t("Contact")}
                     </h2>
                   </div>
 
@@ -334,12 +336,12 @@ const Checkout = () => {
                       <input
                         type="email"
                         id="email"
-                        placeholder="Email or mobile phone number"
+                        placeholder={t("Email or mobile phone number")}
                         {...register("email", {
-                          required: "Email address is required",
+                          required: t("Email address is required"),
                           pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: "Please enter a valid email address",
+                            message: t("Please enter a valid email address"),
                           },
                         })}
                         className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${
@@ -361,7 +363,7 @@ const Checkout = () => {
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      Delivery
+                      {t("Delivery")}
                     </h2>
                     <button
                       type="button"
@@ -374,7 +376,7 @@ const Checkout = () => {
                       ) : (
                         <IoLocationOutline size={14} />
                       )}
-                      <span>Use current location</span>
+                      <span>{t("Use current location")}</span>
                     </button>
                   </div>
 
@@ -382,7 +384,7 @@ const Checkout = () => {
                   {shippingAddresses && shippingAddresses.length > 0 && (
                     <div className="mb-4">
                       <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                        Saved addresses
+                        {t("Saved addresses")}
                       </label>
                       <select
                         value={selectedAddressId}
@@ -391,10 +393,10 @@ const Checkout = () => {
                       >
                         {shippingAddresses.map((addr, idx) => (
                           <option key={addr._id || addr.id || idx} value={addr._id || addr.id || idx}>
-                            {addr.name || "Address"} — {addr.address}, {addr.city} ({addr.zipCode}) {addr.isDefault ? "[Default]" : ""}
+                            {addr.name || "Address"} — {addr.address}, {addr.city} ({addr.zipCode}) {addr.isDefault ? `[${t("Default")}]` : ""}
                           </option>
                         ))}
-                        <option value="new">+ Enter a different address</option>
+                        <option value="new">{t("+ Enter a different address")}</option>
                       </select>
                     </div>
                   )}
@@ -403,10 +405,10 @@ const Checkout = () => {
                     {/* Country / Region */}
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                        Country / Region
+                        {t("Country / Region")}
                       </label>
                       <select
-                        {...register("country", { required: "Country is required" })}
+                        {...register("country", { required: t("Country is required") })}
                         className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-800 font-medium focus:outline-none focus:border-black focus:ring-1 focus:ring-black cursor-pointer"
                         defaultValue="India"
                       >
@@ -419,7 +421,7 @@ const Checkout = () => {
                       <div>
                         <input
                           type="text"
-                          placeholder="First name (optional)"
+                          placeholder={t("First name (optional)")}
                           {...register("firstName")}
                           className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
                         />
@@ -427,8 +429,8 @@ const Checkout = () => {
                       <div>
                         <input
                           type="text"
-                          placeholder="Last name"
-                          {...register("lastName", { required: "Last name is required" })}
+                          placeholder={t("Last name")}
+                          {...register("lastName", { required: t("Last name is required") })}
                           className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                             errors.lastName
                               ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -443,8 +445,8 @@ const Checkout = () => {
                     <div>
                       <input
                         type="text"
-                        placeholder="Address (House/Flat No., Street, Area)"
-                        {...register("address", { required: "Address is required" })}
+                        placeholder={t("Address (House/Flat No., Street, Area)")}
+                        {...register("address", { required: t("Address is required") })}
                         className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                           errors.address
                             ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -458,7 +460,7 @@ const Checkout = () => {
                     <div>
                       <input
                         type="text"
-                        placeholder="Apartment, suite, landmark, etc. (optional)"
+                        placeholder={t("Apartment, suite, landmark, etc. (optional)")}
                         {...register("address2")}
                         className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
                       />
@@ -469,8 +471,8 @@ const Checkout = () => {
                       <div>
                         <input
                           type="text"
-                          placeholder="City"
-                          {...register("city", { required: "City is required" })}
+                          placeholder={t("City")}
+                          {...register("city", { required: t("City is required") })}
                           className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
                             errors.city
                               ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -482,7 +484,7 @@ const Checkout = () => {
 
                       <div>
                         <select
-                          {...register("state", { required: "State is required" })}
+                          {...register("state", { required: t("State is required") })}
                           defaultValue=""
                           className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${
                             errors.state
@@ -490,7 +492,7 @@ const Checkout = () => {
                               : "border-gray-300 focus:border-black focus:ring-black"
                           }`}
                         >
-                          <option value="" disabled>State</option>
+                          <option value="" disabled>{t("State")}</option>
                           {INDIAN_STATES.map((s) => (
                             <option key={s} value={s}>
                               {s}
@@ -504,12 +506,12 @@ const Checkout = () => {
                         <input
                           type="text"
                           maxLength={6}
-                          placeholder="PIN code"
+                          placeholder={t("PIN code")}
                           {...register("zipCode", {
-                            required: "PIN code is required",
+                            required: t("PIN code is required"),
                             pattern: {
                               value: /^[0-9]{6}$/,
-                              message: "Valid 6-digit PIN required"
+                              message: t("Valid 6-digit PIN required")
                             }
                           })}
                           className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
@@ -528,12 +530,12 @@ const Checkout = () => {
                         <input
                           type="tel"
                           maxLength={10}
-                          placeholder="Phone (10 digits)"
+                          placeholder={t("Phone (10 digits)")}
                           {...register("contact", {
-                            required: "Phone number is required",
+                            required: t("Phone number is required"),
                             pattern: {
                               value: /^[0-9]{10}$/,
-                              message: "Enter a valid 10-digit mobile number"
+                              message: t("Enter a valid 10-digit mobile number")
                             }
                           })}
                           className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
@@ -557,7 +559,7 @@ const Checkout = () => {
                         onChange={(e) => setSaveInfoForNextTime(e.target.checked)}
                         className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer"
                       />
-                      <span>Save this information for next time</span>
+                      <span>{t("Save this information for next time")}</span>
                     </label>
                   </div>
                 </div>
@@ -566,10 +568,10 @@ const Checkout = () => {
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                   <div className="mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      Payment
+                      {t("Payment")}
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      All transactions are secure and encrypted.
+                      {t("All transactions are secure and encrypted.")}
                     </p>
                   </div>
 
@@ -586,21 +588,21 @@ const Checkout = () => {
                           <input
                             type="radio"
                             value="PhonePe"
-                            {...register("paymentMethod", { required: "Payment Method is required!" })}
+                            {...register("paymentMethod", { required: t("Payment Method is required!") })}
                             className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
                             defaultChecked
                           />
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold text-gray-900">
-                                PhonePe Secure Gateway
+                                {t("PhonePe Secure Gateway")}
                               </span>
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#5f259f] text-white">
-                                Recommended
+                                {t("Recommended")}
                               </span>
                             </div>
                             <p className="text-xs text-gray-500 mt-0.5">
-                              UPI, Google Pay, PhonePe, Paytm, Cards &amp; Netbanking
+                              {t("UPI, Google Pay, PhonePe, Paytm, Cards & Netbanking")}
                             </p>
                           </div>
                         </div>
@@ -635,15 +637,15 @@ const Checkout = () => {
                             <input
                               type="radio"
                               value="RazorPay"
-                              {...register("paymentMethod", { required: "Payment Method is required!" })}
+                              {...register("paymentMethod", { required: t("Payment Method is required!") })}
                               className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
                             />
                             <div>
                               <span className="text-sm font-semibold text-gray-900">
-                                Razorpay Secure (Cards, Wallets &amp; Netbanking)
+                                {t("Razorpay Secure (Cards, Wallets & Netbanking)")}
                               </span>
                               <p className="text-xs text-gray-500 mt-0.5">
-                                International Cards, Netbanking &amp; Wallets
+                                {t("International Cards, Netbanking & Wallets")}
                               </p>
                             </div>
                           </div>
@@ -665,15 +667,15 @@ const Checkout = () => {
                           <input
                             type="radio"
                             value="Cash"
-                            {...register("paymentMethod", { required: "Payment Method is required!" })}
+                            {...register("paymentMethod", { required: t("Payment Method is required!") })}
                             className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 cursor-pointer"
                           />
                           <div>
                             <span className="text-sm font-semibold text-gray-900">
-                              Cash on Delivery (COD)
+                              {t("Cash on Delivery (COD)")}
                             </span>
                             <p className="text-xs text-gray-500 mt-0.5">
-                              Pay in cash upon doorstep delivery
+                              {t("Pay in cash upon doorstep delivery")}
                             </p>
                           </div>
                         </div>
@@ -694,7 +696,7 @@ const Checkout = () => {
                         onChange={(e) => setUseShippingAsBilling(e.target.checked)}
                         className="w-4 h-4 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer"
                       />
-                      <span>Use shipping address as billing address</span>
+                      <span>{t("Use shipping address as billing address")}</span>
                     </label>
                   </div>
 
@@ -709,13 +711,13 @@ const Checkout = () => {
                         className="w-4 h-4 mt-0.5 text-[#6D3D2E] focus:ring-[#6D3D2E] border-gray-300 rounded cursor-pointer shrink-0"
                       />
                       <span>
-                        I agree to the{" "}
+                        {t("I agree to the")}{" "}
                         <Link href="/terms-and-conditions" target="_blank" className="text-[#6D3D2E] underline font-medium hover:text-[#4A291E]">
-                          Terms &amp; Conditions
+                          {t("Terms & Conditions")}
                         </Link>{" "}
-                        and{" "}
+                        {t("and")}{" "}
                         <Link href="/privacy-policy" target="_blank" className="text-[#6D3D2E] underline font-medium hover:text-[#4A291E]">
-                          Privacy Policy
+                          {t("Privacy Policy")}
                         </Link>
                       </span>
                     </label>
@@ -734,15 +736,15 @@ const Checkout = () => {
                     {isCheckoutSubmit ? (
                       <>
                         <FiLoader className="animate-spin text-white" size={20} />
-                        <span>Processing order...</span>
+                        <span>{t("Processing order...")}</span>
                       </>
                     ) : (
                       <>
                         <IoLockClosedOutline size={18} />
                         <span>
                           {selectedPaymentMethod === "Cash"
-                            ? `Place Order (${currency}${formatPrice(total)})`
-                            : `Pay now — ${currency}${formatPrice(total)}`}
+                            ? `${t("Place Order")} (${currency}${formatPrice(total)})`
+                            : `${t("Pay now")} — ${currency}${formatPrice(total)}`}
                         </span>
                       </>
                     )}
@@ -752,26 +754,26 @@ const Checkout = () => {
                   <div className="flex items-center justify-center gap-6 mt-5 text-gray-400 text-xs">
                     <div className="flex items-center gap-1.5">
                       <IoLockClosedOutline size={16} />
-                      <span>Secure 256-bit SSL</span>
+                      <span>{t("Secure 256-bit SSL")}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <IoShieldCheckmarkOutline size={16} />
-                      <span>Encrypted Checkout</span>
+                      <span>{t("Encrypted Checkout")}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer Copyright */}
                 <div className="pt-2 text-center text-xs text-gray-500 space-y-2">
-                  <p>All rights reserved Manchanda Fabrics</p>
+                  <p>{t("All rights reserved Manchanda Fabrics")}</p>
                   <div className="flex justify-center gap-4 text-[11px] text-gray-400">
-                    <Link href="/refund-return-policy" className="hover:underline">Refund policy</Link>
+                    <Link href="/refund-return-policy" className="hover:underline">{t("Refund policy")}</Link>
                     <span>•</span>
-                    <Link href="/shipping-delivery-policy" className="hover:underline">Shipping policy</Link>
+                    <Link href="/shipping-delivery-policy" className="hover:underline">{t("Shipping policy")}</Link>
                     <span>•</span>
-                    <Link href="/privacy-policy" className="hover:underline">Privacy policy</Link>
+                    <Link href="/privacy-policy" className="hover:underline">{t("Privacy policy")}</Link>
                     <span>•</span>
-                    <Link href="/terms-and-conditions" className="hover:underline">Terms of service</Link>
+                    <Link href="/terms-and-conditions" className="hover:underline">{t("Terms of service")}</Link>
                   </div>
                 </div>
 
@@ -786,10 +788,10 @@ const Checkout = () => {
                 <div className="flex items-center justify-between pb-5 border-b border-gray-200">
                   <h3 className="font-semibold text-lg text-gray-900 flex items-center gap-2">
                     <FiShoppingBag className="text-gray-500" />
-                    <span>Order Summary</span>
+                    <span>{t("Order Summary")}</span>
                   </h3>
                   <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                    {items.length} {items.length === 1 ? "item" : "items"}
+                    {items.length} {items.length === 1 ? t("item") : t("items")}
                   </span>
                 </div>
 
@@ -816,14 +818,14 @@ const Checkout = () => {
                         </h4>
                         {item.color && (
                           <p className="text-xs text-gray-500 mt-0.5">
-                            Color: <span className="font-medium text-gray-700">{item.color}</span>
+                            {t("Color")}: <span className="font-medium text-gray-700">{t(item.color)}</span>
                           </p>
                         )}
                         {item.variant && (
                           <p className="text-xs text-gray-500 mt-0.5 truncate">
                             {typeof item.variant === "object"
-                              ? Object.values(item.variant).filter(Boolean).join(", ")
-                              : item.variant}
+                              ? Object.values(item.variant).filter(Boolean).map(v => t(v)).join(", ")
+                              : t(item.variant)}
                           </p>
                         )}
                       </div>
@@ -839,7 +841,7 @@ const Checkout = () => {
 
                   {isEmpty && (
                     <div className="text-center py-6 text-gray-400 text-sm">
-                      Your cart is empty.
+                      {t("Your cart is empty.")}
                     </div>
                   )}
                 </div>
@@ -849,7 +851,7 @@ const Checkout = () => {
                   {/* Total MRP */}
                   {totals.totalMRP > cartTotal && (
                     <div className="flex justify-between text-gray-500">
-                      <span>Total MRP</span>
+                      <span>{t("Total MRP")}</span>
                       <span>{currency}{formatPrice(totals.totalMRP)}</span>
                     </div>
                   )}
@@ -857,29 +859,29 @@ const Checkout = () => {
                   {/* MRP Discount */}
                   {totals.totalDiscount > 0 && (
                     <div className="flex justify-between text-emerald-700 font-medium">
-                      <span>Bag Discount</span>
+                      <span>{t("Bag Discount")}</span>
                       <span>-{currency}{formatPrice(totals.totalDiscount)}</span>
                     </div>
                   )}
 
                   {/* Subtotal */}
                   <div className="flex justify-between text-gray-700 font-medium">
-                    <span>Subtotal</span>
+                    <span>{t("Subtotal")}</span>
                     <span>{currency}{formatPrice(cartTotal)}</span>
                   </div>
 
                   {/* Shipping */}
                   <div className="flex justify-between text-gray-700 font-medium">
-                    <span>Shipping</span>
+                    <span>{t("Shipping")}</span>
                     <span className={shippingCost === 0 ? "text-emerald-700 font-bold uppercase text-xs" : ""}>
-                      {shippingCost === 0 ? "FREE" : `${currency}${formatPrice(shippingCost)}`}
+                      {shippingCost === 0 ? t("FREE") : `${currency}${formatPrice(shippingCost)}`}
                     </span>
                   </div>
 
                   {/* Coupon Discount */}
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-emerald-700 font-bold">
-                      <span>Coupon Discount</span>
+                      <span>{t("Coupon Discount")}</span>
                       <span>-{currency}{formatPrice(discountAmount)}</span>
                     </div>
                   )}
@@ -887,13 +889,13 @@ const Checkout = () => {
                   {/* GST Taxes */}
                   {taxSummary?.inclusiveTax > 0 && (
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>GST (included in prices)</span>
+                      <span>{t("GST (included in prices)")}</span>
                       <span>{currency}{formatPrice(taxSummary.inclusiveTax)}</span>
                     </div>
                   )}
                   {taxSummary?.exclusiveTax > 0 && (
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>GST (added)</span>
+                      <span>{t("GST (added)")}</span>
                       <span>{currency}{formatPrice(taxSummary.exclusiveTax)}</span>
                     </div>
                   )}
@@ -902,8 +904,8 @@ const Checkout = () => {
                 {/* Total */}
                 <div className="pt-5 flex items-baseline justify-between">
                   <div>
-                    <span className="text-base font-bold text-gray-900 block">Total</span>
-                    <span className="text-xs text-gray-500">Including taxes</span>
+                    <span className="text-base font-bold text-gray-900 block">{t("Total")}</span>
+                    <span className="text-xs text-gray-500">{t("Including taxes")}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-semibold text-gray-500 mr-1.5 uppercase">INR</span>

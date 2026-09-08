@@ -1,0 +1,9 @@
+module.exports = {
+  locales: ["en", "hi"],
+  defaultLocale: "en",
+  keySeparator: false,
+  nsSeparator: false,
+  pages: {
+    "*": ["common"],
+  },
+};

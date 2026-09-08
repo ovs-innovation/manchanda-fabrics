@@ -1,6 +1,8 @@
+import useTranslation from "next-translate/useTranslation";
 import { DEFAULT_HOMEPAGE } from "@utils/homepageDefaults";
 
 const HomeMarqueeStrip = ({ phrases: phrasesProp }) => {
+  const { t } = useTranslation("common");
   const phrases =
     Array.isArray(phrasesProp) && phrasesProp.length > 0
       ? phrasesProp
@@ -9,7 +11,7 @@ const HomeMarqueeStrip = ({ phrases: phrasesProp }) => {
   const row = phrases.map((p, i) => (
     <span key={i} className="inline-flex items-center">
       <span className="mx-6 text-lg sm:text-2xl font-semibold text-[#111111] whitespace-nowrap">
-        {p}
+        {t(p)}
       </span>
       <span className="text-[#111111] text-xl select-none">✦</span>
     </span>

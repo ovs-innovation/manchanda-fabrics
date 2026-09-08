@@ -136,41 +136,41 @@ export default function ContactUs() {
   const CONTACT_INFO = [
     {
       icon: <FiUser className="text-2xl" />,
-      title: "Contact Person",
-      value: "Pradeep Kumar Manchanda",
-      sub: "Founder & Proprietor",
+      title: t("Contact Person"),
+      value: t("Pradeep Kumar Manchanda"),
+      sub: t("Founder & Proprietor"),
       href: null,
       breakAll: false,
     },
     {
       icon: <FiPhone className="text-2xl" />,
-      title: showingTranslateValue(contact?.call_box_title) || "Call / WhatsApp",
+      title: showingTranslateValue(contact?.call_box_title) || t("Call / WhatsApp"),
       value: phone,
-      sub: showingTranslateValue(contact?.call_box_text) || "Call / WhatsApp Us",
+      sub: showingTranslateValue(contact?.call_box_text) || t("Call / WhatsApp Us"),
       href: `tel:${phone.replace(/\s/g, "")}`,
       breakAll: false,
     },
     {
       icon: <FiMail className="text-2xl" />,
-      title: showingTranslateValue(contact?.email_box_title) || "Email Us",
+      title: showingTranslateValue(contact?.email_box_title) || t("Email Us"),
       value: email,
-      sub: "We reply within 24 hours",
+      sub: t("We reply within 24 hours"),
       href: `mailto:${email.trim()}`,
       breakAll: true,
     },
     {
       icon: <FiMapPin className="text-2xl" />,
-      title: showingTranslateValue(contact?.address_box_title) || "Visit Us",
+      title: showingTranslateValue(contact?.address_box_title) || t("Visit Us"),
       value: address,
-      sub: "Tap for Google Maps directions",
+      sub: t("Tap for Google Maps directions"),
       href: MAPS_URL,
       breakAll: false,
     },
     {
       icon: <FiClock className="text-2xl" />,
-      title: "Store Hours",
-      value: "Mon – Sat: 11 AM – 8 PM",
-      sub: "Sunday: Closed",
+      title: t("Store Hours"),
+      value: t("Mon – Sat: 11 AM – 8 PM"),
+      sub: t("Sunday: Closed"),
       href: null,
       breakAll: false,
     },
@@ -222,8 +222,8 @@ export default function ContactUs() {
             {t("Have a question about our sarees, suits, or fabrics? We're here to help you find your perfect ethnic ensemble.")}
           </p>
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            <span>Contact Person:</span>
-            <span className="font-semibold text-white">Pradeep Kumar Manchanda</span>
+            <span>{t("Contact Person")}:</span>
+            <span className="font-semibold text-white">{t("Pradeep Kumar Manchanda")}</span>
           </div>
         </div>
       </section>
@@ -349,12 +349,12 @@ export default function ContactUs() {
               <div className="flex items-center gap-4">
                 <FaWhatsapp className="text-4xl lg:text-5xl" />
                 <div>
-                  <h3 className="font-bold text-base md:text-lg uppercase tracking-widest">Chat on WhatsApp</h3>
-                  <p className="text-white/80 text-sm">Fastest response — within minutes!</p>
+                  <h3 className="font-bold text-base md:text-lg uppercase tracking-widest">{t("Chat on WhatsApp")}</h3>
+                  <p className="text-white/80 text-sm">{t("Fastest response — within minutes!")}</p>
                 </div>
               </div>
               <p className="text-base leading-relaxed text-white/90">
-                For quick suit queries, styling advice, or order tracking — message us directly on WhatsApp.
+                {t("For quick suit queries, styling advice, or order tracking — message us directly on WhatsApp.")}
               </p>
               {whatsappChatUrl ? (
                 <a
@@ -364,10 +364,10 @@ export default function ContactUs() {
                   className="inline-flex items-center gap-2 bg-white text-[#25D366] font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#f0fdf4] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                 >
                   <FaWhatsapp />
-                  Open WhatsApp
+                  {t("Open WhatsApp")}
                 </a>
               ) : (
-                <p className="text-sm text-white/80">WhatsApp number coming soon.</p>
+                <p className="text-sm text-white/80">{t("WhatsApp number coming soon.")}</p>
               )}
             </div>
 
@@ -383,7 +383,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="font-bold text-base md:text-lg uppercase tracking-widest text-[#3B2A25]">
-                      {vs.title || "Live Video Shopping"}
+                      {vs.title ? t(vs.title) : t("Live Video Shopping")}
                     </h3>
                     <p className="text-[#3B2A25]/55 text-sm">
                       {t("Business Hours")}: {vs.businessHours || "11:30 AM – 8:00 PM"}
@@ -393,7 +393,7 @@ export default function ContactUs() {
                 {inBusinessHours ? (
                   <>
                     <p className="text-base leading-relaxed text-[#3B2A25]/75">
-                      {vs.subtitle || "Shop with us through a live video call."}
+                      {vs.subtitle ? t(vs.subtitle) : t("Shop with us through a live video call.")}
                     </p>
                     {videoShoppingWhatsappUrl ? (
                       <a
@@ -403,7 +403,7 @@ export default function ContactUs() {
                         className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                       >
                         <FaWhatsapp className="text-lg" />
-                        {vs.buttonText || "Start Video Shopping"}
+                        {vs.buttonText ? t(vs.buttonText) : t("Start Video Shopping")}
                       </a>
                     ) : (
                       <p className="text-sm text-[#3B2A25]/55">{t("WhatsApp number coming soon.")}</p>
@@ -412,7 +412,7 @@ export default function ContactUs() {
                 ) : (
                   <>
                     <p className="text-base leading-relaxed text-[#3B2A25]/75">
-                      Live Video Shopping is available from {vs.businessHours || "11:30 AM to 8:00 PM"}. Please leave us a message on WhatsApp and our team will contact you during business hours.
+                      {t("Live Video Shopping is available from")} {vs.businessHours || "11:30 AM to 8:00 PM"}. {t("Please leave us a message on WhatsApp and our team will contact you during business hours.")}
                     </p>
                     {videoShoppingWhatsappUrl ? (
                       <a
@@ -422,7 +422,7 @@ export default function ContactUs() {
                         className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                       >
                         <FaWhatsapp className="text-lg" />
-                        Send WhatsApp Message
+                        {t("Send WhatsApp Message")}
                       </a>
                     ) : (
                       <p className="text-sm text-[#3B2A25]/55">{t("WhatsApp number coming soon.")}</p>
@@ -443,7 +443,7 @@ export default function ContactUs() {
                     <h3 className="font-bold text-base md:text-lg uppercase tracking-widest text-[#3B2A25]">
                       {whatsappGroupTitle}
                     </h3>
-                    <p className="text-[#3B2A25]/55 text-sm">Community updates & offers</p>
+                    <p className="text-[#3B2A25]/55 text-sm">{t("Community updates & offers")}</p>
                   </div>
                 </div>
                 <p className="text-base leading-relaxed text-[#3B2A25]/75">{whatsappGroupText}</p>
@@ -454,14 +454,14 @@ export default function ContactUs() {
                   className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#128C7E] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                 >
                   <FaWhatsapp />
-                  Join WhatsApp Group
+                  {t("Join WhatsApp Group")}
                 </a>
               </div>
             )}
 
             {/* Social Links */}
             <div className="rounded-2xl border border-[#E6D1CB] bg-[#FAF7F5] p-10 lg:p-12" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-6">Follow Us</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-6">{t("Follow Us")}</h3>
               <div className="flex flex-col gap-4">
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 bg-white border border-[#E6D1CB] rounded-xl hover:border-[#9C6A5A]/50 hover:shadow-md transition-all group">
@@ -470,7 +470,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors">@manchandafabrics</p>
-                    <p className="text-xs text-[#3B2A25]/50 mt-0.5">Daily ethnic inspirations</p>
+                    <p className="text-xs text-[#3B2A25]/50 mt-0.5">{t("Daily ethnic inspirations")}</p>
                   </div>
                 </a>
                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
@@ -480,7 +480,7 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors">Manchanda Fabrics</p>
-                    <p className="text-xs text-[#3B2A25]/50 mt-0.5">New arrivals & festive collections</p>
+                    <p className="text-xs text-[#3B2A25]/50 mt-0.5">{t("New arrivals & festive collections")}</p>
                   </div>
                 </a>
               </div>
@@ -488,13 +488,13 @@ export default function ContactUs() {
 
             {/* Quick Links */}
             <div className="rounded-2xl border border-[#E6D1CB] bg-white p-10 lg:p-12" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-6">Quick Help</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-6">{t("Quick Help")}</h3>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: "Track My Order", href: "/user/dashboard" },
-                  { label: "Browse Sarees", href: "/search?category=sarees" },
-                  { label: "Designer Suits", href: "/search?category=suits" },
-                  { label: "Return Policy", href: "/about-us" },
+                  { label: t("Track My Order"), href: "/user/dashboard" },
+                  { label: t("Browse Sarees"), href: "/search?category=sarees" },
+                  { label: t("Designer Suits"), href: "/search?category=suits" },
+                  { label: t("Return Policy"), href: "/about-us" },
                 ].map((link) => (
                   <Link key={link.label} href={link.href}
                     className="flex items-center justify-between text-sm font-semibold text-[#3B2A25] hover:text-[#9C6A5A] transition-colors py-3 border-b border-[#E6D1CB]/60 last:border-0">

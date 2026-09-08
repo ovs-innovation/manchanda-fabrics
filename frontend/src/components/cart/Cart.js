@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useMemo, useState } from "react";
 import { useCart } from "react-use-cart";
 import { IoBagCheckOutline, IoClose, IoBagHandle } from "react-icons/io5";
+import useTranslation from "next-translate/useTranslation";
 
 //internal import
 import CartItem from "@components/cart/CartItem";
@@ -10,6 +11,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import useGetSetting from "@hooks/useGetSetting";
 
 const Cart = () => {
+  const { t } = useTranslation("common");
   const router = useRouter();
   const { isEmpty, items, cartTotal } = useCart();
   const { closeCartDrawer } = useContext(SidebarContext);
@@ -51,7 +53,7 @@ const Cart = () => {
             <span className="text-lg mr-2 mb-0.5 text-[#111111]">
               <IoBagCheckOutline />
             </span>
-            {isEmpty ? "Cart" : `Cart (${items?.length || 0})`}
+            {isEmpty ? t("Cart") : `${t("Cart")} (${items?.length || 0})`}
           </h2>
           <button
             onClick={closeCartDrawer}
@@ -59,7 +61,7 @@ const Cart = () => {
           >
             <IoClose />
             <span className="text-xs tracking-widest uppercase text-gray-500 hover:text-red-400 ml-1">
-              Close
+              {t("Close")}
             </span>
           </button>
         </div>
@@ -73,11 +75,10 @@ const Cart = () => {
                   </span>
                 </div>
                 <h3 className="font-serif font-semibold text-gray-700 text-lg pt-5">
-                  Your cart is empty
+                  {t("Your cart is empty")}
                 </h3>
                 <p className="px-12 text-center text-sm text-gray-500 pt-2">
-                  No items added in your cart. Please add product to your cart
-                  list.
+                  {t("No items added in your cart. Please add product to your cart list.")}
                 </p>
               </div>
             </div>
@@ -96,7 +97,7 @@ const Cart = () => {
               className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#FAF7F5] transition-colors"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              <span>Order Note</span>
+              <span>{t("Order Note")}</span>
               <span className="text-neutral-500">{orderNoteOpen ? "−" : "+"}</span>
             </button>
             {orderNoteOpen && (
@@ -105,7 +106,7 @@ const Cart = () => {
                   value={orderNote}
                   onChange={(e) => setOrderNote(e.target.value)}
                   rows={3}
-                  placeholder="Add instructions for your order..."
+                  placeholder={t("Add instructions for your order...")}
                   className="w-full border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                 />
               </div>
@@ -120,7 +121,7 @@ const Cart = () => {
               className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#FAF7F5] transition-colors"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              <span>Coupon</span>
+              <span>{t("Coupon")}</span>
               <span className="text-neutral-500">{couponOpen ? "−" : "+"}</span>
             </button>
             {couponOpen && (
@@ -128,7 +129,7 @@ const Cart = () => {
                 <input
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value)}
-                  placeholder="Enter coupon code"
+                  placeholder={t("Enter coupon code")}
                   className="flex-1 border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                 />
                 <button
@@ -140,7 +141,7 @@ const Cart = () => {
                     setCouponOpen(false);
                   }}
                 >
-                  Apply
+                  {t("Apply")}
                 </button>
               </div>
             )}
@@ -154,7 +155,7 @@ const Cart = () => {
               className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.22em] text-[#111111] hover:bg-[#FAF7F5] transition-colors"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              <span>Shipping</span>
+              <span>{t("Shipping")}</span>
               <span className="text-neutral-500">{shippingOpen ? "−" : "+"}</span>
             </button>
             {shippingOpen && (
@@ -163,20 +164,20 @@ const Cart = () => {
                   <input
                     value={shipCountry}
                     onChange={(e) => setShipCountry(e.target.value)}
-                    placeholder="Country"
+                    placeholder={t("Country")}
                     className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                   />
                   <input
                     value={shipProvince}
                     onChange={(e) => setShipProvince(e.target.value)}
-                    placeholder="Province/State"
+                    placeholder={t("State")}
                     className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                   />
                 </div>
                 <input
                   value={shipZip}
                   onChange={(e) => setShipZip(e.target.value)}
-                  placeholder="Zip/Postal code"
+                  placeholder={t("PIN code")}
                   className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                 />
                 <button
@@ -187,10 +188,10 @@ const Cart = () => {
                     setShippingOpen(false);
                   }}
                 >
-                  Calculate shipping
+                  {t("Calculate shipping")}
                 </button>
                 <p className="text-xs text-neutral-500">
-                  Shipping & taxes are calculated at checkout.
+                  {t("Taxes and shipping calculated at checkout")}
                 </p>
               </div>
             )}
@@ -199,7 +200,7 @@ const Cart = () => {
           <div className="mt-4 flex items-center justify-between">
             <div>
               <p className="text-[11px] uppercase tracking-[0.22em] text-neutral-500">
-                Total
+                {t("Total")}
               </p>
               <p className="text-xl font-bold text-[#111111]">
                 {currency}
@@ -211,7 +212,7 @@ const Cart = () => {
               className="px-5 py-3 bg-[#592523] hover:bg-[#401817] text-white text-xs sm:text-sm font-bold uppercase tracking-[0.22em] transition-colors"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              Proceed to checkout
+              {t("Proceed to checkout")}
             </button>
           </div>
         </div>

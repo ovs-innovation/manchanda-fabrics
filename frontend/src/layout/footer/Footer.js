@@ -163,7 +163,7 @@ const Footer = () => {
         {/* Columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-10 pt-10">
           <div className="lg:col-span-3">
-            <SectionTitle>MANCHANDA FAB</SectionTitle>
+            <SectionTitle>{t("MANCHANDA FAB")}</SectionTitle>
             <div className="space-y-2">
               {phoneList.map((phone) => (
                 <p key={phone} className={`${linkClass} flex items-center gap-2`}>
@@ -179,12 +179,12 @@ const Footer = () => {
               </p>
               <p className="text-[13px] text-[#4a4a4a] leading-relaxed pt-2 flex gap-2 max-w-xs">
                 <span style={{ color: SECTION_RED }}>⚲</span>
-                <span>{storeAddress}</span>
+                <span>{labelText(storeAddress, t)}</span>
               </p>
               {storeHours && (
                 <p className="text-[13px] text-[#4a4a4a] leading-relaxed flex gap-2 max-w-xs">
                   <span style={{ color: SECTION_RED }}>◷</span>
-                  <span>{storeHours}</span>
+                  <span>{labelText(storeHours, t)}</span>
                 </p>
               )}
             </div>

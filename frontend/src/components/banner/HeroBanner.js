@@ -99,7 +99,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           className="text-[10px] xs:text-[11px] md:text-xs font-light uppercase tracking-[0.35em] md:tracking-[0.4em] text-white/90"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {welcomeText}
+          {t(welcomeText)}
         </motion.p>
 
         <motion.h1
@@ -109,7 +109,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           className="mt-3 xs:mt-4 md:mt-6 text-[1.75rem] xs:text-[2.1rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] font-normal leading-[1.18] tracking-[0.03em] drop-shadow-md"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          {brandText}
+          {t(brandText)}
         </motion.h1>
 
         {homepage.heroTagline ? (
@@ -120,7 +120,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
             className="mt-2.5 xs:mt-3 md:mt-4 text-[12px] xs:text-sm md:text-[15px] font-light tracking-[0.12em] md:tracking-[0.14em] text-white/80 max-w-[280px] xs:max-w-md mx-auto"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {homepage.heroTagline}
+            {t(homepage.heroTagline)}
           </motion.p>
         ) : null}
 
@@ -135,7 +135,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
             className="inline-flex items-center justify-center min-w-[200px] xs:min-w-[220px] px-6 xs:px-8 py-2.5 xs:py-3 border border-white/90 text-white text-[10px] xs:text-[11px] md:text-xs font-normal uppercase tracking-[0.2em] md:tracking-[0.22em] hover:bg-white hover:text-[#111111] transition-all duration-300 shadow-sm"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {homepage.heroCtaText || t("Explore Latest Collections")}
+            {t(homepage.heroCtaText) || t("Explore Latest Collections")}
           </Link>
         </motion.div>
       </div>

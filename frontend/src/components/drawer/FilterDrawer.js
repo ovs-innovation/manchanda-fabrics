@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import dynamic from "next/dynamic";
 import Drawer from "rc-drawer";
 import { IoClose } from "react-icons/io5";
+import useTranslation from "next-translate/useTranslation";
 
 import FilterSidebar from "@components/category/FilterSidebar";
 import { SidebarContext } from "@context/SidebarContext";
@@ -19,6 +20,7 @@ const FilterDrawer = ({
   setSelectedColor,
   onClearAll,
 }) => {
+  const { t } = useTranslation("common");
   const { filterDrawerOpen, closeFilterDrawer } = useContext(SidebarContext);
 
   return (
@@ -32,7 +34,7 @@ const FilterDrawer = ({
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Filters</h2>
+          <h2 className="text-lg font-semibold">{t("Filters")}</h2>
           <button onClick={closeFilterDrawer} className="p-2">
             <IoClose size={24} />
           </button>

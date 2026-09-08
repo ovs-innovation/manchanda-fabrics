@@ -220,11 +220,14 @@ const Home = ({
                     className="text-lg sm:text-3xl md:text-4xl font-semibold leading-snug max-w-2xl"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    {videoShopping.title ||
-                      t("Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM")}
+                    {videoShopping.title
+                      ? t(videoShopping.title)
+                      : t("Shop from Anywhere, Anytime! Enjoy Live Video Shopping from 11 AM – 7 PM")}
                   </h3>
                   <p className="mt-3 text-xs sm:text-sm text-white/85">
-                    {videoShopping.subtitle || t("Stylists On Call (English & Hindi)")}
+                    {videoShopping.subtitle
+                      ? t(videoShopping.subtitle)
+                      : t("Stylists On Call (English & Hindi)")}
                   </p>
                   <a
                     href={`https://wa.me/${videoShopping.whatsapp || "919650544554"}`}

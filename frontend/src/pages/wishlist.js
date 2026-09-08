@@ -9,8 +9,10 @@ import ProductCard from "@components/product/ProductCard";
 import Loading from "@components/preloader/Loading";
 import AttributeServices from "@services/AttributeServices";
 import { notifySuccess } from "@utils/toast";
+import useTranslation from "next-translate/useTranslation";
 
 const Wishlist = ({ attributes }) => {
+  const { t } = useTranslation("common");
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,15 +40,11 @@ const Wishlist = ({ attributes }) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     }
-    notifySuccess("Product removed from wishlist");
+    notifySuccess(t("Product removed from wishlist"));
   };
 
   return (
-    <Layout title="Wishlist" description="Your wishlist items">
-      {/* <PageHeader
-        title="My Wishlist"
-        headerBg={storeCustomizationSetting?.offers?.header_bg}
-      /> */}
+    <Layout title={t("Wishlist")} description={t("Your wishlist items")}>
       <div className="mx-auto max-w-screen-2xl px-4 py-10   sm:px-10">
         {loading ? (
           <Loading loading={loading} />
@@ -60,23 +58,23 @@ const Wishlist = ({ attributes }) => {
               height={380}
             />
             <h2 className="text-lg md:text-xl lg:text-2xl xl:text-2xl text-center mt-2 font-medium font-serif text-gray-600">
-              Your wishlist is empty
+              {t("Your wishlist is empty")}
             </h2>
             <p className="text-gray-500 mt-2 mb-4">
-              Start adding products to your wishlist!
+              {t("Start adding products to your wishlist!")}
             </p>
             <Link
               href="/"
               className="inline-block px-6 py-3 bg-store-500 text-white rounded-md hover:bg-store-600 transition-colors"
             >
-              Continue Shopping
+              {t("Continue Shopping")}
             </Link>
           </div>
         ) : (
           <>
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold font-serif">
-                My Wishlist ({wishlistItems.length} items)
+                {t("My Wishlist")} ({wishlistItems.length} {wishlistItems.length === 1 ? t("item") : t("items")})
               </h1>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
@@ -86,7 +84,7 @@ const Wishlist = ({ attributes }) => {
                   <button
                     onClick={() => removeFromWishlist(product._id)}
                     className="absolute top-2 right-2 z-20 p-2 bg-white rounded-full shadow-md hover:bg-store-500 hover:text-white transition-colors"
-                    aria-label="Remove from wishlist"
+                    aria-label={t("Remove from wishlist")}
                   >
                     <FiTrash2 className="w-4 h-4" />
                   </button>

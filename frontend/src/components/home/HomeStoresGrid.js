@@ -64,7 +64,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15 group-hover:from-black/75 group-hover:via-black/35 group-hover:to-black/10 transition-all duration-500" />
 
               <div className="absolute top-6 left-6 bg-[#C8A45D] text-white text-[10px] font-bold tracking-[0.25em] px-3.5 py-1.5 rounded-full shadow-md z-10">
-                FLAGSHIP STORE
+                {t("FLAGSHIP STORE")}
               </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex flex-col justify-end text-white z-10">
@@ -72,16 +72,16 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
                   className="text-3xl md:text-4xl font-light tracking-wide text-white leading-tight"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  {s.name}
+                  {t(s.name)}
                 </h3>
                 
                 <div className="mt-3 flex items-center gap-2 text-white/90 text-sm font-light">
                   <FiMapPin className="text-[#C8A45D] shrink-0" size={16} />
-                  <span>{s.address}</span>
+                  <span>{t(s.address)}</span>
                 </div>
 
                 <div className="mt-3.5 text-[12px] tracking-wide text-white/70 font-light leading-relaxed">
-                  <p className="text-[#C8A45D] font-semibold uppercase tracking-[0.1em] mb-0.5">Open Daily</p>
+                  <p className="text-[#C8A45D] font-semibold uppercase tracking-[0.1em] mb-0.5">{t("Open Daily")}</p>
                   <p className="text-white/80">11:30 AM – 8:00 PM</p>
                 </div>
 
@@ -90,7 +90,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
                     href="/contact-us"
                     className="px-6 py-2.5 bg-[#C8A45D] hover:bg-[#bfa054] text-white text-[11px] font-semibold uppercase tracking-[0.2em] rounded transition-all duration-300 transform active:scale-95 text-center"
                   >
-                    Visit Store
+                    {t("Visit Store")}
                   </Link>
                   <a 
                     href="https://maps.app.goo.gl/PQHMD4iJ1gzAhuLR6"
@@ -98,7 +98,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
                     rel="noopener noreferrer"
                     className="px-6 py-2.5 bg-transparent border border-white/40 hover:border-white hover:bg-white/5 text-white text-[11px] font-semibold uppercase tracking-[0.2em] rounded transition-all duration-300 transform active:scale-95 text-center"
                   >
-                    Get Directions
+                    {t("Get Directions")}
                   </a>
                 </div>
               </div>

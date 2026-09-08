@@ -48,4 +48,5 @@ const nextConfig = {
   },
 };
 
+// Reload webpack and i18n config (keySeparator: false)
 module.exports = nextTranslate(nextConfig);

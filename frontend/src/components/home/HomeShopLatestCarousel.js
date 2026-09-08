@@ -281,7 +281,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
 
                     <div className="px-2.5 py-2 sm:px-3 sm:py-2.5">
                       <p className="text-[11px] sm:text-[13px] font-medium text-[#111111] truncate leading-snug">
-                        {title}
+                        {t(title)}
                       </p>
                       {priceText && (
                         <p className="mt-0.5 text-[10px] sm:text-[12px] text-neutral-500 font-semibold">{priceText}</p>

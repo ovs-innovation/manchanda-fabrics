@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
+import useTranslation from "next-translate/useTranslation";
 import useGetSetting from "./useGetSetting";
 
 export const formatPrice = (value = 0) => {
@@ -12,6 +13,7 @@ export const formatPrice = (value = 0) => {
 
 const useUtilsFunction = () => {
   const router = useRouter();
+  const { t } = useTranslation("common");
   const lang = router?.locale || "en";
 
   const { globalSetting } = useGetSetting();
@@ -48,8 +50,28 @@ const useUtilsFunction = () => {
   //for translation
   const showingTranslateValue = (data) => {
     if (!data) return "";
-    const val = data !== undefined && Object?.keys(data).includes(lang) ? data[lang] : undefined;
-    return val && String(val).trim() !== "" ? val : (data?.en || "");
+    if (typeof data === "string") {
+      const trimmed = data.trim();
+      if (lang === "hi") {
+        const translated = t(trimmed);
+        if (translated && translated !== trimmed) return translated;
+      }
+      return data;
+    }
+    const val =
+      data !== undefined &&
+      typeof data === "object" &&
+      Object.prototype.hasOwnProperty.call(data, lang)
+        ? data[lang]
+        : undefined;
+    const finalVal =
+      val && String(val).trim() !== "" ? val : (data?.en || "");
+    if (lang === "hi" && finalVal) {
+      const trimmedFinal = String(finalVal).trim();
+      const translated = t(trimmedFinal);
+      if (translated && translated !== trimmedFinal) return translated;
+    }
+    return finalVal;
   };
 
   const showingImage = (data) => {
@@ -61,6 +83,7 @@ const useUtilsFunction = () => {
   };
 
   return {
+    t,
     lang,
     currency,
     formatPrice,
