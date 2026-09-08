@@ -187,6 +187,22 @@ const Footer = () => {
                   <span>{labelText(storeHours, t)}</span>
                 </p>
               )}
+              <p className="text-[13px] text-[#4a4a4a] leading-relaxed flex items-center gap-2 pt-1">
+                <span style={{ color: SECTION_RED }} className="shrink-0 flex items-center">
+                  <FaInstagram size={15} />
+                </span>
+                <span>
+                  <span className="font-semibold text-[#111111]">{t("Follow Us")}:</span>{" "}
+                  <a
+                    href="https://www.instagram.com/manchandafabrics"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-[#B0322F] underline-offset-2 hover:underline transition-colors"
+                  >
+                    @manchandafabrics
+                  </a>
+                </span>
+              </p>
             </div>
           </div>
 
