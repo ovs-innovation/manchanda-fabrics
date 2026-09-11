@@ -416,6 +416,7 @@ const AddProduct = () => {
                   colorVariants={colorVariants}
                   setColorVariants={setColorVariants}
                   onStockChange={(total) => setValue("stock", total, { shouldValidate: true })}
+                  availableImages={[featuredImage, ...(Array.isArray(imageUrl) ? imageUrl : [imageUrl])].filter(Boolean)}
                 />
               </section>
 
