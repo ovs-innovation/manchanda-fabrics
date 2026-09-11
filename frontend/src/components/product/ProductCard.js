@@ -15,6 +15,7 @@ import { handleLogEvent } from "src/lib/analytics";
 import { addToWishlist, removeFromWishlist, isInWishlist } from "@lib/wishlist";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 import { translateLabel } from "@utils/locale";
+import { resolveColorHex } from "@utils/resolveColorHex";
 
 const formatCardPrice = (value = 0) => {
   const num = Math.max(0, parseFloat(value) || 0);
@@ -255,7 +256,7 @@ const ProductCard = ({
                 >
                   <span
                     className="w-2 h-2 rounded-full block border border-neutral-200/50"
-                    style={{ backgroundColor: colorVar.colorCode || "#000000" }}
+                    style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
                   />
                 </button>
               ))}

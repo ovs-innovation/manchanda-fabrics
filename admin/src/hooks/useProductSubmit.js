@@ -14,6 +14,7 @@ import BrandServices from "@/services/BrandServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { sanitizeHomepagePlacementTags } from "@/lib/homepage-placements";
 import useTranslationValue from "./useTranslationValue";
+import { FABRIC_COLORS } from "@/utils/fabricColors";
 
 const generateVariantSku = (baseSku, index) => {
   const sanitized =
@@ -334,7 +335,7 @@ const useProductSubmit = (id) => {
 
       // Compute total stock sum across all variants
       const computedTotalStock = updatedVariants.reduce((sum, cv) => {
-        return sum + cv.sizes.reduce((sSum, sv) => sSum + Number(sv.quantity || 0), 0);
+        return sum + (cv.sizes || []).reduce((sSum, sv) => sSum + Number(sv.quantity || 0), 0);
       }, 0);
 
       const colorVariantsTotalStock = (colorVariants || []).reduce(
@@ -342,16 +343,56 @@ const useProductSubmit = (id) => {
         0
       );
 
+      const inputStock = Number(data.stock !== undefined && data.stock !== "" ? data.stock : 0);
+
+      // Determine final product stock:
+      // 1. If colorVariants have positive stock, sum them.
+      // 2. If simple variants have positive stock, sum them.
+      // 3. Otherwise, use the stock value entered by the admin in the main Stock field!
+      let finalStock = inputStock;
+      if (colorVariantsTotalStock > 0) {
+        finalStock = colorVariantsTotalStock;
+      } else if (computedTotalStock > 0) {
+        finalStock = computedTotalStock;
+      } else {
+        finalStock = inputStock;
+      }
+
+      // Normalize colorVariants and ensure variant stocks are not left at 0 if user provided main stock
+      let normalizedColorVariants = (colorVariants || []).map((cv) => {
+        let code = cv.colorCode || "";
+        if (!/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code)) {
+          const matched = FABRIC_COLORS.find(
+            (c) => c.name.toLowerCase() === (cv.colorName || code || "").trim().toLowerCase()
+          );
+          if (matched) code = matched.hex;
+        }
+        return {
+          ...cv,
+          stock: Number(cv.stock || 0),
+          colorCode: code || cv.colorCode || "",
+        };
+      });
+
+      if (normalizedColorVariants.length > 0 && colorVariantsTotalStock === 0 && finalStock > 0) {
+        if (normalizedColorVariants.length === 1) {
+          normalizedColorVariants[0].stock = finalStock;
+        } else {
+          const perVar = Math.floor(finalStock / normalizedColorVariants.length);
+          const rem = finalStock % normalizedColorVariants.length;
+          normalizedColorVariants = normalizedColorVariants.map((cv, idx) => ({
+            ...cv,
+            stock: perVar + (idx === 0 ? rem : 0),
+          }));
+        }
+      }
+
       const hasColorVariants = updatedVariants.length > 0;
-      const finalStock = (colorVariants || []).length > 0
-        ? colorVariantsTotalStock
-        : hasColorVariants
-          ? computedTotalStock
-          : Number(data.stock ?? 0);
 
       setTotalStock(finalStock);
       setPrice(calculatedPrice);
       setQuantity(finalStock);
+      setValue("stock", finalStock);
       setBarcode(data.barcode);
       setSku(data.sku);
       setOriginalPrice(data.originalPrice);
@@ -492,9 +533,14 @@ const useProductSubmit = (id) => {
         thumbnail: thumbnailUrl,
         stock: finalStock,
         tag: sanitizeHomepagePlacementTags(tag),
-        colorVariants: colorVariants || [],
+        colorVariants: normalizedColorVariants,
         defaultColorName: data.defaultColorName || "",
-        defaultColorCode: data.defaultColorCode || "",
+        defaultColorCode:
+          data.defaultColorCode && /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(data.defaultColorCode.trim())
+            ? data.defaultColorCode.trim()
+            : (FABRIC_COLORS.find(
+                (c) => c.name.toLowerCase() === (data.defaultColorName || "").trim().toLowerCase()
+              )?.hex || data.defaultColorCode || ""),
 
         gender: data.gender || "",
         productType: data.productType || "",
@@ -816,11 +862,21 @@ const useProductSubmit = (id) => {
             setValue("show", res.show);
             setValue("sku", res.sku);
             setValue("barcode", res.barcode);
-            setValue("stock", res.stock);
+            const loadedCvStock = (res.colorVariants || []).reduce(
+              (sum, cv) => sum + Number(cv.stock || 0),
+              0
+            );
+            const resolvedLoadedStock =
+              Number(res.stock) > 0
+                ? Number(res.stock)
+                : loadedCvStock > 0
+                ? loadedCvStock
+                : (Number(res.stock) || 0);
+
+            setValue("stock", resolvedLoadedStock);
             setValue("productId", res.productId);
             setValue("discount", res?.prices?.discount);
             setValue("originalPrice", res?.prices?.originalPrice);
-            setValue("stock", res.stock);
             setValue("hsnCode", res?.hsnCode || "");
             setValue(
               "taxRate",
@@ -846,7 +902,20 @@ const useProductSubmit = (id) => {
             setSeoImage(res.seoImage || "");
             setValue("status", mapStatusForForm(res.status));
             setValue("lowStockAlert", res.lowStockAlert || 5);
-            setColorVariants(res.colorVariants || []);
+            let loadedColorVariants = res.colorVariants || [];
+            if (loadedColorVariants.length > 0 && loadedCvStock === 0 && Number(res.stock) > 0) {
+              if (loadedColorVariants.length === 1) {
+                loadedColorVariants = [{ ...loadedColorVariants[0], stock: Number(res.stock) }];
+              } else {
+                const perVar = Math.floor(Number(res.stock) / loadedColorVariants.length);
+                const rem = Number(res.stock) % loadedColorVariants.length;
+                loadedColorVariants = loadedColorVariants.map((cv, idx) => ({
+                  ...cv,
+                  stock: perVar + (idx === 0 ? rem : 0),
+                }));
+              }
+            }
+            setColorVariants(loadedColorVariants);
             setValue("defaultColorName", res.defaultColorName || "");
             setValue("defaultColorCode", res.defaultColorCode || "");
 
@@ -903,8 +972,8 @@ const useProductSubmit = (id) => {
                 : normalizedVariants
             );
             setIsCombination(res.isCombination);
-            setQuantity(res?.stock);
-            setTotalStock(res.stock);
+            setQuantity(resolvedLoadedStock);
+            setTotalStock(resolvedLoadedStock);
             setOriginalPrice(res?.prices?.originalPrice);
             setPrice(res?.prices?.price);
             setValue("originalPrice", res?.prices?.originalPrice || 0);
@@ -943,9 +1012,18 @@ const useProductSubmit = (id) => {
   ]);
 
   const watchDefaultColorName = watch("defaultColorName");
+  const watchDefaultColorCode = watch("defaultColorCode");
   useEffect(() => {
-    setValue("defaultColorCode", watchDefaultColorName || "");
-  }, [watchDefaultColorName, setValue]);
+    // Only auto-fill defaultColorCode if not already set to a valid hex
+    if (watchDefaultColorName && (!watchDefaultColorCode || !watchDefaultColorCode.startsWith("#"))) {
+      const match = FABRIC_COLORS.find(
+        (c) => c.name.toLowerCase() === watchDefaultColorName.trim().toLowerCase()
+      );
+      if (match) {
+        setValue("defaultColorCode", match.hex, { shouldValidate: true });
+      }
+    }
+  }, [watchDefaultColorName, watchDefaultColorCode, setValue]);
 
   //for filter related attribute and extras for every product which need to update
   useEffect(() => {

@@ -14,6 +14,7 @@ import ColorVariantManager from "@/components/product/ColorVariantManager";
 import ProductTypePicker from "@/components/product/ProductTypePicker";
 import ProductPreviewCard from "@/components/product/ProductPreviewCard";
 import Loading from "@/components/preloader/Loading";
+import ColorPickerInput from "@/components/common/ColorPickerInput";
 
 const AddProduct = () => {
   const history = useHistory();
@@ -70,6 +71,8 @@ const AddProduct = () => {
   useEffect(() => {
     register("gender", { value: "Women" });
     register("productType", { required: "Product type is required" });
+    register("defaultColorName", { required: "Default color name is required" });
+    register("defaultColorCode");
   }, [register]);
 
   const watchTitle = watch("title");
@@ -154,21 +157,16 @@ const AddProduct = () => {
                     <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
                       Default Color *
                     </label>
-                    <div className="flex items-center gap-2">
-                      {/* Live color swatch derived from defaultColorName */}
-                      <div
-                        title={watch("defaultColorName") || "Color preview"}
-                        style={{
-                          backgroundColor: watch("defaultColorName") || "transparent",
-                          border: "2px solid rgba(128,128,128,0.3)",
-                        }}
-                        className="w-10 h-10 rounded-lg shrink-0 transition-colors duration-300"
-                      />
-                      <Input
-                        {...register("defaultColorName", { required: "Default color name is required" })}
-                        placeholder="e.g. Ruby Red, Mustard"
-                      />
-                    </div>
+                    <ColorPickerInput
+                      colorName={watch("defaultColorName") || ""}
+                      colorCode={watch("defaultColorCode") || ""}
+                      onChange={({ colorName, colorCode }) => {
+                        setValue("defaultColorName", colorName, { shouldValidate: true });
+                        setValue("defaultColorCode", colorCode, { shouldValidate: true });
+                      }}
+                      placeholder="e.g. Rani Pink, Mustard"
+                      required
+                    />
                     <Error errorName={errors.defaultColorName} />
                   </div>
                 </div>
@@ -327,13 +325,18 @@ const AddProduct = () => {
                       type="number"
                       min="0"
                       {...register("stock", {
-                        required: variants?.length ? false : "Stock is required",
+                        required: (variants?.length || colorVariants?.length) ? false : "Stock is required",
                       })}
                     />
                     <Error errorName={errors.stock} />
                     {variants?.length > 0 && (
                       <p className="text-[11px] text-gray-400 mt-1">
-                        Variant total: {variantStockTotal(variants)} units
+                        Option variant total: {variantStockTotal(variants)} units
+                      </p>
+                    )}
+                    {colorVariants?.length > 0 && (
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                        Color variant total: {colorVariants.reduce((sum, cv) => sum + Number(cv.stock || 0), 0)} units across {colorVariants.length} color{colorVariants.length > 1 ? "s" : ""}
                       </p>
                     )}
                   </div>
@@ -409,7 +412,11 @@ const AddProduct = () => {
 
               {/* Color Variants */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">
-                <ColorVariantManager colorVariants={colorVariants} setColorVariants={setColorVariants} />
+                <ColorVariantManager
+                  colorVariants={colorVariants}
+                  setColorVariants={setColorVariants}
+                  onStockChange={(total) => setValue("stock", total, { shouldValidate: true })}
+                />
               </section>
 
               <div className="flex justify-end">

@@ -3,6 +3,7 @@ import { FiMinus, FiPlus } from "react-icons/fi";
 import ProductImageGallery from "@components/product/ProductImageGallery";
 import Price from "@components/common/Price";
 import VariantList from "@components/variants/VariantList";
+import { resolveColorHex } from "@utils/resolveColorHex";
 
 const AishaProductHero = ({
   product,
@@ -99,8 +100,8 @@ const AishaProductHero = ({
                     title={colorVar.colorName}
                   >
                     <span
-                      className="w-7 h-7 rounded-full block border border-neutral-200/50"
-                      style={{ backgroundColor: colorVar.colorCode || "#000000" }}
+                      className="w-7 h-7 rounded-full block border border-neutral-200/50 shadow-xs"
+                      style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
                     />
                   </button>
                 );

@@ -3,6 +3,7 @@ import { Button, Input } from "@windmill/react-ui";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 import Uploader from "@/components/image-uploader/Uploader";
+import ColorPickerInput from "@/components/common/ColorPickerInput";
 
 const emptyRow = () => ({
   color: "",
@@ -85,10 +86,17 @@ const SimpleVariantManager = ({ variants = [], setVariants }) => {
                   <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
                     Color
                   </label>
-                  <Input
-                    value={row.color || ""}
-                    onChange={(e) => updateRow(index, "color", e.target.value)}
-                    placeholder="e.g. Red, Ivory"
+                  <ColorPickerInput
+                    colorName={row.color || ""}
+                    colorCode={row.colorCode || ""}
+                    onChange={({ colorName, colorCode }) => {
+                      setVariants(
+                        rows.map((r, i) =>
+                          i === index ? { ...r, color: colorName, colorCode: colorCode } : r
+                        )
+                      );
+                    }}
+                    placeholder="e.g. Rani Pink, Mustard"
                   />
                 </div>
                 <div>

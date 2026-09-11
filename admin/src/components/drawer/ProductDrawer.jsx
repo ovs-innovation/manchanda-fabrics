@@ -2315,6 +2315,7 @@ const ProductDrawer = ({ id }) => {
               <ColorVariantManager
                 colorVariants={colorVariants}
                 setColorVariants={setColorVariants}
+                onStockChange={(total) => setValue("stock", total, { shouldValidate: true })}
               />
             </div>
           )}

@@ -421,8 +421,11 @@ const addProduct = async (req, res) => {
 
     const taxFields = normalizeTaxPayload(req.body);
 
+    const stockVal = typeof req.body.stock === "number" ? req.body.stock : Number(req.body.stock || 0);
+
     const payload = {
       ...req.body,
+      stock: stockVal,
       ...taxFields,
       status: normalizeProductStatus(req.body.status),
       dynamicSections: sanitizeDynamicSections(req.body.dynamicSections),
@@ -437,6 +440,21 @@ const addProduct = async (req, res) => {
         ? req.body.productId
         : mongoose.Types.ObjectId(),
     };
+
+    if (Array.isArray(payload.colorVariants) && payload.colorVariants.length > 0) {
+      const cvTotal = payload.colorVariants.reduce((sum, cv) => sum + Number(cv.stock || 0), 0);
+      if (cvTotal === 0 && stockVal > 0) {
+        if (payload.colorVariants.length === 1) {
+          payload.colorVariants[0].stock = stockVal;
+        } else {
+          const perVar = Math.floor(stockVal / payload.colorVariants.length);
+          const rem = stockVal % payload.colorVariants.length;
+          payload.colorVariants.forEach((cv, idx) => {
+            cv.stock = perVar + (idx === 0 ? rem : 0);
+          });
+        }
+      }
+    }
 
     const newProduct = new Product(payload);
 
@@ -491,7 +509,14 @@ const getAllProducts = async (req, res) => {
     const titleQueries = languageCodes.map((lang) => ({
       [`title.${lang}`]: { $regex: `${title}`, $options: "i" },
     }));
-    queryObject.$or = titleQueries;
+    queryObject.$or = [
+      ...titleQueries,
+      { sku: { $regex: `${title}`, $options: "i" } },
+      { defaultColorName: { $regex: `${title}`, $options: "i" } },
+      { colorFamily: { $regex: `${title}`, $options: "i" } },
+      { "colorVariants.colorName": { $regex: `${title}`, $options: "i" } },
+      { "variants.color": { $regex: `${title}`, $options: "i" } },
+    ];
   }
 
   if (price === "low") {
@@ -631,7 +656,23 @@ const updateProduct = async (req, res) => {
       product.colorVariants = req.body.colorVariants;
       product.defaultColorName = req.body.defaultColorName;
       product.defaultColorCode = req.body.defaultColorCode;
-      product.stock = req.body.stock;
+      const updatedStockVal = typeof req.body.stock === "number" ? req.body.stock : Number(req.body.stock || 0);
+      product.stock = updatedStockVal;
+
+      if (Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+        const cvStockTotal = product.colorVariants.reduce((sum, cv) => sum + Number(cv.stock || 0), 0);
+        if (cvStockTotal === 0 && updatedStockVal > 0) {
+          if (product.colorVariants.length === 1) {
+            product.colorVariants[0].stock = updatedStockVal;
+          } else {
+            const perVar = Math.floor(updatedStockVal / product.colorVariants.length);
+            const rem = updatedStockVal % product.colorVariants.length;
+            product.colorVariants.forEach((cv, idx) => {
+              cv.stock = perVar + (idx === 0 ? rem : 0);
+            });
+          }
+        }
+      }
       product.prices = req.body.prices;
       product.image = req.body.image;
       product.tag = req.body.tag;
@@ -885,7 +926,14 @@ const getShowingStoreProducts = async (req, res) => {
       }).select("_id");
 
       // Build $or query for products
-      const orConditions = [...titleQueries];
+      const orConditions = [
+        ...titleQueries,
+        { defaultColorName: { $regex: `${title}`, $options: "i" } },
+        { colorFamily: { $regex: `${title}`, $options: "i" } },
+        { "colorVariants.colorName": { $regex: `${title}`, $options: "i" } },
+        { "variants.color": { $regex: `${title}`, $options: "i" } },
+        { sku: { $regex: `${title}`, $options: "i" } },
+      ];
 
       // Add brand filter if matching brands found
       if (matchingBrands.length > 0) {
