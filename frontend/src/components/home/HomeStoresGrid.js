@@ -82,7 +82,7 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
 
                 <div className="mt-3.5 text-[12px] tracking-wide text-white/70 font-light leading-relaxed">
                   <p className="text-[#C8A45D] font-semibold uppercase tracking-[0.1em] mb-0.5">{t("Open Daily")}</p>
-                  <p className="text-white/80">11:30 AM – 8:00 PM</p>
+                  <p className="text-white/80">11:30 AM – 8:30 PM</p>
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-4">

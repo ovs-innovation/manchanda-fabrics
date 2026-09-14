@@ -87,9 +87,9 @@ export default function ContactUs() {
   const [inBusinessHours, setInBusinessHours] = React.useState(true);
 
   React.useEffect(() => {
-    setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:00 PM"));
+    setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:30 PM"));
     const interval = setInterval(() => {
-      setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:00 PM"));
+      setInBusinessHours(isWithinBusinessHours(vs.businessHours || "11:30 AM – 8:30 PM"));
     }, 60000);
     return () => clearInterval(interval);
   }, [vs.businessHours]);
@@ -169,7 +169,7 @@ export default function ContactUs() {
     {
       icon: <FiClock className="text-2xl" />,
       title: t("Store Hours"),
-      value: t("Mon – Sat: 11 AM – 8 PM"),
+      value: t("Mon – Sat: 11:30 AM – 8:30 PM"),
       sub: t("Sunday: Closed"),
       href: null,
       breakAll: false,
@@ -386,7 +386,7 @@ export default function ContactUs() {
                       {vs.title ? t(vs.title) : t("Live Video Shopping")}
                     </h3>
                     <p className="text-[#3B2A25]/55 text-sm">
-                      {t("Business Hours")}: {vs.businessHours || "11:30 AM – 8:00 PM"}
+                      {t("Business Hours")}: {vs.businessHours || "11:30 AM – 8:30 PM"}
                     </p>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function ContactUs() {
                 ) : (
                   <>
                     <p className="text-base leading-relaxed text-[#3B2A25]/75">
-                      {t("Live Video Shopping is available from")} {vs.businessHours || "11:30 AM to 8:00 PM"}. {t("Please leave us a message on WhatsApp and our team will contact you during business hours.")}
+                      {t("Live Video Shopping is available from")} {vs.businessHours || "11:30 AM to 8:30 PM"}. {t("Please leave us a message on WhatsApp and our team will contact you during business hours.")}
                     </p>
                     {videoShoppingWhatsappUrl ? (
                       <a
@@ -463,13 +463,13 @@ export default function ContactUs() {
             <div className="rounded-2xl border border-[#E6D1CB] bg-[#FAF7F5] p-10 lg:p-12" style={{ fontFamily: "'Poppins', sans-serif" }}>
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#9C6A5A] mb-6">{t("Follow Us")}</h3>
               <div className="flex flex-col gap-4">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.instagram.com/manchanda.fabrics/" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 bg-white border border-[#E6D1CB] rounded-xl hover:border-[#9C6A5A]/50 hover:shadow-md transition-all group">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shrink-0">
                     <FaInstagram className="text-white text-lg" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors">@manchandafabrics</p>
+                    <p className="text-sm font-bold text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors">@manchanda.fabrics</p>
                     <p className="text-xs text-[#3B2A25]/50 mt-0.5">{t("Daily ethnic inspirations")}</p>
                   </div>
                 </a>

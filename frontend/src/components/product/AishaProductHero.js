@@ -197,11 +197,7 @@ const AishaProductHero = ({
           </p>
           <p>
             <span className="font-medium text-[#111111]">Shipping:</span>{" "}
-            {product?.isShippingFree || Number(product?.shippingCost || 0) === 0 ? (
-              <span className="text-emerald-700 font-semibold">Free Shipping</span>
-            ) : (
-              <span>{currency}{product?.shippingCost}</span>
-            )}
+            <span className="text-neutral-700">Calculated at checkout</span>
           </p>
           {categoryName && (
             <p>

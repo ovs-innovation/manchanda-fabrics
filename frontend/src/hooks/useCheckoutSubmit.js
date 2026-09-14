@@ -23,6 +23,7 @@ import ProductServices from "@services/ProductServices";
 import useCartDB from "@hooks/useCartDB";
 import { isUsableImageUrl } from "@utils/brandAssets";
 import { normalizeCartItemPricing } from "@utils/invoicePricing";
+import { calculateShipping, isDelhiLocation, hasAddressInfo } from "@utils/shippingRules";
 
 const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
@@ -33,7 +34,8 @@ const useCheckoutSubmit = (storeSetting) => {
   const [couponInfo, setCouponInfo] = useState({});
   const [minimumAmount, setMinimumAmount] = useState(0);
   const [showCard, setShowCard] = useState(false);
-  const [shippingCost, setShippingCost] = useState(49);
+  const [shippingCost, setShippingCost] = useState(null);
+  const [isShippingCalculated, setIsShippingCalculated] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [taxSummary, setTaxSummary] = useState({
@@ -84,6 +86,11 @@ const useCheckoutSubmit = (storeSetting) => {
     watch,
     formState: { errors },
   } = useForm();
+
+  const watchState = watch("state");
+  const watchCity = watch("city");
+  const watchZipCode = watch("zipCode");
+  const watchAddress = watch("address");
 
   useEffect(() => {
     if (Cookies.get("couponInfo")) {
@@ -196,31 +203,33 @@ const useCheckoutSubmit = (storeSetting) => {
       nextTaxSummary.inclusiveTax + nextTaxSummary.exclusiveTax;
     setTaxSummary(nextTaxSummary);
 
-    const calculatedShipping = items?.reduce((acc, item) => {
-      const dbId = item._id || item.productId || (typeof item.id === 'string' ? item.id.split('-')[0] : item.id);
-      const liveProduct = storeProducts?.find(
-        (p) => String(p._id) === String(dbId) || String(p.id) === String(dbId) || String(p.productId) === String(dbId)
-      );
+    const totalQuantity = items?.reduce(
+      (sum, item) => sum + (Number(item.quantity) || 1),
+      0
+    ) || 0;
 
-      const isFree = liveProduct ? Boolean(liveProduct.isShippingFree) : Boolean(item.isShippingFree);
-      const cost = liveProduct && liveProduct.shippingCost !== undefined
-        ? Number(liveProduct.shippingCost || 0)
-        : (item.shippingCost !== undefined ? Number(item.shippingCost || 0) : 0);
+    const destination = {
+      state: watchState,
+      city: watchCity,
+      zipCode: watchZipCode,
+      address: watchAddress,
+    };
 
-      if (isFree) {
-        return acc;
-      }
-      if (cost > 0) {
-        return acc + cost;
-      }
-      return acc;
-    }, 0) ?? 0;
+    const calculatedShipping = calculateShipping(totalQuantity, destination, true);
 
-    setShippingCost(calculatedShipping);
+    if (calculatedShipping !== null) {
+      setShippingCost(calculatedShipping);
+      setIsShippingCalculated(true);
+    } else {
+      setShippingCost(null);
+      setIsShippingCalculated(false);
+    }
+
+    const effectiveShipping = calculatedShipping !== null ? calculatedShipping : 0;
 
     let totalValue = 0;
     const subTotal = parseFloat(
-      cartTotal + calculatedShipping + nextTaxSummary.exclusiveTax
+      cartTotal + effectiveShipping + nextTaxSummary.exclusiveTax
     ).toFixed(2);
 
     let calculatedDiscountAmount = 0;
@@ -236,7 +245,7 @@ const useCheckoutSubmit = (storeSetting) => {
 
     setDiscountAmount(discountAmountTotal);
     setTotal(totalValue);
-  }, [items, cartTotal, discountPercentage, storeProducts]);
+  }, [items, cartTotal, discountPercentage, watchState, watchCity, watchZipCode, watchAddress]);
 
   const submitHandler = async (data) => {
     try {
@@ -315,6 +324,21 @@ const useCheckoutSubmit = (storeSetting) => {
         // but for now, we proceed if it's not a stock error
       }
 
+      const totalQuantity = items?.reduce(
+        (sum, item) => sum + (Number(item.quantity) || 1),
+        0
+      ) || 0;
+
+      const finalShippingCost =
+        shippingCost !== null
+          ? shippingCost
+          : (calculateShipping(totalQuantity, data, false) ?? 80);
+
+      const finalTotal = Math.max(
+        0,
+        parseFloat(cartTotal + finalShippingCost + (taxSummary?.exclusiveTax || 0) - discountAmount).toFixed(2)
+      );
+
       let orderInfo = {
         user_info: userDetails,
         shippingOption: data.shippingOption,
@@ -322,14 +346,14 @@ const useCheckoutSubmit = (storeSetting) => {
         status: "Pending",
         cart: items.map((item) => normalizeCartItemPricing(item)),
         subTotal: cartTotal,
-        shippingCost: shippingCost,
+        shippingCost: finalShippingCost,
         discount: discountAmount,
         coupon: couponInfo?.couponCode ? {
           couponCode: couponInfo.couponCode,
           discountAmount: discountAmount,
         } : null,
         taxSummary,
-        total: total,
+        total: Number(finalTotal),
       };
 
       if (userInfo?.id) {
@@ -859,6 +883,7 @@ const useCheckoutSubmit = (storeSetting) => {
     discountPercentage,
     discountAmount,
     shippingCost,
+    isShippingCalculated,
     isCheckoutSubmit,
     isCouponApplied,
     useExistingAddress,

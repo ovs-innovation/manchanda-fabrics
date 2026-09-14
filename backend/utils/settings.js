@@ -869,7 +869,7 @@ const setting = [
         block4_email: "ccruidk@test.com",
         social_facebook: "https://www.facebook.com/",
         social_twitter: "https://twitter.com/",
-        social_instagram: "https://www.instagram.com/",
+        social_instagram: "https://www.instagram.com/manchanda.fabrics/",
         social_linkedin: "https://www.linkedin.com/",
         social_whatsapp: "919650544554",
         payment_method_img:

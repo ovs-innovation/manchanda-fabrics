@@ -57,7 +57,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
   return (
     <div
       id="hero-section"
-      className="relative w-full h-[70vh] min-h-[450px] max-h-[650px] md:h-screen md:min-h-[600px] md:max-h-none bg-[#111111] overflow-hidden flex items-center justify-center"
+      className="relative w-full h-[50vh] min-h-[350px] max-h-[440px] sm:h-[58vh] sm:min-h-[420px] sm:max-h-[520px] md:h-[75vh] md:min-h-[520px] md:max-h-[700px] lg:h-[80vh] lg:max-h-[760px] bg-[#111111] overflow-hidden flex items-center justify-center"
     >
       {/* ── 1. DESKTOP VIDEO (Hidden on mobile, block on md+) ── */}
       <video
@@ -106,7 +106,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.12 }}
-          className="mt-3 xs:mt-4 md:mt-6 text-[1.75rem] xs:text-[2.1rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] font-normal leading-[1.18] tracking-[0.03em] drop-shadow-md"
+          className="mt-2 xs:mt-3 md:mt-6 text-[1.6rem] xs:text-[1.95rem] sm:text-4xl md:text-5xl lg:text-[3.25rem] font-normal leading-[1.18] tracking-[0.03em] drop-shadow-md"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           {t(brandText)}
@@ -117,7 +117,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.25 }}
-            className="mt-2.5 xs:mt-3 md:mt-4 text-[12px] xs:text-sm md:text-[15px] font-light tracking-[0.12em] md:tracking-[0.14em] text-white/80 max-w-[280px] xs:max-w-md mx-auto"
+            className="mt-1.5 xs:mt-2.5 md:mt-4 text-[11px] xs:text-sm md:text-[15px] font-light tracking-[0.12em] md:tracking-[0.14em] text-white/80 max-w-[280px] xs:max-w-md mx-auto"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             {t(homepage.heroTagline)}
@@ -128,11 +128,11 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: "easeOut", delay: 0.38 }}
-          className="mt-6 xs:mt-7 md:mt-10"
+          className="mt-4 xs:mt-5 md:mt-8"
         >
           <Link
             href={homepage.heroCtaLink || "/search"}
-            className="inline-flex items-center justify-center min-w-[200px] xs:min-w-[220px] px-6 xs:px-8 py-2.5 xs:py-3 border border-white/90 text-white text-[10px] xs:text-[11px] md:text-xs font-normal uppercase tracking-[0.2em] md:tracking-[0.22em] hover:bg-white hover:text-[#111111] transition-all duration-300 shadow-sm"
+            className="inline-flex items-center justify-center min-w-[190px] xs:min-w-[210px] px-5 xs:px-7 md:px-8 py-2 xs:py-2.5 md:py-3 border border-white/90 text-white text-[10px] xs:text-[11px] md:text-xs font-normal uppercase tracking-[0.2em] md:tracking-[0.22em] hover:bg-white hover:text-[#111111] transition-all duration-300 shadow-sm"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             {t(homepage.heroCtaText) || t("Explore Latest Collections")}

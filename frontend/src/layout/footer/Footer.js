@@ -94,9 +94,12 @@ const Footer = () => {
     quickLinks.unshift({ title: "About Us", href: "/about-us" });
   }
   const specialCollection = footer.specialCollection || [];
-  const storeHours = footer.hours?.trim() || "";
+  const rawStoreHours = footer.hours?.trim() || "Mon – Sat · 11:30 AM – 8:30 PM (Sun closed)";
+  const storeHours = rawStoreHours
+    .replace(/11:00\s*AM|11\s*AM/gi, "11:30 AM")
+    .replace(/8:00\s*PM|8\s*PM/gi, "8:30 PM");
   const brandStory = footer.brandStory || "";
-  const instagramUrl = footer.instagram || "";
+  const instagramUrl = footer.instagram || "https://www.instagram.com/manchanda.fabrics/";
   const facebookUrl = footer.facebook || "";
   const whatsappNumber = String(footer.whatsapp || "").replace(/\D/g, "");
   const copyrightName = footer.copyrightName || "VastoraTech";
@@ -194,12 +197,12 @@ const Footer = () => {
                 <span>
                   <span className="font-semibold text-[#111111]">{t("Follow Us")}:</span>{" "}
                   <a
-                    href="https://www.instagram.com/manchandafabrics"
+                    href={instagramUrl || "https://www.instagram.com/manchanda.fabrics/"}
                     target="_blank"
                     rel="noreferrer"
                     className="hover:text-[#B0322F] underline-offset-2 hover:underline transition-colors"
                   >
-                    @manchandafabrics
+                    @manchanda.fabrics
                   </a>
                 </span>
               </p>

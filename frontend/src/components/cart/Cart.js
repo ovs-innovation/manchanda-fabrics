@@ -9,6 +9,7 @@ import CartItem from "@components/cart/CartItem";
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useGetSetting from "@hooks/useGetSetting";
+import { calculateShipping, isDelhiLocation, INDIAN_STATES } from "@utils/shippingRules";
 
 const Cart = () => {
   const { t } = useTranslation("common");
@@ -27,11 +28,32 @@ const Cart = () => {
   const [shipCountry, setShipCountry] = useState("India");
   const [shipProvince, setShipProvince] = useState("");
   const [shipZip, setShipZip] = useState("");
+  const [shippingEstimate, setShippingEstimate] = useState(null);
+  const [shippingError, setShippingError] = useState("");
+
+  const totalQuantity = useMemo(() => {
+    return items?.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0) || 0;
+  }, [items]);
+
+  const handleCalculateShipping = () => {
+    if (!shipProvince && !shipZip) {
+      setShippingError(t("Please select a State or enter a PIN code"));
+      return;
+    }
+    setShippingError("");
+    const dest = { state: shipProvince, zipCode: shipZip };
+    const cost = calculateShipping(totalQuantity, dest, false);
+    const isDelhi = isDelhiLocation(dest);
+    setShippingEstimate({ cost, isDelhi });
+    try {
+      sessionStorage.setItem("manchanda_shipping_estimate", JSON.stringify({ state: shipProvince, zipCode: shipZip, cost, isDelhi }));
+    } catch (e) {}
+  };
 
   const formattedTotal = useMemo(() => {
-    const n = Number(cartTotal || 0);
+    const n = Number(cartTotal || 0) + (shippingEstimate?.cost || 0);
     return formatPrice(n);
-  }, [cartTotal, formatPrice]);
+  }, [cartTotal, shippingEstimate, formatPrice]);
 
   const handleCheckout = () => {
     if (items?.length <= 0) {
@@ -163,35 +185,67 @@ const Cart = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input
                     value={shipCountry}
-                    onChange={(e) => setShipCountry(e.target.value)}
+                    readOnly
                     placeholder={t("Country")}
-                    className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
+                    className="border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm outline-none text-neutral-600 cursor-not-allowed"
                   />
-                  <input
+                  <select
                     value={shipProvince}
-                    onChange={(e) => setShipProvince(e.target.value)}
-                    placeholder={t("State")}
-                    className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
-                  />
+                    onChange={(e) => {
+                      setShipProvince(e.target.value);
+                      setShippingError("");
+                      setShippingEstimate(null);
+                    }}
+                    className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111] cursor-pointer"
+                  >
+                    <option value="">{t("Select State *")}</option>
+                    {INDIAN_STATES.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <input
                   value={shipZip}
-                  onChange={(e) => setShipZip(e.target.value)}
-                  placeholder={t("PIN code")}
+                  maxLength={6}
+                  onChange={(e) => {
+                    setShipZip(e.target.value.replace(/\D/g, ""));
+                    setShippingError("");
+                    setShippingEstimate(null);
+                  }}
+                  placeholder={t("PIN code (e.g. 110006)")}
                   className="border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#111111]"
                 />
                 <button
                   type="button"
-                  className="w-full px-4 py-3 border border-neutral-200 text-xs font-bold uppercase tracking-[0.22em] hover:border-[#111111] hover:text-[#111111] transition-colors"
+                  className="w-full px-4 py-2.5 bg-[#111111] text-white text-xs font-bold uppercase tracking-[0.22em] hover:bg-[#333333] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
-                  onClick={() => {
-                    setShippingOpen(false);
-                  }}
+                  onClick={handleCalculateShipping}
                 >
                   {t("Calculate shipping")}
                 </button>
-                <p className="text-xs text-neutral-500">
-                  {t("Taxes and shipping calculated at checkout")}
+
+                {shippingError && (
+                  <p className="text-xs text-red-600">{shippingError}</p>
+                )}
+
+                {shippingEstimate && (
+                  <div className="p-3 bg-[#FAF7F5] rounded border border-[#E6D1CB] text-xs">
+                    <div className="flex justify-between font-bold text-[#111111]">
+                      <span>
+                        {shippingEstimate.isDelhi ? t("Delhi Delivery") : t("Out of Delhi Delivery")}
+                      </span>
+                      <span>{currency}{shippingEstimate.cost}</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-500 mt-1">
+                      {totalQuantity} {totalQuantity === 1 ? t("item") : t("items")} · {t("Shipping added to total")}
+                    </p>
+                  </div>
+                )}
+
+                <p className="text-[11px] text-neutral-400">
+                  {t("Taxes and exact shipping verified at checkout")}
                 </p>
               </div>
             )}

@@ -21,46 +21,8 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { INDIAN_STATES, isDelhiLocation } from "@utils/shippingRules";
 import { getDisplayEmail } from "@utils/profileAuth";
-
-const INDIAN_STATES = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Andaman and Nicobar Islands",
-  "Chandigarh",
-  "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi",
-  "Jammu and Kashmir",
-  "Ladakh",
-  "Lakshadweep",
-  "Puducherry"
-];
 
 const Checkout = () => {
   const { t } = useTranslation("common");
@@ -111,6 +73,7 @@ const Checkout = () => {
     submitHandler,
     discountAmount,
     shippingCost,
+    isShippingCalculated,
     isCheckoutSubmit,
     taxSummary,
     setValue,
@@ -829,9 +792,24 @@ const Checkout = () => {
                   {/* Shipping */}
                   <div className="flex justify-between text-gray-700 font-medium">
                     <span>{t("Shipping")}</span>
-                    <span className={shippingCost === 0 ? "text-emerald-700 font-bold uppercase text-xs" : ""}>
-                      {shippingCost === 0 ? t("FREE") : `${currency}${formatPrice(shippingCost)}`}
-                    </span>
+                    {shippingCost === null || !isShippingCalculated ? (
+                      <span className="text-xs text-amber-800 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded font-normal">
+                        {t("Calculated at address")}
+                      </span>
+                    ) : shippingCost === 0 ? (
+                      <span className="text-emerald-700 font-bold uppercase text-xs">
+                        {t("FREE")}
+                      </span>
+                    ) : (
+                      <div className="text-right">
+                        <span>{currency}{formatPrice(shippingCost)}</span>
+                        <p className="text-[10px] text-gray-400 font-normal">
+                          {isDelhiLocation({ state: watch("state"), city: watch("city"), zipCode: watchZipCode })
+                            ? t("Delhi Delivery")
+                            : t("Standard Delivery")}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Coupon Discount */}
@@ -861,7 +839,11 @@ const Checkout = () => {
                 <div className="pt-5 flex items-baseline justify-between">
                   <div>
                     <span className="text-base font-bold text-gray-900 block">{t("Total")}</span>
-                    <span className="text-xs text-gray-500">{t("Including taxes")}</span>
+                    <span className="text-xs text-gray-500">
+                      {shippingCost === null || !isShippingCalculated
+                        ? t("Excludes shipping (calculated at address)")
+                        : t("Including taxes & shipping")}
+                    </span>
                   </div>
                   <div className="text-right">
                     <span className="text-xs font-semibold text-gray-500 mr-1.5 uppercase">INR</span>

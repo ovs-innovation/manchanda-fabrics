@@ -34,7 +34,7 @@ const InstagramFeed = () => {
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <FaInstagram className="w-3.5 h-3.5" />
-            @manchandafabrics
+            @manchanda.fabrics
           </span>
           <h2
             className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-extrabold uppercase tracking-tight text-[#111111] mb-5"
@@ -50,7 +50,7 @@ const InstagramFeed = () => {
             {t("Follow our latest ethnic fashion inspiration.")}
           </p>
           <a
-            href="https://instagram.com/manchandafabrics"
+            href="https://www.instagram.com/manchanda.fabrics/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#111111] text-[#111111] text-[11px] font-semibold uppercase tracking-[0.18em] hover:bg-[#111111] hover:text-white transition-all duration-300 rounded-full mb-4"
@@ -116,7 +116,7 @@ const InstagramFeed = () => {
                       {reel.title}
                     </h3>
                     <a
-                      href="https://instagram.com/manchandafabrics"
+                      href="https://www.instagram.com/manchanda.fabrics/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center text-sm md:text-[10px] font-semibold uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#111111] bg-white/10 hover:bg-[#111111] hover:text-white transition-all duration-300 border border-[#111111] px-5 py-3 md:px-4 md:py-2 rounded-lg md:rounded-md"

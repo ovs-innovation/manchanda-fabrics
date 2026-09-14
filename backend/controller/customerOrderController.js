@@ -25,6 +25,7 @@ const {
 const { newOrderAdminEmailBody } = require("../lib/email-sender/templates/order-to-admin/new-order");
 const { sendSMS } = require("../lib/sms-sender/sender");
 const { populateCartTaxFields } = require("../utils/cartTaxUtils");
+const { calculateShipping } = require("../utils/shippingRules");
 
 const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 const isPlaceholderEmail = (email) =>
@@ -255,8 +256,15 @@ const addOrder = async (req, res) => {
 
     const cartWithTax = await populateCartTaxFields(req.body.cart || []);
 
+    let shippingCost = req.body.shippingCost;
+    if (shippingCost == null || isNaN(shippingCost)) {
+      const totalQty = (req.body.cart || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+      shippingCost = calculateShipping(totalQty, req.body.user_info || {});
+    }
+
     const newOrder = new Order({
       ...req.body,
+      shippingCost: Number(shippingCost || 0),
       cart: cartWithTax,
       user: req.user?._id || null,
     });
@@ -757,10 +765,17 @@ const createPhonePeOrder = async (req, res) => {
     }
 
     const orderData = req.body;
+    let shippingCost = orderData.shippingCost;
+    if (shippingCost == null || isNaN(shippingCost)) {
+      const totalQty = (orderData.cart || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+      shippingCost = calculateShipping(totalQty, orderData.user_info || {});
+    }
+
     const merchantTransactionId = `MT${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
     const newOrder = new Order({
       ...orderData,
+      shippingCost: Number(shippingCost || 0),
       status: "Pending",
       paymentMethod: "PhonePe",
       paymentDetails: {
