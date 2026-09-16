@@ -127,6 +127,17 @@ const OrderActions = ({ order }) => {
             <span>Download Invoice</span>
           </Link>
           <Link
+            to={`/order/${order._id}?view=label`}
+            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between text-gray-700 dark:text-gray-300 no-underline"
+            style={{ textDecoration: "none" }}
+            onClick={() => setOpen(false)}
+          >
+            <span>Box Label (4x6)</span>
+            <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">
+              Thermal
+            </span>
+          </Link>
+          <Link
             to={`/order/${order._id}`}
             className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 block text-gray-700 dark:text-gray-300"
             onClick={() => setOpen(false)}
