@@ -15,6 +15,7 @@ import {
   LogOut,
   ChevronDown,
   UserCheck,
+  Heart,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
@@ -30,6 +31,7 @@ import MobileMenu from "@components/navbar/MobileMenu";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 import useTranslation from "next-translate/useTranslation";
 import useGetSetting from "@hooks/useGetSetting";
+import useWishlist from "@hooks/useWishlist";
 import { pickBrandLogo } from "@utils/brandAssets";
 
 const Navbar = () => {
@@ -37,6 +39,7 @@ const Navbar = () => {
   const { t } = useTranslation("common");
   const { toggleCartDrawer } = useContext(SidebarContext);
   const { totalUniqueItems } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const { state: userState, dispatch } = useContext(UserContext);
 
@@ -142,6 +145,29 @@ const Navbar = () => {
             <Search size={20} strokeWidth={1.75} />
           </Link>
 
+          {/* Wishlist Link with live heart badge */}
+          <Link
+            href="/wishlist"
+            className="relative p-1 hover:text-[#B0322F] transition-colors flex items-center group"
+            aria-label={t("Wishlist")}
+            title={t("Wishlist")}
+          >
+            <Heart
+              size={20}
+              strokeWidth={1.75}
+              className={`transition-all duration-200 group-hover:scale-110 ${
+                mounted && wishlistCount > 0
+                  ? "text-[#B0322F] fill-[#B0322F]"
+                  : "text-[#111111] group-hover:text-[#B0322F]"
+              }`}
+            />
+            {mounted && wishlistCount > 0 && (
+              <span className="absolute -top-1.5 -right-2 min-w-[17px] h-[17px] px-1 text-[9px] font-bold text-white bg-[#B0322F] rounded-full flex items-center justify-center shadow-xs">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
           {/* User Profile / Login Dropdown */}
           {mounted && userInfo ? (
             <div className="relative" ref={dropdownRef}>
@@ -171,9 +197,8 @@ const Navbar = () => {
                 </span>
                 <ChevronDown
                   size={14}
-                  className={`text-neutral-500 transition-transform duration-200 ${
-                    dropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`text-neutral-500 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -202,6 +227,15 @@ const Navbar = () => {
                     >
                       <Package size={16} className="text-neutral-500" />
                       <span>{t("My Orders")}</span>
+                    </Link>
+
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-5 py-2.5 text-xs uppercase tracking-wider font-medium text-neutral-700 hover:text-[#111111] hover:bg-neutral-50 transition-colors"
+                    >
+                      <Heart size={16} className="text-neutral-500" />
+                      <span>{t("Wishlist")}</span>
                     </Link>
 
                     <Link

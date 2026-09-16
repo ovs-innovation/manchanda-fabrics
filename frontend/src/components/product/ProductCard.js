@@ -205,6 +205,27 @@ const ProductCard = ({
             </span>
           )}
 
+          {/* Wishlist Heart Button (Top-Right) */}
+          {!hideWishlistCompare && (
+            <button
+              type="button"
+              onClick={handleAddToWishlist}
+              title={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
+              aria-label={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
+              className={`absolute right-2.5 top-2.5 sm:right-3 sm:top-3 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full shadow-md flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer border border-black/5 ${
+                wishlistActive
+                  ? "bg-[#B0322F] text-white hover:bg-[#8e2825]"
+                  : "bg-white/90 backdrop-blur-xs text-neutral-700 hover:bg-white hover:text-[#B0322F]"
+              }`}
+            >
+              <FiHeart
+                className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors ${
+                  wishlistActive ? "fill-white text-white" : "text-neutral-700 hover:text-[#B0322F]"
+                }`}
+              />
+            </button>
+          )}
+
           {/* Product Image */}
           {primaryImg ? (
             <div className="w-full h-full relative">

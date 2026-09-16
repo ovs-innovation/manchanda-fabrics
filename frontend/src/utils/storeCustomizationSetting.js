@@ -847,8 +847,9 @@ export const storeCustomization = {
       de: "Lieferung nach Hause innerhalb von 1 Stunde",
     },
     card_description_three: {
-      en: "Cash on Delivery Available",
-      de: "Lieferung per Nachnahme möglich",
+      en: "Secure Online Payment via PhonePe & UPI",
+      hi: "फ़ोनपे और यूपीआई से सुरक्षित ऑनलाइन भुगतान",
+      de: "Sichere Online-Zahlung über PhonePe & UPI",
     },
     card_description_four: {
       en: "7 Days returns money back guarantee",

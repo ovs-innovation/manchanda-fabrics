@@ -24,10 +24,10 @@ const PaymentSettings = () => {
   
   // Local state for UI interaction
   const [paymentOptions, setPaymentOptions] = useState({
-    cashOnDelivery: true,
+    cashOnDelivery: false,
     digitalPayment: true,
     combinedPayment: true,
-    remainingCOD: true,
+    remainingCOD: false,
     remainingDigital: true,
   });
 
@@ -37,7 +37,7 @@ const PaymentSettings = () => {
         const res = await SettingServices.getStoreSetting();
         if (res) {
           setPaymentOptions({
-            cashOnDelivery: res.cod_status !== undefined ? Boolean(res.cod_status) : true,
+            cashOnDelivery: Boolean(res.cod_status),
             digitalPayment: res.digital_payment_status != null
               ? Boolean(res.digital_payment_status)
               : (res.phonepe_status != null

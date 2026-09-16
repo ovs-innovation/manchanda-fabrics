@@ -380,34 +380,17 @@ const useCheckoutSubmit = (storeSetting) => {
           await handlePaymentWithPhonePe(orderInfo);
           break;
         case "RazorPay":
-          notifyError("Razorpay is not supported. Please use PhonePe or COD.");
+          notifyError("Razorpay is not supported. Please pay online via PhonePe.");
           setIsCheckoutSubmit(false);
           return;
-        case "Card":
-        case "UPI":
-          // User requested that visual card/UPI fields show and order is successfully placed
-          orderInfo.paymentMethod = data.paymentMethod;
-          orderInfo.cardInfo = {
-            cardNumber: data.cardNumber || "",
-            cardExpiry: data.cardExpiry || "",
-            cardCVC: data.cardCVC || "",
-            cardName: data.cardName || "",
-            upiId: data.upiId || ""
-          };
-          orderInfo.status = "Order Placed";
-          await handleCashPayment(orderInfo);
-          break;
         case "Cash":
-          if (storeSetting?.cod_status === false) {
-            notifyError("Cash on Delivery is currently unavailable.");
-            setIsCheckoutSubmit(false);
-            return;
-          }
-          await handleCashPayment(orderInfo);
-          break;
-        default:
-          notifyError("Invalid payment method selected.");
+        case "COD":
+          notifyError("Cash on Delivery (COD) is disabled. Please pay securely online via PhonePe.");
           setIsCheckoutSubmit(false);
+          return;
+        default:
+          await handlePaymentWithPhonePe(orderInfo);
+          break;
       }
     } catch (error) {
       console.error("Checkout submit error:", error);

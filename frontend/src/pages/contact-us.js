@@ -137,7 +137,7 @@ export default function ContactUs() {
     {
       icon: <FiUser className="text-2xl" />,
       title: t("Contact Person"),
-      value: t("Pradeep Kumar Manchanda"),
+      value: t("Pradeep Manchanda & Shallu Manchanda"),
       sub: t("Founder & Proprietor"),
       href: null,
       breakAll: false,
@@ -221,9 +221,9 @@ export default function ContactUs() {
           <p className="text-white/75 text-base lg:text-lg max-w-2xl mx-auto leading-relaxed font-light mb-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
             {t("Have a question about our sarees, suits, or fabrics? We're here to help you find your perfect ethnic ensemble.")}
           </p>
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
             <span>{t("Contact Person")}:</span>
-            <span className="font-semibold text-white">{t("Pradeep Kumar Manchanda")}</span>
+            <span className="font-semibold text-white">{t("Pradeep Manchanda & Shallu Manchanda")}</span>
           </div>
         </div>
       </section>

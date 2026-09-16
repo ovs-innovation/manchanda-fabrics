@@ -246,12 +246,9 @@ const addOrder = async (req, res) => {
     }
 
     if (req.body.paymentMethod === "Cash" || req.body.paymentMethod === "COD") {
-      const storeSetting = await Setting.findOne({ name: "storeSetting" });
-      if (storeSetting?.setting?.cod_status === false) {
-        return res.status(400).send({
-          message: "Cash on Delivery is currently disabled by the store.",
-        });
-      }
+      return res.status(400).send({
+        message: "Cash on Delivery is disabled. Please complete payment online via PhonePe.",
+      });
     }
 
     const cartWithTax = await populateCartTaxFields(req.body.cart || []);

@@ -14,6 +14,7 @@ import {
   Package,
   LayoutDashboard,
   LogOut,
+  Heart,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
@@ -153,6 +154,14 @@ const MobileMenu = ({ isOpen, onClose }) => {
                       <LayoutDashboard size={17} className="text-neutral-500" />
                       <span>{t("Dashboard")}</span>
                     </Link>
+                    <Link
+                      href="/wishlist"
+                      onClick={onClose}
+                      className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] uppercase text-[#111111] hover:text-[#B0322F] transition-colors"
+                    >
+                      <Heart size={17} className="text-neutral-500" />
+                      <span>{t("Wishlist")}</span>
+                    </Link>
                   </div>
                 )}
 
@@ -230,6 +239,16 @@ const MobileMenu = ({ isOpen, onClose }) => {
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   {t("Contact Us")}
+                </Link>
+
+                <Link
+                  href="/wishlist"
+                  onClick={onClose}
+                  className="flex items-center gap-2 text-sm font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#B0322F] transition-colors"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  <Heart size={17} className="text-[#B0322F]" />
+                  <span>{t("My Wishlist")}</span>
                 </Link>
               </nav>
             </div>

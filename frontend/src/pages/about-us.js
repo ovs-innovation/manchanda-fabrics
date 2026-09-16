@@ -23,24 +23,28 @@ const AboutUs = () => {
   const COLLECTIONS = [
     {
       title: "Cotton & Mul Cotton",
+      tag: "Handblock Pure",
       desc: "Soft pastels and handblock prints crafted for everyday elegance and comfort.",
       image: "/Suit/s1.jpg",
       slug: "cotton-suits",
     },
     {
       title: "Luxury Gaji & Silk",
+      tag: "Pure Silk Weave",
       desc: "Pure silk weaves with delicate zari borders and rich celebratory embroidery.",
       image: "/Suit/s2.jpg",
       slug: "gaji-silk",
     },
     {
       title: "Pakistani Style Suits",
+      tag: "Festive Elegance",
       desc: "Flowing silhouettes, premium prints, and heavy handwork for festive grace.",
       image: "/Suit/s3.jpg",
       slug: "pakistani-style-suits",
     },
     {
       title: "Bandhani & Kota Doria",
+      tag: "Heritage Tie-Dye",
       desc: "Vibrant tie-dyes and breathable handcrafted weave sets from Rajasthan.",
       image: "/Suit/s4.jpg",
       slug: "bandhani-suits",
@@ -148,30 +152,31 @@ const AboutUs = () => {
         </section>
 
         {/* Section 3: Premium Collection Cards */}
-        <section className="py-24 sm:py-32 bg-[#F8F5F1]">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
+        <section className="py-12 sm:py-20 lg:py-28 bg-[#FAF7F5] border-t border-b border-[#E6D1CB]/50">
+          <div className="max-w-screen-2xl mx-auto px-3.5 sm:px-8 lg:px-16">
 
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={fadeUp}
-              className="text-center max-w-3xl mx-auto mb-16"
+              className="text-center max-w-3xl mx-auto mb-8 sm:mb-14"
             >
               <span
-                className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C8A45D] flex justify-center items-center gap-3 mb-4"
+                className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.3em] text-[#9C6A5A] flex justify-center items-center gap-3 mb-3 sm:mb-4"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                <span className="w-8 h-[1px] bg-[#C8A45D]" />
+                <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
                 {t("PREMIUM SELECTIONS")}
-                <span className="w-8 h-[1px] bg-[#C8A45D]" />
+                <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
               </span>
 
               <h2
-                className="text-4xl sm:text-5xl font-light text-[#111111] leading-tight"
+                className="text-2xl sm:text-4xl lg:text-5xl font-serif font-light text-[#3B2A25] leading-tight"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                {t("Curated")} <em className="not-italic font-normal italic text-[#C8A45D]">{t("Suits & Fabrics")}</em>
+                {t("Curated")}{" "}
+                <em className="not-italic font-normal italic text-[#9C6A5A]">{t("Suits & Fabrics")}</em>
               </h2>
             </motion.div>
 
@@ -180,37 +185,44 @@ const AboutUs = () => {
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
               variants={fadeUp}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
             >
               {COLLECTIONS.map((c) => (
                 <Link
                   key={c.slug}
                   href={`/collections/${c.slug}`}
-                  className="group flex flex-col bg-white rounded-[14px] overflow-hidden border border-black/5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300"
+                  className="group flex flex-col bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-[#E6D1CB]/60 shadow-[0_2px_8px_rgba(59,42,37,0.03)] hover:shadow-[0_14px_28px_rgba(59,42,37,0.1)] hover:-translate-y-1 transition-all duration-300"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
+                  <div className="relative aspect-[3/4] sm:aspect-[4/5] w-full overflow-hidden bg-neutral-100">
                     <Image
                       src={c.image}
                       alt={t(c.title)}
                       fill
                       sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-300" />
+                    {c.tag && (
+                      <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
+                        <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider bg-white/95 backdrop-blur-md text-[#9C6A5A] shadow-sm border border-[#E6D1CB]/60">
+                          {t(c.tag)}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-6 flex flex-col flex-1 justify-between bg-white">
+                  <div className="p-3 sm:p-5 lg:p-6 flex flex-col flex-1 justify-between bg-white">
                     <div>
-                      <h3 className="text-base font-semibold text-[#111111] group-hover:underline underline-offset-4 decoration-1 transition-all">
+                      <h3 className="text-xs sm:text-base font-semibold text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors leading-snug line-clamp-1 sm:line-clamp-none">
                         {t(c.title)}
                       </h3>
-                      <p className="mt-2 text-xs text-[#7A7A7A] font-light leading-relaxed">
+                      <p className="mt-1 sm:mt-2 text-[11px] sm:text-xs text-[#3B2A25]/60 font-light leading-relaxed line-clamp-2">
                         {t(c.desc)}
                       </p>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-black/5 flex items-center justify-between text-[#C8A45D] text-[11px] font-semibold uppercase tracking-[0.15em]">
+                    <div className="mt-3 sm:mt-5 pt-2.5 sm:pt-3.5 border-t border-[#E6D1CB]/40 flex items-center justify-between text-[#9C6A5A] text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] group-hover:text-[#6F4A3D] transition-colors">
                       <span>{t("View Collection")}</span>
-                      <ChevronRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                      <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1 shrink-0" />
                     </div>
                   </div>
                 </Link>
@@ -221,9 +233,9 @@ const AboutUs = () => {
         </section>
 
         {/* Section 4: Why Shop With Us (Trust Badges) */}
-        <section className="bg-white border-y border-black/5 py-16">
-          <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        <section className="bg-white border-y border-black/5 py-12 sm:py-16">
+          <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 md:gap-12">
               {[
                 { icon: Award, title: "AUTHENTIC WEAVES", desc: "100% premium quality, hand-checked fibers." },
                 { icon: Shield, title: "QUALITY ASSURED", desc: "Sourced directly under rigorous quality audits." },

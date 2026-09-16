@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  FiDollarSign,
+  FiCreditCard,
   FiHome,
   FiMapPin,
   FiRepeat,
@@ -41,7 +41,7 @@ const Card = () => {
       </li>
       <li className="flex items-center py-3">
         <span className="text-xl text-gray-400 items-start mr-4">
-          <FiDollarSign />
+          <FiCreditCard />
         </span>
         <p className="font-sans leading-5 text-sm text-gray-500">
           {showingTranslateValue(

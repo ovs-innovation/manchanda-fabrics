@@ -1320,7 +1320,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                   >
                     {t("relatedProducts")}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                     {categoryRelatedProducts.slice(0, 12).map((relatedProduct) => (
                       <ProductCard
                         key={relatedProduct._id}

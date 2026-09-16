@@ -841,8 +841,8 @@
           "de": "Lieferung nach Hause innerhalb von 1 Stunde"
         },
         "card_description_three": {
-          "en": "Cash on Delivery Available",
-          "de": "Lieferung per Nachnahme möglich"
+          "en": "Secure Online Payment via PhonePe & UPI",
+          "de": "Sichere Online-Zahlung über PhonePe & UPI"
         },
         "card_description_four": {
           "en": "7 Days returns money back guarantee",
@@ -874,7 +874,7 @@
   },
   {
     "setting": {
-      "cod_status": true,
+      "cod_status": false,
       "fb_pixel_key": "",
       "fb_pixel_status": false,
       "google_analytic_key": "",

@@ -1,9 +1,12 @@
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FiMinus, FiPlus } from "react-icons/fi";
+import { FiMinus, FiPlus, FiHeart } from "react-icons/fi";
 import ProductImageGallery from "@components/product/ProductImageGallery";
 import Price from "@components/common/Price";
 import VariantList from "@components/variants/VariantList";
 import { resolveColorHex } from "@utils/resolveColorHex";
+import { isInWishlist, addToWishlist, removeFromWishlist } from "@lib/wishlist";
+import { notifySuccess, notifyError } from "@utils/toast";
 
 const AishaProductHero = ({
   product,
@@ -38,6 +41,49 @@ const AishaProductHero = ({
   const description =
     dynamicDescription || showingTranslateValue(product?.description);
   const sku = selectedColorVar?.sku || selectVariant?.sku || product?.sku || "—";
+
+  const [wishlistActive, setWishlistActive] = useState(false);
+
+  useEffect(() => {
+    if (product?._id) {
+      setWishlistActive(isInWishlist(product._id));
+    }
+    const updateState = () => {
+      if (product?._id) {
+        setWishlistActive(isInWishlist(product._id));
+      }
+    };
+    if (typeof window !== "undefined") {
+      const WISHLIST_EVENT = "wishlist:changed";
+      window.addEventListener(WISHLIST_EVENT, updateState);
+      window.addEventListener("storage", updateState);
+      return () => {
+        window.removeEventListener(WISHLIST_EVENT, updateState);
+        window.removeEventListener("storage", updateState);
+      };
+    }
+  }, [product?._id]);
+
+  const handleToggleWishlist = () => {
+    if (!product?._id) return;
+    if (wishlistActive) {
+      const res = removeFromWishlist(product._id);
+      if (res.ok) {
+        setWishlistActive(false);
+        notifySuccess("Removed from wishlist!");
+      } else {
+        notifyError("Failed to update wishlist!");
+      }
+    } else {
+      const res = addToWishlist(product);
+      if (res.ok) {
+        setWishlistActive(true);
+        notifySuccess("Added to wishlist!");
+      } else {
+        notifyError("Failed to update wishlist!");
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
@@ -175,15 +221,33 @@ const AishaProductHero = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onAddToCart}
-          disabled={stock <= 0}
-          className="w-full h-12 bg-[#111111] text-white text-sm font-semibold uppercase tracking-[0.14em] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
-        >
-          {stock <= 0 ? t("Sold Out") : t("Add to Cart")}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onAddToCart}
+            disabled={stock <= 0}
+            className="flex-1 h-12 bg-[#111111] text-white text-sm font-semibold uppercase tracking-[0.14em] hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {stock <= 0 ? t("Sold Out") : t("Add to Cart")}
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleWishlist}
+            title={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
+            aria-label={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
+            className={`w-12 h-12 border flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              wishlistActive
+                ? "bg-[#B0322F] border-[#B0322F] text-white hover:bg-[#8e2825]"
+                : "border-neutral-300 text-neutral-700 hover:border-[#B0322F] hover:text-[#B0322F] bg-white"
+            }`}
+          >
+            <FiHeart
+              size={20}
+              className={wishlistActive ? "fill-white text-white" : "transition-colors"}
+            />
+          </button>
+        </div>
 
         <hr className="my-6 border-neutral-200" />
 
