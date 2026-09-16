@@ -147,9 +147,20 @@ const sendOrderNotifications = async (order) => {
     // 3) Company/admin notification email for every order
     if (contactEmail && !order.adminNewOrderEmailSent) {
       try {
+        const isResellerOrder = order.orderType === "RESELLER";
+        const adminCustomerName = isResellerOrder
+          ? `${order.user_info?.name || "Reseller"} (Reseller) → ${order.final_customer_info?.name || "Customer"} (Final Customer)`
+          : order.user_info?.name;
+        const adminCustomerPhone = isResellerOrder
+          ? `Reseller: ${order.user_info?.contact || "-"} | Final: ${order.final_customer_info?.contact || "-"}`
+          : order.user_info?.contact;
+        const adminCustomerAddress = isResellerOrder
+          ? `Delivery: ${order.final_customer_info?.address || "-"}, ${order.final_customer_info?.city || ""} (${order.final_customer_info?.zipCode || ""})`
+          : order.user_info?.address;
+
         const adminBody = {
           to: contactEmail,
-          subject: `New Order #${order.invoice} – ${shopName}`,
+          subject: `New ${isResellerOrder ? "RESELLER " : ""}Order #${order.invoice} – ${shopName}`,
           html: newOrderAdminEmailBody({
             shop_name: shopName,
             logo,
@@ -158,10 +169,10 @@ const sendOrderNotifications = async (order) => {
             total: order.total,
             paymentMethod: order.paymentMethod,
             createdAt: new Date(order.createdAt).toLocaleString(),
-            customerName: order.user_info?.name,
-            customerPhone: order.user_info?.contact,
+            customerName: adminCustomerName,
+            customerPhone: adminCustomerPhone,
             customerEmail,
-            address: order.user_info?.address,
+            address: adminCustomerAddress,
             trackingUrl: `${process.env.STORE_URL}/admin/orders`,
             cart: order.cart || [],
           }),
@@ -234,9 +245,81 @@ const populateBrandNames = async (order) => {
   return order;
 };
 
+// Helper function to validate reseller orders
+const validateResellerOrder = (body) => {
+  if (body?.orderType === "RESELLER") {
+    const finalCust = body.final_customer_info || {};
+    if (!finalCust.name || !String(finalCust.name).trim()) {
+      return "Final customer name is required for reseller orders.";
+    }
+    if (!finalCust.contact || !String(finalCust.contact).trim()) {
+      return "Final customer mobile number is required for reseller orders.";
+    }
+    if (!finalCust.address || !String(finalCust.address).trim()) {
+      return "Final customer address is required for reseller orders.";
+    }
+    if (!finalCust.city || !String(finalCust.city).trim()) {
+      return "Final customer city is required for reseller orders.";
+    }
+    if (!finalCust.state || !String(finalCust.state).trim()) {
+      return "Final customer state is required for reseller orders.";
+    }
+    if (!finalCust.zipCode || !String(finalCust.zipCode).trim()) {
+      return "Final customer pincode is required for reseller orders.";
+    }
+  }
+  return null;
+};
+
+// Helper function to sanitize order data for customer endpoints (privacy protection)
+const sanitizeOrderForCustomer = (orderObj) => {
+  if (!orderObj || orderObj.orderType !== "RESELLER") {
+    return orderObj;
+  }
+
+  const sanitized = { ...orderObj };
+
+  // Strip confidential supplier company details
+  sanitized.company_info = null;
+
+  // Strip supplier pricing from cart items
+  if (Array.isArray(sanitized.cart)) {
+    sanitized.cart = sanitized.cart.map((item) => {
+      const cleanItem = { ...item };
+      delete cleanItem.price;
+      delete cleanItem.originalPrice;
+      delete cleanItem.costPrice;
+      delete cleanItem.taxRate;
+      delete cleanItem.itemTotal;
+      delete cleanItem.lineTotal;
+      delete cleanItem.rate;
+      delete cleanItem.gstAmount;
+      delete cleanItem.discountTotal;
+      return cleanItem;
+    });
+  }
+
+  // Strip confidential order totals
+  sanitized.subTotal = null;
+  sanitized.total = null;
+  sanitized.shippingCost = null;
+  sanitized.discount = null;
+  sanitized.taxSummary = null;
+  sanitized.coupon = null;
+
+  return sanitized;
+};
+
 const addOrder = async (req, res) => {
   // console.log("addOrder", req.body);
   try {
+    const resellerError = validateResellerOrder(req.body);
+    if (resellerError) {
+      return res.status(400).send({
+        message: resellerError,
+      });
+    }
+
     const outOfStockItems = await checkStock(req.body.cart);
     if (outOfStockItems.length > 0) {
       return res.status(400).send({
@@ -256,11 +339,17 @@ const addOrder = async (req, res) => {
     let shippingCost = req.body.shippingCost;
     if (shippingCost == null || isNaN(shippingCost)) {
       const totalQty = (req.body.cart || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
-      shippingCost = calculateShipping(totalQty, req.body.user_info || {});
+      const destination = req.body.orderType === "RESELLER" && req.body.final_customer_info?.zipCode
+        ? req.body.final_customer_info
+        : req.body.user_info || {};
+      shippingCost = calculateShipping(totalQty, destination);
     }
 
     const newOrder = new Order({
       ...req.body,
+      orderType: req.body.orderType || "DIRECT",
+      reseller_info: req.body.reseller_info || {},
+      final_customer_info: req.body.final_customer_info || {},
       shippingCost: Number(shippingCost || 0),
       cart: cartWithTax,
       user: req.user?._id || null,
@@ -477,10 +566,20 @@ const addRazorpayOrder = async (req, res) => {
       });
     }
 
+    const resellerError = validateResellerOrder(req.body);
+    if (resellerError) {
+      return res.status(400).send({
+        message: resellerError,
+      });
+    }
+
     const cartWithTax = await populateCartTaxFields(req.body.cart || []);
 
     const newOrder = new Order({
       ...req.body,
+      orderType: req.body.orderType || "DIRECT",
+      reseller_info: req.body.reseller_info || {},
+      final_customer_info: req.body.final_customer_info || {},
       cart: cartWithTax,
       user: req.user?._id || null,
     });
@@ -638,6 +737,12 @@ const getOrderById = async (req, res) => {
     let orderWithBrandNames = await populateBrandNames(order.toObject());
     orderWithBrandNames.cart = await populateCartTaxFields(orderWithBrandNames.cart);
 
+    // If caller is not an admin, sanitize reseller orders to prevent leakage of supplier identity or original prices
+    const isCallerAdmin = req.user && (req.user.role === "admin" || req.user.role === "Super Admin");
+    if (!isCallerAdmin) {
+      orderWithBrandNames = sanitizeOrderForCustomer(orderWithBrandNames);
+    }
+
     res.send(orderWithBrandNames);
   } catch (err) {
     res.status(500).send({
@@ -762,16 +867,30 @@ const createPhonePeOrder = async (req, res) => {
     }
 
     const orderData = req.body;
+
+    const resellerError = validateResellerOrder(orderData);
+    if (resellerError) {
+      return res.status(400).send({
+        message: resellerError,
+      });
+    }
+
     let shippingCost = orderData.shippingCost;
     if (shippingCost == null || isNaN(shippingCost)) {
       const totalQty = (orderData.cart || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
-      shippingCost = calculateShipping(totalQty, orderData.user_info || {});
+      const destination = orderData.orderType === "RESELLER" && orderData.final_customer_info?.zipCode
+        ? orderData.final_customer_info
+        : orderData.user_info || {};
+      shippingCost = calculateShipping(totalQty, destination);
     }
 
     const merchantTransactionId = `MT${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
     const newOrder = new Order({
       ...orderData,
+      orderType: orderData.orderType || "DIRECT",
+      reseller_info: orderData.reseller_info || {},
+      final_customer_info: orderData.final_customer_info || {},
       shippingCost: Number(shippingCost || 0),
       status: "Pending",
       paymentMethod: "PhonePe",

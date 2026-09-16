@@ -123,6 +123,18 @@ const Order = ({ params }) => {
               )}
             </label>
           </div>
+
+          {data?.orderType === "RESELLER" && (
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-5 flex items-start gap-3 text-purple-900 shadow-sm">
+              <span className="text-xl leading-none mt-0.5">📦</span>
+              <div>
+                <p className="font-bold text-sm">Reseller Dispatch Order</p>
+                <p className="text-xs text-purple-800 mt-0.5 leading-relaxed">
+                  This parcel is addressed to <strong>{data?.final_customer_info?.name}</strong> with your sender details. Supplier identity and wholesale prices are completely hidden on the package label and invoice slip.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="bg-white rounded-lg shadow-sm p-4 sm:p-8">
             <div className="flex flex-wrap gap-3 mb-8">
               <button

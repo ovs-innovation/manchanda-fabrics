@@ -12,6 +12,32 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
+    orderType: {
+      type: String,
+      enum: ["DIRECT", "RESELLER"],
+      default: "DIRECT",
+    },
+    reseller_info: {
+      name: { type: String, default: "" },
+      email: { type: String, default: "" },
+      contact: { type: String, default: "" },
+      address: { type: String, default: "" },
+      city: { type: String, default: "" },
+      state: { type: String, default: "" },
+      country: { type: String, default: "India" },
+      zipCode: { type: String, default: "" },
+    },
+    final_customer_info: {
+      name: { type: String, default: "" },
+      email: { type: String, default: "" },
+      contact: { type: String, default: "" },
+      address: { type: String, default: "" },
+      address2: { type: String, default: "" },
+      city: { type: String, default: "" },
+      state: { type: String, default: "" },
+      country: { type: String, default: "India" },
+      zipCode: { type: String, default: "" },
+    },
     cart: [{}],
     user_info: {
       name: {

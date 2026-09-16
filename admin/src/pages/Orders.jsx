@@ -16,7 +16,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { IoCloudDownloadOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 import exportFromJSON from "export-from-json";
-import { FiCheck, FiRefreshCw, FiShoppingCart, FiTruck, FiXCircle, FiList, FiChevronDown, FiSearch, FiCreditCard, FiCalendar, FiAlignLeft, FiZap } from "react-icons/fi";
+import { FiCheck, FiRefreshCw, FiShoppingCart, FiTruck, FiXCircle, FiList, FiChevronDown, FiSearch, FiCreditCard, FiCalendar, FiAlignLeft, FiZap, FiUsers } from "react-icons/fi";
 
 //internal import
 import { notifyError } from "@/utils/toast";
@@ -54,10 +54,12 @@ const Orders = () => {
     handleChangePage,
     handleSubmitForAll,
     resultsPerPage,
+    setIsUpdate,
   } = useContext(SidebarContext);
 
   const { t } = useTranslation();
 
+  const [orderType, setOrderType] = useState("");
   const [loadingExport, setLoadingExport] = useState(false);
   const [showColumnToggle, setShowColumnToggle] = useState(false);
   const columnToggleRef = useRef(null);
@@ -65,6 +67,7 @@ const Orders = () => {
   const [visibleColumns, setVisibleColumns] = useState({
     invoice: true,
     time: true,
+    orderType: true,
     customerName: true,
     productName: true,
     contact: true,
@@ -113,6 +116,7 @@ const Orders = () => {
       limit: resultsPerPage,
       customerName: searchText,
       userRole: userRole,
+      orderType: orderType,
     })
   );
 
@@ -138,6 +142,7 @@ const Orders = () => {
         limit: data?.totalDoc,
         customerName: searchText,
         userRole: userRole,
+        orderType: orderType,
       });
 
       // console.log("handleDownloadOrders", res);
@@ -145,6 +150,9 @@ const Orders = () => {
         return {
           _id: order._id,
           invoice: order.invoice,
+          orderType: order.orderType || "DIRECT",
+          reseller_name: order.reseller_info?.name || "",
+          final_customer_name: order.final_customer_info?.name || "",
           subTotal: getNumberTwo(order.subTotal),
           shippingCost: getNumberTwo(order.shippingCost),
           discount: getNumberTwo(order?.discount),
@@ -315,6 +323,24 @@ const Orders = () => {
                     <FiChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
                   </div>
 
+                  {/* Order Type Filter */}
+                  <div className="relative min-w-[140px]">
+                    <FiUsers className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none z-10" />
+                    <select
+                      value={orderType}
+                      onChange={(e) => {
+                        setOrderType(e.target.value);
+                        setIsUpdate(true);
+                      }}
+                      className="w-full h-11 pl-10 pr-8 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 appearance-none focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-teal-500/10 transition-all outline-none cursor-pointer"
+                    >
+                      <option value="">All Types</option>
+                      <option value="DIRECT">Direct Orders</option>
+                      <option value="RESELLER">Reseller Orders</option>
+                    </select>
+                    <FiChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
+                  </div>
+
                   {/* Download */}
                   <button
                     onClick={handleDownloadOrders}
@@ -353,6 +379,7 @@ const Orders = () => {
                             <span className="truncate">
                               {col === "invoice" && t("InvoiceNo")}
                               {col === "time" && t("TimeTbl")}
+                              {col === "orderType" && "Order Type"}
                               {col === "customerName" && t("CustomerName")}
                               {col === "productName" && "Product Name"}
                               {col === "contact" && "Contact"}
@@ -452,6 +479,11 @@ const Orders = () => {
                     {visibleColumns.time && (
                       <TableCell className="whitespace-nowrap">
                         {t("TimeTbl")}
+                      </TableCell>
+                    )}
+                    {visibleColumns.orderType && (
+                      <TableCell className="whitespace-nowrap">
+                        Order Type
                       </TableCell>
                     )}
                     {visibleColumns.customerName && (

@@ -298,6 +298,11 @@ const MyOrders = () => {
                             <span className="font-mono text-xs font-bold text-store-600 bg-store-50 px-2 py-1 rounded">
                               #{order?._id?.slice(-6).toUpperCase()}
                             </span>
+                            {order.orderType === "RESELLER" && (
+                              <span className="block mt-1 text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded w-max">
+                                Reseller
+                              </span>
+                            )}
                           </td>
 
                           {/* Date */}
@@ -423,9 +428,16 @@ const MyOrders = () => {
                       {/* Card header */}
                       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
                         <div>
-                          <span className="font-mono text-xs font-bold text-store-600">
-                            #{order?._id?.slice(-6).toUpperCase()}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-store-600">
+                              #{order?._id?.slice(-6).toUpperCase()}
+                            </span>
+                            {order.orderType === "RESELLER" && (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
+                                Reseller
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
                             <IoTimeOutline size={11} />
                             {dayjs(order.createdAt).format("DD MMM YYYY · hh:mm A")}

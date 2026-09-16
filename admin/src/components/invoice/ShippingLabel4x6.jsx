@@ -17,18 +17,46 @@ const ShippingLabel4x6 = ({
   const barcodeRef = useRef(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
-  const isCod =
-    data?.paymentMethod?.toLowerCase()?.includes("cod") ||
-    data?.paymentMethod?.toLowerCase()?.includes("cash");
+  const isReseller = data?.orderType === "RESELLER";
 
-  const companyName = getStoreCompanyName();
-  const companyAddress = getStoreAddress({
+  const isCod =
+    !isReseller &&
+    (data?.paymentMethod?.toLowerCase()?.includes("cod") ||
+      data?.paymentMethod?.toLowerCase()?.includes("cash"));
+
+  const defaultCompanyName = getStoreCompanyName();
+  const defaultCompanyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
     showingTranslateValue,
   });
 
-  const invoiceNo = data?.invoice
+  // Sender Details (FROM)
+  const senderName = isReseller
+    ? (data?.reseller_info?.name || "Authorized Merchant")
+    : defaultCompanyName;
+
+  const senderSubtext = isReseller
+    ? [
+        data?.reseller_info?.city,
+        data?.reseller_info?.state,
+        data?.reseller_info?.zipCode,
+      ].filter(Boolean).join(", ") +
+      (data?.reseller_info?.contact ? ` • Phone: ${data?.reseller_info?.contact}` : "")
+    : `Chandni Chowk, Delhi - 110006 • ${globalSetting?.contact || "Luxury Indian Fabrics"}`;
+
+  const senderFullAddress = isReseller
+    ? [
+        data?.reseller_info?.address,
+        data?.reseller_info?.city,
+        data?.reseller_info?.state,
+        data?.reseller_info?.zipCode,
+      ].filter(Boolean).join(", ")
+    : defaultCompanyAddress;
+
+  const invoiceNo = isReseller
+    ? `PKG/${dayjs(data?.createdAt || new Date()).format("YYYY")}/${data?.invoice || data?._id?.slice(-6)?.toUpperCase()}`
+    : data?.invoice
     ? String(data.invoice).includes("/")
       ? data.invoice
       : `MF/${dayjs(data?.createdAt || new Date()).format("YYYY")}/${data.invoice}`
@@ -40,20 +68,45 @@ const ShippingLabel4x6 = ({
     .replace(/[^a-zA-Z0-9-]/g, "-")
     .toUpperCase();
 
-  const customerName = data?.user_info?.name || "Valued Customer";
-  const customerPhone = data?.user_info?.contact || "-";
-  const customerAddress = [
-    data?.user_info?.address,
-    data?.user_info?.city,
-    data?.user_info?.country,
-  ]
-    .filter(Boolean)
-    .join(", ");
-  const zipCode = data?.user_info?.zipCode || "-";
-  const cityState = [data?.user_info?.city, data?.user_info?.country]
-    .filter(Boolean)
-    .join(", ")
-    .toUpperCase();
+  // Recipient Details (TO)
+  const recipientName = isReseller
+    ? (data?.final_customer_info?.name || "Valued Customer")
+    : (data?.user_info?.name || "Valued Customer");
+
+  const recipientPhone = isReseller
+    ? (data?.final_customer_info?.contact || "-")
+    : (data?.user_info?.contact || "-");
+
+  const recipientAddress = isReseller
+    ? [
+        data?.final_customer_info?.address,
+        data?.final_customer_info?.landmark,
+        data?.final_customer_info?.city,
+        data?.final_customer_info?.state,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : [
+        data?.user_info?.address,
+        data?.user_info?.city,
+        data?.user_info?.country,
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+  const recipientZip = isReseller
+    ? (data?.final_customer_info?.zipCode || "-")
+    : (data?.user_info?.zipCode || "-");
+
+  const recipientCityState = isReseller
+    ? [data?.final_customer_info?.city, data?.final_customer_info?.state]
+        .filter(Boolean)
+        .join(", ")
+        .toUpperCase()
+    : [data?.user_info?.city, data?.user_info?.country]
+        .filter(Boolean)
+        .join(", ")
+        .toUpperCase();
 
   const payableAmount = (data?.total || 0).toLocaleString("en-IN", {
     maximumFractionDigits: 2,
@@ -85,7 +138,7 @@ const ShippingLabel4x6 = ({
     }
   }, [barcodeValue]);
 
-  // Determine store base domain for live QR order tracking
+  // Determine store base domain or generic tracking for QR code
   const storeDomain =
     globalSetting?.website && globalSetting.website.trim() !== ""
       ? globalSetting.website.startsWith("http")
@@ -95,9 +148,11 @@ const ShippingLabel4x6 = ({
       ? "http://localhost:3000"
       : "https://manchandafabrics.com";
 
-  const orderTrackingUrl = `${storeDomain}/order/${data?._id || orderIdShort}`;
+  // For Reseller: encode generic package code without revealing Manchanda domain
+  const orderTrackingUrl = isReseller
+    ? `PACKAGE-TRACK-${data?._id || orderIdShort}`
+    : `${storeDomain}/order/${data?._id || orderIdShort}`;
 
-  // Generate QR Code (Encodes the direct Live Order Tracking URL)
   useEffect(() => {
     if (!orderTrackingUrl) return;
 
@@ -140,14 +195,14 @@ const ShippingLabel4x6 = ({
           height: "100%",
         }}
       >
-        {/* 1. HEADER: BRAND & ROUTING BADGE */}
+        {/* 1. HEADER: SENDER & ROUTING BADGE */}
         <div className="border-b-2 border-black p-2 flex items-center justify-between bg-white">
           <div className="flex-1 pr-2">
-            <h1 className="text-[14px] font-black tracking-wider uppercase leading-none text-black">
-              {companyName}
+            <h1 className="text-[13px] font-black tracking-wider uppercase leading-none text-black truncate">
+              {senderName}
             </h1>
-            <p className="text-[8.5px] font-semibold text-gray-700 leading-tight mt-0.5">
-              Chandni Chowk, Delhi - 110006 • {globalSetting?.contact || "Luxury Indian Fabrics"}
+            <p className="text-[8.5px] font-semibold text-gray-700 leading-tight mt-0.5 truncate">
+              {senderSubtext}
             </p>
             <div className="inline-block mt-1 bg-black text-white text-[7.5px] font-black tracking-widest px-1.5 py-0.5 rounded-sm uppercase">
               STANDARD EXPRESS DELIVERY SLIP
@@ -155,16 +210,18 @@ const ShippingLabel4x6 = ({
           </div>
 
           <div
-            className={`px-2 py-1.5 text-center border-2 border-black flex flex-col justify-center ${isCod ? "bg-black text-white" : "bg-white text-black"
-              }`}
+            className={`px-2 py-1.5 text-center border-2 border-black flex flex-col justify-center ${
+              isCod ? "bg-black text-white" : "bg-white text-black"
+            }`}
             style={{ minWidth: "1.3in" }}
           >
             <div className="text-[12px] font-black uppercase tracking-wider leading-tight">
               {isCod ? "COD" : "PREPAID"}
             </div>
             <div
-              className={`text-[8.5px] font-extrabold mt-0.5 leading-none ${isCod ? "text-white" : "text-gray-900"
-                }`}
+              className={`text-[8.5px] font-extrabold mt-0.5 leading-none ${
+                isCod ? "text-white" : "text-gray-900"
+              }`}
             >
               {isCod ? `COLLECT: ${currency}${payableAmount}` : "DO NOT COLLECT CASH"}
             </div>
@@ -184,7 +241,7 @@ const ShippingLabel4x6 = ({
           />
           <div className="flex justify-between w-full text-[9px] font-mono font-bold mt-1 tracking-wider px-1 text-black border-t border-dotted border-gray-400 pt-0.5">
             <span>
-              <strong>INV:</strong> {invoiceNo}
+              <strong>{isReseller ? "REF:" : "INV:"}</strong> {invoiceNo}
             </span>
             <span>
               <strong>ORD:</strong> #{orderIdShort}
@@ -205,16 +262,16 @@ const ShippingLabel4x6 = ({
                   SHIP TO:
                 </span>
                 <span className="text-[14px] font-black uppercase text-black leading-none">
-                  {customerName}
+                  {recipientName}
                 </span>
               </div>
               <div className="text-[9.5px] font-semibold leading-snug text-gray-900 mt-0.5 break-words">
-                {customerAddress}
+                {recipientAddress}
               </div>
               <div className="text-[9.5px] font-black mt-1 text-black flex items-center gap-1.5">
                 <FiPhone className="w-3 h-3 text-black inline-block flex-shrink-0" />
                 <span className="font-extrabold">Mobile:</span>
-                <span className="tracking-wide">{customerPhone}</span>
+                <span className="tracking-wide">{recipientPhone}</span>
               </div>
             </div>
 
@@ -224,10 +281,10 @@ const ShippingLabel4x6 = ({
                 DESTINATION PIN
               </span>
               <span className="text-[20px] font-black tracking-widest leading-none my-1 text-black">
-                {zipCode}
+                {recipientZip}
               </span>
               <span className="text-[8px] font-extrabold text-gray-700 uppercase tracking-wider text-center leading-tight">
-                {cityState || "DELHI HUB"}
+                {recipientCityState || "EXPRESS HUB"}
               </span>
             </div>
           </div>
@@ -239,11 +296,11 @@ const ShippingLabel4x6 = ({
             <span className="font-extrabold uppercase text-gray-600 block text-[7.5px]">
               If undelivered, return to:
             </span>
-            <div className="font-black text-[9px] text-black mt-0.5">{companyName}</div>
+            <div className="font-black text-[9px] text-black mt-0.5">{senderName}</div>
             <div className="text-gray-800 leading-tight mt-0.5 text-[8px] break-words">
-              {companyAddress}
+              {senderFullAddress}
             </div>
-            {globalSetting?.gstin && (
+            {!isReseller && globalSetting?.gstin && (
               <div className="font-bold text-gray-900 mt-0.5 text-[8px]">
                 GSTIN: {globalSetting.gstin}
               </div>
@@ -259,27 +316,33 @@ const ShippingLabel4x6 = ({
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping:</span>
                 <span className="font-bold text-black">
-                  {data?.shippingCost > 0 ? `${currency}${data.shippingCost}` : "FREE"}
+                  {isReseller
+                    ? "EXPRESS"
+                    : data?.shippingCost > 0
+                    ? `${currency}${data.shippingCost}`
+                    : "FREE"}
                 </span>
               </div>
             </div>
             <div className="border-t border-dotted border-gray-400 pt-0.5 flex justify-between font-bold text-[8.5px]">
               <span>Payment Mode:</span>
               <span className="uppercase text-black">
-                {data?.paymentMethod || (isCod ? "COD" : "PREPAID")}
+                {isReseller ? "PREPAID" : (data?.paymentMethod || (isCod ? "COD" : "PREPAID"))}
               </span>
             </div>
           </div>
         </div>
 
-        {/* 5. ITEM CONTENTS SUMMARY (DIV-BASED FLEX ROWS TO PREVENT ANY HTML2CANVAS TABLE SQUISHING) */}
+        {/* 5. ITEM CONTENTS SUMMARY */}
         <div className="border-b-2 border-black bg-white">
           {/* Header */}
           <div className="bg-gray-100 border-b border-black text-[8px] uppercase font-black text-gray-800 flex items-stretch">
             <div className="w-7 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">#</div>
             <div className="flex-1 py-1 px-2 border-r border-gray-300">Product Description</div>
             <div className="w-10 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">Qty</div>
-            <div className="w-20 py-1 pr-2 text-right flex-shrink-0">Amount</div>
+            <div className="w-20 py-1 pr-2 text-right flex-shrink-0">
+              {isReseller ? "Status" : "Amount"}
+            </div>
           </div>
 
           {/* Rows */}
@@ -298,14 +361,15 @@ const ShippingLabel4x6 = ({
                   {idx + 1}
                 </div>
                 <div className="flex-1 py-1 px-2 border-r border-gray-200 font-semibold text-gray-900 leading-snug flex items-center">
-                  <span className="block">{title}</span>
+                  <span className="block truncate">{title}</span>
                 </div>
                 <div className="w-10 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
                   {item?.quantity || 1}
                 </div>
                 <div className="w-20 py-1 pr-2 text-right font-mono font-bold text-black flex items-center justify-end flex-shrink-0">
-                  {currency}
-                  {((item?.price || 0) * (item?.quantity || 1)).toFixed(2)}
+                  {isReseller
+                    ? "PREPAID"
+                    : `${currency}${((item?.price || 0) * (item?.quantity || 1)).toFixed(2)}`}
                 </div>
               </div>
             );
@@ -325,11 +389,11 @@ const ShippingLabel4x6 = ({
               <div className="flex flex-col items-center flex-shrink-0">
                 <img
                   src={qrCodeUrl}
-                  alt="Order Tracking QR"
+                  alt="Package Tracking QR"
                   className="w-[50px] h-[50px] border-2 border-black p-0.5 bg-white"
                 />
                 <span className="text-[6.5px] font-black uppercase tracking-wider text-black mt-0.5 leading-none">
-                  SCAN TO TRACK
+                  PACKAGE QR
                 </span>
               </div>
             ) : (
@@ -346,25 +410,46 @@ const ShippingLabel4x6 = ({
                 Do not accept if outer package seal is broken or tampered with.
               </span>
               <span className="text-[7px] text-gray-600 font-mono mt-0.5">
-                Support: {globalSetting?.email || "manchandafabrics@gmail.com"}
+                {isReseller
+                  ? (data?.reseller_info?.contact ? `Help: ${data?.reseller_info?.contact}` : "Standard Express Delivery")
+                  : `Support: ${globalSetting?.email || "manchandafabrics@gmail.com"}`}
               </span>
             </div>
           </div>
 
           <div className="text-right border-l-2 border-black pl-2 min-w-[1.15in] flex flex-col justify-center">
-            <span className="text-[8px] uppercase font-bold text-gray-600 block">
-              Total Amount
-            </span>
-            <div className="text-[14px] font-black text-black leading-none my-0.5">
-              {currency}
-              {payableAmount}
-            </div>
-            <span className="text-[7px] font-bold uppercase text-gray-700 block">
-              {isCod ? "Cash Due on Delivery" : "Prepaid (₹0 to Pay)"}
-            </span>
-            <span className="text-[6.5px] font-semibold uppercase text-gray-400 block mt-0.5">
-              Authorized Signatory
-            </span>
+            {isReseller ? (
+              <>
+                <span className="text-[8px] uppercase font-bold text-gray-600 block">
+                  Package Status
+                </span>
+                <div className="text-[12px] font-black text-emerald-800 leading-none my-0.5">
+                  PREPAID
+                </div>
+                <span className="text-[7px] font-bold uppercase text-gray-700 block">
+                  Do Not Collect Cash
+                </span>
+                <span className="text-[6.5px] font-semibold uppercase text-gray-400 block mt-0.5">
+                  Authorized Dispatch
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[8px] uppercase font-bold text-gray-600 block">
+                  Total Amount
+                </span>
+                <div className="text-[14px] font-black text-black leading-none my-0.5">
+                  {currency}
+                  {payableAmount}
+                </div>
+                <span className="text-[7px] font-bold uppercase text-gray-700 block">
+                  {isCod ? "Cash Due on Delivery" : "Prepaid (₹0 to Pay)"}
+                </span>
+                <span className="text-[6.5px] font-semibold uppercase text-gray-400 block mt-0.5">
+                  Authorized Signatory
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>

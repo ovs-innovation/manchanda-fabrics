@@ -29,6 +29,7 @@ const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
   const { toggleCartDrawer } = useContext(SidebarContext);
 
+  const [orderType, setOrderType] = useState("DIRECT");
   const [error, setError] = useState("");
   const [total, setTotal] = useState("");
   const [couponInfo, setCouponInfo] = useState({});
@@ -91,6 +92,11 @@ const useCheckoutSubmit = (storeSetting) => {
   const watchCity = watch("city");
   const watchZipCode = watch("zipCode");
   const watchAddress = watch("address");
+
+  const watchFinalCustomerState = watch("finalCustomerState");
+  const watchFinalCustomerCity = watch("finalCustomerCity");
+  const watchFinalCustomerZipCode = watch("finalCustomerZipCode");
+  const watchFinalCustomerAddress = watch("finalCustomerAddress");
 
   useEffect(() => {
     if (Cookies.get("couponInfo")) {
@@ -208,12 +214,20 @@ const useCheckoutSubmit = (storeSetting) => {
       0
     ) || 0;
 
-    const destination = {
-      state: watchState,
-      city: watchCity,
-      zipCode: watchZipCode,
-      address: watchAddress,
-    };
+    const isReseller = orderType === "RESELLER";
+    const destination = isReseller
+      ? {
+          state: watchFinalCustomerState,
+          city: watchFinalCustomerCity,
+          zipCode: watchFinalCustomerZipCode,
+          address: watchFinalCustomerAddress,
+        }
+      : {
+          state: watchState,
+          city: watchCity,
+          zipCode: watchZipCode,
+          address: watchAddress,
+        };
 
     const calculatedShipping = calculateShipping(totalQuantity, destination, true);
 
@@ -245,7 +259,20 @@ const useCheckoutSubmit = (storeSetting) => {
 
     setDiscountAmount(discountAmountTotal);
     setTotal(totalValue);
-  }, [items, cartTotal, discountPercentage, watchState, watchCity, watchZipCode, watchAddress]);
+  }, [
+    items,
+    cartTotal,
+    discountPercentage,
+    orderType,
+    watchState,
+    watchCity,
+    watchZipCode,
+    watchAddress,
+    watchFinalCustomerState,
+    watchFinalCustomerCity,
+    watchFinalCustomerZipCode,
+    watchFinalCustomerAddress,
+  ]);
 
   const submitHandler = async (data) => {
     try {
@@ -324,22 +351,96 @@ const useCheckoutSubmit = (storeSetting) => {
         // but for now, we proceed if it's not a stock error
       }
 
+      const isReseller = orderType === "RESELLER";
+
+      if (isReseller) {
+        if (!data.finalCustomerName || !String(data.finalCustomerName).trim()) {
+          notifyError("Please enter final customer's full name.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+        if (!data.finalCustomerContact || !String(data.finalCustomerContact).trim()) {
+          notifyError("Please enter final customer's mobile number.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+        if (!data.finalCustomerAddress || !String(data.finalCustomerAddress).trim()) {
+          notifyError("Please enter final customer's delivery address.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+        if (!data.finalCustomerCity || !String(data.finalCustomerCity).trim()) {
+          notifyError("Please enter final customer's city.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+        if (!data.finalCustomerState || !String(data.finalCustomerState).trim()) {
+          notifyError("Please select final customer's state.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+        if (!data.finalCustomerZipCode || !String(data.finalCustomerZipCode).trim()) {
+          notifyError("Please enter final customer's pincode.");
+          setIsCheckoutSubmit(false);
+          return;
+        }
+      }
+
       const totalQuantity = items?.reduce(
         (sum, item) => sum + (Number(item.quantity) || 1),
         0
       ) || 0;
 
+      const shippingDestination = isReseller
+        ? {
+            address: data.finalCustomerAddress,
+            city: data.finalCustomerCity,
+            state: data.finalCustomerState,
+            zipCode: data.finalCustomerZipCode,
+          }
+        : data;
+
       const finalShippingCost =
         shippingCost !== null
           ? shippingCost
-          : (calculateShipping(totalQuantity, data, false) ?? 80);
+          : (calculateShipping(totalQuantity, shippingDestination, false) ?? 80);
 
       const finalTotal = Math.max(
         0,
         parseFloat(cartTotal + finalShippingCost + (taxSummary?.exclusiveTax || 0) - discountAmount).toFixed(2)
       );
 
+      const resellerDetails = isReseller
+        ? {
+            name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "Reseller",
+            contact: data.contact || userInfo?.phone || "",
+            email: data.email || "",
+            address: data.address2 ? `${data.address}, ${data.address2}` : (data.address || ""),
+            city: data.city || "",
+            state: data.state || "",
+            country: data.country || "India",
+            zipCode: data.zipCode || "",
+          }
+        : {};
+
+      const finalCustomerDetails = isReseller
+        ? {
+            name: String(data.finalCustomerName || "").trim(),
+            contact: String(data.finalCustomerContact || "").trim(),
+            email: String(data.finalCustomerEmail || "").trim(),
+            address: String(data.finalCustomerAddress || "").trim(),
+            address2: String(data.finalCustomerAddress2 || "").trim(),
+            city: String(data.finalCustomerCity || "").trim(),
+            state: String(data.finalCustomerState || "").trim(),
+            country: "India",
+            zipCode: String(data.finalCustomerZipCode || "").trim(),
+          }
+        : {};
+
       let orderInfo = {
+        orderType: isReseller ? "RESELLER" : "DIRECT",
+        reseller_info: resellerDetails,
+        final_customer_info: finalCustomerDetails,
         user_info: userDetails,
         shippingOption: data.shippingOption,
         paymentMethod: data.paymentMethod,
@@ -468,6 +569,11 @@ const useCheckoutSubmit = (storeSetting) => {
   const buildShiprocketPayload = (orderResponse) => {
     if (!orderResponse?.user_info || !orderResponse?.cart?.length) return null;
 
+    const isResellerOrder = orderResponse?.orderType === "RESELLER";
+    const recipient = isResellerOrder && orderResponse?.final_customer_info?.name
+      ? orderResponse.final_customer_info
+      : orderResponse.user_info;
+
     const {
       name = "",
       email,
@@ -480,7 +586,7 @@ const useCheckoutSubmit = (storeSetting) => {
       zipCode,
       isdCode,
       alternatePhone,
-    } = orderResponse.user_info;
+    } = recipient;
 
     const [firstName = "", ...restName] = name.trim().split(" ");
     const lastName = restName.join(" ");
@@ -507,8 +613,8 @@ const useCheckoutSubmit = (storeSetting) => {
       order_date: dayjs(orderResponse.createdAt).format("YYYY-MM-DD"),
       pickup_location: "home",
       comment: orderResponse.comment || "",
-      reseller_name: orderResponse.reseller_name || "",
-      company_name: orderResponse.company_name || globalSetting?.company_name || "",
+      reseller_name: isResellerOrder ? (orderResponse.reseller_info?.name || orderResponse.user_info?.name || "") : (orderResponse.reseller_name || ""),
+      company_name: isResellerOrder ? (orderResponse.reseller_info?.name || "") : (orderResponse.company_name || globalSetting?.company_name || ""),
       billing_customer_name: firstName || name,
       billing_last_name: lastName,
       billing_address: address,
@@ -518,20 +624,20 @@ const useCheckoutSubmit = (storeSetting) => {
       billing_pincode: zipCode || "000000",
       billing_state: state || city,
       billing_country: country || "India",
-      billing_email: email,
+      billing_email: email || orderResponse.user_info?.email || "",
       billing_phone: contact,
       billing_alternate_phone: alternatePhone || "",
       shipping_is_billing: true,
       shipping_customer_name: firstName || name,
       shipping_last_name: lastName,
-      shipping_address: orderResponse.shippingAddress || address,
-      shipping_address_2: orderResponse.shippingAddress2 || address2 || "",
-      shipping_city: orderResponse.shippingCity || city,
-      shipping_pincode: orderResponse.shippingZipCode || zipCode || "000000",
-      shipping_country: orderResponse.shippingCountry || country || "India",
-      shipping_state: orderResponse.shippingState || state || city,
-      shipping_email: orderResponse.shippingEmail || email,
-      shipping_phone: orderResponse.shippingPhone || contact,
+      shipping_address: address,
+      shipping_address_2: address2 || "",
+      shipping_city: city,
+      shipping_pincode: zipCode || "000000",
+      shipping_country: country || "India",
+      shipping_state: state || city,
+      shipping_email: email || orderResponse.user_info?.email || "",
+      shipping_phone: contact,
       order_items: orderItems,
       payment_method: orderResponse.paymentMethod === "Cash" ? "COD" : "Prepaid",
       shipping_charges: Number(orderResponse.shippingCost || 0),
@@ -548,7 +654,7 @@ const useCheckoutSubmit = (storeSetting) => {
       ewaybill_no: orderResponse.ewaybill_no || "",
       customer_gstin: orderResponse.customer_gstin || "",
       invoice_number: orderResponse.invoice || "",
-      order_type: orderResponse.order_type || "",
+      order_type: isResellerOrder ? "RESELLER" : "DIRECT",
     };
   };
 
@@ -882,6 +988,8 @@ const useCheckoutSubmit = (storeSetting) => {
     emptyCart,
     phonePeModalData,
     setPhonePeModalData,
+    orderType,
+    setOrderType,
   };
 };
 

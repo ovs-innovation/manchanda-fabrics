@@ -29,6 +29,7 @@ const OrderTable = ({ orders, visibleColumns = {} }) => {
       : {
           invoice: true,
           time: true,
+          orderType: true,
           customerName: true,
           customerId: false,
           productName: false,
@@ -61,6 +62,28 @@ const OrderTable = ({ orders, visibleColumns = {} }) => {
                 <span className="text-sm">
                   {showDateTimeFormat(order?.updatedDate)}
                 </span>
+              </TableCell>
+            )}
+
+            {columns.orderType && (
+              <TableCell className="whitespace-nowrap">
+                {order?.orderType === "RESELLER" ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 w-max">
+                      RESELLER
+                    </span>
+                    <span
+                      className="text-[10px] text-gray-500 truncate max-w-[120px]"
+                      title={`To: ${order?.final_customer_info?.name || "Customer"}`}
+                    >
+                      To: {order?.final_customer_info?.name || "Customer"}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 w-max">
+                    DIRECT
+                  </span>
+                )}
               </TableCell>
             )}
 

@@ -19,6 +19,7 @@ const getAllOrders = async (req, res) => {
     startDate,
     customerName,
     userRole,
+    orderType,
   } = req.query;
 
   //  day count
@@ -53,8 +54,18 @@ const getAllOrders = async (req, res) => {
   if (customerName) {
     queryObject.$or = [
       { "user_info.name": { $regex: `${customerName}`, $options: "i" } },
+      { "reseller_info.name": { $regex: `${customerName}`, $options: "i" } },
+      { "final_customer_info.name": { $regex: `${customerName}`, $options: "i" } },
       { invoice: { $regex: `${customerName}`, $options: "i" } },
     ];
+  }
+
+  if (orderType) {
+    if (orderType === "RESELLER") {
+      queryObject.orderType = "RESELLER";
+    } else if (orderType === "DIRECT") {
+      queryObject.orderType = { $ne: "RESELLER" };
+    }
   }
 
   if (day) {
@@ -104,7 +115,7 @@ const getAllOrders = async (req, res) => {
     const totalDoc = await Order.countDocuments(queryObject);
     const orders = await Order.find(queryObject)
       .select(
-        "_id invoice paymentMethod subTotal total user_info user cart discount shippingCost status createdAt updatedAt shiprocket"
+        "_id invoice paymentMethod subTotal total user_info user cart discount shippingCost status createdAt updatedAt shiprocket orderType reseller_info final_customer_info"
       )
       .sort({ createdAt: -1 })
       .skip(skip)

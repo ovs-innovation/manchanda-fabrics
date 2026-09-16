@@ -343,6 +343,65 @@ const OrderInvoice = () => {
               </div>
             )}
 
+            {/* RESELLER BREAKDOWN CARD (ADMIN VISIBILITY) */}
+            {data?.orderType === "RESELLER" && (
+              <div className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-700/50 rounded-2xl p-5 mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-purple-200 dark:border-purple-700/50 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-purple-700 text-white shadow-sm">
+                      RESELLER ORDER
+                    </span>
+                    <span className="text-xs text-purple-700 dark:text-purple-300 font-semibold">
+                      Middleman Dispatch Order • Supplier Identity & Prices Hidden on Customer Slip
+                    </span>
+                  </div>
+                  <div className="text-xs font-mono font-bold text-purple-900 dark:text-purple-200">
+                    Wholesale Paid: {currency}{getNumberTwo(data?.total)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  {/* Reseller (Buyer / Sender) */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-purple-100 dark:border-gray-700 shadow-sm">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 block mb-1">
+                      Reseller / Middleman (Billed & Sender)
+                    </span>
+                    <p className="font-bold text-sm text-gray-900 dark:text-white">
+                      {data?.reseller_info?.name || data?.user_info?.name}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      Phone: {data?.reseller_info?.contact || data?.user_info?.contact || "-"}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Email: {data?.reseller_info?.email || data?.user_info?.email || "-"}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      Sender Address: {[data?.reseller_info?.address, data?.reseller_info?.city, data?.reseller_info?.state, data?.reseller_info?.zipCode].filter(Boolean).join(", ") || "-"}
+                    </p>
+                  </div>
+
+                  {/* Final Customer (Recipient Destination) */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-purple-100 dark:border-gray-700 shadow-sm">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 block mb-1">
+                      Final Customer (Physical Delivery Destination)
+                    </span>
+                    <p className="font-bold text-sm text-gray-900 dark:text-white">
+                      {data?.final_customer_info?.name || "-"}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      Phone: {data?.final_customer_info?.contact || "-"}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Email: {data?.final_customer_info?.email || "-"}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      Delivery Address: {[data?.final_customer_info?.address, data?.final_customer_info?.landmark, data?.final_customer_info?.city, data?.final_customer_info?.state, data?.final_customer_info?.zipCode].filter(Boolean).join(", ") || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* TAB 1: TAX INVOICE (A4) */}
             <div style={{ display: activeTab === "invoice" ? "block" : "none" }}>
               <InvoiceLayout

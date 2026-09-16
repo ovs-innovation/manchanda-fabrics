@@ -8,7 +8,7 @@ import {
   IoShieldCheckmarkOutline,
   IoHelpCircleOutline
 } from "react-icons/io5";
-import { FiLoader, FiShoppingBag } from "react-icons/fi";
+import { FiLoader, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 
 import { getUserSession } from "@lib/auth";
@@ -77,6 +77,8 @@ const Checkout = () => {
     isCheckoutSubmit,
     taxSummary,
     setValue,
+    orderType,
+    setOrderType,
   } = useCheckoutSubmit(storeSetting);
 
   const isDigitalPaymentEnabled =
@@ -90,6 +92,7 @@ const Checkout = () => {
 
   const selectedPaymentMethod = "PhonePe";
   const watchZipCode = watch("zipCode");
+  const watchFinalCustomerZipCode = watch("finalCustomerZipCode");
 
   const populateAddressFields = useCallback((addr) => {
     if (!addr) return;
@@ -188,6 +191,35 @@ const Checkout = () => {
     return () => clearTimeout(timer);
   }, [watchZipCode, setValue]);
 
+  // Auto fetch final customer location by PIN code when in Reseller mode
+  useEffect(() => {
+    if (orderType !== "RESELLER") return;
+    const fetchFinalCustomerLocation = async () => {
+      if (watchFinalCustomerZipCode && watchFinalCustomerZipCode.length === 6 && /^\d+$/.test(watchFinalCustomerZipCode)) {
+        try {
+          const response = await fetch(`https://api.postalpincode.in/pincode/${watchFinalCustomerZipCode}`);
+          const data = await response.json();
+          if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const postOffice = data[0].PostOffice[0];
+            const city = postOffice.District || postOffice.Block || postOffice.Name;
+            const state = postOffice.State;
+            if (city) setValue("finalCustomerCity", city);
+            if (state) setValue("finalCustomerState", state);
+            notifySuccess(`Detected: ${city}, ${state}`);
+          }
+        } catch (error) {
+          console.error("Error fetching PIN details:", error);
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      fetchFinalCustomerLocation();
+    }, 450);
+
+    return () => clearTimeout(timer);
+  }, [watchFinalCustomerZipCode, orderType, setValue]);
+
   // Calculate MRP savings
   const calculateTotals = () => {
     let totalMRP = 0;
@@ -270,14 +302,98 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* 2. DELIVERY SECTION */}
+                {/* 2. ORDER TYPE SELECTION (WHO ARE YOU PURCHASING FOR?) */}
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                   <div className="mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      {t("Delivery Address")}
+                      {t("Who are you purchasing for?")}
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      {t("Please enter complete delivery details. All fields marked with * are mandatory.")}
+                      {t("Select whether this order is for yourself or for another customer (reseller dispatch).")}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* Option A: Myself */}
+                    <div
+                      id="order-type-direct"
+                      onClick={() => setOrderType("DIRECT")}
+                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        orderType === "DIRECT"
+                          ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${
+                          orderType === "DIRECT" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
+                        }`}>
+                          {orderType === "DIRECT" && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FiUser className={`w-4 h-4 ${orderType === "DIRECT" ? "text-[#6D3D2E]" : "text-gray-500"}`} />
+                            <span className="font-semibold text-sm text-gray-900">{t("Myself (Direct Order)")}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t("Delivered directly to your address with standard invoice and Manchanda branding.")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Option B: Another Customer */}
+                    <div
+                      id="order-type-reseller"
+                      onClick={() => setOrderType("RESELLER")}
+                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        orderType === "RESELLER"
+                          ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${
+                          orderType === "RESELLER" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
+                        }`}>
+                          {orderType === "RESELLER" && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FiUsers className={`w-4 h-4 ${orderType === "RESELLER" ? "text-[#6D3D2E]" : "text-gray-500"}`} />
+                            <span className="font-semibold text-sm text-gray-900">{t("Another Customer (Reseller / Middlemen)")}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t("Delivered directly to your customer under your name. Manchanda branding & rates are 100% hidden.")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {orderType === "RESELLER" && (
+                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-900 flex items-start gap-2.5">
+                      <span className="font-bold text-base leading-none mt-0.5">🔒</span>
+                      <div>
+                        <p className="font-semibold">{t("Strict Privacy Protected")}</p>
+                        <p className="text-amber-800 mt-0.5">
+                          {t("The parcel and shipping label will show YOUR details as the Sender (FROM) and the customer as Recipient (TO). Manchanda Fabrics identity and wholesale pricing will never be revealed.")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. SENDER / DELIVERY SECTION */}
+                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                  <div className="mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                      {orderType === "RESELLER" ? t("Your Details (Sender / Reseller)") : t("Delivery Address")}
+                    </h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {orderType === "RESELLER"
+                        ? t("This will appear as the Sender (FROM) on the shipping label and packaging slip.")
+                        : t("Please enter complete delivery details. All fields marked with * are mandatory.")}
                     </p>
                   </div>
 
@@ -490,7 +606,178 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* 3. PAYMENT SECTION */}
+                {/* 4. FINAL CUSTOMER DETAILS (ONLY FOR RESELLER ORDERS) */}
+                {orderType === "RESELLER" && (
+                  <div className="bg-white p-5 sm:p-6 rounded-2xl border-2 border-[#6D3D2E]/30 shadow-[0_2px_8px_rgba(0,0,0,0.03)] relative">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#6D3D2E] text-white mb-3">
+                      <FiUsers className="w-3.5 h-3.5" />
+                      <span>{t("Final Customer / Delivery Destination")}</span>
+                    </div>
+
+                    <div className="mb-4">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                        {t("Customer Delivery Address")}
+                      </h2>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {t("Enter your customer's complete address. The package will be shipped directly to them under your name.")}
+                      </p>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      {/* Customer Full Name & Phone */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                          <input
+                            type="text"
+                            placeholder={t("Customer Full Name *")}
+                            {...register("finalCustomerName", {
+                              required: orderType === "RESELLER" ? t("Customer name is required") : false,
+                              validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer name is required"),
+                            })}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                              errors.finalCustomerName
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
+                          />
+                          <Error errorMessage={errors.finalCustomerName?.message} />
+                        </div>
+
+                        <div>
+                          <input
+                            type="tel"
+                            maxLength={10}
+                            placeholder={t("Customer Phone (10 digits) *")}
+                            {...register("finalCustomerContact", {
+                              required: orderType === "RESELLER" ? t("Customer phone is required") : false,
+                              pattern: {
+                                value: /^[0-9]{10}$/,
+                                message: t("Enter a valid 10-digit mobile number")
+                              }
+                            })}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                              errors.finalCustomerContact
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
+                          />
+                          <Error errorMessage={errors.finalCustomerContact?.message} />
+                        </div>
+                      </div>
+
+                      {/* Customer Email (Optional) */}
+                      <div>
+                        <input
+                          type="email"
+                          placeholder={t("Customer Email (Optional)")}
+                          {...register("finalCustomerEmail")}
+                          className="w-full h-12 px-3.5 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                        />
+                      </div>
+
+                      {/* Customer Street Address */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder={t("Customer Address (House/Flat No., Street, Area) *")}
+                          {...register("finalCustomerAddress", {
+                            required: orderType === "RESELLER" ? t("Customer delivery address is required") : false,
+                            validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer delivery address is required"),
+                          })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.finalCustomerAddress
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <Error errorMessage={errors.finalCustomerAddress?.message} />
+                      </div>
+
+                      {/* Customer Landmark */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder={t("Apartment, suite, landmark, etc. *")}
+                          {...register("finalCustomerLandmark", {
+                            required: orderType === "RESELLER" ? t("Customer landmark is required") : false,
+                            validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer landmark is required"),
+                          })}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                            errors.finalCustomerLandmark
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
+                        />
+                        <Error errorMessage={errors.finalCustomerLandmark?.message} />
+                      </div>
+
+                      {/* City, State, PIN code */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        <div>
+                          <input
+                            type="text"
+                            placeholder={t("City *")}
+                            {...register("finalCustomerCity", {
+                              required: orderType === "RESELLER" ? t("Customer city is required") : false,
+                              validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer city is required"),
+                            })}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                              errors.finalCustomerCity
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
+                          />
+                          <Error errorMessage={errors.finalCustomerCity?.message} />
+                        </div>
+
+                        <div>
+                          <select
+                            {...register("finalCustomerState", {
+                              required: orderType === "RESELLER" ? t("Customer state is required") : false,
+                            })}
+                            defaultValue=""
+                            className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${
+                              errors.finalCustomerState
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
+                          >
+                            <option value="" disabled>{t("State *")}</option>
+                            {INDIAN_STATES.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                          <Error errorMessage={errors.finalCustomerState?.message} />
+                        </div>
+
+                        <div>
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder={t("PIN code (6 digits) *")}
+                            {...register("finalCustomerZipCode", {
+                              required: orderType === "RESELLER" ? t("Customer PIN code is required") : false,
+                              pattern: {
+                                value: /^[0-9]{6}$/,
+                                message: t("Valid 6-digit PIN required")
+                              }
+                            })}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
+                              errors.finalCustomerZipCode
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
+                          />
+                          <Error errorMessage={errors.finalCustomerZipCode?.message} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. PAYMENT SECTION */}
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                   <div className="mb-4">
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
