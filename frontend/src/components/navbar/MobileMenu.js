@@ -24,6 +24,7 @@ import { setToken } from "@services/httpServices";
 import { notifySuccess } from "@utils/toast";
 import useTranslation from "next-translate/useTranslation";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
+import { translateProductTitle } from "@utils/fashionTranslations";
 
 const MOBILE_CATEGORIES = [
   { label: "Gaji Silk", slug: "gaji-silk" },
@@ -206,7 +207,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                             className="text-xs font-medium tracking-[0.12em] uppercase text-neutral-500 hover:text-[#111111] transition-colors"
                             style={{ fontFamily: "'Poppins', sans-serif" }}
                           >
-                            {t(cat.label)}
+                            {t(cat.label) !== cat.label ? t(cat.label) : translateProductTitle(cat.label, router.locale || "en")}
                           </Link>
                         ))}
                       </motion.div>

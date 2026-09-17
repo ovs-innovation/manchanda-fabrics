@@ -1,7 +1,17 @@
 const Category = require("../models/Category");
+const {
+  ensureHindiName,
+  ensureHindiDescription,
+} = require("../utils/fashionTranslator");
 
 const addCategory = async (req, res) => {
   try {
+    if (req.body.name) {
+      req.body.name = ensureHindiName(req.body.name);
+    }
+    if (req.body.description) {
+      req.body.description = ensureHindiDescription(req.body.description);
+    }
     const newCategory = new Category(req.body);
     await newCategory.save();
     res.status(200).send({
@@ -18,7 +28,12 @@ const addCategory = async (req, res) => {
 const addAllCategory = async (req, res) => {
   try {
     await Category.deleteMany();
-    await Category.insertMany(req.body);
+    const sanitizedDocs = (req.body || []).map((cat) => ({
+      ...cat,
+      name: ensureHindiName(cat.name),
+      description: ensureHindiDescription(cat.description),
+    }));
+    await Category.insertMany(sanitizedDocs);
     res.status(200).send({
       message: "Category Added Successfully!",
     });
@@ -84,11 +99,21 @@ const updateCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (category) {
-      category.name = { ...category.name, ...req.body.name };
+      const incomingName = req.body.name ? ensureHindiName(req.body.name) : {};
+      category.name = { ...category.name, ...incomingName };
+      if (category.name && (!category.name.hi || !String(category.name.hi).trim()) && category.name.en) {
+        category.name = ensureHindiName(category.name);
+      }
+
+      const incomingDesc = req.body.description ? ensureHindiDescription(req.body.description) : {};
       category.description = {
         ...category.description,
-        ...req.body.description,
+        ...incomingDesc,
       };
+      if (category.description && (!category.description.hi || !String(category.description.hi).trim()) && category.description.en) {
+        category.description = ensureHindiDescription(category.description);
+      }
+
       category.icon = req.body.icon;
       category.status = req.body.status;
       category.parentId = req.body.parentId

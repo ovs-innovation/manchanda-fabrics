@@ -20,6 +20,7 @@ import CategoryServices from "@services/CategoryServices";
 import FilterSidebar from "@components/category/FilterSidebar";
 import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
+import { translateProductTitle } from "@utils/fashionTranslations";
 
 const CollectionsSlug = ({ products, attributes }) => {
   const { t } = useTranslation("common");
@@ -349,7 +350,7 @@ const CollectionsSlug = ({ products, attributes }) => {
                   />
                 </div>
                 <h1 className="text-lg font-semibold text-gray-800 capitalize truncate max-w-[160px]">
-                  {slug ? String(slug).replace(/-/g, " ") : "Collections"}
+                  {slug ? translateProductTitle(String(slug).replace(/-/g, " "), router?.locale || "en") : t("All Collections")}
                 </h1>
               </div>
             </div>

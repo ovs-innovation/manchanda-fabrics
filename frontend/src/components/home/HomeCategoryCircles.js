@@ -1,5 +1,6 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
+import useUtilsFunction from "@hooks/useUtilsFunction";
 
 const FALLBACK_IMAGE = "/p1.jpeg";
 
@@ -9,6 +10,7 @@ const FALLBACK_IMAGE = "/p1.jpeg";
 */
 const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
   const { t } = useTranslation("common");
+  const { showingTranslateValue } = useUtilsFunction();
 
   const list = categories.filter((c) => c?.slug && c?.title);
 
@@ -60,7 +62,7 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
                   />
                 </div>
                 <p className="mt-6 text-[15px] sm:text-base font-medium text-[#111111] tracking-wide">
-                  {t(cat.title)}
+                  {showingTranslateValue(cat.title) || t(cat.title)}
                 </p>
                 {counts[cat.slug] != null && (
                   <p className="mt-1 text-[12px] text-neutral-500">

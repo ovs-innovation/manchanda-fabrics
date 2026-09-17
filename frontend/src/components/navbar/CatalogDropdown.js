@@ -1,9 +1,10 @@
-"use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import useTranslation from "next-translate/useTranslation";
+import { translateProductTitle } from "@utils/fashionTranslations";
 
 const CATALOG_CATEGORIES = [
   {
@@ -55,8 +56,15 @@ const dropdownVariants = {
 };
 
 const CatalogDropdown = ({ isTransparent }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation("common");
+
+  const getLabel = (text) => {
+    const tr = t(text);
+    if (tr && tr !== text) return tr;
+    return translateProductTitle(text, router.locale || "en");
+  };
 
   return (
     <div
@@ -119,7 +127,7 @@ const CatalogDropdown = ({ isTransparent }) => {
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <span className="text-sm font-semibold tracking-[0.12em] uppercase text-[#1F2937] group-hover/item:text-[#111111] transition-colors duration-200">
-                      {t(cat.label)}
+                      {getLabel(cat.label)}
                     </span>
                     <span className="text-xs text-neutral-400 font-normal mt-0.5 tracking-wide">
                       {t(cat.desc)}

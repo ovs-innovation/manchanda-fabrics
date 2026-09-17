@@ -6,7 +6,7 @@ import useTranslation from "next-translate/useTranslation";
 
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import { getStoreAddress } from "@utils/storeBrand";
+import { getStoreAddress, translateStoreAddress } from "@utils/storeBrand";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
 const SECTION_RED = "#B0322F";
@@ -31,7 +31,7 @@ const formatPhone = (raw) => {
 };
 
 const Footer = () => {
-  const { showingTranslateValue } = useUtilsFunction();
+  const { showingTranslateValue, lang } = useUtilsFunction();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const { t } = useTranslation("common");
 
@@ -52,14 +52,26 @@ const Footer = () => {
   const homepage = mergeHomepage(storeCustomizationSetting?.manchandaHomepage);
   const footer = homepage.footer || {};
 
-  const storeAddress =
-    footer.address?.trim() ||
-    getStoreAddress({ storeCustomizationSetting, globalSetting, showingTranslateValue });
+  const resolveFooterValue = (val) => {
+    if (!val) return "";
+    if (typeof val === "string") return val.trim();
+    if (typeof val === "object") {
+      const picked = val[lang] || val.hi || val.en || "";
+      return typeof picked === "string" ? picked.trim() : "";
+    }
+    return String(val).trim();
+  };
+
+  const footerAddressStr = resolveFooterValue(footer.address);
+  const rawAddress =
+    footerAddressStr ||
+    getStoreAddress({ storeCustomizationSetting, globalSetting, lang, showingTranslateValue });
+  const storeAddress = lang === "hi" ? translateStoreAddress(rawAddress, "hi") : rawAddress;
 
   const storeEmail =
-    footer.email?.trim() ||
+    resolveFooterValue(footer.email) ||
     showingTranslateValue(storeCustomizationSetting?.contact_us?.email_box_email) ||
-    globalSetting?.email ||
+    resolveFooterValue(globalSetting?.email) ||
     "manchandafabrics@gmail.com";
 
   const storePhone =
@@ -95,9 +107,13 @@ const Footer = () => {
   }
   const specialCollection = footer.specialCollection || [];
   const rawStoreHours = footer.hours?.trim() || "Mon – Sat · 11:30 AM – 8:30 PM (Sun closed)";
-  const storeHours = rawStoreHours
+  const normalizedHours = rawStoreHours
     .replace(/11:00\s*AM|11\s*AM/gi, "11:30 AM")
     .replace(/8:00\s*PM|8\s*PM/gi, "8:30 PM");
+  const storeHours =
+    lang === "hi"
+      ? (t(normalizedHours) !== normalizedHours ? t(normalizedHours) : "सोम – शनि · सुबह 11:30 – रात 8:30 (रविवार बंद)")
+      : normalizedHours;
   const brandStory = footer.brandStory || "";
   const instagramUrl = footer.instagram || "https://www.instagram.com/manchanda.fabrics/";
   const facebookUrl = footer.facebook || "";

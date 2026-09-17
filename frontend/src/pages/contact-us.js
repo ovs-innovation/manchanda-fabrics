@@ -18,6 +18,7 @@ import {
   getStoreAddress,
   STORE_DEFAULT_ADDRESS,
   sanitizeAddress,
+  translateStoreAddress,
 } from "@utils/storeBrand";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
@@ -78,7 +79,7 @@ const isWithinBusinessHours = (businessHoursStr) => {
 export default function ContactUs() {
   const { t } = useTranslation("common");
   const { globalSetting, storeCustomizationSetting } = useGetSetting();
-  const { showingTranslateValue } = useUtilsFunction();
+  const { showingTranslateValue, lang } = useUtilsFunction();
   const contact = storeCustomizationSetting?.contact_us || {};
   const footer = storeCustomizationSetting?.footer || {};
   const homepage = mergeHomepage(storeCustomizationSetting?.manchandaHomepage);
@@ -102,7 +103,7 @@ export default function ContactUs() {
     showingTranslateValue(contact?.email_box_email) ||
     globalSetting?.email ||
     "manchandafabrics@gmail.com";
-  const address = sanitizeAddress(
+  const rawCalculatedAddress = sanitizeAddress(
     [
       showingTranslateValue(contact?.address_box_address_one),
       showingTranslateValue(contact?.address_box_address_two),
@@ -110,9 +111,10 @@ export default function ContactUs() {
     ]
       .filter(Boolean)
       .join(", ") ||
-    getStoreAddress({ storeCustomizationSetting, globalSetting, showingTranslateValue }) ||
+    getStoreAddress({ storeCustomizationSetting, globalSetting, lang, showingTranslateValue }) ||
     STORE_DEFAULT_ADDRESS
   );
+  const address = lang === "hi" ? translateStoreAddress(rawCalculatedAddress, "hi") : rawCalculatedAddress;
 
   const whatsappChatUrl =
     getWhatsAppChatUrl(footer?.social_whatsapp) ||

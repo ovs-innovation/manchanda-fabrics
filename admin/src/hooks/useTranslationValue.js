@@ -1,6 +1,7 @@
 // internal imports
 import useUtilsFunction from "./useUtilsFunction";
 import TextTranslateServices from "@/services/TextTranslateServices";
+import { translateToHindi } from "@/utils/fashionTranslations";
 
 const useTranslationValue = () => {
   const { globalSetting, languages } = useUtilsFunction();
@@ -94,60 +95,56 @@ const useTranslationValue = () => {
 
   // text translate handler
   const handlerTextTranslateHandler = async (text, tnsForm, currentData) => {
-    // const getAllLanguages = await LanguageServices.getAllLanguages();
-
     // First, clean up invalid translations from current data
     const cleanedCurrentData = cleanInvalidTranslations(currentData);
-    if (!globalSetting?.allow_auto_trans) return false;
 
     const isKeyUpdated =
       hasKeyChanged(cleanedCurrentData, { [tnsForm]: text }) || false;
 
-    // console.log("isKeyUpdated", isKeyUpdated);
     if (!isKeyUpdated) return false;
 
-    const filterLanguage = languages?.filter(
-      (lan) => lan?.iso_code !== tnsForm
-    );
+    let objectTnsLanguage = {};
 
-    // console.log("filterLanguage", filterLanguage);
-    // return;
+    // If auto translate setting is enabled, attempt API call
+    if (globalSetting?.allow_auto_trans) {
+      const filterLanguage = languages?.filter(
+        (lan) => lan?.iso_code !== tnsForm
+      );
 
-    const promisesArray = filterLanguage.map((lan) => {
-      return text
-        ? handleTranslateCallApi(text?.toLowerCase(), tnsForm, lan?.iso_code)
-        : "";
-    });
+      const promisesArray = (filterLanguage || []).map((lan) => {
+        return text
+          ? handleTranslateCallApi(text?.toLowerCase(), tnsForm, lan?.iso_code)
+          : "";
+      });
 
-    const results = await Promise.all(promisesArray);
+      const results = await Promise.all(promisesArray);
 
-    // const languageArray = filterLanguage.map((lan, index) => {
-    //   return {
-    //     lang: lan?.iso_code,
-    //     text: results[index],
-    //   };
-    // });
+      const languageArray = (filterLanguage || [])
+        .map((lan, index) => {
+          const translation = results[index];
+          return translation ? { lang: lan?.iso_code, text: translation } : null;
+        })
+        .filter(Boolean); // Remove null values
 
-    // let objectTnsLanguage = languageArray.reduce(
-    //   (obj, item) => Object.assign(obj, { [item.lang]: item.text }),
-    //   {}
-    // );
-    // Filter out null or empty translations
-    const languageArray = filterLanguage
-      .map((lan, index) => {
-        const translation = results[index];
-        return translation ? { lang: lan?.iso_code, text: translation } : null;
-      })
-      .filter(Boolean); // Remove null values
+      objectTnsLanguage = languageArray.reduce(
+        (obj, item) => Object.assign(obj, { [item.lang]: item.text }),
+        {}
+      );
+    }
 
-    // Only include translations that are valid (non-null)
-    let objectTnsLanguage = languageArray.reduce(
-      (obj, item) => Object.assign(obj, { [item.lang]: item.text }),
-      {}
-    );
-    // Add the original text (for example, in English) if it exists in the cleaned data
+    // Ensure Hindi translation is always populated if missing
+    if (!objectTnsLanguage.hi && text) {
+      const hindiTrans = translateToHindi(text);
+      if (hindiTrans) {
+        objectTnsLanguage.hi = hindiTrans;
+      }
+    }
+
+    // Add the original text (for example, in English) if it exists in the cleaned data or input
     if (cleanedCurrentData && cleanedCurrentData[tnsForm]) {
       objectTnsLanguage[tnsForm] = cleanedCurrentData[tnsForm];
+    } else if (text && tnsForm) {
+      objectTnsLanguage[tnsForm] = text;
     }
 
     return objectTnsLanguage;

@@ -9,7 +9,7 @@ import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
 const CheckoutCard = ({ item }) => {
   const { updateItemQuantity } = useCart();
-  const { currency } = useUtilsFunction();
+  const { currency, showingTranslateValue } = useUtilsFunction();
 
   return (
     <div
@@ -32,7 +32,7 @@ const CheckoutCard = ({ item }) => {
         <div className="flex items-center justify-between">
           <p className="mb-0">
             <span className="text-sm font-medium text-gray-700 text-heading line-clamp-1">
-              {item?.title?.substring(0, 5)}
+              {showingTranslateValue(item?.title)}
             </span>
             <span className="text-xs text-gray-400 mb-2">
               Item Price: {currency}

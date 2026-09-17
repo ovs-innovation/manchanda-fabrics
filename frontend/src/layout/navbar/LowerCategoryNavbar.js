@@ -1,15 +1,18 @@
-"use client";
-
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { IoChevronDown } from "react-icons/io5";
+import useTranslation from "next-translate/useTranslation";
+import { translateProductTitle } from "@utils/fashionTranslations";
 
 export default function LowerCategoryNavbar({
   categories: originalCategories = [],
   showingTranslateValue,
   variant = "row",
 }) {
+  const router = useRouter();
+  const { t } = useTranslation("common");
   const categories =
     originalCategories?.length > 0 ? originalCategories : [];
   const [activeCategoryId, setActiveCategoryId] = useState(null);
@@ -35,9 +38,12 @@ export default function LowerCategoryNavbar({
   };
 
   const getName = (cat) => {
-    return showingTranslateValue
-      ? showingTranslateValue(cat?.name)
-      : cat?.name?.en || cat?.name;
+    if (!cat) return "";
+    if (showingTranslateValue) {
+      return showingTranslateValue(cat?.name);
+    }
+    const val = (cat?.name && typeof cat?.name === "object") ? (cat?.name?.en || cat?.name?.hi || "") : (cat?.name || "");
+    return translateProductTitle(val, router?.locale || "en");
   };
 
   const clearCloseTimer = () => {
@@ -133,7 +139,9 @@ export default function LowerCategoryNavbar({
             className="px-5 py-3 text-xs font-black text-[#9C6A5A] uppercase tracking-widest block border-b border-[#E6D1CB]/60 hover:bg-[#9C6A5A] hover:text-black transition-colors"
             onClick={() => setActiveCategoryId(null)}
           >
-            View All {getName(activeCategory)}
+            {router.locale === "hi"
+              ? `सभी ${getName(activeCategory)} देखें`
+              : `${t("View All")} ${getName(activeCategory)}`}
           </Link>
           {hasChildren ? (
             <div className="max-h-[60vh] overflow-y-auto">
@@ -149,7 +157,9 @@ export default function LowerCategoryNavbar({
               ))}
             </div>
           ) : (
-            <p className="px-5 py-2 text-[10px] uppercase tracking-wider font-bold text-[#3B2A25]/60">Browse all products</p>
+            <p className="px-5 py-2 text-[10px] uppercase tracking-wider font-bold text-[#3B2A25]/60">
+              {router.locale === "hi" ? "सभी उत्पाद देखें" : "Browse all products"}
+            </p>
           )}
         </div>
       </div>

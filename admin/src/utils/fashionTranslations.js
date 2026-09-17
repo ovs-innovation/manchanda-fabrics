@@ -1,5 +1,5 @@
 /**
- * Fashion & ethnic wear auto-translation helper for Manchanda Fabrics.
+ * Fashion & ethnic wear auto-translation helper for Manchanda Fabrics Admin.
  * Automatically translates product titles, categories, fabrics, colors, styles, and patterns to Hindi.
  */
 
@@ -291,35 +291,25 @@ export const FASHION_DICTIONARY_HI = {
   "Multi": "मल्टी",
 };
 
-// Pre-sort dictionary keys by length in descending order so longest phrases replace first
-const SORTED_DICTIONARY_KEYS = Object.keys(FASHION_DICTIONARY_HI).sort(
+const SORTED_KEYS = Object.keys(FASHION_DICTIONARY_HI).sort(
   (a, b) => b.length - a.length
 );
 
-/**
- * Translates any product title, category name, or fashion phrase to natural Hindi if locale is 'hi'.
- */
-export function translateProductTitle(title, locale = "en") {
-  if (!title || typeof title !== "string") return title || "";
-  if (locale !== "hi") return title;
-
-  let cleaned = title.replace(/\s+Slug$/i, "").trim();
+export function translateToHindi(text) {
+  if (!text || typeof text !== "string") return "";
+  const cleaned = text.replace(/\s+Slug$/i, "").trim();
   if (!cleaned) return "";
 
-  // Try exact dictionary match first
   if (FASHION_DICTIONARY_HI[cleaned]) {
     return FASHION_DICTIONARY_HI[cleaned];
   }
 
-  // Segment / phrase / word replacement in descending length order
   let translated = cleaned;
-  for (const eng of SORTED_DICTIONARY_KEYS) {
+  for (const eng of SORTED_KEYS) {
     const hin = FASHION_DICTIONARY_HI[eng];
-    // Word boundary or substring replacement
     if (translated.includes(eng)) {
       translated = translated.split(eng).join(hin);
     } else {
-      // Case-insensitive fallback
       const lower = translated.toLowerCase();
       const engLower = eng.toLowerCase();
       if (lower.includes(engLower)) {

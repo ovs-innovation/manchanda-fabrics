@@ -34,7 +34,7 @@ const Checkout = () => {
   const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const userInfo = getUserSession();
-  const { currency, formatPrice } = useUtilsFunction();
+  const { currency, formatPrice, showingTranslateValue } = useUtilsFunction();
 
   const { data: storeSetting, isLoading: isStoreSettingLoading } = useQuery({
     queryKey: ["storeSetting"],
@@ -85,8 +85,8 @@ const Checkout = () => {
     storeSetting?.digital_payment_status != null
       ? Boolean(storeSetting.digital_payment_status)
       : (storeSetting?.phonepe_status != null
-          ? Boolean(storeSetting.phonepe_status)
-          : true);
+        ? Boolean(storeSetting.phonepe_status)
+        : true);
 
   const isCodEnabled = false;
 
@@ -287,11 +287,10 @@ const Checkout = () => {
                             message: t("Please enter a valid email address"),
                           },
                         })}
-                        className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${
-                          errors.email
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-black focus:ring-black"
-                        }`}
+                        className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${errors.email
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
                       />
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer">
                         <IoHelpCircleOutline size={18} />
@@ -318,16 +317,14 @@ const Checkout = () => {
                     <div
                       id="order-type-direct"
                       onClick={() => setOrderType("DIRECT")}
-                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        orderType === "DIRECT"
-                          ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
-                          : "border-gray-200 hover:border-gray-300 bg-white"
-                      }`}
+                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${orderType === "DIRECT"
+                        ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                        }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${
-                          orderType === "DIRECT" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
-                        }`}>
+                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${orderType === "DIRECT" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
+                          }`}>
                           {orderType === "DIRECT" && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
                         <div>
@@ -336,7 +333,7 @@ const Checkout = () => {
                             <span className="font-semibold text-sm text-gray-900">{t("Myself (Direct Order)")}</span>
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
-                            {t("Delivered directly to your address with standard invoice and Manchanda branding.")}
+                            {t("Delivered directly to your address.")}
                           </p>
                         </div>
                       </div>
@@ -346,16 +343,14 @@ const Checkout = () => {
                     <div
                       id="order-type-reseller"
                       onClick={() => setOrderType("RESELLER")}
-                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        orderType === "RESELLER"
-                          ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
-                          : "border-gray-200 hover:border-gray-300 bg-white"
-                      }`}
+                      className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all ${orderType === "RESELLER"
+                        ? "border-[#6D3D2E] bg-[#6D3D2E]/5 shadow-sm"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                        }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${
-                          orderType === "RESELLER" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
-                        }`}>
+                        <div className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${orderType === "RESELLER" ? "border-[#6D3D2E] bg-[#6D3D2E]" : "border-gray-300 bg-white"
+                          }`}>
                           {orderType === "RESELLER" && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
                         <div>
@@ -443,11 +438,10 @@ const Checkout = () => {
                             required: t("First name is required"),
                             validate: (v) => (v && v.trim().length > 0) || t("First name is required"),
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.firstName
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.firstName
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.firstName?.message} />
                       </div>
@@ -459,11 +453,10 @@ const Checkout = () => {
                             required: t("Last name is required"),
                             validate: (v) => (v && v.trim().length > 0) || t("Last name is required"),
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.lastName
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.lastName
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.lastName?.message} />
                       </div>
@@ -478,11 +471,10 @@ const Checkout = () => {
                           required: t("Street address is required"),
                           validate: (v) => (v && v.trim().length > 0) || t("Street address is required"),
                         })}
-                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                          errors.address
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-black focus:ring-black"
-                        }`}
+                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.address
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
                       />
                       <Error errorMessage={errors.address?.message} />
                     </div>
@@ -496,11 +488,10 @@ const Checkout = () => {
                           required: t("Apartment, suite, or landmark is required"),
                           validate: (v) => (v && v.trim().length > 0) || t("Apartment, suite, or landmark is required"),
                         })}
-                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                          errors.address2
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-black focus:ring-black"
-                        }`}
+                        className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.address2
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:border-black focus:ring-black"
+                          }`}
                       />
                       <Error errorMessage={errors.address2?.message} />
                     </div>
@@ -515,11 +506,10 @@ const Checkout = () => {
                             required: t("City is required"),
                             validate: (v) => (v && v.trim().length > 0) || t("City is required"),
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.city
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.city
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.city?.message} />
                       </div>
@@ -528,11 +518,10 @@ const Checkout = () => {
                         <select
                           {...register("state", { required: t("State is required") })}
                           defaultValue=""
-                          className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${
-                            errors.state
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${errors.state
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         >
                           <option value="" disabled>{t("State *")}</option>
                           {INDIAN_STATES.map((s) => (
@@ -556,11 +545,10 @@ const Checkout = () => {
                               message: t("Valid 6-digit PIN required")
                             }
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.zipCode
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.zipCode
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.zipCode?.message} />
                       </div>
@@ -580,11 +568,10 @@ const Checkout = () => {
                               message: t("Enter a valid 10-digit mobile number")
                             }
                           })}
-                          className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.contact
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.contact
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer" title="In case there are questions regarding your order">
                           <IoHelpCircleOutline size={18} />
@@ -634,11 +621,10 @@ const Checkout = () => {
                               required: orderType === "RESELLER" ? t("Customer name is required") : false,
                               validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer name is required"),
                             })}
-                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                              errors.finalCustomerName
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:border-black focus:ring-black"
-                            }`}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerName
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                              }`}
                           />
                           <Error errorMessage={errors.finalCustomerName?.message} />
                         </div>
@@ -655,11 +641,10 @@ const Checkout = () => {
                                 message: t("Enter a valid 10-digit mobile number")
                               }
                             })}
-                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                              errors.finalCustomerContact
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:border-black focus:ring-black"
-                            }`}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerContact
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                              }`}
                           />
                           <Error errorMessage={errors.finalCustomerContact?.message} />
                         </div>
@@ -684,11 +669,10 @@ const Checkout = () => {
                             required: orderType === "RESELLER" ? t("Customer delivery address is required") : false,
                             validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer delivery address is required"),
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.finalCustomerAddress
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerAddress
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.finalCustomerAddress?.message} />
                       </div>
@@ -702,11 +686,10 @@ const Checkout = () => {
                             required: orderType === "RESELLER" ? t("Customer landmark is required") : false,
                             validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer landmark is required"),
                           })}
-                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                            errors.finalCustomerLandmark
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                          }`}
+                          className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerLandmark
+                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:border-black focus:ring-black"
+                            }`}
                         />
                         <Error errorMessage={errors.finalCustomerLandmark?.message} />
                       </div>
@@ -721,11 +704,10 @@ const Checkout = () => {
                               required: orderType === "RESELLER" ? t("Customer city is required") : false,
                               validate: (v) => orderType !== "RESELLER" || (v && v.trim().length > 0) || t("Customer city is required"),
                             })}
-                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                              errors.finalCustomerCity
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:border-black focus:ring-black"
-                            }`}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerCity
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                              }`}
                           />
                           <Error errorMessage={errors.finalCustomerCity?.message} />
                         </div>
@@ -736,11 +718,10 @@ const Checkout = () => {
                               required: orderType === "RESELLER" ? t("Customer state is required") : false,
                             })}
                             defaultValue=""
-                            className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${
-                              errors.finalCustomerState
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:border-black focus:ring-black"
-                            }`}
+                            className={`w-full h-12 px-3 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors cursor-pointer ${errors.finalCustomerState
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                              }`}
                           >
                             <option value="" disabled>{t("State *")}</option>
                             {INDIAN_STATES.map((s) => (
@@ -764,11 +745,10 @@ const Checkout = () => {
                                 message: t("Valid 6-digit PIN required")
                               }
                             })}
-                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${
-                              errors.finalCustomerZipCode
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                                : "border-gray-300 focus:border-black focus:ring-black"
-                            }`}
+                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerZipCode
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:border-black focus:ring-black"
+                              }`}
                           />
                           <Error errorMessage={errors.finalCustomerZipCode?.message} />
                         </div>
@@ -878,11 +858,10 @@ const Checkout = () => {
                   <button
                     type="submit"
                     disabled={isEmpty || isCheckoutSubmit || !agreeToTerms}
-                    className={`w-full h-14 rounded-xl text-base font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 ${
-                      isEmpty || isCheckoutSubmit || !agreeToTerms
-                        ? "bg-gray-400 cursor-not-allowed shadow-none"
-                        : "bg-[#6D3D2E] hover:bg-[#4A291E] active:scale-[0.99]"
-                    }`}
+                    className={`w-full h-14 rounded-xl text-base font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 ${isEmpty || isCheckoutSubmit || !agreeToTerms
+                      ? "bg-gray-400 cursor-not-allowed shadow-none"
+                      : "bg-[#6D3D2E] hover:bg-[#4A291E] active:scale-[0.99]"
+                      }`}
                   >
                     {isCheckoutSubmit ? (
                       <>
@@ -963,7 +942,7 @@ const Checkout = () => {
                       {/* Product Title & Details */}
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-semibold text-gray-900 truncate leading-snug">
-                          {item.title}
+                          {showingTranslateValue(item.title)}
                         </h4>
                         {item.color && (
                           <p className="text-xs text-gray-500 mt-0.5">
@@ -1024,7 +1003,7 @@ const Checkout = () => {
                     <span>{t("Shipping")}</span>
                     {shippingCost === null || !isShippingCalculated ? (
                       <span className="text-xs text-amber-800 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded font-normal">
-                        {t("Calculated at address")}
+                        {t("Shipping cost vary as per the distance & weight")}
                       </span>
                     ) : shippingCost === 0 ? (
                       <span className="text-emerald-700 font-bold uppercase text-xs">

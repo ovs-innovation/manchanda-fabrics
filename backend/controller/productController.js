@@ -9,6 +9,11 @@ const { languageCodes } = require("../utils/data");
 const { formatProductForCSV,
   formatCSVToProduct,
 } = require("../utils/productCsvFormatter");
+const {
+  ensureHindiTitle,
+  ensureHindiDescription,
+  ensureHindiHighlights,
+} = require("../utils/fashionTranslator");
 
 const normalizeProductStatus = (status) => {
   const map = {
@@ -415,6 +420,16 @@ const addProduct = async (req, res) => {
   console.log(req.file);
   console.log(req.body);
   try {
+    if (req.body.title) {
+      req.body.title = ensureHindiTitle(req.body.title);
+    }
+    if (req.body.description) {
+      req.body.description = ensureHindiDescription(req.body.description);
+    }
+    if (req.body.highlights) {
+      req.body.highlights = ensureHindiHighlights(req.body.highlights);
+    }
+
     if (req.body.prices) {
       req.body.prices = normalizePricesPayload(req.body.prices);
     }
@@ -473,6 +488,9 @@ const addAllProducts = async (req, res) => {
     await Product.deleteMany();
     const sanitizedDocs = req.body.map((doc) => ({
       ...doc,
+      title: ensureHindiTitle(doc.title),
+      description: ensureHindiDescription(doc.description),
+      highlights: ensureHindiHighlights(doc.highlights),
       ...normalizeTaxPayload(doc),
     }));
     await Product.insertMany(sanitizedDocs);
@@ -629,15 +647,29 @@ const updateProduct = async (req, res) => {
     // console.log("product", product);
 
     if (product) {
-      product.title = { ...product.title, ...req.body.title };
+      const incomingTitle = req.body.title ? ensureHindiTitle(req.body.title) : {};
+      product.title = { ...product.title, ...incomingTitle };
+      if (product.title && (!product.title.hi || !String(product.title.hi).trim()) && product.title.en) {
+        product.title = ensureHindiTitle(product.title);
+      }
+
+      const incomingDesc = req.body.description ? ensureHindiDescription(req.body.description) : {};
       product.description = {
         ...product.description,
-        ...req.body.description,
+        ...incomingDesc,
       };
+      if (product.description && (!product.description.hi || !String(product.description.hi).trim()) && product.description.en) {
+        product.description = ensureHindiDescription(product.description);
+      }
+
+      const incomingHighlights = req.body.highlights ? ensureHindiHighlights(req.body.highlights) : {};
       product.highlights = {
         ...product.highlights,
-        ...req.body.highlights,
+        ...incomingHighlights,
       };
+      if (product.highlights && (!product.highlights.hi || !String(product.highlights.hi).trim()) && product.highlights.en) {
+        product.highlights = ensureHindiHighlights(product.highlights);
+      }
       if (typeof req.body.faqTitle === "string") {
         product.faqTitle = req.body.faqTitle.trim();
       }
@@ -1384,10 +1416,14 @@ const importProductsCSV = async (req, res) => {
         if (typeof doc.title === "string") {
           sanitized.title = { en: doc.title };
         }
+        sanitized.title = ensureHindiTitle(sanitized.title || doc.title);
 
         // Normalize Description
         if (typeof doc.description === "string") {
           sanitized.description = { en: doc.description };
+        }
+        if (sanitized.description || doc.description) {
+          sanitized.description = ensureHindiDescription(sanitized.description || doc.description);
         }
 
         // Normalize Image (start)

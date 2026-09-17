@@ -18,7 +18,7 @@ const CartItem = ({ item, currency: propCurrency }) => {
   const { closeCartDrawer } = useContext(SidebarContext);
   const { handleIncreaseQuantity } = useAddToCart();
   const { updateQuantityWithDB, removeItemWithDB } = useCartDB();
-  const { currency: defaultCurrency } = useUtilsFunction();
+  const { currency: defaultCurrency, showingTranslateValue } = useUtilsFunction();
   const rawCurr = propCurrency || defaultCurrency;
   const currency =
     rawCurr && rawCurr !== "$" && rawCurr !== "USD" ? rawCurr : "₹";
@@ -83,7 +83,7 @@ const CartItem = ({ item, currency: propCurrency }) => {
           onClick={closeCartDrawer}
           className="text-sm font-medium text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1 mb-1"
         >
-          {t(item.title)}
+          {showingTranslateValue(item.title) || t(item.title)}
         </Link>
 
         {/* Variant Info */}

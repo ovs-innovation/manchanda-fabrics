@@ -1,10 +1,11 @@
 /**
- * Fashion & ethnic wear auto-translation helper for Manchanda Fabrics.
- * Automatically translates product titles, categories, fabrics, colors, styles, and patterns to Hindi.
+ * Server-side Fashion & Category Hindi Translator for Manchanda Fabrics.
+ * Guarantees that every product title, category name, description, and highlight
+ * created or updated via admin or API receives a natural, accurate Hindi translation.
  */
 
-export const FASHION_DICTIONARY_HI = {
-  // Store Addresses & Locations (Longest first)
+const FASHION_DICTIONARY_HI = {
+  // Store Locations & Addresses
   "Address - 12-A, Krishna Cloth Market, Chandni Chowk - 110006": "पता - 12-ए, कृष्णा क्लॉथ मार्केट, चाँदनी चौक - 110006",
   "12-A, Krishna Cloth Market, Chandni Chowk - 110006": "12-ए, कृष्णा क्लॉथ मार्केट, चाँदनी चौक - 110006",
   "12-A, Krishna Cloth Market, Chandni Chowk": "12-ए, कृष्णा क्लॉथ मार्केट, चाँदनी चौक",
@@ -145,7 +146,6 @@ export const FASHION_DICTIONARY_HI = {
   "Net": "नेट",
   "Satin": "साटन",
   "Chinon": "चिनॉन",
-  "Brocase": "ब्रोकेड",
   "Brocade": "ब्रोकेड",
 
   // Embellishments & Craft
@@ -215,7 +215,7 @@ export const FASHION_DICTIONARY_HI = {
   "Vintage": "विंटेज",
   "Elegant": "सुरुचिपूर्ण",
 
-  // Colors & Shades (compound colors first)
+  // Colors & Shades
   "Rust Orange & Ivory": "रस्ट ऑरेंज और आइवरी",
   "Rust Orange": "रस्ट ऑरेंज",
   "Wine & Black": "वाइन और ब्लैक",
@@ -291,35 +291,25 @@ export const FASHION_DICTIONARY_HI = {
   "Multi": "मल्टी",
 };
 
-// Pre-sort dictionary keys by length in descending order so longest phrases replace first
-const SORTED_DICTIONARY_KEYS = Object.keys(FASHION_DICTIONARY_HI).sort(
+const SORTED_KEYS = Object.keys(FASHION_DICTIONARY_HI).sort(
   (a, b) => b.length - a.length
 );
 
-/**
- * Translates any product title, category name, or fashion phrase to natural Hindi if locale is 'hi'.
- */
-export function translateProductTitle(title, locale = "en") {
-  if (!title || typeof title !== "string") return title || "";
-  if (locale !== "hi") return title;
-
-  let cleaned = title.replace(/\s+Slug$/i, "").trim();
+function translateToHindi(text) {
+  if (!text || typeof text !== "string") return text || "";
+  const cleaned = text.replace(/\s+Slug$/i, "").trim();
   if (!cleaned) return "";
 
-  // Try exact dictionary match first
   if (FASHION_DICTIONARY_HI[cleaned]) {
     return FASHION_DICTIONARY_HI[cleaned];
   }
 
-  // Segment / phrase / word replacement in descending length order
   let translated = cleaned;
-  for (const eng of SORTED_DICTIONARY_KEYS) {
+  for (const eng of SORTED_KEYS) {
     const hin = FASHION_DICTIONARY_HI[eng];
-    // Word boundary or substring replacement
     if (translated.includes(eng)) {
       translated = translated.split(eng).join(hin);
     } else {
-      // Case-insensitive fallback
       const lower = translated.toLowerCase();
       const engLower = eng.toLowerCase();
       if (lower.includes(engLower)) {
@@ -331,3 +321,68 @@ export function translateProductTitle(title, locale = "en") {
 
   return translated.replace(/\s+/g, " ").trim();
 }
+
+function ensureHindiTitle(title) {
+  if (!title) return { en: "", hi: "" };
+  if (typeof title === "string") {
+    return {
+      en: title,
+      hi: translateToHindi(title),
+    };
+  }
+  const en = title.en || title.hi || "";
+  const hi = title.hi && String(title.hi).trim() ? title.hi : translateToHindi(en);
+  return {
+    ...title,
+    en,
+    hi,
+  };
+}
+
+function ensureHindiDescription(desc) {
+  if (!desc) return desc;
+  if (typeof desc === "string") {
+    return {
+      en: desc,
+      hi: translateToHindi(desc),
+    };
+  }
+  const en = desc.en || desc.hi || "";
+  const hi = desc.hi && String(desc.hi).trim() ? desc.hi : translateToHindi(en);
+  return {
+    ...desc,
+    en,
+    hi,
+  };
+}
+
+function ensureHindiName(name) {
+  return ensureHindiTitle(name);
+}
+
+function ensureHindiHighlights(highlights) {
+  if (!highlights) return highlights;
+  if (typeof highlights === "string") {
+    return {
+      en: highlights,
+      hi: translateToHindi(highlights),
+    };
+  }
+  const en = highlights.en || highlights.hi || "";
+  const hi = highlights.hi && String(highlights.hi).trim() ? highlights.hi : translateToHindi(en);
+  return {
+    ...highlights,
+    en,
+    hi,
+  };
+}
+
+module.exports = {
+  FASHION_DICTIONARY_HI,
+  translateToHindi,
+  ensureHindiTitle,
+  ensureHindiDescription,
+  ensureHindiName,
+  ensureHindiHighlights,
+};
+

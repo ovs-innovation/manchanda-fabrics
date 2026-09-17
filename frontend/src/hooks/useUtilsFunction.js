@@ -60,21 +60,29 @@ const useUtilsFunction = () => {
       }
       return data;
     }
-    const val =
-      data !== undefined &&
-      typeof data === "object" &&
-      Object.prototype.hasOwnProperty.call(data, lang)
-        ? data[lang]
-        : undefined;
-    const finalVal =
-      val && String(val).trim() !== "" ? val : (data?.en || "");
-    if (lang === "hi" && finalVal) {
-      const trimmedFinal = String(finalVal).trim();
-      const translated = t(trimmedFinal);
-      if (translated && translated !== trimmedFinal) return translated;
-      return translateProductTitle(trimmedFinal, "hi");
+    if (typeof data === "object") {
+      // Check if nested category name or product title object was passed
+      if (data.name && typeof data.name === "object") return showingTranslateValue(data.name);
+      if (data.title && typeof data.title === "object") return showingTranslateValue(data.title);
+      if (typeof data.name === "string" && !data.en && !data.hi) return showingTranslateValue(data.name);
+      if (typeof data.title === "string" && !data.en && !data.hi) return showingTranslateValue(data.title);
+
+      const val =
+        data !== undefined &&
+        Object.prototype.hasOwnProperty.call(data, lang)
+          ? data[lang]
+          : undefined;
+      const finalVal =
+        val && String(val).trim() !== "" ? val : (data?.en || "");
+      if (lang === "hi" && finalVal) {
+        const trimmedFinal = String(finalVal).trim();
+        const translated = t(trimmedFinal);
+        if (translated && translated !== trimmedFinal) return translated;
+        return translateProductTitle(trimmedFinal, "hi");
+      }
+      return finalVal;
     }
-    return finalVal;
+    return String(data);
   };
 
   const showingImage = (data) => {
