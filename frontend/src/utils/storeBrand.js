@@ -87,7 +87,7 @@ export const sanitizeAddress = (addr) => {
   if (typeof addr === "string") {
     str = addr;
   } else if (typeof addr === "object") {
-    str = addr.hi || addr.en || "";
+    str = addr.hi || addr.en || Object.values(addr || {})[0] || "";
   } else {
     str = String(addr);
   }
@@ -113,9 +113,10 @@ export const getStoreAddress = ({
   }).join(", ");
   const defaultAddr = lang === "hi" ? STORE_DEFAULT_ADDRESS_HI : STORE_DEFAULT_ADDRESS_EN;
   const globalAddr = globalSetting?.address;
-  const globalAddrStr = typeof globalAddr === "string"
-    ? globalAddr
-    : (globalAddr?.[lang] || globalAddr?.hi || globalAddr?.en || "");
+  const globalAddrStr =
+    typeof globalAddr === "string"
+      ? globalAddr
+      : (showingTranslateValue ? showingTranslateValue(globalAddr) : (globalAddr?.[lang] || globalAddr?.hi || globalAddr?.en || ""));
 
   const rawAddress = fromContact || (globalAddrStr ? (lang === "hi" ? translateStoreAddress(globalAddrStr, "hi") : globalAddrStr) : defaultAddr);
   const sanitized = sanitizeAddress(rawAddress);

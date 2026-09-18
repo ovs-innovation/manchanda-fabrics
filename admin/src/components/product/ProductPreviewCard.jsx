@@ -26,7 +26,7 @@ const ProductPreviewCard = ({
     return Math.max(0, final).toFixed(2);
   })();
 
-  const imageToDisplay = isHovered && hoverImage ? hoverImage : (featuredImage || "/p1.jpeg");
+  const imageToDisplay = isHovered && hoverImage ? hoverImage : (featuredImage || "/placeholder.png");
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">

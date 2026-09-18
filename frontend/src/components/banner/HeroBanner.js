@@ -11,10 +11,14 @@ const HeroBanner = ({ homepage: homepageProp }) => {
   const mobileVideoRef = React.useRef(null);
 
   const rawWelcome = homepage.heroWelcome || t("hero_welcome_text");
+  const rawWelcomeStr =
+    typeof rawWelcome === "string"
+      ? rawWelcome
+      : (rawWelcome?.en || rawWelcome?.hi || "");
   const welcomeText =
-    !rawWelcome || rawWelcome.trim().toLowerCase() === "welcome"
+    !rawWelcomeStr || rawWelcomeStr.trim().toLowerCase() === "welcome"
       ? "Welcome to"
-      : rawWelcome;
+      : rawWelcomeStr;
   const brandText = homepage.heroBrandName || t("hero_brand_text");
 
   const desktopVideo = homepage.heroVideo || "/main1.mp4";

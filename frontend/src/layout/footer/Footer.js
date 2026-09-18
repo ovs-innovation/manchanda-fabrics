@@ -56,7 +56,7 @@ const Footer = () => {
     if (!val) return "";
     if (typeof val === "string") return val.trim();
     if (typeof val === "object") {
-      const picked = val[lang] || val.hi || val.en || "";
+      const picked = (showingTranslateValue ? showingTranslateValue(val) : null) || val[lang] || val.hi || val.en || "";
       return typeof picked === "string" ? picked.trim() : "";
     }
     return String(val).trim();
@@ -106,7 +106,7 @@ const Footer = () => {
     quickLinks.unshift({ title: "About Us", href: "/about-us" });
   }
   const specialCollection = footer.specialCollection || [];
-  const rawStoreHours = footer.hours?.trim() || "Mon – Sat · 11:30 AM – 8:30 PM (Sun closed)";
+  const rawStoreHours = resolveFooterValue(footer.hours) || "Mon – Sat · 11:30 AM – 8:30 PM (Sun closed)";
   const normalizedHours = rawStoreHours
     .replace(/11:00\s*AM|11\s*AM/gi, "11:30 AM")
     .replace(/8:00\s*PM|8\s*PM/gi, "8:30 PM");

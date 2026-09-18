@@ -2,7 +2,7 @@ import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
-const FALLBACK_IMAGE = "/p1.jpeg";
+const FALLBACK_IMAGE = "/placeholder.png";
 
 /*
   categories: [{ slug, title, image }] — real store categories with a
