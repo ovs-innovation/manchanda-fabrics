@@ -1,6 +1,6 @@
 import axios from "axios";
 import requests from "@/services/httpService";
-import { FABRIC_COLORS } from "@/utils/fabricColors";
+import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
 
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
@@ -114,3 +114,181 @@ export const guessColorFromFilename = (filename) => {
 
   return null;
 };
+
+/**
+ * Extract dominant fabric color from an image File using canvas pixel sampling + fabric color catalog.
+ */
+export const extractDominantColorFromFile = (file) => {
+  return new Promise((resolve) => {
+    // 1. Check filename for direct match
+    const guessed = guessColorFromFilename(file?.name);
+    if (guessed) {
+      return resolve(guessed);
+    }
+
+    if (!file || !(file instanceof Blob) || !file.type.startsWith("image/")) {
+      return resolve(null);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const size = 64;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        const start = Math.floor(size * 0.15);
+        const end = Math.floor(size * 0.85);
+
+        for (let y = start; y < end; y++) {
+          for (let x = start; x < end; x++) {
+            const idx = (y * size + x) * 4;
+            const r = data[idx];
+            const g = data[idx + 1];
+            const b = data[idx + 2];
+            const a = data[idx + 3];
+
+            if (a < 128) continue;
+            // Ignore near-white / studio background (r,g,b > 220 and low saturation)
+            const maxVal = Math.max(r, g, b);
+            const minVal = Math.min(r, g, b);
+            const sat = maxVal - minVal;
+            if (minVal > 220 && sat < 25) continue;
+            // Ignore near-black shadows/borders
+            if (maxVal < 30) continue;
+
+            rSum += r;
+            gSum += g;
+            bSum += b;
+            count++;
+          }
+        }
+
+        URL.revokeObjectURL(objectUrl);
+
+        if (count === 0) {
+          for (let i = 0; i < data.length; i += 4) {
+            rSum += data[i];
+            gSum += data[i + 1];
+            bSum += data[i + 2];
+            count++;
+          }
+        }
+
+        if (count === 0) return resolve(null);
+
+        const avgR = Math.round(rSum / count);
+        const avgG = Math.round(gSum / count);
+        const avgB = Math.round(bSum / count);
+        const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
+        const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
+
+        const closest = findClosestFabricColor(hex);
+        if (closest) {
+          resolve({ colorName: closest.name, colorCode: closest.hex });
+        } else {
+          resolve({ colorName: "", colorCode: hex });
+        }
+      } catch (err) {
+        URL.revokeObjectURL(objectUrl);
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(null);
+    };
+
+    img.src = objectUrl;
+  });
+};
+
+/**
+ * Extract dominant fabric color from an image URL using canvas with CORS or fallback.
+ */
+export const extractDominantColorFromUrl = (url) => {
+  return new Promise((resolve) => {
+    if (!url || typeof url !== "string") return resolve(null);
+    const guessed = guessColorFromFilename(url);
+    if (guessed) return resolve(guessed);
+
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const size = 64;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        const start = Math.floor(size * 0.15);
+        const end = Math.floor(size * 0.85);
+
+        for (let y = start; y < end; y++) {
+          for (let x = start; x < end; x++) {
+            const idx = (y * size + x) * 4;
+            const r = data[idx];
+            const g = data[idx + 1];
+            const b = data[idx + 2];
+            const a = data[idx + 3];
+
+            if (a < 128) continue;
+            const maxVal = Math.max(r, g, b);
+            const minVal = Math.min(r, g, b);
+            const sat = maxVal - minVal;
+            if (minVal > 220 && sat < 25) continue;
+            if (maxVal < 30) continue;
+
+            rSum += r;
+            gSum += g;
+            bSum += b;
+            count++;
+          }
+        }
+
+        if (count === 0) {
+          for (let i = 0; i < data.length; i += 4) {
+            rSum += data[i];
+            gSum += data[i + 1];
+            bSum += data[i + 2];
+            count++;
+          }
+        }
+
+        if (count === 0) return resolve(null);
+
+        const avgR = Math.round(rSum / count);
+        const avgG = Math.round(gSum / count);
+        const avgB = Math.round(bSum / count);
+        const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
+        const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
+
+        const closest = findClosestFabricColor(hex);
+        if (closest) {
+          resolve({ colorName: closest.name, colorCode: closest.hex });
+        } else {
+          resolve({ colorName: "", colorCode: hex });
+        }
+      } catch (e) {
+        resolve(null);
+      }
+    };
+
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+};
+

@@ -50,9 +50,31 @@ router.get("/store/customization/all", getStoreCustomizationSetting);
 router.put("/store/customization/update", isAuth, isAdmin, updateStoreCustomizationSetting);
 
 
-//vendor setting routes
-router.post("/vendor-setting/add", isAuth, isAdmin, addVendorSetting);
-router.get("/vendor-setting/all", getVendorSetting);
-router.put("/vendor-setting/update", isAuth, isAdmin, updateVendorSetting);
+// AI translation endpoint (NVIDIA Nemotron 3 Ultra via OpenRouter)
+router.post("/translate", async (req, res) => {
+  try {
+    const { text, texts, from = "en", to = "hi" } = req.body;
+    const { translateWithNemotron } = require("../utils/fashionTranslator");
+    if (Array.isArray(texts)) {
+      const results = {};
+      for (const item of texts) {
+        if (item) {
+          results[item] = await translateWithNemotron(item, from, to);
+        }
+      }
+      return res.send({
+        translations: results,
+        model: process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free",
+      });
+    }
+    const translated = await translateWithNemotron(text, from, to);
+    return res.send({
+      translated,
+      model: process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free",
+    });
+  } catch (err) {
+    return res.status(500).send({ message: "Translation failed", error: err.message });
+  }
+});
 
 module.exports = router;

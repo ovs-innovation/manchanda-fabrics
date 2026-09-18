@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Globe, ChevronDown } from "lucide-react";
@@ -39,14 +37,14 @@ const LanguageSwitcher = ({ variant = "desktop", onSelect }) => {
             key={lang.code}
             type="button"
             onClick={() => pick(lang.code)}
-            className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border transition-colors ${
+            className={`text-[12px] font-bold tracking-widest uppercase px-4 py-2 border transition-colors inline-flex items-center gap-1.5 ${
               current === lang.code
                 ? "border-[#111111] text-[#111111]"
                 : "border-neutral-200 text-neutral-500 hover:border-neutral-400"
             }`}
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {lang.label}
+            <span>{lang.label}</span>
           </button>
         ))}
       </div>
@@ -75,7 +73,7 @@ const LanguageSwitcher = ({ variant = "desktop", onSelect }) => {
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 top-full mt-2 min-w-[140px] bg-white border border-neutral-100 shadow-lg z-[60] py-1"
+          className="absolute right-0 top-full mt-2 min-w-[150px] bg-white border border-neutral-100 shadow-lg z-[60] py-1"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           {LANGUAGES.map((lang) => (
@@ -85,13 +83,13 @@ const LanguageSwitcher = ({ variant = "desktop", onSelect }) => {
               role="option"
               aria-selected={current === lang.code}
               onClick={() => pick(lang.code)}
-              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+              className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                 current === lang.code
                   ? "bg-neutral-50 text-[#111111] font-semibold"
                   : "text-neutral-600 hover:bg-neutral-50 hover:text-[#111111]"
               }`}
             >
-              {lang.label}
+              <span>{lang.label}</span>
             </button>
           ))}
         </div>

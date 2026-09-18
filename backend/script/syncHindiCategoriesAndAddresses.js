@@ -9,6 +9,7 @@ const {
   ensureHindiDescription,
   ensureHindiName,
   translateToHindi,
+  translateWithNemotron,
 } = require("../utils/fashionTranslator");
 
 const HINDI_STORE_ADDRESS = "12-ए, कृष्णा क्लॉथ मार्केट, चाँदनी चौक - 110006";
@@ -59,9 +60,13 @@ async function run() {
     const currentTitleEn = prod.title?.en || (typeof prod.title === "string" ? prod.title : "");
     const currentTitleHi = prod.title?.hi;
 
-    const newTitle = ensureHindiTitle(prod.title);
-    if (!currentTitleHi || currentTitleHi === currentTitleEn) {
-      prod.title = newTitle;
+    if (!currentTitleHi || currentTitleHi === currentTitleEn || !/[\u0900-\u097F]/.test(currentTitleHi) || /[a-zA-Z]/.test(currentTitleHi)) {
+      const aiTitleHi = await translateWithNemotron(currentTitleEn);
+      prod.title = {
+        ...(typeof prod.title === "object" ? prod.title : {}),
+        en: currentTitleEn,
+        hi: aiTitleHi || ensureHindiTitle(prod.title).hi,
+      };
       modified = true;
     }
 

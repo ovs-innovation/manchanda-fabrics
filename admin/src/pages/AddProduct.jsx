@@ -4,12 +4,10 @@ import { Button, Input, Textarea, Select } from "@windmill/react-ui";
 import { FiChevronLeft, FiSave } from "react-icons/fi";
 
 import useProductSubmit from "@/hooks/useProductSubmit";
-import Uploader from "@/components/image-uploader/Uploader";
-import VideoUploader from "@/components/image-uploader/VideoUploader";
+import ProductPhotoManager from "@/components/product/ProductPhotoManager";
 import ParentCategory from "@/components/category/ParentCategory";
 import Error from "@/components/form/others/Error";
 import ProductPlacementFlags from "@/components/product/ProductPlacementFlags";
-import SimpleVariantManager from "@/components/product/SimpleVariantManager";
 import ColorVariantManager from "@/components/product/ColorVariantManager";
 import ProductTypePicker from "@/components/product/ProductTypePicker";
 import ProductPreviewCard from "@/components/product/ProductPreviewCard";
@@ -20,20 +18,6 @@ const AddProduct = () => {
   const history = useHistory();
   const { id } = useParams();
   const isEdit = Boolean(id);
-
-  const variantStockTotal = (list = []) =>
-    list.reduce((total, row) => {
-      if (row.sizes) {
-        return (
-          total +
-          (row.sizes || []).reduce(
-            (sizeTotal, size) => sizeTotal + Number(size.quantity || 0),
-            0
-          )
-        );
-      }
-      return total + Number(row.stock || 0);
-    }, 0);
 
   const {
     tag,
@@ -60,8 +44,6 @@ const AddProduct = () => {
     watch,
     slug,
     handleProductSlug,
-    variants,
-    setVariants,
     resData,
     setValue,
     colorVariants,
@@ -193,44 +175,23 @@ const AddProduct = () => {
                 </div>
               </section>
 
-              {/* Media */}
-              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
-                <h2 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3">
-                  Photos & Video
-                </h2>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                    Main Photo *
-                  </label>
-                  <Uploader
-                    product={false}
-                    folder="product"
-                    imageUrl={featuredImage ? [featuredImage] : []}
-                    setImageUrl={(url) =>
-                      setFeaturedImage(Array.isArray(url) ? url[0] : url || "")
-                    }
-                    useOriginalSize
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                    More Photos
-                  </label>
-                  <Uploader product folder="product" imageUrl={imageUrl} setImageUrl={setImageUrl} useOriginalSize />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                    Product Video
-                  </label>
-                  <VideoUploader value={video} onChange={setVideo} folder="product-videos" title="Upload product video" />
-                  <p className="text-xs text-gray-400 mt-2">
-                    Upload MP4 video for reels / product page. No link needed.
-                  </p>
-                </div>
-              </section>
+              {/* Product Photos & Video */}
+              <ProductPhotoManager
+                featuredImage={featuredImage}
+                setFeaturedImage={setFeaturedImage}
+                imageUrl={imageUrl}
+                setImageUrl={setImageUrl}
+                colorVariants={colorVariants}
+                setColorVariants={setColorVariants}
+                video={video}
+                setVideo={setVideo}
+                defaultColorName={watch("defaultColorName")}
+                setDefaultColor={({ colorName, colorCode }) => {
+                  setValue("defaultColorName", colorName, { shouldValidate: true });
+                  setValue("defaultColorCode", colorCode, { shouldValidate: true });
+                }}
+                onStockChange={(total) => setValue("stock", total, { shouldValidate: true })}
+              />
 
               {/* Organization */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
@@ -325,15 +286,10 @@ const AddProduct = () => {
                       type="number"
                       min="0"
                       {...register("stock", {
-                        required: (variants?.length || colorVariants?.length) ? false : "Stock is required",
+                        required: colorVariants?.length ? false : "Stock is required",
                       })}
                     />
                     <Error errorName={errors.stock} />
-                    {variants?.length > 0 && (
-                      <p className="text-[11px] text-gray-400 mt-1">
-                        Option variant total: {variantStockTotal(variants)} units
-                      </p>
-                    )}
                     {colorVariants?.length > 0 && (
                       <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
                         Color variant total: {colorVariants.reduce((sum, cv) => sum + Number(cv.stock || 0), 0)} units across {colorVariants.length} color{colorVariants.length > 1 ? "s" : ""}
@@ -363,52 +319,6 @@ const AddProduct = () => {
                 </div>
               </section>
 
-              {/* Shipping Cost */}
-              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
-                <h2 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3 flex items-center justify-between">
-                  <span>Shipping Cost Details</span>
-                  <span className="text-xs font-normal text-gray-500">
-                    Add or remove shipping cost for this product
-                  </span>
-                </h2>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
-                    <input
-                      type="checkbox"
-                      id="isShippingFree"
-                      {...register("isShippingFree")}
-                      className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <label htmlFor="isShippingFree" className="text-sm font-semibold text-gray-700 dark:text-gray-200 cursor-pointer">
-                      Free Shipping (Remove shipping cost for this product)
-                    </label>
-                  </div>
-
-                  {!watch("isShippingFree") && (
-                    <div>
-                      <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                        Product Shipping Cost (₹)
-                      </label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...register("shippingCost")}
-                        placeholder="e.g. 49"
-                      />
-                      <p className="text-xs text-gray-400 mt-1">
-                        Specify custom shipping cost for this product. Enter 0 or check "Free Shipping" above to remove shipping cost.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              {/* Variants */}
-              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">
-                <SimpleVariantManager variants={variants} setVariants={setVariants} />
-              </section>
 
               {/* Color Variants */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-4">

@@ -260,8 +260,8 @@ const AishaProductHero = ({
             {stock > 0 ? t("Available") : t("stockOut")}
           </p>
           <p>
-            <span className="font-medium text-[#111111]">Shipping:</span>{" "}
-            <span className="text-neutral-700">Calculated at checkout</span>
+            <span className="font-medium text-[#111111]">{t("Shipping")}:</span>{" "}
+            <span className="text-neutral-700">{t("Calculated at checkout")}</span>
           </p>
           {categoryName && (
             <p>

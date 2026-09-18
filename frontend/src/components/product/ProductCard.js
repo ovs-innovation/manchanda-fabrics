@@ -157,7 +157,7 @@ const ProductCard = ({
       : 0;
 
   const isSoldOut = product.stock < 1;
-  const title = translateLabel(showingTranslateValue(product?.title), t);
+  const title = showingTranslateValue(product?.title);
 
   const primaryImg = previewColorImg || product.featuredImage || product.image?.[0];
   const hoverImg = product.hoverImage || product.image?.[1];

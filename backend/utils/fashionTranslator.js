@@ -41,7 +41,28 @@ const FASHION_DICTIONARY_HI = {
   "with Blouse": "ब्लाउज के साथ",
   "without Blouse": "बिना ब्लाउज के",
 
+  // Quality & Description Phrases (longest first)
+  "Good quality fabric": "उत्कृष्ट गुणवत्ता का फैब्रिक",
+  "Good quality fabrics": "उत्कृष्ट गुणवत्ता के कपड़े",
+  "Good quality": "उत्कृष्ट गुणवत्ता",
+  "Best quality": "सर्वोत्तम गुणवत्ता",
+  "High quality": "उच्च गुणवत्ता",
+  "Premium quality": "प्रीमियम गुणवत्ता",
+  "Premium Quality": "प्रीमियम गुणवत्ता",
+  "Fine quality": "बढ़िया गुणवत्ता",
+  "Soft Fabric": "मुलायम फैब्रिक",
+  "Pure Fabric": "प्योर फैब्रिक",
+  "Fabric": "फैब्रिक",
+  "Fabrics": "कपड़े",
+
   // Categories & Apparel Types
+  "Punjabi Suit": "पंजाबी सूट",
+  "Punjabi Suits": "पंजाबी सूट",
+  "Punjabi": "पंजाबी",
+  "Indian Suit": "इंडियन सूट",
+  "Indian Suits": "इंडियन सूट",
+  "Indian": "इंडियन",
+  "Lakda Patta": "लकड़ा पत्ता",
   "Bangalori Silk Pure": "बंगालोरी सिल्क प्योर",
   "Bangalori Silk": "बंगालोरी सिल्क",
   "Cotton Suits": "कॉटन सूट",
@@ -60,6 +81,15 @@ const FASHION_DICTIONARY_HI = {
   "Glace Cotton": "ग्लेस कॉटन",
   "Kanjivaram Silk Sarees": "कांचीवरम सिल्क साड़ियां",
   "Kanjivaram Silk": "कांचीवरम सिल्क",
+  "Banarsi Silk Sarees": "बनारसी सिल्क साड़ियां",
+  "Banarsi Silk": "बनारसी सिल्क",
+  "Banarsi Sarees": "बनारसी साड़ियां",
+  "Banarsi Saree": "बनारसी साड़ी",
+  "Banarsi Suits": "बनारसी सूट",
+  "Banarsi Suit": "बनारसी सूट",
+  "Banarsi": "बनारसी",
+  "Banarasi Suits": "बनारसी सूट",
+  "Banarasi Suit": "बनारसी सूट",
   "Banarasi Silk Sarees": "बनारसी सिल्क साड़ियां",
   "Banarasi Silk": "बनारसी सिल्क",
   "Banarasi Sarees": "बनारसी साड़ियां",
@@ -331,7 +361,10 @@ function ensureHindiTitle(title) {
     };
   }
   const en = title.en || title.hi || "";
-  const hi = title.hi && String(title.hi).trim() ? title.hi : translateToHindi(en);
+  let hi = title.hi && String(title.hi).trim() ? title.hi : translateToHindi(en);
+  if (hi && /[a-zA-Z]/.test(hi)) {
+    hi = translateToHindi(hi);
+  }
   return {
     ...title,
     en,
@@ -348,7 +381,10 @@ function ensureHindiDescription(desc) {
     };
   }
   const en = desc.en || desc.hi || "";
-  const hi = desc.hi && String(desc.hi).trim() ? desc.hi : translateToHindi(en);
+  let hi = desc.hi && String(desc.hi).trim() ? desc.hi : translateToHindi(en);
+  if (hi && /[a-zA-Z]/.test(hi)) {
+    hi = translateToHindi(hi);
+  }
   return {
     ...desc,
     en,
@@ -377,9 +413,76 @@ function ensureHindiHighlights(highlights) {
   };
 }
 
+const axios = require("axios");
+
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_MODEL =
+  process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free";
+
+const backendTranslationCache = new Map();
+
+async function translateWithNemotron(text, from = "en", to = "hi") {
+  if (!text || typeof text !== "string") return text || "";
+  const clean = text.trim();
+  if (!clean) return "";
+
+  const cacheKey = `${from}:${to}:${clean}`;
+  if (backendTranslationCache.has(cacheKey)) {
+    return backendTranslationCache.get(cacheKey);
+  }
+
+  try {
+    const res = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: OPENROUTER_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert translator for Manchanda Fabrics (Indian ethnic fashion store). Translate from ${
+              from === "en" ? "English" : "Hindi"
+            } to ${
+              to === "hi" ? "natural, fluent Hindi (Devanagari script)" : "English"
+            }. Keep Indian apparel terms natural (e.g., 'Suit Set' -> 'सूट सेट', 'Saree' -> 'साड़ी', 'Organza' -> 'ऑर्गेंज़ा', 'Dupatta' -> 'दुपट्टा', 'Cotton' -> 'कॉटन'). Output ONLY the translated string without quotes or explanations.`,
+          },
+          {
+            role: "user",
+            content: clean,
+          },
+        ],
+        max_tokens: 500,
+        temperature: 0.1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://manchandafabric.in",
+          "X-Title": "Manchanda Fabrics Translation",
+        },
+        timeout: 12000,
+      }
+    );
+
+    const translated = res.data?.choices?.[0]?.message?.content?.trim();
+    if (translated) {
+      backendTranslationCache.set(cacheKey, translated);
+      return translated;
+    }
+  } catch (err) {
+    console.warn("Nemotron translation API fallback:", err?.message);
+  }
+
+  // Fallback to local dictionary
+  const fallback = translateToHindi(clean);
+  backendTranslationCache.set(cacheKey, fallback);
+  return fallback;
+}
+
 module.exports = {
   FASHION_DICTIONARY_HI,
   translateToHindi,
+  translateWithNemotron,
   ensureHindiTitle,
   ensureHindiDescription,
   ensureHindiName,

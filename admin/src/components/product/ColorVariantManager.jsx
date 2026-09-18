@@ -12,7 +12,12 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import ColorPickerInput from "@/components/common/ColorPickerInput";
-import { uploadImageFile, guessColorFromFilename } from "@/utils/imageUpload";
+import {
+  uploadImageFile,
+  guessColorFromFilename,
+  extractDominantColorFromFile,
+  extractDominantColorFromUrl,
+} from "@/utils/imageUpload";
 import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const QUICK_COLORS = [
@@ -122,10 +127,12 @@ const ColorVariantManager = ({
       });
 
       try {
-        const uploadedUrl = await uploadImageFile(file, "product");
+        const [uploadedUrl, detectedColor] = await Promise.all([
+          uploadImageFile(file, "product"),
+          extractDominantColorFromFile(file),
+        ]);
         if (uploadedUrl) {
-          const guessed = guessColorFromFilename(file.name);
-          newRows.push(emptyColorRow(uploadedUrl, guessed));
+          newRows.push(emptyColorRow(uploadedUrl, detectedColor));
         }
       } catch (err) {
         console.error("Failed to upload image in bulk:", file.name, err);
@@ -183,11 +190,12 @@ const ColorVariantManager = ({
   };
 
   // Turn an already uploaded product image into a color variant card
-  const handleSelectExistingImage = (imageUrl) => {
+  const handleSelectExistingImage = async (imageUrl) => {
     if (!imageUrl) return;
     const exists = rows.some((r) => r.images?.includes(imageUrl));
     if (exists) return;
-    const updated = [...rows, emptyColorRow(imageUrl)];
+    const detected = await extractDominantColorFromUrl(imageUrl);
+    const updated = [...rows, emptyColorRow(imageUrl, detected)];
     setColorVariants(updated);
     if (typeof onStockChange === "function") {
       const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);

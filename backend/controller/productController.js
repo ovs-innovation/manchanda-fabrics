@@ -13,6 +13,7 @@ const {
   ensureHindiTitle,
   ensureHindiDescription,
   ensureHindiHighlights,
+  translateWithNemotron,
 } = require("../utils/fashionTranslator");
 
 const normalizeProductStatus = (status) => {
@@ -422,9 +423,21 @@ const addProduct = async (req, res) => {
   try {
     if (req.body.title) {
       req.body.title = ensureHindiTitle(req.body.title);
+      if (req.body.title?.hi && /[a-zA-Z]/.test(req.body.title.hi)) {
+        const aiHi = await translateWithNemotron(req.body.title.en || req.body.title.hi);
+        if (aiHi && !/[a-zA-Z]/.test(aiHi)) {
+          req.body.title.hi = aiHi;
+        }
+      }
     }
     if (req.body.description) {
       req.body.description = ensureHindiDescription(req.body.description);
+      if (req.body.description?.hi && /[a-zA-Z]/.test(req.body.description.hi)) {
+        const aiHi = await translateWithNemotron(req.body.description.en || req.body.description.hi);
+        if (aiHi && !/[a-zA-Z]/.test(aiHi)) {
+          req.body.description.hi = aiHi;
+        }
+      }
     }
     if (req.body.highlights) {
       req.body.highlights = ensureHindiHighlights(req.body.highlights);
@@ -649,8 +662,14 @@ const updateProduct = async (req, res) => {
     if (product) {
       const incomingTitle = req.body.title ? ensureHindiTitle(req.body.title) : {};
       product.title = { ...product.title, ...incomingTitle };
-      if (product.title && (!product.title.hi || !String(product.title.hi).trim()) && product.title.en) {
+      if (product.title && (!product.title.hi || !String(product.title.hi).trim() || /[a-zA-Z]/.test(product.title.hi)) && product.title.en) {
         product.title = ensureHindiTitle(product.title);
+        if (product.title?.hi && /[a-zA-Z]/.test(product.title.hi)) {
+          const aiHi = await translateWithNemotron(product.title.en || product.title.hi);
+          if (aiHi && !/[a-zA-Z]/.test(aiHi)) {
+            product.title.hi = aiHi;
+          }
+        }
       }
 
       const incomingDesc = req.body.description ? ensureHindiDescription(req.body.description) : {};
@@ -658,8 +677,14 @@ const updateProduct = async (req, res) => {
         ...product.description,
         ...incomingDesc,
       };
-      if (product.description && (!product.description.hi || !String(product.description.hi).trim()) && product.description.en) {
+      if (product.description && (!product.description.hi || !String(product.description.hi).trim() || /[a-zA-Z]/.test(product.description.hi)) && product.description.en) {
         product.description = ensureHindiDescription(product.description);
+        if (product.description?.hi && /[a-zA-Z]/.test(product.description.hi)) {
+          const aiHi = await translateWithNemotron(product.description.en || product.description.hi);
+          if (aiHi && !/[a-zA-Z]/.test(aiHi)) {
+            product.description.hi = aiHi;
+          }
+        }
       }
 
       const incomingHighlights = req.body.highlights ? ensureHindiHighlights(req.body.highlights) : {};
