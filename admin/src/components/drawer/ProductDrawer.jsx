@@ -47,6 +47,7 @@ import useAsync from "@/hooks/useAsync";
 import ProductPlacementFlags from "@/components/product/ProductPlacementFlags";
 import { UK_SIZES } from "@/components/product/FashionProductCoreFields";
 import ColorVariantManager from "@/components/product/ColorVariantManager";
+import ColorPickerInput from "@/components/common/ColorPickerInput";
 import ProductPreviewCard from "@/components/product/ProductPreviewCard";
 
 //internal import
@@ -150,6 +151,12 @@ const ProductDrawer = ({ id }) => {
       setTaxOptions(taxOptionsFromApi);
     }
   }, [taxOptionsFromApi]);
+
+  // Ensure default color fields are registered in react-hook-form
+  React.useEffect(() => {
+    register("defaultColorName", { required: "Default color name is required!" });
+    register("defaultColorCode");
+  }, [register]);
   
   // Default hardcoded GST rates
   const defaultGstRates = [
@@ -1993,21 +2000,16 @@ const ProductDrawer = ({ id }) => {
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
                   <LabelArea label="Default Color *" />
                   <div className="col-span-8 sm:col-span-4">
-                    <div className="flex items-center gap-2">
-                      {/* Live color swatch derived from defaultColorName */}
-                      <div
-                        title={watch("defaultColorName") || "Color preview"}
-                        style={{
-                          backgroundColor: watch("defaultColorName") || "transparent",
-                          border: "2px solid rgba(128,128,128,0.3)",
-                        }}
-                        className="w-10 h-10 rounded-lg shrink-0 transition-colors duration-300"
-                      />
-                      <Input
-                        {...register("defaultColorName", { required: "Default color name is required!" })}
-                        placeholder="e.g. Ruby Red, Mustard"
-                      />
-                    </div>
+                    <ColorPickerInput
+                      colorName={watch("defaultColorName") || ""}
+                      colorCode={watch("defaultColorCode") || ""}
+                      onChange={({ colorName, colorCode }) => {
+                        setValue("defaultColorName", colorName, { shouldValidate: true });
+                        setValue("defaultColorCode", colorCode, { shouldValidate: true });
+                      }}
+                      placeholder="Search or type color (e.g. Rani Pink, Bottle Green, Teal)"
+                      required
+                    />
                     <Error errorName={errors.defaultColorName} />
                   </div>
                 </div>

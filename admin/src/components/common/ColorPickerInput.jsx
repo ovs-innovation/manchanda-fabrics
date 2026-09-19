@@ -1,66 +1,19 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { FiEye, FiSearch, FiChevronDown, FiX, FiCheck } from "react-icons/fi";
+import { FiEye, FiSearch, FiChevronDown, FiX, FiCheck, FiPlus } from "react-icons/fi";
 import { BiColorFill } from "react-icons/bi";
 import {
   FABRIC_COLORS,
   COLOR_FAMILIES,
   findClosestFabricColor,
   normalizeHex,
+  resolveHex,
+  isValidHex,
+  searchColors,
+  cssNameToHex,
+  getDeterministicColor,
 } from "@/utils/fabricColors";
 
-const isValidHex = (hex) =>
-  typeof hex === "string" && /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(hex.trim());
-
-export const resolveHex = (code, name) => {
-  if (isValidHex(code)) return code.trim().toUpperCase();
-  if (isValidHex(name)) return name.trim().toUpperCase();
-
-  const searchTerms = [name, code]
-    .filter(Boolean)
-    .map((s) => String(s).trim().toLowerCase());
-
-  for (const term of searchTerms) {
-    const found = FABRIC_COLORS.find(
-      (c) => c.name.toLowerCase() === term
-    );
-    if (found) return found.hex;
-  }
-
-  for (const term of searchTerms) {
-    const partial = FABRIC_COLORS.find(
-      (c) =>
-        term.includes(c.name.toLowerCase()) ||
-        c.name.toLowerCase().includes(term)
-    );
-    if (partial) return partial.hex;
-  }
-
-  return "";
-};
-
-// Popular ethnic colors shown by default when opening search
-const POPULAR_COLORS = [
-  "Rani Pink",
-  "Baby Pink",
-  "Blush Pink",
-  "Bridal Red",
-  "Sindoor Red",
-  "Maroon",
-  "Bottle Green",
-  "Pista Green",
-  "Emerald Green",
-  "Peacock Blue",
-  "Royal Blue",
-  "Navy Blue",
-  "Mustard Yellow",
-  "Haldi Yellow",
-  "Rust Orange",
-  "Peach",
-  "Lavender",
-  "Pure White",
-  "Off White",
-  "Charcoal Grey",
-];
+export { resolveHex };
 
 const ColorPickerInput = ({
   colorName = "",
@@ -77,7 +30,7 @@ const ColorPickerInput = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [activeFamily, setActiveFamily] = useState("Pink");
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const colorInputRef = useRef(null);
@@ -102,39 +55,32 @@ const ColorPickerInput = ({
 
   // Filter and rank colors based on what the user types in the input
   const searchSuggestions = useMemo(() => {
-    const q = (colorName || "").trim().toLowerCase();
+    const q = (colorName || "").trim();
+    const suggestions = searchColors(q, 18);
+
     if (!q) {
-      // Return popular curated shades when input is empty
-      return FABRIC_COLORS.filter((c) => POPULAR_COLORS.includes(c.name));
+      return suggestions;
     }
 
-    // Rank matching colors: exact match first, starts with query, word starts with query, then includes
-    const exact = [];
-    const startsWith = [];
-    const wordStarts = [];
-    const contains = [];
+    // Check if the typed query exactly matches any suggestion name
+    const hasExact = suggestions.some(
+      (s) => s.name.toLowerCase() === q.toLowerCase()
+    );
 
-    for (const item of FABRIC_COLORS) {
-      const nameLower = item.name.toLowerCase();
-      const familyLower = item.family.toLowerCase();
-
-      if (nameLower === q) {
-        exact.push(item);
-      } else if (nameLower.startsWith(q)) {
-        startsWith.push(item);
-      } else if (nameLower.split(/\s+/).some((w) => w.startsWith(q))) {
-        wordStarts.push(item);
-      } else if (
-        nameLower.includes(q) ||
-        familyLower.includes(q) ||
-        item.hex.toLowerCase().includes(q)
-      ) {
-        contains.push(item);
-      }
+    // If not an exact match, offer a custom color option at the top so any typed color can be added
+    if (!hasExact) {
+      const customHex = resolveHex(colorCode, q) || "#E3007E";
+      const customItem = {
+        name: q,
+        hex: customHex,
+        family: "Custom Color",
+        isCustom: true,
+      };
+      return [customItem, ...suggestions];
     }
 
-    return [...exact, ...startsWith, ...wordStarts, ...contains].slice(0, 15);
-  }, [colorName]);
+    return suggestions;
+  }, [colorName, colorCode]);
 
   // Handle color selection from either autocomplete or palette
   const handleSelectPreset = (preset) => {
@@ -187,7 +133,6 @@ const ColorPickerInput = ({
       e.preventDefault();
       setHighlightedIndex((prev) => {
         const next = prev < searchSuggestions.length - 1 ? prev + 1 : 0;
-        // Scroll item into view
         const itemEl = listRef.current?.children[next];
         if (itemEl) itemEl.scrollIntoView({ block: "nearest" });
         return next;
@@ -205,16 +150,8 @@ const ColorPickerInput = ({
         e.preventDefault();
         handleSelectPreset(searchSuggestions[highlightedIndex]);
       } else if (isSearchOpen && searchSuggestions.length > 0) {
-        // If exact match exists, pick it
-        const exactMatch = searchSuggestions.find(
-          (c) => c.name.toLowerCase() === (colorName || "").trim().toLowerCase()
-        );
-        if (exactMatch) {
-          e.preventDefault();
-          handleSelectPreset(exactMatch);
-        } else {
-          setIsSearchOpen(false);
-        }
+        e.preventDefault();
+        handleSelectPreset(searchSuggestions[0]);
       } else {
         setIsSearchOpen(false);
       }
@@ -412,7 +349,7 @@ const ColorPickerInput = ({
             <span>
               {colorName?.trim()
                 ? `Matching Colors (${searchSuggestions.length} found)`
-                : "Popular Fabric Colors (Type to search 80+ shades)"}
+                : "Popular Fabric Colors (Type to search 250+ shades)"}
             </span>
             <button
               type="button"
@@ -436,13 +373,15 @@ const ColorPickerInput = ({
 
               return (
                 <button
-                  key={item.name + item.hex}
+                  key={item.name + item.hex + (item.isCustom ? "-custom" : "")}
                   type="button"
                   onClick={() => handleSelectPreset(item)}
                   onMouseEnter={() => setHighlightedIndex(idx)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
                     isHighlighted
                       ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-100"
+                      : item.isCustom
+                      ? "bg-amber-50/50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-100 hover:bg-amber-50 dark:hover:bg-amber-950/50"
                       : isCurrent
                       ? "bg-emerald-50/40 dark:bg-emerald-950/20"
                       : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200"
@@ -454,30 +393,42 @@ const ColorPickerInput = ({
                       className="w-6 h-6 rounded-full shrink-0 border border-black/15 shadow-xs flex items-center justify-center"
                       style={{ backgroundColor: item.hex }}
                     >
-                      {isCurrent && (
-                        <FiCheck
-                          size={12}
-                          className={
-                            ["#FFFFFF", "#FAF9F6", "#FFFFF0", "#FFFDD0", "#F5F5DC", "#FDFD96", "#FFF44F", "#FFE5B4", "#FFE4E1", "#FFD1DC", "#F4C2C2"].includes(item.hex)
-                              ? "text-gray-800"
-                              : "text-white"
-                          }
-                        />
+                      {item.isCustom ? (
+                        <FiPlus size={12} className="text-white drop-shadow-sm" />
+                      ) : (
+                        isCurrent && (
+                          <FiCheck
+                            size={12}
+                            className={
+                              ["#FFFFFF", "#FAF9F6", "#FFFFF0", "#FFFDD0", "#F5F5DC", "#FDFD96", "#FFF44F", "#FFE5B4", "#FFE4E1", "#FFD1DC", "#F4C2C2"].includes(item.hex)
+                                ? "text-gray-800"
+                                : "text-white"
+                            }
+                          />
+                        )
                       )}
                     </span>
                     <div className="min-w-0">
-                      <span className="text-sm font-semibold block truncate">
-                        {item.name}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-semibold block truncate">
+                          {item.isCustom ? `+ Add "${item.name}" as Color` : item.name}
+                        </span>
+                      </div>
                       <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                        {item.family}
+                        {item.isCustom ? "Custom color name · Click to select" : item.family}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                      {item.family}
+                    <span
+                      className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${
+                        item.isCustom
+                          ? "bg-emerald-600 text-white"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                      }`}
+                    >
+                      {item.isCustom ? "Add" : item.family}
                     </span>
                     <span className="text-xs font-mono font-bold text-gray-400 dark:text-gray-400">
                       {item.hex}
@@ -492,9 +443,19 @@ const ColorPickerInput = ({
                 <p className="font-semibold text-gray-700 dark:text-gray-200">
                   No preset color matched "{colorName}"
                 </p>
-                <p className="text-[11px] text-gray-400">
-                  You can keep this as a custom color name and select any hex code with the color picker.
-                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSelectPreset({
+                      name: colorName.trim(),
+                      hex: resolveHex("", colorName) || "#E3007E",
+                      family: "Custom Color",
+                    })
+                  }
+                  className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 text-white rounded-lg font-medium text-xs shadow-sm hover:bg-emerald-700 transition-colors"
+                >
+                  <FiPlus size={13} /> Add "{colorName}" as Custom Color
+                </button>
               </div>
             )}
           </div>
@@ -502,7 +463,7 @@ const ColorPickerInput = ({
           {/* Footer note */}
           <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 text-[10px] text-gray-400 flex items-center justify-between">
             <span>↑↓ Navigate • Enter to select • Esc to close</span>
-            <span>80+ Ethnic Fabric Colors</span>
+            <span>250+ Ethnic & Fashion Colors</span>
           </div>
         </div>
       )}
@@ -536,7 +497,7 @@ const ColorPickerInput = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search shades (e.g. Rani, Baby Pink, Mustard)..."
+              placeholder="Search shades (e.g. Rani, Firozi, Mehndi, Mustard)..."
               className="w-full text-xs pl-8 pr-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-emerald-500"
             />
             {searchQuery && (
@@ -582,7 +543,7 @@ const ColorPickerInput = ({
 
               return (
                 <button
-                  key={color.name}
+                  key={color.name + color.hex}
                   type="button"
                   onClick={() => handleSelectPreset(color)}
                   className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all ${

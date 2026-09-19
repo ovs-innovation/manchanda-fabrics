@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import { Button, Input } from "@windmill/react-ui";
 import {
   FiPlus,
@@ -10,6 +10,7 @@ import {
   FiInfo,
   FiX,
   FiRefreshCw,
+  FiSearch,
 } from "react-icons/fi";
 import ColorPickerInput from "@/components/common/ColorPickerInput";
 import {
@@ -19,27 +20,31 @@ import {
   extractDominantColorFromUrl,
 } from "@/utils/imageUpload";
 import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
+import { searchColors, resolveHex, FABRIC_COLORS } from "@/utils/fabricColors";
+import { notifySuccess, notifyError } from "@/utils/toast";
 
 const QUICK_COLORS = [
   { name: "Rani Pink", hex: "#E3007E" },
-  { name: "Bridal Red", hex: "#C41E3A" },
   { name: "Bottle Green", hex: "#004B23" },
+  { name: "Bridal Red", hex: "#C41E3A" },
   { name: "Mustard Yellow", hex: "#E1AD01" },
   { name: "Royal Blue", hex: "#4169E1" },
   { name: "Maroon", hex: "#800000" },
-  { name: "Deep Wine", hex: "#722F37" },
+  { name: "Firozi Blue", hex: "#00A8CC" },
   { name: "Pista Green", hex: "#93C572" },
   { name: "Rust Orange", hex: "#C85A17" },
   { name: "Peach", hex: "#FFE5B4" },
+  { name: "Deep Wine", hex: "#722F37" },
+  { name: "Lavender", hex: "#E6E6FA" },
   { name: "Jet Black", hex: "#0A0A0A" },
   { name: "Pure White", hex: "#FFFFFF" },
 ];
 
-const emptyColorRow = (image = null, color = null) => ({
+const emptyColorRow = (image = null, color = null, defaultStock = 5) => ({
   colorName: color?.colorName || "",
   colorCode: color?.colorCode || "",
   images: image ? [image] : [],
-  stock: 5,
+  stock: defaultStock,
   sku: "",
 });
 
@@ -56,8 +61,133 @@ const ColorVariantManager = ({
   const [isDragging, setIsDragging] = useState(false);
   const [activeAngleUploadIndex, setActiveAngleUploadIndex] = useState(null);
 
+  // Top Search & Add Color state
+  const [searchColorText, setSearchColorText] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
   const bulkFileInputRef = useRef(null);
   const angleFileInputRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  // Handle clicking outside top search dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Filtered color suggestions for the top search bar
+  const topColorSuggestions = useMemo(() => {
+    const q = searchColorText.trim();
+    const suggestions = searchColors(q, 15);
+
+    if (!q) {
+      return suggestions;
+    }
+
+    const hasExact = suggestions.some(
+      (s) => s.name.toLowerCase() === q.toLowerCase()
+    );
+
+    if (!hasExact) {
+      const customHex = resolveHex("", q) || "#E3007E";
+      return [
+        {
+          name: q,
+          hex: customHex,
+          family: "Custom Color",
+          isCustom: true,
+        },
+        ...suggestions,
+      ];
+    }
+
+    return suggestions;
+  }, [searchColorText]);
+
+  // Add a specific color variant directly to the product
+  const handleAddColorToProduct = (colorItem) => {
+    const targetName = typeof colorItem === "string" ? colorItem.trim() : colorItem?.name?.trim();
+    if (!targetName) return;
+
+    // Check if already added
+    const alreadyExists = rows.some(
+      (r) => r.colorName?.trim().toLowerCase() === targetName.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      notifyError(`Color variant "${targetName}" is already added to this product.`);
+      setIsSearchOpen(false);
+      setSearchColorText("");
+      return;
+    }
+
+    const targetHex =
+      typeof colorItem === "object" && colorItem?.hex
+        ? colorItem.hex
+        : resolveHex("", targetName) || "#E3007E";
+
+    const defaultStock =
+      bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5;
+
+    const newRow = emptyColorRow(
+      null,
+      { colorName: targetName, colorCode: targetHex },
+      defaultStock
+    );
+
+    const updated = [...rows, newRow];
+    setColorVariants(updated);
+
+    if (typeof onStockChange === "function") {
+      const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
+      onStockChange(sum);
+    }
+
+    notifySuccess(`Added "${targetName}" color variant to product!`);
+    setSearchColorText("");
+    setIsSearchOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  // Keyboard navigation for top search bar
+  const handleTopSearchKeyDown = (e) => {
+    if (!isSearchOpen && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      setIsSearchOpen(true);
+      return;
+    }
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev < topColorSuggestions.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev > 0 ? prev - 1 : topColorSuggestions.length - 1
+      );
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightedIndex >= 0 && topColorSuggestions[highlightedIndex]) {
+        handleAddColorToProduct(topColorSuggestions[highlightedIndex]);
+      } else if (topColorSuggestions.length > 0) {
+        handleAddColorToProduct(topColorSuggestions[0]);
+      } else if (searchColorText.trim()) {
+        handleAddColorToProduct(searchColorText.trim());
+      }
+    } else if (e.key === "Escape") {
+      setIsSearchOpen(false);
+    }
+  };
 
   const updateRow = (index, field, value) => {
     const updated = rows.map((row, i) => {
@@ -81,7 +211,14 @@ const ColorVariantManager = ({
   };
 
   const addRow = () => {
-    const updated = [...rows, emptyColorRow()];
+    const updated = [
+      ...rows,
+      emptyColorRow(
+        null,
+        null,
+        bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
+      ),
+    ];
     setColorVariants(updated);
     if (typeof onStockChange === "function") {
       const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
@@ -132,7 +269,13 @@ const ColorVariantManager = ({
           extractDominantColorFromFile(file),
         ]);
         if (uploadedUrl) {
-          newRows.push(emptyColorRow(uploadedUrl, detectedColor));
+          newRows.push(
+            emptyColorRow(
+              uploadedUrl,
+              detectedColor,
+              bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
+            )
+          );
         }
       } catch (err) {
         console.error("Failed to upload image in bulk:", file.name, err);
@@ -195,7 +338,14 @@ const ColorVariantManager = ({
     const exists = rows.some((r) => r.images?.includes(imageUrl));
     if (exists) return;
     const detected = await extractDominantColorFromUrl(imageUrl);
-    const updated = [...rows, emptyColorRow(imageUrl, detected)];
+    const updated = [
+      ...rows,
+      emptyColorRow(
+        imageUrl,
+        detected,
+        bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
+      ),
+    ];
     setColorVariants(updated);
     if (typeof onStockChange === "function") {
       const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
@@ -247,7 +397,7 @@ const ColorVariantManager = ({
             )}
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            Bulk upload photos of all colors at once, then assign color names and stock below.
+            Search any color to add it to the product, or bulk upload suit photos below.
           </p>
         </div>
 
@@ -283,7 +433,209 @@ const ColorVariantManager = ({
         </div>
       </div>
 
-      {/* Hero: Bulk Upload Zone */}
+      {/* TOP SECTION: Search Any Color & Add to Product */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border-2 border-emerald-500/30 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">
+              Search Any Color & Add To Product
+            </h4>
+          </div>
+          <span className="text-[11px] text-gray-500 dark:text-gray-400">
+            Type any color name (e.g. Rani Pink, Bottle Green, Firozi, Teal, Mustard, Coral)
+          </span>
+        </div>
+
+        {/* Search Input Bar with Autocomplete */}
+        <div className="relative" ref={searchContainerRef}>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-600">
+                <FiSearch size={18} />
+              </div>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchColorText}
+                onChange={(e) => {
+                  setSearchColorText(e.target.value);
+                  setIsSearchOpen(true);
+                  setHighlightedIndex(-1);
+                }}
+                onFocus={() => setIsSearchOpen(true)}
+                onKeyDown={handleTopSearchKeyDown}
+                placeholder="Search any color to add (e.g. Bottle Green, Rani Pink, Firozi, Mustard, Teal, Coral)..."
+                autoComplete="off"
+                className="w-full text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pl-10 pr-9 py-2.5 focus:bg-white dark:focus:bg-gray-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all placeholder:text-gray-400"
+              />
+              {searchColorText && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchColorText("");
+                    setIsSearchOpen(false);
+                    searchInputRef.current?.focus();
+                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  <FiX size={16} />
+                </button>
+              )}
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => {
+                if (searchColorText.trim()) {
+                  handleAddColorToProduct(searchColorText.trim());
+                } else {
+                  setIsSearchOpen(true);
+                  searchInputRef.current?.focus();
+                }
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 px-4 rounded-xl flex items-center gap-1.5 font-bold shrink-0 shadow-sm transition-all"
+            >
+              <FiPlus size={15} /> Add Color Variant
+            </Button>
+          </div>
+
+          {/* Autocomplete Dropdown */}
+          {isSearchOpen && (
+            <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800 scrollbar-thin">
+              <div className="px-3.5 py-2 bg-gray-50 dark:bg-gray-900/80 text-[11px] font-semibold text-gray-500 dark:text-gray-400 flex items-center justify-between">
+                <span>
+                  {searchColorText.trim()
+                    ? `Matching Colors (${topColorSuggestions.length} found)`
+                    : "Popular Fabric Colors (Click to add to product)"}
+                </span>
+                <span>Enter to add</span>
+              </div>
+
+              {topColorSuggestions.map((item, idx) => {
+                const isHighlighted = idx === highlightedIndex;
+                const isAlreadyAdded = rows.some(
+                  (r) => r.colorName?.trim().toLowerCase() === item.name.toLowerCase()
+                );
+
+                return (
+                  <button
+                    key={item.name + item.hex + (item.isCustom ? "-cust" : "")}
+                    type="button"
+                    onClick={() => handleAddColorToProduct(item)}
+                    onMouseEnter={() => setHighlightedIndex(idx)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
+                      isHighlighted
+                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-100"
+                        : isAlreadyAdded
+                        ? "bg-gray-50/70 dark:bg-gray-800/40 text-gray-400"
+                        : item.isCustom
+                        ? "bg-amber-50/60 dark:bg-amber-950/20 text-amber-900 dark:text-amber-100 hover:bg-amber-50"
+                        : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className="w-6 h-6 rounded-full shrink-0 border border-black/15 shadow-xs flex items-center justify-center"
+                        style={{ backgroundColor: item.hex }}
+                      >
+                        {item.isCustom ? (
+                          <FiPlus size={12} className="text-white drop-shadow-sm" />
+                        ) : isAlreadyAdded ? (
+                          <FiCheck size={12} className="text-white" />
+                        ) : null}
+                      </span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-semibold block truncate">
+                          {item.isCustom ? `+ Add "${item.name}" as New Color` : item.name}
+                        </span>
+                        <span className="text-[10px] text-gray-400">
+                          {isAlreadyAdded
+                            ? "✓ Already added to product"
+                            : item.isCustom
+                            ? "Custom Color · Click to add variant"
+                            : item.family}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <span
+                        className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${
+                          isAlreadyAdded
+                            ? "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                            : item.isCustom
+                            ? "bg-emerald-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        }`}
+                      >
+                        {isAlreadyAdded ? "Added" : item.isCustom ? "Add" : item.family}
+                      </span>
+                      <span className="text-xs font-mono font-bold text-gray-400">
+                        {item.hex}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+
+              {topColorSuggestions.length === 0 && (
+                <div className="p-4 text-center text-xs text-gray-500 space-y-1.5">
+                  <p>No preset color found for "{searchColorText}"</p>
+                  <Button
+                    type="button"
+                    onClick={() => handleAddColorToProduct(searchColorText.trim())}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-1.5 px-3 rounded-lg"
+                  >
+                    + Add "{searchColorText}" as Custom Color Variant
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Quick 1-Click Popular Ethnic Colors Bar */}
+        <div>
+          <div className="text-[11px] font-semibold text-gray-400 mb-1.5 flex items-center justify-between">
+            <span>Quick 1-Click Add Popular Colors:</span>
+            <span>Click to add immediately</span>
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {QUICK_COLORS.map((qc) => {
+              const isAlreadyAdded = rows.some(
+                (r) => r.colorName?.toLowerCase() === qc.name.toLowerCase()
+              );
+              return (
+                <button
+                  key={qc.name}
+                  type="button"
+                  onClick={() => handleAddColorToProduct(qc)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                    isAlreadyAdded
+                      ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 font-semibold"
+                      : "border-gray-200 dark:border-gray-700 hover:border-emerald-500 bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 hover:bg-white"
+                  }`}
+                  title={isAlreadyAdded ? `"${qc.name}" is already in product` : `Click to add ${qc.name}`}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0"
+                    style={{ backgroundColor: qc.hex }}
+                  />
+                  <span>{qc.name}</span>
+                  {isAlreadyAdded ? (
+                    <FiCheck size={12} className="text-emerald-600" />
+                  ) : (
+                    <FiPlus size={11} className="text-gray-400" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bulk Upload Zone */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -381,12 +733,12 @@ const ColorVariantManager = ({
       {/* Cards List: Each suit photo has its own card to assign Color, Stock & SKU */}
       {rows.length === 0 ? (
         <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 text-sm">
-          No color variants added yet. Drop your suit photos above to get started!
+          No color variants added yet. Use the search bar above to add colors, or drop your suit photos!
         </div>
       ) : (
         <div className="space-y-4">
           <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-            Assign Color & Stock to Each Suit ({rows.length} {rows.length === 1 ? "Suit" : "Suits"}):
+            Product Colors & Stock ({rows.length} {rows.length === 1 ? "Color" : "Colors"}):
           </div>
 
           {rows.map((row, index) => {
@@ -495,7 +847,7 @@ const ColorVariantManager = ({
                           onChange={({ colorName, colorCode }) =>
                             updateColorBoth(index, colorName, colorCode)
                           }
-                          placeholder="e.g. Rani Pink, Bottle Green"
+                          placeholder="e.g. Rani Pink, Bottle Green, Teal"
                           required
                         />
                       </div>
@@ -531,10 +883,10 @@ const ColorVariantManager = ({
                       </div>
                     </div>
 
-                    {/* Quick 1-Click Color Buttons */}
+                    {/* Quick 1-Click Color Buttons for this specific row */}
                     <div>
                       <div className="text-[11px] font-semibold text-gray-400 mb-1.5">
-                        Quick 1-Click Colors:
+                        Change Color (Quick 1-Click):
                       </div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {QUICK_COLORS.map((qc) => {
