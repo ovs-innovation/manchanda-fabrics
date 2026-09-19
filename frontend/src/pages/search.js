@@ -21,7 +21,44 @@ import FilterSidebar from "@components/category/FilterSidebar";
 import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
 
-const Search = ({ products, attributes }) => {
+const findCategoryBySlugOrId = (catList, slugOrId) => {
+  if (!slugOrId || !Array.isArray(catList)) return null;
+  const target = String(slugOrId).toLowerCase().trim();
+  const cleanTarget = target.replace(/[^a-z0-9]/g, "");
+  const reducedTarget = cleanTarget.replace(/([a-z])\1+/g, "$1");
+
+  for (const cat of catList) {
+    if (!cat) continue;
+    const catId = String(cat._id || "").toLowerCase();
+    const catSlug = String(cat.slug || "").toLowerCase().trim();
+    const catEn = String(cat.name?.en || cat.name || "").toLowerCase().trim();
+    const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
+    const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
+    const reducedSlug = cleanSlug.replace(/([a-z])\1+/g, "$1");
+    const reducedEn = cleanEn.replace(/([a-z])\1+/g, "$1");
+
+    if (
+      catId === target ||
+      catSlug === target ||
+      catEn === target ||
+      cleanSlug === cleanTarget ||
+      cleanEn === cleanTarget ||
+      reducedSlug === reducedTarget ||
+      reducedEn === reducedTarget ||
+      (cleanSlug && cleanTarget && (cleanSlug.includes(cleanTarget) || cleanTarget.includes(cleanSlug))) ||
+      (cleanEn && cleanTarget && (cleanEn.includes(cleanTarget) || cleanTarget.includes(cleanEn)))
+    ) {
+      return cat;
+    }
+    if (Array.isArray(cat.children) && cat.children.length > 0) {
+      const foundChild = findCategoryBySlugOrId(cat.children, slugOrId);
+      if (foundChild) return foundChild;
+    }
+  }
+  return null;
+};
+
+const Search = ({ products, attributes, categories: serverCategories = [] }) => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const { query } = router.query;
@@ -41,10 +78,14 @@ const Search = ({ products, attributes }) => {
 
   // Maintain local products state so we can refetch when query params change (category/_id etc.)
   const [initialProducts, setInitialProducts] = useState(products || []);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(serverCategories || []);
 
-  // Fetch categories for useFilter name-based matching
+  // Fetch categories for useFilter name-based matching if not provided from server
   useEffect(() => {
+    if (serverCategories && serverCategories.length > 0) {
+      setCategories(serverCategories);
+      return;
+    }
     const fetchCats = async () => {
       try {
         const res = await CategoryServices.getShowingCategory();
@@ -54,7 +95,7 @@ const Search = ({ products, attributes }) => {
       }
     };
     fetchCats();
-  }, []);
+  }, [serverCategories]);
 
   // Call useFilter hook FIRST to get sortedField and other values
   const {
@@ -153,9 +194,14 @@ const Search = ({ products, attributes }) => {
         const id = router.query._id;
 
         if (catSlug) {
-          setSelectedCategories([catSlug]);
+          const matched = findCategoryBySlugOrId(categories, catSlug);
+          if (matched?._id) {
+            setSelectedCategories([String(matched._id)]);
+          } else {
+            setSelectedCategories([String(catSlug)]);
+          }
         } else if (id) {
-          setSelectedCategories([id]);
+          setSelectedCategories([String(id)]);
         } else {
           // No category in URL → show ALL (empty selection = all products in useFilter)
           setSelectedCategories([]);
@@ -166,6 +212,23 @@ const Search = ({ products, attributes }) => {
       fetchByQuery();
     }
   }, [router.isReady, router.query._id, router.query.category, router.query.query]);
+
+  // Sync category if categories finish loading after router is ready
+  useEffect(() => {
+    const catSlug = router.query.category;
+    if (categories && categories.length > 0 && catSlug && !isSidebarAction.current && !router.query._id) {
+      const matched = findCategoryBySlugOrId(categories, catSlug);
+      if (matched?._id) {
+        setSelectedCategories((prev) => {
+          if (prev.includes(String(matched._id))) return prev;
+          if (prev.length === 0 || (prev.length === 1 && prev[0] === String(catSlug))) {
+            return [String(matched._id)];
+          }
+          return prev;
+        });
+      }
+    }
+  }, [categories, router.query.category, router.query._id]);
 
   // Clear search query and URL filters when sidebar filters are applied
   const clearSearchQuery = () => {
@@ -439,6 +502,7 @@ const Search = ({ products, attributes }) => {
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block w-1/5 shrink-0">
             <FilterSidebar
+              categories={categories}
               priceRange={priceRange}
               setPriceRange={handlePriceRangeChange}
               selectedCategories={selectedCategories}
@@ -538,6 +602,7 @@ const Search = ({ products, attributes }) => {
 
       {/* Filter Drawer for Mobile */}
       <FilterDrawer
+        categories={categories}
         priceRange={priceRange}
         setPriceRange={handlePriceRangeChange}
         selectedCategories={selectedCategories}
@@ -625,22 +690,26 @@ export default Search;
 export const getServerSideProps = async (context) => {
   const { query } = context.query;
 
-  const [dataResult, attributesResult] = await Promise.allSettled([
+  const [dataResult, attributesResult, categoriesResult] = await Promise.allSettled([
     ProductServices.getShowingStoreProducts({
       category: "",
       title: query ? encodeURIComponent(query) : "",
     }),
     AttributeServices.getShowingAttributes({}),
+    CategoryServices.getShowingCategory(),
   ]);
 
   const data = dataResult.status === "fulfilled" ? dataResult.value : null;
   const attributes =
     attributesResult.status === "fulfilled" ? attributesResult.value : [];
+  const categories =
+    categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
 
   return {
     props: {
       attributes: attributes || [],
       products: data?.products || [],
+      categories: categories || [],
     },
   };
 };

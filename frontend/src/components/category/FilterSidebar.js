@@ -5,7 +5,20 @@ import useTranslation from "next-translate/useTranslation";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 
+const cleanCategories = (categoryData = []) => {
+  const root = (categoryData || []).find(
+    (c) => c.id === "Root" || c.name?.en?.toLowerCase() === "home"
+  );
+  const baseList = root?.children?.length ? root.children : categoryData || [];
+  return baseList.filter((c) => {
+    const name = String(c.name?.en || c.name || "").toLowerCase().trim();
+    const slug = String(c.slug || "").toLowerCase().trim();
+    return name !== "home" && slug !== "home" && c.id !== "Root";
+  });
+};
+
 const FilterSidebar = ({
+  categories: propCategories = [],
   priceRange,
   setPriceRange,
   selectedCategories,
@@ -20,7 +33,9 @@ const FilterSidebar = ({
 }) => {
   const { t } = useTranslation("common");
   const { showingTranslateValue, currency } = useUtilsFunction();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(
+    propCategories?.length > 0 ? cleanCategories(propCategories) : []
+  );
   const [expandedCategories, setExpandedCategories] = useState({});
   const [openSections, setOpenSections] = useState({
     rating: false,
@@ -30,19 +45,20 @@ const FilterSidebar = ({
   });
 
   useEffect(() => {
+    if (propCategories && propCategories.length > 0) {
+      setCategories(cleanCategories(propCategories));
+      return;
+    }
     const fetchData = async () => {
       try {
         const categoryData = await CategoryServices.getShowingCategory();
-        const root = (categoryData || []).find(
-          (c) => c.id === "Root" || c.name?.en?.toLowerCase() === "home"
-        );
-        setCategories(root?.children?.length ? root.children : categoryData || []);
+        setCategories(cleanCategories(categoryData));
       } catch (err) {
         console.error("Error fetching filter data", err);
       }
     };
     fetchData();
-  }, []);
+  }, [propCategories]);
 
   const toggleCategory = (catId) => {
     setExpandedCategories((prev) => ({
@@ -107,11 +123,11 @@ const FilterSidebar = ({
 
               for (const catId of selectedCategories) {
                 if (consumed.has(catId)) continue;
-                let cat = categories.find((c) => c._id === catId);
+                let cat = categories.find((c) => c._id === catId || (c.slug && c.slug === catId));
                 if (!cat) {
                   for (const parentCat of categories) {
                     if (parentCat.children) {
-                      const child = parentCat.children.find((c) => c._id === catId);
+                      const child = parentCat.children.find((c) => c._id === catId || (c.slug && c.slug === catId));
                       if (child) {
                         cat = child;
                         break;
@@ -231,13 +247,14 @@ const FilterSidebar = ({
                         id={`cat-${cat._id}`}
                         checked={
                           selectedCategories.includes(cat._id) || 
-                          (cat.children && cat.children.length > 0 && cat.children.every((c) => selectedCategories.includes(c._id)))
+                          (cat.slug && selectedCategories.includes(cat.slug)) ||
+                          (cat.children && cat.children.length > 0 && cat.children.every((c) => selectedCategories.includes(c._id) || (c.slug && selectedCategories.includes(c.slug))))
                         }
                         onChange={() => {
                           const ids = (cat.children && cat.children.length > 0) ? [cat._id, ...cat.children.map(c => c._id)] : [cat._id];
                           handleCategoryChange(ids);
                         }}
-                        className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                        className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4 cursor-pointer"
                       />
                       <label
                         htmlFor={`cat-${cat._id}`}
@@ -271,9 +288,9 @@ const FilterSidebar = ({
                           <input
                             type="checkbox"
                             id={`subcat-${subCat._id}`}
-                            checked={selectedCategories.includes(subCat._id)}
+                            checked={selectedCategories.includes(subCat._id) || (subCat.slug && selectedCategories.includes(subCat.slug))}
                             onChange={() => handleCategoryChange(subCat._id)}
-                            className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
+                            className="rounded border-[#E6D1CB]/60 text-[#9C6A5A] bg-white focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4 cursor-pointer"
                           />
                           <label
                             htmlFor={`subcat-${subCat._id}`}

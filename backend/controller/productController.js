@@ -598,8 +598,8 @@ const getAllProducts = async (req, res) => {
     const totalDoc = await Product.countDocuments(queryObject);
 
     const products = await Product.find(queryObject)
-      .populate({ path: "category", select: "_id name" })
-      .populate({ path: "categories", select: "_id name" })
+      .populate({ path: "category", select: "_id name slug" })
+      .populate({ path: "categories", select: "_id name slug" })
       .populate({ path: "brand", select: "_id name slug logo" })
       .sort(sortObject)
       .skip(skip)
@@ -636,8 +636,8 @@ const getProductBySlug = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate({ path: "category", select: "_id name" })
-      .populate({ path: "categories", select: "_id name" })
+      .populate({ path: "category", select: "_id name slug" })
+      .populate({ path: "categories", select: "_id name slug" })
       .populate({ path: "brand", select: "_id name slug logo" });
 
     res.send(product);
@@ -871,6 +871,7 @@ const deleteProduct = (req, res) => {
 
 const PRODUCT_POPULATE = [
   { path: "category", select: "name _id slug" },
+  { path: "categories", select: "name _id slug" },
   { path: "brand", select: "_id name slug logo coverImage" },
 ];
 
@@ -1019,7 +1020,8 @@ const getShowingStoreProducts = async (req, res) => {
       queryObject.slug = slug;
       queryObject.status = "show";
       products = await Product.find(queryObject)
-        .populate({ path: "category", select: "name _id" })
+        .populate({ path: "category", select: "name _id slug" })
+        .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
         .limit(500);
@@ -1028,13 +1030,15 @@ const getShowingStoreProducts = async (req, res) => {
         status: "show",
         _id: { $ne: products[0]?._id },
       })
-        .populate({ path: "category", select: "_id name" })
+        .populate({ path: "category", select: "_id name slug" })
+        .populate({ path: "categories", select: "_id name slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ sales: -1, createdAt: -1 })
         .limit(12);
     } else if (title || category || brand || tag) {
       products = await Product.find(queryObject)
-        .populate({ path: "category", select: "name _id" })
+        .populate({ path: "category", select: "name _id slug" })
+        .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
         .limit(500);
@@ -1046,7 +1050,8 @@ const getShowingStoreProducts = async (req, res) => {
     } else {
       // Fetch all products for the default view (e.g., /search page without filters)
       products = await Product.find({ status: "show" })
-        .populate({ path: "category", select: "name _id" })
+        .populate({ path: "category", select: "name _id slug" })
+        .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
         .limit(500);

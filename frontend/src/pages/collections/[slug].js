@@ -21,9 +21,53 @@ import FilterSidebar from "@components/category/FilterSidebar";
 import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
 import { translateProductTitle } from "@utils/fashionTranslations";
+import useUtilsFunction from "@hooks/useUtilsFunction";
 
-const CollectionsSlug = ({ products, attributes }) => {
+const findCategoryBySlugOrId = (catList, slugOrId) => {
+  if (!slugOrId || !Array.isArray(catList)) return null;
+  const target = String(slugOrId).toLowerCase().trim();
+  const cleanTarget = target.replace(/[^a-z0-9]/g, "");
+  const reducedTarget = cleanTarget.replace(/([a-z])\1+/g, "$1");
+
+  for (const cat of catList) {
+    if (!cat) continue;
+    const catId = String(cat._id || "").toLowerCase();
+    const catSlug = String(cat.slug || "").toLowerCase().trim();
+    const catEn = String(cat.name?.en || cat.name || "").toLowerCase().trim();
+    const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
+    const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
+    const reducedSlug = cleanSlug.replace(/([a-z])\1+/g, "$1");
+    const reducedEn = cleanEn.replace(/([a-z])\1+/g, "$1");
+
+    if (
+      catId === target ||
+      catSlug === target ||
+      catEn === target ||
+      cleanSlug === cleanTarget ||
+      cleanEn === cleanTarget ||
+      reducedSlug === reducedTarget ||
+      reducedEn === reducedTarget ||
+      (cleanSlug && cleanTarget && (cleanSlug.includes(cleanTarget) || cleanTarget.includes(cleanSlug))) ||
+      (cleanEn && cleanTarget && (cleanEn.includes(cleanTarget) || cleanTarget.includes(cleanEn)))
+    ) {
+      return cat;
+    }
+    if (Array.isArray(cat.children) && cat.children.length > 0) {
+      const foundChild = findCategoryBySlugOrId(cat.children, slugOrId);
+      if (foundChild) return foundChild;
+    }
+  }
+  return null;
+};
+
+const CollectionsSlug = ({
+  products,
+  attributes,
+  categories: serverCategories = [],
+  initialSelectedCategories = [],
+}) => {
   const { t } = useTranslation("common");
+  const { showingTranslateValue } = useUtilsFunction();
   const router = useRouter();
   const { slug } = router.query;
 
@@ -44,9 +88,13 @@ const CollectionsSlug = ({ products, attributes }) => {
 
   // Maintain local products state so we can refetch when query params change (sort/query etc.)
   const [initialProducts, setInitialProducts] = useState(products || []);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(serverCategories || []);
 
   useEffect(() => {
+    if (serverCategories && serverCategories.length > 0) {
+      setCategories(serverCategories);
+      return;
+    }
     const fetchCats = async () => {
       try {
         const res = await CategoryServices.getShowingCategory();
@@ -56,7 +104,7 @@ const CollectionsSlug = ({ products, attributes }) => {
       }
     };
     fetchCats();
-  }, []);
+  }, [serverCategories]);
 
   const {
     setSortedField,
@@ -72,7 +120,7 @@ const CollectionsSlug = ({ products, attributes }) => {
     selectedColor,
     setSelectedColor,
     sortedField,
-  } = useFilter(initialProducts, categories);
+  } = useFilter(initialProducts, categories, initialSelectedCategories);
 
   useEffect(() => {
     setVisibleProduct(18);
@@ -131,15 +179,40 @@ const CollectionsSlug = ({ products, attributes }) => {
       if (!isSidebarAction.current) {
         // Base category comes from slug; if _id is provided (from category drawer), prefer _id
         const id = router.query._id;
-        if (id) setSelectedCategories([String(id)]);
-        else if (slug) setSelectedCategories([String(slug)]);
-        else setSelectedCategories([]);
+        if (id) {
+          setSelectedCategories([String(id)]);
+        } else if (slug) {
+          const matched = findCategoryBySlugOrId(categories, slug);
+          if (matched?._id) {
+            setSelectedCategories([String(matched._id)]);
+          } else {
+            setSelectedCategories([String(slug)]);
+          }
+        } else {
+          setSelectedCategories([]);
+        }
       }
       isSidebarAction.current = false;
       fetchByQuery();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, slug, router.query.query, router.query._id]);
+
+  // Sync category if categories finish loading after router is ready
+  useEffect(() => {
+    if (categories && categories.length > 0 && slug && !isSidebarAction.current && !router.query._id) {
+      const matched = findCategoryBySlugOrId(categories, slug);
+      if (matched?._id) {
+        setSelectedCategories((prev) => {
+          if (prev.includes(String(matched._id))) return prev;
+          if (prev.length === 0 || (prev.length === 1 && prev[0] === String(slug))) {
+            return [String(matched._id)];
+          }
+          return prev;
+        });
+      }
+    }
+  }, [categories, slug, router.query._id]);
 
   // In collections pages, keep the base collection; only clear search query
   const clearSearchQuery = () => {
@@ -159,8 +232,7 @@ const CollectionsSlug = ({ products, attributes }) => {
     clearSearchQuery();
 
     if (catIdOrIds === "all") {
-      if (slug) setSelectedCategories([String(slug)]);
-      else setSelectedCategories([]);
+      setSelectedCategories([]);
       return;
     }
 
@@ -206,8 +278,7 @@ const CollectionsSlug = ({ products, attributes }) => {
   const handleClearAll = () => {
     isSidebarAction.current = true;
     setPriceRange({ min: 0, max: 100000 });
-    if (slug) setSelectedCategories([String(slug)]);
-    else setSelectedCategories([]);
+    setSelectedCategories([]);
     setSelectedRating(0);
     setSelectedDiscount(0);
     setSelectedColor("");
@@ -259,7 +330,11 @@ const CollectionsSlug = ({ products, attributes }) => {
     }
   };
 
-  const pageTitle = slug ? `${String(slug).replace(/-/g, " ")} | Collections` : "Collections";
+  const matchedCategory = findCategoryBySlugOrId(categories, router.query._id || slug);
+  const collectionTitle = matchedCategory
+    ? (showingTranslateValue(matchedCategory.name) || matchedCategory.name?.en || String(slug).replace(/-/g, " "))
+    : (slug ? String(slug).replace(/-/g, " ") : "Collections");
+  const pageTitle = `${collectionTitle} | Manchanda Fabrics`;
 
   return (
     <Layout title={pageTitle} description="Collection page" hideMobileHeader={true}>
@@ -350,7 +425,7 @@ const CollectionsSlug = ({ products, attributes }) => {
                   />
                 </div>
                 <h1 className="text-lg font-semibold text-gray-800 capitalize truncate max-w-[160px]">
-                  {slug ? translateProductTitle(String(slug).replace(/-/g, " "), router?.locale || "en") : t("All Collections")}
+                  {collectionTitle}
                 </h1>
               </div>
             </div>
@@ -413,7 +488,7 @@ const CollectionsSlug = ({ products, attributes }) => {
             className="mt-3 text-4xl sm:text-5xl font-semibold text-[#111111] capitalize"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {slug ? String(slug).replace(/-/g, " ") : t("Collections")}
+            {collectionTitle}
           </h1>
           <p className="mt-4 text-sm text-neutral-500 max-w-2xl">
             {t("Browse the latest pieces in this collection and refine with filters.")}
@@ -425,6 +500,7 @@ const CollectionsSlug = ({ products, attributes }) => {
         <div className="flex gap-6">
           <div className="hidden lg:block w-1/5 shrink-0">
             <FilterSidebar
+              categories={categories}
               priceRange={priceRange}
               setPriceRange={handlePriceRangeChange}
               selectedCategories={selectedCategories}
@@ -529,6 +605,7 @@ const CollectionsSlug = ({ products, attributes }) => {
       </div>
 
       <FilterDrawer
+        categories={categories}
         priceRange={priceRange}
         setPriceRange={handlePriceRangeChange}
         selectedCategories={selectedCategories}
@@ -588,24 +665,40 @@ const CollectionsSlug = ({ products, attributes }) => {
 export default CollectionsSlug;
 
 export const getServerSideProps = async (context) => {
-  const { query } = context.query;
+  const { query, params } = context;
+  const slug = params?.slug || query?.slug;
 
-  const [dataResult, attributesResult] = await Promise.allSettled([
+  const [dataResult, attributesResult, categoriesResult] = await Promise.allSettled([
     ProductServices.getShowingStoreProducts({
       category: "",
-      title: query ? encodeURIComponent(query) : "",
+      title: query?.query ? encodeURIComponent(query.query) : "",
     }),
     AttributeServices.getShowingAttributes({}),
+    CategoryServices.getShowingCategory(),
   ]);
 
   const data = dataResult.status === "fulfilled" ? dataResult.value : null;
   const attributes =
     attributesResult.status === "fulfilled" ? attributesResult.value : [];
+  const categories =
+    categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
+
+  let initialSelectedCategories = [];
+  if (slug) {
+    const matched = findCategoryBySlugOrId(categories, slug);
+    if (matched?._id) {
+      initialSelectedCategories = [String(matched._id)];
+    } else {
+      initialSelectedCategories = [String(slug)];
+    }
+  }
 
   return {
     props: {
       attributes: attributes || [],
       products: data?.products || [],
+      categories: categories || [],
+      initialSelectedCategories,
     },
   };
 };

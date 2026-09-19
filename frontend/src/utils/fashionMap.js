@@ -17,7 +17,10 @@ export function transformProduct(product) {
   const categorySlug =
     product.categorySlug ||
     category?.slug ||
-    textValue(category?.name)?.toLowerCase().replace(/\s+/g, "-") ||
+    textValue(category?.name)
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") ||
     "";
 
   const brandName =

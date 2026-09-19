@@ -51,7 +51,12 @@ const getShowingCategory = async (req, res) => {
       createdAt: -1,
     });
     const categoryList = readyToParentAndChildrenCategory(categories);
-    res.send(categoryList);
+    const filtered = (categoryList || []).filter((c) => {
+      const name = String(c.name?.en || c.name || "").toLowerCase().trim();
+      const slug = String(c.slug || "").toLowerCase().trim();
+      return name !== "home" && slug !== "home" && c.id !== "Root";
+    });
+    res.send(filtered);
   } catch (err) {
     res.status(500).send({
       message: err.message,
