@@ -278,43 +278,34 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                         )
                       )}
 
-                      {image && (
-                        <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 pointer-events-none">
-                          <div className="flex items-center gap-2 p-1.5 pr-2.5 bg-black/65 backdrop-blur-md rounded-xl border border-white/25 shadow-xl transition-all duration-200">
-                            <div className="w-10 h-12 sm:w-11 sm:h-13 rounded-lg overflow-hidden bg-white/10 flex-shrink-0 border border-white/40 shadow-xs">
-                              <img
-                                src={image}
-                                alt={title}
-                                className="w-full h-full object-cover object-center"
-                                loading="lazy"
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1 flex flex-col justify-center text-left">
-                              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-amber-300 uppercase tracking-wider leading-none">
-                                <FiShoppingBag size={10} className="text-amber-300 shrink-0" />
-                                <span>Shop Look</span>
-                              </div>
-                              <p className="text-[11px] sm:text-[12px] font-semibold text-white truncate leading-tight mt-1">
-                                {t(title ? title.replace(/\bSarees?\b/g, "Suit").replace(/\bsarees?\b/g, "suit") : "")}
-                              </p>
-                              {priceText && (
-                                <p className="text-[10px] sm:text-[11px] font-bold text-emerald-300 leading-none mt-0.5">
-                                  {priceText}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
 
-                    <div className="px-2.5 py-2 sm:px-3 sm:py-2.5">
-                      <p className="text-[11px] sm:text-[13px] font-medium text-[#111111] truncate leading-snug">
-                        {t(title ? title.replace(/\bSarees?\b/g, "Suit").replace(/\bsarees?\b/g, "suit") : "")}
-                      </p>
-                      {priceText && (
-                        <p className="mt-0.5 text-[10px] sm:text-[12px] text-neutral-500 font-semibold">{priceText}</p>
+                    <div className="p-2 sm:p-2.5 bg-white flex items-center gap-2.5">
+                      {image && (
+                        <div className="w-10 h-12 sm:w-11 sm:h-13 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200 shadow-xs">
+                          <img
+                            src={image}
+                            alt={title}
+                            className="w-full h-full object-cover object-center"
+                            loading="lazy"
+                          />
+                        </div>
                       )}
+
+                      <div className="min-w-0 flex-1 flex flex-col justify-center text-left">
+                        <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-[#b45309] uppercase tracking-wider leading-none">
+                          <FiShoppingBag size={10} className="text-[#b45309] shrink-0" />
+                          <span>Shop Look</span>
+                        </div>
+                        <p className="text-[11px] sm:text-[13px] font-semibold text-[#111111] truncate leading-tight mt-1">
+                          {t(title ? title.replace(/\bSarees?\b/g, "Suit").replace(/\bsarees?\b/g, "suit") : "")}
+                        </p>
+                        {priceText && (
+                          <p className="text-[10px] sm:text-[12px] font-bold text-emerald-600 leading-none mt-1">
+                            {priceText}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </button>
                 </SwiperSlide>
