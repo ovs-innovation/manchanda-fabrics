@@ -282,11 +282,11 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
 
                     <div className="p-2 sm:p-2.5 bg-white flex items-center gap-2.5">
                       {image && (
-                        <div className="w-10 h-12 sm:w-11 sm:h-13 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200 shadow-xs">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-neutral-50 flex-shrink-0 border border-neutral-200 shadow-xs flex items-center justify-center p-0.5">
                           <img
                             src={image}
                             alt={title}
-                            className="w-full h-full object-cover object-center"
+                            className="w-full h-full object-contain"
                             loading="lazy"
                           />
                         </div>
