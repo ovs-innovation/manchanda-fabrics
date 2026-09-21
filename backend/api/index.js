@@ -38,9 +38,14 @@ const { isAuth, isAdmin } = require("../config/auth");
 //   getStoreCustomizationSetting,
 // } = require("../lib/notification/setting");
 
-connectDB().catch((err) => {
-  console.error("⚠️  MongoDB connection failed — server will still start but DB operations will fail.", err.message);
-});
+connectDB()
+  .then(() => {
+    const { autoMigrateLocalhostMedia } = require("../utils/migrateLocalhostMedia");
+    autoMigrateLocalhostMedia();
+  })
+  .catch((err) => {
+    console.error("⚠️  MongoDB connection failed — server will still start but DB operations will fail.", err.message);
+  });
 const app = express();
 
 

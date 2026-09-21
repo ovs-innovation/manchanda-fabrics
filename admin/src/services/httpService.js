@@ -4,6 +4,15 @@ import Cookies from "js-cookie";
 // console.log("base url", import.meta.env.VITE_APP_API_BASE_URL);
 
 const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (
+      hostname.includes("manchandafabric.in") ||
+      (hostname !== "localhost" && hostname !== "127.0.0.1")
+    ) {
+      return "https://api.manchandafabric.in/api";
+    }
+  }
   const envUrl = import.meta.env.VITE_APP_API_BASE_URL;
   if (envUrl) {
     // If configured with https://manchandafabric.in/api without the api. subdomain
@@ -11,9 +20,6 @@ const getBaseUrl = () => {
       return envUrl.replace("https://manchandafabric.in/api", "https://api.manchandafabric.in/api");
     }
     return envUrl;
-  }
-  if (typeof window !== "undefined" && window.location.hostname.includes("manchandafabric.in")) {
-    return "https://api.manchandafabric.in/api";
   }
   return "http://localhost:8092/api";
 };

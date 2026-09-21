@@ -8,33 +8,44 @@ import path from "path";
 */
 export default async function handler(req, res) {
   try {
-    const apiBaseUrl = (
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8092/api"
-    ).replace("://localhost", "://127.0.0.1");
+    const candidates = [
+      process.env.INTERNAL_API_URL,
+      process.env.NODE_ENV === "production" ? "http://backend:8092/api" : null,
+      "https://api.manchandafabric.in/api",
+      (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8092/api").replace("://localhost", "://127.0.0.1"),
+    ].filter(Boolean);
 
     let reels = [];
-    try {
-      const response = await fetch(`${apiBaseUrl}/reels`);
-      if (response.ok) {
-        reels = await response.json();
+    for (const url of candidates) {
+      try {
+        const response = await fetch(`${url}/reels`);
+        if (response.ok) {
+          reels = await response.json();
+          if (Array.isArray(reels) && reels.length > 0) break;
+        }
+      } catch (err) {
+        // Continue to next candidate
       }
-    } catch (err) {
-      console.error("Failed to fetch reels from backend API, falling back to local files:", err.message);
     }
 
     const resolveBrokenVideoUrl = (videoUrl) => {
       if (!videoUrl || typeof videoUrl !== "string") return videoUrl;
-      if (videoUrl.includes("detqbiabu")) {
-        const match = videoUrl.match(/\/R(\d+)[_\.]/i);
+      let clean = videoUrl.trim();
+      if (clean.includes("localhost:8092/uploads/") || clean.includes("127.0.0.1:8092/uploads/")) {
+        return clean.replace(/https?:\/\/(localhost|127\.0\.0\.1):8092\/uploads\//g, "https://api.manchandafabric.in/uploads/");
+      }
+      if (clean.includes("detqbiabu")) {
+        const match = clean.match(/\/R(\d+)[_\.]/i);
         if (match) return `/R${match[1]}.mp4`;
         return "/R1.mp4";
       }
-      return videoUrl;
+      return clean;
     };
 
     reels = (reels || []).map((reel) => ({
       ...reel,
       video: resolveBrokenVideoUrl(reel.video),
+      thumbnail: resolveBrokenVideoUrl(reel.thumbnail),
     }));
 
     const videos = [];

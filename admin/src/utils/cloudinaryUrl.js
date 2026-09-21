@@ -37,7 +37,7 @@ export function getNotificationAvatarUrl(image, globalSetting) {
 export function resolveCloudinaryUrl(url) {
   if (!url || typeof url !== "string") return null;
   const trimmed = url.trim();
-  if (!trimmed.startsWith("http")) return trimmed;
+  if (!trimmed || trimmed.startsWith("blob:")) return null;
 
   const lower = trimmed.toLowerCase();
   const isLegacy = LEGACY_CLOUD_NAMES.some((cloud) =>
@@ -45,6 +45,28 @@ export function resolveCloudinaryUrl(url) {
   );
 
   if (isLegacy) return null;
+
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLive =
+      hostname.includes("manchandafabric.in") ||
+      (hostname !== "localhost" && hostname !== "127.0.0.1");
+
+    if (isLive) {
+      if (trimmed.includes("localhost:8092") || trimmed.includes("127.0.0.1:8092")) {
+        return trimmed.replace(/https?:\/\/(localhost|127\.0\.0\.1):8092/g, "https://api.manchandafabric.in");
+      }
+      if (trimmed.startsWith("/uploads/")) {
+        return `https://api.manchandafabric.in${trimmed}`;
+      }
+    } else {
+      // Local dev
+      if (trimmed.startsWith("/uploads/")) {
+        return `http://localhost:8092${trimmed}`;
+      }
+    }
+  }
+
   return trimmed;
 }
 

@@ -793,9 +793,17 @@ const cloudinaryUpload = async (req, res) => {
         const filePath = path.join(uploadsDir, filename);
         fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
 
-        const host = req.get('host') || 'localhost:8092';
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-        const localUrl = `${protocol}://${host}/uploads/${filename}`;
+        const forwardedHost = req.headers['x-forwarded-host'];
+        const host = req.get('host') || '';
+        const isLive = process.env.NODE_ENV === 'production' || host.includes('manchandafabric.in') || (forwardedHost && forwardedHost.includes('manchandafabric.in'));
+        
+        let localUrl;
+        if (isLive) {
+          localUrl = `https://api.manchandafabric.in/uploads/${filename}`;
+        } else {
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+          localUrl = `${protocol}://${host || 'localhost:8092'}/uploads/${filename}`;
+        }
         console.log('✅ Local disk media upload succeeded:', localUrl);
 
         return { url: localUrl, secure_url: localUrl, publicId: filename };

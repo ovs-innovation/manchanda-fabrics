@@ -220,7 +220,7 @@ const Home = ({
             <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16 py-14">
               <div className="relative overflow-hidden rounded-xl">
                 <img
-                  src={videoShopping.image || "/h5.jpeg"}
+                  src={normalizeProductImageUrl(videoShopping.image) || "/h5.jpeg"}
                   alt="Video shopping"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
