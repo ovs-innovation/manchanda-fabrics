@@ -278,13 +278,23 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       )}
 
                       {image && (
-                        <div className="absolute bottom-2 left-2 w-7 h-7 sm:w-10 sm:h-10 rounded overflow-hidden border sm:border-2 border-white shadow-md">
-                          <img
-                            src={image}
-                            alt={title}
-                            className="w-full h-full object-cover object-top"
-                            loading="lazy"
-                          />
+                        <div className="absolute bottom-2.5 left-2.5 z-10 flex items-center gap-1.5 p-1 pr-2 sm:pr-2.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-xl border border-white/30 shadow-lg transition-transform duration-200">
+                          <div className="w-8 h-10 sm:w-9 sm:h-12 rounded-lg overflow-hidden bg-white/20 flex-shrink-0 border border-white/60 shadow-xs">
+                            <img
+                              src={image}
+                              alt={title}
+                              className="w-full h-full object-cover object-center"
+                              loading="lazy"
+                            />
+                          </div>
+                          <div className="flex flex-col text-left leading-tight min-w-0 pr-0.5">
+                            <span className="text-[8px] sm:text-[9px] uppercase font-bold tracking-wider text-amber-300">
+                              Suit Look
+                            </span>
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-white truncate max-w-[60px] sm:max-w-[95px]">
+                              {title || "View Suit"}
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>

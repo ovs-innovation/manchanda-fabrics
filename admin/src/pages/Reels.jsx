@@ -170,9 +170,10 @@ const Reels = () => {
                     imageUrl={thumbnailUrl ? [thumbnailUrl] : []}
                     setImageUrl={(url) => setThumbnailUrl(Array.isArray(url) ? url[0] : url || "")}
                     folder="homepage-reels"
+                    useOriginalSize={true}
                   />
                   <p className="text-[10px] text-gray-400 mt-1">
-                    Choose a premium photo to display before the video plays or when loading.
+                    Upload a portrait or square suit photo. Full quality preserved without cropping.
                   </p>
                 </div>
 
@@ -272,8 +273,11 @@ const Reels = () => {
                           <TableCell className="w-44 py-3">
                             <div className="w-28 aspect-[9/16] rounded-xl overflow-hidden bg-black shadow-sm relative">
                               <video
-                                src={reel.video}
+                                src={reel.video ? `${reel.video}#t=0.001` : ""}
+                                poster={reel.thumbnail || undefined}
+                                preload="metadata"
                                 muted
+                                playsInline
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
