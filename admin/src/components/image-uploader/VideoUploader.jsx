@@ -93,7 +93,9 @@ const VideoUploader = ({
     const basePublicId = name?.substring(0, name.lastIndexOf(".")) || "video";
     const public_id = `${basePublicId}_${Date.now()}`.replace(/[^a-zA-Z0-9-_]/g, "-");
 
-    if (getVideoUploadUrl() && import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET) {
+    const videoUploadUrl = getVideoUploadUrl();
+    const isCloudinaryDisabled = !videoUploadUrl || videoUploadUrl.includes("detqbiabu");
+    if (!isCloudinaryDisabled && import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET) {
       try {
         return await uploadViaCloudinary(file, safeFolder, public_id);
       } catch (err) {

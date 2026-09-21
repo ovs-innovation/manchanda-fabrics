@@ -27,9 +27,10 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
     .replace(/^-+|-+$/g, "");
   const public_id = `${cleanPublicId || "suit"}_${Date.now()}`;
 
-  // Attempt direct Cloudinary upload first (skip if disabled or detqbiabu)
-  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu");
-  if (uploadPreset && baseUrl && !isCloudinaryDisabled) {
+  // Skip direct Cloudinary upload — use backend endpoint which saves to local disk
+  // (Cloudinary account detqbiabu is disabled; backend handles local storage)
+  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu") || !uploadPreset;
+  if (!isCloudinaryDisabled) {
     try {
       const formData = new FormData();
       formData.append("file", file);

@@ -39,14 +39,27 @@ export const normalizeProductImageUrl = (url) => {
   if (!url || typeof url !== "string") return "";
   const trimmed = url.trim();
   if (trimmed.startsWith("blob:")) return "";
+
   if (typeof window !== "undefined") {
-    const is127 = window.location.hostname === "127.0.0.1";
-    if (is127 && trimmed.includes("localhost:8092")) {
+    const hostname = window.location.hostname;
+
+    // On local dev: swap 127.0.0.1 <-> localhost
+    if (hostname === "127.0.0.1" && trimmed.includes("localhost:8092")) {
       return trimmed.replace("localhost:8092", "127.0.0.1:8092");
     }
-    const isLocalhost = window.location.hostname === "localhost";
-    if (isLocalhost && trimmed.includes("127.0.0.1:8092")) {
+    if (hostname === "localhost" && trimmed.includes("127.0.0.1:8092")) {
       return trimmed.replace("127.0.0.1:8092", "localhost:8092");
+    }
+
+    // On live site: replace any localhost:8092 or 127.0.0.1:8092 with live API domain
+    const isLive = hostname !== "localhost" && hostname !== "127.0.0.1";
+    if (isLive) {
+      if (trimmed.includes("localhost:8092")) {
+        return trimmed.replace(/https?:\/\/localhost:8092/g, "https://api.manchandafabric.in");
+      }
+      if (trimmed.includes("127.0.0.1:8092")) {
+        return trimmed.replace(/https?:\/\/127\.0\.0\.1:8092/g, "https://api.manchandafabric.in");
+      }
     }
   }
   return trimmed;
