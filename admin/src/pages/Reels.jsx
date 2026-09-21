@@ -289,7 +289,10 @@ const Reels = () => {
                           <TableCell className="min-w-[180px]">
                             <div className="flex gap-2.5 items-start">
                               {(() => {
-                                const displayImage = reel.thumbnail || (reel.product ? (Array.isArray(reel.product.image) ? reel.product.image[0] : reel.product.image) : null);
+                                const rawThumb = reel.thumbnail || (reel.product ? (Array.isArray(reel.product.image) ? reel.product.image[0] : reel.product.image) : null);
+                                const displayImage = rawThumb && rawThumb.includes("/uploads/")
+                                  ? `${rawThumb}${rawThumb.includes("?") ? "&" : "?"}v=${new Date(reel.updatedAt || Date.now()).getTime()}_clean`
+                                  : rawThumb;
                                 return displayImage ? (
                                   <div className="w-11 h-14 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0 shadow-xs flex items-center justify-center">
                                     <img src={displayImage} alt="thumb" className="w-full h-full object-contain p-0.5" />

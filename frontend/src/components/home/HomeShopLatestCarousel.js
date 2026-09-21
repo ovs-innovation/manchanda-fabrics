@@ -106,7 +106,10 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
         const product = reel.product || null;
         const video = reel.video;
         const title = reel.title || (product ? product.title?.en || product.title || product.name : "Reel");
-        const image = reel.thumbnail || (product ? pickImage(product) : null);
+        const rawImage = reel.thumbnail || (product ? pickImage(product) : null);
+        const image = rawImage && rawImage.includes("/uploads/")
+          ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(reel.updatedAt || Date.now()).getTime()}_clean`
+          : rawImage;
         const price = product ? (product.prices?.price ?? product.price) : null;
         
         return {
