@@ -273,11 +273,8 @@ const Reels = () => {
                           <TableCell className="w-44 py-3">
                             <div className="w-28 aspect-[9/16] rounded-xl overflow-hidden bg-black shadow-sm relative">
                               <video
-                                src={reel.video ? `${reel.video}#t=0.001` : ""}
-                                poster={reel.thumbnail || undefined}
-                                preload="metadata"
+                                src={reel.video}
                                 muted
-                                playsInline
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
@@ -294,8 +291,8 @@ const Reels = () => {
                               {(() => {
                                 const displayImage = reel.thumbnail || (reel.product ? (Array.isArray(reel.product.image) ? reel.product.image[0] : reel.product.image) : null);
                                 return displayImage ? (
-                                  <div className="w-10 h-12 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 shrink-0">
-                                    <img src={displayImage} alt="thumb" className="w-full h-full object-cover" />
+                                  <div className="w-11 h-14 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0 shadow-xs flex items-center justify-center">
+                                    <img src={displayImage} alt="thumb" className="w-full h-full object-contain p-0.5" />
                                   </div>
                                 ) : (
                                   <div className="w-10 h-12 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 text-gray-400 text-[9px] uppercase">
