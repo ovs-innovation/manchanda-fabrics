@@ -14,6 +14,8 @@ services:
     environment:
       - PORT=8092
       - NODE_ENV=production
+    volumes:
+      - uploads_data:/app/uploads
     networks:
       - manchanda-net
 
@@ -67,3 +69,7 @@ networks:
   manchanda-net:
     name: manchanda-net
     driver: bridge
+
+volumes:
+  uploads_data:
+    name: manchanda-uploads
