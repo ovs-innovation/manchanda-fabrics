@@ -102,22 +102,26 @@ const ColorVariantManager = ({
     const updated = rows.filter((_, i) => i !== index);
     setColorVariants(updated);
 
-    // If all rows removed, clear featuredImage and defaultColor
+    // If all rows removed, clear featuredImage, defaultColor and imageUrl
     if (updated.length === 0) {
       if (typeof setFeaturedImage === "function") setFeaturedImage("");
+      if (typeof setImageUrl === "function") setImageUrl([]);
       if (typeof setDefaultColor === "function") setDefaultColor({ colorName: "", colorCode: "" });
-    } else if (removedRow?.images?.[0] === featuredImage || !featuredImage) {
-      const nextMain = updated.find((r) => r.images?.[0]) || updated[0];
-      if (nextMain?.images?.[0] && typeof setFeaturedImage === "function") {
-        setFeaturedImage(nextMain.images[0]);
-      } else if (typeof setFeaturedImage === "function") {
-        setFeaturedImage("");
-      }
-      if (typeof setDefaultColor === "function" && nextMain?.colorName) {
-        setDefaultColor({
-          colorName: nextMain.colorName,
-          colorCode: nextMain.colorCode || "",
-        });
+    } else {
+      const allRem = updated.flatMap((r) => r.images || []).filter(Boolean);
+      if (allRem.length === 0) {
+        if (typeof setFeaturedImage === "function") setFeaturedImage("");
+        if (typeof setImageUrl === "function") setImageUrl([]);
+      } else if (removedRow?.images?.includes(featuredImage) || !featuredImage) {
+        if (typeof setFeaturedImage === "function") setFeaturedImage(allRem[0]);
+        if (typeof setImageUrl === "function") setImageUrl(allRem.slice(1));
+        const nextMain = updated.find((r) => r.images?.[0]) || updated[0];
+        if (typeof setDefaultColor === "function" && nextMain?.colorName) {
+          setDefaultColor({
+            colorName: nextMain.colorName,
+            colorCode: nextMain.colorCode || "",
+          });
+        }
       }
     }
 
@@ -312,7 +316,13 @@ const ColorVariantManager = ({
           return { ...row, images: currentImgs };
         })
       );
-      notifySuccess(`Added ${files.length} angle photo${files.length > 1 ? "s" : ""}!`);
+      const firstSuccessful = uploadResults.find((r) => r.url)?.url;
+      if (firstSuccessful) {
+        if (!featuredImage || index === 0) {
+          if (typeof setFeaturedImage === "function") setFeaturedImage(firstSuccessful);
+        }
+      }
+      notifySuccess(`Added ${files.length} suit photo${files.length > 1 ? "s" : ""}!`);
     } catch (err) {
       console.error("Failed to upload angle photos:", err);
     } finally {
@@ -382,8 +392,10 @@ const ColorVariantManager = ({
     const allRemaining = updated.flatMap((r) => r.images || []).filter(Boolean);
     if (allRemaining.length === 0) {
       if (typeof setFeaturedImage === "function") setFeaturedImage("");
-    } else if (removedPhoto === featuredImage) {
+      if (typeof setImageUrl === "function") setImageUrl([]);
+    } else if (removedPhoto === featuredImage || !featuredImage) {
       if (typeof setFeaturedImage === "function") setFeaturedImage(allRemaining[0]);
+      if (typeof setImageUrl === "function") setImageUrl(allRemaining.slice(1));
     }
   };
 

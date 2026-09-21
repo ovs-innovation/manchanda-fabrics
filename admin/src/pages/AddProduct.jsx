@@ -325,24 +325,30 @@ const AddProduct = () => {
 
             {/* Right Sticky Preview Card */}
             <div className="lg:col-span-1 lg:sticky lg:top-8">
-              <ProductPreviewCard
-                title={watchTitle}
-                brandName={brand ? brand.name?.en || brand.name : ""}
-                originalPrice={watchOriginalPrice}
-                discount={Number(watchOriginalPrice || 0) - Number(watchPrice || watchOriginalPrice || 0)}
-                discountType="flat"
-                badge={badge}
-                featuredImage={
-                  colorVariants?.length > 0
-                    ? (featuredImage || colorVariants.find((cv) => cv.images?.length > 0)?.images?.[0] || "")
-                    : ""
-                }
-                hoverImage={
-                  colorVariants?.length > 0
-                    ? (colorVariants.find((cv) => cv.images?.length > 1)?.images?.[1] || featuredImage || "")
-                    : ""
-                }
-              />
+              {(() => {
+                const allVarImgs = (colorVariants || []).flatMap((cv) => cv.images || []).filter(Boolean);
+                const activeFeatured =
+                  (featuredImage && allVarImgs.includes(featuredImage) ? featuredImage : null) ||
+                  allVarImgs[0] ||
+                  (colorVariants?.length === 0 ? featuredImage : "");
+                const activeHover =
+                  allVarImgs.find((img) => img !== activeFeatured) ||
+                  activeFeatured ||
+                  "";
+
+                return (
+                  <ProductPreviewCard
+                    title={watchTitle}
+                    brandName={brand ? brand.name?.en || brand.name : ""}
+                    originalPrice={watchOriginalPrice}
+                    discount={Number(watchOriginalPrice || 0) - Number(watchPrice || watchOriginalPrice || 0)}
+                    discountType="flat"
+                    badge={badge}
+                    featuredImage={activeFeatured}
+                    hoverImage={activeHover}
+                  />
+                );
+              })()}
             </div>
           </div>
         </form>

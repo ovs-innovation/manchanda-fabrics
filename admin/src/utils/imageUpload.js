@@ -2,6 +2,59 @@ import axios from "axios";
 import requests from "@/services/httpService";
 import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
 
+const compressImageIfNeeded = async (file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) => {
+  if (!file || !file.type || !file.type.startsWith("image/")) return file;
+  // If small SVG or already small image (< 400KB), return as-is
+  if (file.type.includes("svg") || file.size <= 400 * 1024) return file;
+
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob || blob.size >= file.size) {
+              resolve(file);
+            } else {
+              const compressed = new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(compressed);
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    } catch {
+      resolve(file);
+    }
+  });
+};
+
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -17,7 +70,10 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
   const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
   const baseUrl = import.meta.env.VITE_APP_CLOUDINARY_URL;
 
-  const name = (file.name || "image").replaceAll(/\s/g, "");
+  // Compress image before uploading to avoid 413 or timeout
+  const processedFile = await compressImageIfNeeded(file);
+
+  const name = (processedFile.name || "image").replaceAll(/\s/g, "");
   const basePublicId = name.substring(0, name.lastIndexOf(".")) || "image";
   const cleanPublicId = basePublicId
     .normalize("NFD")
@@ -33,7 +89,7 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
   if (!isCloudinaryDisabled) {
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", processedFile);
       formData.append("upload_preset", uploadPreset);
 
       const res = await axios.post(baseUrl, formData);
@@ -46,7 +102,7 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
 
   // Fallback via backend endpoint
   try {
-    const dataUrl = await fileToDataUrl(file);
+    const dataUrl = await fileToDataUrl(processedFile);
     const backendRes = await requests.post("/customer/cloudinary-upload", {
       file: dataUrl,
       folder,
