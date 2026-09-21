@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { FiMinus, FiPlus, FiHeart } from "react-icons/fi";
 import ProductImageGallery from "@components/product/ProductImageGallery";
@@ -85,13 +85,31 @@ const AishaProductHero = ({
     }
   };
 
+  const galleryImages = useMemo(() => {
+    // 1. If currentImages has items, use them
+    if (currentImages && currentImages.length > 0) return currentImages;
+    // 2. If a color variant is selected, use only that variant's images
+    if (selectedColorVar?.images && selectedColorVar.images.length > 0) return selectedColorVar.images;
+    // 3. If product has color variants, use default or first variant's images
+    if (product?.colorVariants && product.colorVariants.length > 0) {
+      const targetVar =
+        product.colorVariants.find(
+          (cv) => cv.colorName?.toLowerCase() === product.defaultColorName?.toLowerCase()
+        ) || product.colorVariants[0];
+      if (targetVar?.images?.length > 0) return targetVar.images;
+      if (product.featuredImage) return [product.featuredImage];
+    }
+    // 4. Fallback for non-variant products
+    return productImages || [];
+  }, [currentImages, selectedColorVar, product, productImages]);
+
   return (
     <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
       {/* Left — gallery */}
       <div className="w-full lg:w-[48%] xl:w-[46%]">
         <ProductImageGallery
           variant="aisha"
-          images={currentImages?.length ? currentImages : productImages}
+          images={galleryImages}
           productTitle={title}
         />
       </div>
@@ -132,10 +150,12 @@ const AishaProductHero = ({
             </p>
             <div className="flex flex-wrap gap-2.5">
               {product.colorVariants.map((colorVar, idx) => {
-                const isSelected = selectedColorVar?.colorName === colorVar.colorName;
+                const isSelected = (selectedColorVar?._id && colorVar?._id)
+                  ? String(selectedColorVar._id) === String(colorVar._id)
+                  : (selectedColorVar?.colorName && colorVar?.colorName && selectedColorVar.colorName.toLowerCase() === colorVar.colorName.toLowerCase());
                 return (
                   <button
-                    key={idx}
+                    key={colorVar._id || colorVar.colorName || idx}
                     type="button"
                     onClick={() => setSelectedColorVar(colorVar)}
                     className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${

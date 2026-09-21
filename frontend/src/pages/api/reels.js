@@ -22,6 +22,21 @@ export default async function handler(req, res) {
       console.error("Failed to fetch reels from backend API, falling back to local files:", err.message);
     }
 
+    const resolveBrokenVideoUrl = (videoUrl) => {
+      if (!videoUrl || typeof videoUrl !== "string") return videoUrl;
+      if (videoUrl.includes("detqbiabu")) {
+        const match = videoUrl.match(/\/R(\d+)[_\.]/i);
+        if (match) return `/R${match[1]}.mp4`;
+        return "/R1.mp4";
+      }
+      return videoUrl;
+    };
+
+    reels = (reels || []).map((reel) => ({
+      ...reel,
+      video: resolveBrokenVideoUrl(reel.video),
+    }));
+
     const videos = [];
     const manifest = { products: {}, categories: {} };
 

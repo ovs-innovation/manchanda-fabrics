@@ -151,26 +151,52 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   // Combine Default Color and Color Variants
   const combinedColorVariants = useMemo(() => {
     const list = [];
-    if (product?.defaultColorName) {
-      list.push({
-        colorName: product.defaultColorName,
-        colorCode: product.defaultColorCode || "#000000",
-        images: productImages || [],
-        stock: Number(product.stock) || 0,
-        sku: product.sku || "",
-        isDefault: true,
+    const seenColors = new Set();
+
+    // 1. If colorVariants array has items, use them
+    if (product?.colorVariants && Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+      product.colorVariants.forEach((cv) => {
+        const norm = (cv.colorName || "").trim().toLowerCase();
+        if (norm && !seenColors.has(norm)) {
+          seenColors.add(norm);
+          const isDef = product.defaultColorName
+            ? norm === product.defaultColorName.trim().toLowerCase()
+            : false;
+          list.push({
+            ...cv,
+            colorName: (cv.colorName || "").trim(),
+            isDefault: isDef,
+          });
+        }
       });
     }
-    if (product?.colorVariants && Array.isArray(product.colorVariants)) {
-      list.push(...product.colorVariants.map(cv => ({ ...cv, isDefault: false })));
+
+    // 2. If defaultColorName is set and was not already present in colorVariants
+    if (product?.defaultColorName) {
+      const normDef = product.defaultColorName.trim().toLowerCase();
+      if (normDef && !seenColors.has(normDef)) {
+        seenColors.add(normDef);
+        list.unshift({
+          colorName: product.defaultColorName.trim(),
+          colorCode: product.defaultColorCode || "#000000",
+          images: productImages || [],
+          stock: Number(product.stock) || 0,
+          sku: product.sku || "",
+          isDefault: true,
+        });
+      }
     }
+
     return list;
   }, [product, productImages]);
 
   // Initialize color variant selection
   useEffect(() => {
     if (combinedColorVariants && combinedColorVariants.length > 0) {
-      setSelectedColorVar(combinedColorVariants[0]);
+      const defaultVar =
+        combinedColorVariants.find((cv) => cv.isDefault) ||
+        combinedColorVariants[0];
+      setSelectedColorVar(defaultVar);
     } else {
       setSelectedColorVar(null);
     }
@@ -197,14 +223,19 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   useEffect(() => {
     if (selectedColorVar) {
       const imgs = selectedColorVar.images || [];
-      const newImages = imgs.length > 0 ? imgs : productImages;
+      const hasVariantImgs = Array.isArray(imgs) && imgs.length > 0;
+      // When a color variant is selected, show ONLY this variant's images/angles
+      // Do NOT fall back to productImages which contains other colorways
+      const newImages = hasVariantImgs
+        ? imgs
+        : (product?.featuredImage ? [product.featuredImage] : []);
       setCurrentImages(newImages);
       if (newImages.length > 0) {
         setActiveImage(newImages[0]);
       }
       setStock(selectedColorVar.stock);
     }
-  }, [selectedColorVar, productImages]);
+  }, [selectedColorVar, product?.featuredImage]);
 
   // Keep a sharable URL in sync with current selection (includes query params)
   useEffect(() => {

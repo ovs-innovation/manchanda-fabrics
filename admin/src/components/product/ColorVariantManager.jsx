@@ -1,18 +1,17 @@
-import React, { useState, useRef, useCallback, useMemo } from "react";
-import { Button, Input } from "@windmill/react-ui";
+import React, { useState, useRef } from "react";
+import { Input } from "@windmill/react-ui";
 import {
-  FiPlus,
   FiTrash2,
   FiUploadCloud,
   FiCamera,
-  FiCheck,
   FiLayers,
-  FiInfo,
   FiX,
   FiRefreshCw,
-  FiSearch,
+  FiStar,
+  FiFilm,
 } from "react-icons/fi";
 import ColorPickerInput from "@/components/common/ColorPickerInput";
+import VideoUploader from "@/components/image-uploader/VideoUploader";
 import {
   uploadImageFile,
   guessColorFromFilename,
@@ -20,174 +19,32 @@ import {
   extractDominantColorFromUrl,
 } from "@/utils/imageUpload";
 import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
-import { searchColors, resolveHex, FABRIC_COLORS } from "@/utils/fabricColors";
-import { notifySuccess, notifyError } from "@/utils/toast";
-
-const QUICK_COLORS = [
-  { name: "Rani Pink", hex: "#E3007E" },
-  { name: "Bottle Green", hex: "#004B23" },
-  { name: "Bridal Red", hex: "#C41E3A" },
-  { name: "Mustard Yellow", hex: "#E1AD01" },
-  { name: "Royal Blue", hex: "#4169E1" },
-  { name: "Maroon", hex: "#800000" },
-  { name: "Firozi Blue", hex: "#00A8CC" },
-  { name: "Pista Green", hex: "#93C572" },
-  { name: "Rust Orange", hex: "#C85A17" },
-  { name: "Peach", hex: "#FFE5B4" },
-  { name: "Deep Wine", hex: "#722F37" },
-  { name: "Lavender", hex: "#E6E6FA" },
-  { name: "Jet Black", hex: "#0A0A0A" },
-  { name: "Pure White", hex: "#FFFFFF" },
-];
-
-const emptyColorRow = (image = null, color = null, defaultStock = 5) => ({
-  colorName: color?.colorName || "",
-  colorCode: color?.colorCode || "",
-  images: image ? [image] : [],
-  stock: defaultStock,
-  sku: "",
-});
+import { resolveHex } from "@/utils/fabricColors";
+import { notifySuccess } from "@/utils/toast";
 
 const ColorVariantManager = ({
   colorVariants = [],
   setColorVariants,
+  featuredImage = "",
+  setFeaturedImage,
+  defaultColorName = "",
+  setDefaultColor,
   onStockChange,
-  availableImages = [],
+  video = "",
+  setVideo,
+  imageUrl = [],
+  setImageUrl,
 }) => {
   const rows = Array.isArray(colorVariants) ? colorVariants : [];
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStats, setUploadStats] = useState({ current: 0, total: 0, fileName: "" });
-  const [bulkStockVal, setBulkStockVal] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [activeAngleUploadIndex, setActiveAngleUploadIndex] = useState(null);
-
-  // Top Search & Add Color state
-  const [searchColorText, setSearchColorText] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [replacePhotoIndex, setReplacePhotoIndex] = useState(null);
 
   const bulkFileInputRef = useRef(null);
   const angleFileInputRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const searchContainerRef = useRef(null);
-
-  // Handle clicking outside top search dropdown
-  React.useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
-        setIsSearchOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Filtered color suggestions for the top search bar
-  const topColorSuggestions = useMemo(() => {
-    const q = searchColorText.trim();
-    const suggestions = searchColors(q, 15);
-
-    if (!q) {
-      return suggestions;
-    }
-
-    const hasExact = suggestions.some(
-      (s) => s.name.toLowerCase() === q.toLowerCase()
-    );
-
-    if (!hasExact) {
-      const customHex = resolveHex("", q) || "#E3007E";
-      return [
-        {
-          name: q,
-          hex: customHex,
-          family: "Custom Color",
-          isCustom: true,
-        },
-        ...suggestions,
-      ];
-    }
-
-    return suggestions;
-  }, [searchColorText]);
-
-  // Add a specific color variant directly to the product
-  const handleAddColorToProduct = (colorItem) => {
-    const targetName = typeof colorItem === "string" ? colorItem.trim() : colorItem?.name?.trim();
-    if (!targetName) return;
-
-    // Check if already added
-    const alreadyExists = rows.some(
-      (r) => r.colorName?.trim().toLowerCase() === targetName.toLowerCase()
-    );
-
-    if (alreadyExists) {
-      notifyError(`Color variant "${targetName}" is already added to this product.`);
-      setIsSearchOpen(false);
-      setSearchColorText("");
-      return;
-    }
-
-    const targetHex =
-      typeof colorItem === "object" && colorItem?.hex
-        ? colorItem.hex
-        : resolveHex("", targetName) || "#E3007E";
-
-    const defaultStock =
-      bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5;
-
-    const newRow = emptyColorRow(
-      null,
-      { colorName: targetName, colorCode: targetHex },
-      defaultStock
-    );
-
-    const updated = [...rows, newRow];
-    setColorVariants(updated);
-
-    if (typeof onStockChange === "function") {
-      const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
-      onStockChange(sum);
-    }
-
-    notifySuccess(`Added "${targetName}" color variant to product!`);
-    setSearchColorText("");
-    setIsSearchOpen(false);
-    setHighlightedIndex(-1);
-  };
-
-  // Keyboard navigation for top search bar
-  const handleTopSearchKeyDown = (e) => {
-    if (!isSearchOpen && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-      setIsSearchOpen(true);
-      return;
-    }
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightedIndex((prev) =>
-        prev < topColorSuggestions.length - 1 ? prev + 1 : 0
-      );
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIndex((prev) =>
-        prev > 0 ? prev - 1 : topColorSuggestions.length - 1
-      );
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (highlightedIndex >= 0 && topColorSuggestions[highlightedIndex]) {
-        handleAddColorToProduct(topColorSuggestions[highlightedIndex]);
-      } else if (topColorSuggestions.length > 0) {
-        handleAddColorToProduct(topColorSuggestions[0]);
-      } else if (searchColorText.trim()) {
-        handleAddColorToProduct(searchColorText.trim());
-      }
-    } else if (e.key === "Escape") {
-      setIsSearchOpen(false);
-    }
-  };
+  const replaceFileInputRef = useRef(null);
 
   const updateRow = (index, field, value) => {
     const updated = rows.map((row, i) => {
@@ -202,119 +59,262 @@ const ColorVariantManager = ({
   };
 
   const updateColorBoth = (index, colorName, colorCode) => {
-    setColorVariants(
-      rows.map((row, i) => {
-        if (i !== index) return row;
-        return { ...row, colorName, colorCode };
-      })
-    );
+    const hex = colorCode || resolveHex("", colorName) || "#004B23";
+    const updated = rows.map((row, i) => {
+      if (i !== index) return row;
+      return { ...row, colorName, colorCode: hex };
+    });
+    setColorVariants(updated);
+
+    // If this row is the main suit, sync default color as well
+    const row = rows[index];
+    const isMain =
+      (featuredImage && row.images?.[0] === featuredImage) ||
+      (!featuredImage && index === 0);
+
+    if (isMain && typeof setDefaultColor === "function") {
+      setDefaultColor({ colorName, colorCode: hex });
+    }
   };
 
-  const addRow = () => {
-    const updated = [
-      ...rows,
-      emptyColorRow(
-        null,
-        null,
-        bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
-      ),
-    ];
-    setColorVariants(updated);
-    if (typeof onStockChange === "function") {
-      const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
-      onStockChange(sum);
+  // Set a specific suit as the Main Photo and Default Color
+  const handleSetMainSuit = (index) => {
+    const targetRow = rows[index];
+    if (!targetRow) return;
+
+    const mainImg = targetRow.images?.[0];
+    if (mainImg && typeof setFeaturedImage === "function") {
+      setFeaturedImage(mainImg);
     }
+
+    if (typeof setDefaultColor === "function" && targetRow.colorName) {
+      setDefaultColor({
+        colorName: targetRow.colorName,
+        colorCode: targetRow.colorCode || resolveHex("", targetRow.colorName) || "#004B23",
+      });
+    }
+
+    notifySuccess(`Set "${targetRow.colorName || "Suit"}" as Main Photo & Default Color!`);
   };
 
   const removeRow = (index) => {
+    const removedRow = rows[index];
     const updated = rows.filter((_, i) => i !== index);
     setColorVariants(updated);
+
+    // If all rows removed, clear featuredImage and defaultColor
+    if (updated.length === 0) {
+      if (typeof setFeaturedImage === "function") setFeaturedImage("");
+      if (typeof setDefaultColor === "function") setDefaultColor({ colorName: "", colorCode: "" });
+    } else if (removedRow?.images?.[0] === featuredImage || !featuredImage) {
+      const nextMain = updated.find((r) => r.images?.[0]) || updated[0];
+      if (nextMain?.images?.[0] && typeof setFeaturedImage === "function") {
+        setFeaturedImage(nextMain.images[0]);
+      } else if (typeof setFeaturedImage === "function") {
+        setFeaturedImage("");
+      }
+      if (typeof setDefaultColor === "function" && nextMain?.colorName) {
+        setDefaultColor({
+          colorName: nextMain.colorName,
+          colorCode: nextMain.colorCode || "",
+        });
+      }
+    }
+
     if (typeof onStockChange === "function") {
       const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
       onStockChange(sum);
     }
   };
 
-  const applyStockToAll = () => {
-    const num = Number(bulkStockVal);
-    if (isNaN(num) || num < 0) return;
-    const updated = rows.map((r) => ({ ...r, stock: num }));
-    setColorVariants(updated);
-    if (typeof onStockChange === "function") {
-      onStockChange(updated.length * num);
-    }
-  };
-
-  // Bulk Upload Handler: User drops/selects all color suit photos together
+  // Bulk Upload Handler: Auto-detects color immediately and uploads in background
   const handleBulkUploadFiles = async (filesList) => {
-    const fileArray = Array.from(filesList).filter((f) => f.type.startsWith("image/"));
+    const fileArray = Array.from(filesList || []).filter(
+      (f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|jfif|avif|gif)$/i.test(f.name)
+    );
     if (fileArray.length === 0) return;
+
+    // 1. INSTANT LOCAL CARDS: Read local previews and detect dominant colors right away!
+    // 1. INSTANT LOCAL CARDS: Read local previews and detect dominant colors right away!
+    const initialNewRows = await Promise.all(
+      fileArray.map(async (file) => {
+        const localUrl = URL.createObjectURL(file);
+        let detected = guessColorFromFilename(file.name);
+        if (!detected?.colorName) {
+          try {
+            detected = await extractDominantColorFromFile(file);
+          } catch (e) {
+            console.warn("Color detection notice:", e);
+          }
+        }
+
+        const colorName = detected?.colorName || "Suit Color";
+        const colorCode = detected?.colorCode || resolveHex("", colorName) || "#C41E3A";
+
+        return {
+          colorName,
+          colorCode,
+          images: [localUrl],
+          stock: 5,
+          sku: "",
+          _localId: Math.random().toString(36).substring(7),
+          _localUrl: localUrl,
+          _file: file,
+          _isUploading: true,
+        };
+      })
+    );
+
+    // Immediately put suit cards on screen!
+    const mergedWithLocal = [...rows, ...initialNewRows];
+    setColorVariants(mergedWithLocal);
+
+    // If no featured image yet, set first photo as main photo immediately
+    if (!featuredImage && initialNewRows[0]?.images?.[0]) {
+      setFeaturedImage(initialNewRows[0].images[0]);
+      if (initialNewRows[0].colorName && typeof setDefaultColor === "function") {
+        setDefaultColor({
+          colorName: initialNewRows[0].colorName,
+          colorCode: initialNewRows[0].colorCode,
+        });
+      }
+    }
+
+    if (typeof onStockChange === "function") {
+      const sum = mergedWithLocal.reduce((s, r) => s + Number(r.stock || 0), 0);
+      onStockChange(sum);
+    }
 
     setIsUploading(true);
     setUploadStats({ current: 0, total: fileArray.length, fileName: "" });
 
-    const newRows = [];
+    // 2. BACKGROUND UPLOAD TO CLOUDINARY
+    await Promise.all(
+      initialNewRows.map(async (rowItem) => {
+        const file = rowItem._file;
+        setUploadStats((prev) => ({
+          ...prev,
+          current: prev.current + 1,
+          fileName: file.name,
+        }));
 
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      setUploadStats({
-        current: i + 1,
-        total: fileArray.length,
-        fileName: file.name,
-      });
+        try {
+          const uploadedUrl = await uploadImageFile(file, "product");
 
-      try {
-        const [uploadedUrl, detectedColor] = await Promise.all([
-          uploadImageFile(file, "product"),
-          extractDominantColorFromFile(file),
-        ]);
-        if (uploadedUrl) {
-          newRows.push(
-            emptyColorRow(
-              uploadedUrl,
-              detectedColor,
-              bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
-            )
+          if (uploadedUrl) {
+            let remoteColor = null;
+            if (!rowItem.colorName || rowItem.colorName === "Suit Color") {
+              try {
+                remoteColor = await extractDominantColorFromUrl(uploadedUrl);
+              } catch (e) {
+                console.warn("Remote color extraction notice:", e);
+              }
+            }
+
+            setColorVariants((prev) =>
+              prev.map((r) => {
+                if (r._localId === rowItem._localId) {
+                  const updatedName =
+                    r.colorName && r.colorName !== "Suit Color"
+                      ? r.colorName
+                      : remoteColor?.colorName || r.colorName || "Suit Color";
+                  const updatedCode =
+                    r.colorCode && r.colorCode !== "#C41E3A"
+                      ? r.colorCode
+                      : remoteColor?.colorCode || resolveHex("", updatedName) || "#C41E3A";
+
+                  return {
+                    ...r,
+                    images: [
+                      uploadedUrl,
+                      ...(r.images || []).slice(1).filter((img) => img !== rowItem._localUrl),
+                    ],
+                    colorName: updatedName,
+                    colorCode: updatedCode,
+                    _isUploading: false,
+                  };
+                }
+                return r;
+              })
+            );
+
+            setFeaturedImage((prevFeatured) => {
+              if (prevFeatured === rowItem._localUrl || !prevFeatured) {
+                return uploadedUrl;
+              }
+              return prevFeatured;
+            });
+          } else {
+            setColorVariants((prev) =>
+              prev.map((r) => (r._localId === rowItem._localId ? { ...r, _isUploading: false } : r))
+            );
+          }
+        } catch (err) {
+          console.error("Upload notice for file:", file.name, err);
+          setColorVariants((prev) =>
+            prev.map((r) => (r._localId === rowItem._localId ? { ...r, _isUploading: false } : r))
           );
         }
-      } catch (err) {
-        console.error("Failed to upload image in bulk:", file.name, err);
-      }
-    }
-
-    if (newRows.length > 0) {
-      const merged = [...rows, ...newRows];
-      setColorVariants(merged);
-      if (typeof onStockChange === "function") {
-        const sum = merged.reduce((s, r) => s + Number(r.stock || 0), 0);
-        onStockChange(sum);
-      }
-    }
+      })
+    );
 
     setIsUploading(false);
     setUploadStats({ current: 0, total: 0, fileName: "" });
-    if (bulkFileInputRef.current) {
-      bulkFileInputRef.current.value = "";
-    }
+    if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
+    notifySuccess(`Added ${fileArray.length} suit photo${fileArray.length > 1 ? "s" : ""}!`);
   };
 
-  // Add extra angle photo to a specific color variant
+  // Add extra angle photo(s) to a specific color variant
   const handleAddAnglePhoto = async (index, filesList) => {
-    const file = filesList?.[0];
-    if (!file || !file.type.startsWith("image/")) return;
+    const files = Array.from(filesList || []).filter(
+      (f) => f && f.type && f.type.startsWith("image/")
+    );
+    if (files.length === 0) return;
+
+    // Create local preview URLs for instant UI responsiveness
+    const localEntries = files.map((file) => ({
+      file,
+      localUrl: URL.createObjectURL(file),
+    }));
+
+    // Optimistically append local URLs to variant images
+    setColorVariants((prev) =>
+      prev.map((row, i) => {
+        if (i !== index) return row;
+        return {
+          ...row,
+          images: [...(row.images || []), ...localEntries.map((e) => e.localUrl)],
+        };
+      })
+    );
 
     try {
       setIsUploading(true);
-      const url = await uploadImageFile(file, "product");
-      if (url) {
-        const updated = rows.map((row, i) => {
+      // Upload all angle photos
+      const uploadResults = await Promise.all(
+        localEntries.map(async ({ file, localUrl }) => {
+          const url = await uploadImageFile(file, "product");
+          return { localUrl, url };
+        })
+      );
+
+      setColorVariants((prev) =>
+        prev.map((row, i) => {
           if (i !== index) return row;
-          return { ...row, images: [...(row.images || []), url] };
-        });
-        setColorVariants(updated);
-      }
+          let currentImgs = [...(row.images || [])];
+          uploadResults.forEach(({ localUrl, url }) => {
+            if (url) {
+              currentImgs = currentImgs.map((img) => (img === localUrl ? url : img));
+            } else {
+              currentImgs = currentImgs.filter((img) => img !== localUrl);
+            }
+          });
+          return { ...row, images: currentImgs };
+        })
+      );
+      notifySuccess(`Added ${files.length} angle photo${files.length > 1 ? "s" : ""}!`);
     } catch (err) {
-      console.error("Failed to upload angle photo:", err);
+      console.error("Failed to upload angle photos:", err);
     } finally {
       setIsUploading(false);
       setActiveAngleUploadIndex(null);
@@ -322,59 +322,89 @@ const ColorVariantManager = ({
     }
   };
 
+  // Replace primary photo of a specific color variant
+  const handleReplacePhoto = async (index, filesList) => {
+    const file = filesList?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+    const localUrl = URL.createObjectURL(file);
+    setColorVariants((prev) =>
+      prev.map((row, i) => {
+        if (i !== index) return row;
+        const restImgs = (row.images || []).slice(1);
+        return { ...row, images: [localUrl, ...restImgs], _localUrl: localUrl, _file: file, _isUploading: true };
+      })
+    );
+
+    try {
+      setIsUploading(true);
+      const url = await uploadImageFile(file, "product");
+      if (url) {
+        setColorVariants((prev) =>
+          prev.map((row, i) => {
+            if (i !== index) return row;
+            const restImgs = (row.images || []).slice(1).filter((img) => img !== localUrl);
+            return { ...row, images: [url, ...restImgs], _isUploading: false };
+          })
+        );
+        const targetRow = rows[index];
+        const isMain =
+          (featuredImage && targetRow?.images?.[0] === featuredImage) ||
+          (!featuredImage && index === 0);
+        if (isMain && typeof setFeaturedImage === "function") {
+          setFeaturedImage(url);
+        }
+        notifySuccess("Suit photo updated!");
+      }
+    } catch (err) {
+      console.error("Failed to replace suit photo:", err);
+      setColorVariants((prev) =>
+        prev.map((row, i) => (i === index ? { ...row, _isUploading: false } : row))
+      );
+    } finally {
+      setIsUploading(false);
+      setReplacePhotoIndex(null);
+      if (replaceFileInputRef.current) replaceFileInputRef.current.value = "";
+    }
+  };
+
   // Remove individual photo from a color variant
   const handleRemovePhotoFromVariant = (variantIndex, photoIndex) => {
+    const targetRow = rows[variantIndex];
+    const removedPhoto = targetRow?.images?.[photoIndex];
     const updated = rows.map((row, i) => {
       if (i !== variantIndex) return row;
       const nextImgs = (row.images || []).filter((_, pIdx) => pIdx !== photoIndex);
       return { ...row, images: nextImgs };
     });
     setColorVariants(updated);
-  };
 
-  // Turn an already uploaded product image into a color variant card
-  const handleSelectExistingImage = async (imageUrl) => {
-    if (!imageUrl) return;
-    const exists = rows.some((r) => r.images?.includes(imageUrl));
-    if (exists) return;
-    const detected = await extractDominantColorFromUrl(imageUrl);
-    const updated = [
-      ...rows,
-      emptyColorRow(
-        imageUrl,
-        detected,
-        bulkStockVal && Number(bulkStockVal) >= 0 ? Number(bulkStockVal) : 5
-      ),
-    ];
-    setColorVariants(updated);
-    if (typeof onStockChange === "function") {
-      const sum = updated.reduce((s, r) => s + Number(r.stock || 0), 0);
-      onStockChange(sum);
+    const allRemaining = updated.flatMap((r) => r.images || []).filter(Boolean);
+    if (allRemaining.length === 0) {
+      if (typeof setFeaturedImage === "function") setFeaturedImage("");
+    } else if (removedPhoto === featuredImage) {
+      if (typeof setFeaturedImage === "function") setFeaturedImage(allRemaining[0]);
     }
   };
 
   const totalVariantStock = rows.reduce((s, r) => s + Number(r.stock || 0), 0);
 
-  // Filter available images that haven't been assigned yet
-  const unassignedExistingImages = (availableImages || []).filter(
-    (img) => typeof img === "string" && img.trim() && !rows.some((r) => r.images?.includes(img))
-  );
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Hidden file inputs */}
       <input
         ref={bulkFileInputRef}
         type="file"
         multiple
-        accept="image/jpeg,image/png,image/webp,image/jpg"
+        accept="image/*"
         className="hidden"
         onChange={(e) => handleBulkUploadFiles(e.target.files)}
       />
       <input
         ref={angleFileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/jpg"
+        multiple
+        accept="image/*"
         className="hidden"
         onChange={(e) => {
           if (activeAngleUploadIndex !== null) {
@@ -382,260 +412,33 @@ const ColorVariantManager = ({
           }
         }}
       />
+      <input
+        ref={replaceFileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          if (replacePhotoIndex !== null) {
+            handleReplacePhoto(replacePhotoIndex, e.target.files);
+          }
+        }}
+      />
 
-      {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-emerald-50/60 to-teal-50/40 dark:from-gray-800/80 dark:to-gray-800/40 p-4 rounded-2xl border border-emerald-100/70 dark:border-gray-700">
-        <div>
-          <div className="flex items-center gap-3">
-            <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-              <FiLayers className="text-emerald-600" /> Color Variations & Suits
-            </h3>
-            {rows.length > 0 && (
-              <span className="text-xs bg-emerald-600 text-white font-semibold px-2.5 py-0.5 rounded-full shadow-sm">
-                {rows.length} {rows.length === 1 ? "Color" : "Colors"} · {totalVariantStock} Units
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            Search any color to add it to the product, or bulk upload suit photos below.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {rows.length > 1 && (
-            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-2.5 py-1 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm text-xs">
-              <span className="text-gray-500 font-medium">Set all stock:</span>
-              <input
-                type="number"
-                min="0"
-                placeholder="5"
-                value={bulkStockVal}
-                onChange={(e) => setBulkStockVal(e.target.value)}
-                className="w-14 px-1.5 py-0.5 text-xs rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-center"
-              />
-              <button
-                type="button"
-                onClick={applyStockToAll}
-                className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-medium transition-colors"
-              >
-                Apply
-              </button>
-            </div>
+      {/* Clean Minimal Section Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3">
+          <h3 className="text-base font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <FiLayers className="text-emerald-600" /> Suit Photos & Colors
+          </h3>
+          {rows.length > 0 && (
+            <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">
+              {rows.length} {rows.length === 1 ? "Suit" : "Suits"} Added · {totalVariantStock} Total Units
+            </span>
           )}
-
-          <Button
-            type="button"
-            onClick={addRow}
-            className="bg-white dark:bg-gray-800 hover:bg-gray-50 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 text-xs py-2 px-3 rounded-xl flex items-center gap-1.5 shadow-sm font-semibold"
-          >
-            <FiPlus size={14} /> Add Empty Row
-          </Button>
         </div>
       </div>
 
-      {/* TOP SECTION: Search Any Color & Add to Product */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border-2 border-emerald-500/30 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">
-              Search Any Color & Add To Product
-            </h4>
-          </div>
-          <span className="text-[11px] text-gray-500 dark:text-gray-400">
-            Type any color name (e.g. Rani Pink, Bottle Green, Firozi, Teal, Mustard, Coral)
-          </span>
-        </div>
-
-        {/* Search Input Bar with Autocomplete */}
-        <div className="relative" ref={searchContainerRef}>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-600">
-                <FiSearch size={18} />
-              </div>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchColorText}
-                onChange={(e) => {
-                  setSearchColorText(e.target.value);
-                  setIsSearchOpen(true);
-                  setHighlightedIndex(-1);
-                }}
-                onFocus={() => setIsSearchOpen(true)}
-                onKeyDown={handleTopSearchKeyDown}
-                placeholder="Search any color to add (e.g. Bottle Green, Rani Pink, Firozi, Mustard, Teal, Coral)..."
-                autoComplete="off"
-                className="w-full text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 pl-10 pr-9 py-2.5 focus:bg-white dark:focus:bg-gray-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all placeholder:text-gray-400"
-              />
-              {searchColorText && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchColorText("");
-                    setIsSearchOpen(false);
-                    searchInputRef.current?.focus();
-                  }}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                >
-                  <FiX size={16} />
-                </button>
-              )}
-            </div>
-
-            <Button
-              type="button"
-              onClick={() => {
-                if (searchColorText.trim()) {
-                  handleAddColorToProduct(searchColorText.trim());
-                } else {
-                  setIsSearchOpen(true);
-                  searchInputRef.current?.focus();
-                }
-              }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 px-4 rounded-xl flex items-center gap-1.5 font-bold shrink-0 shadow-sm transition-all"
-            >
-              <FiPlus size={15} /> Add Color Variant
-            </Button>
-          </div>
-
-          {/* Autocomplete Dropdown */}
-          {isSearchOpen && (
-            <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800 scrollbar-thin">
-              <div className="px-3.5 py-2 bg-gray-50 dark:bg-gray-900/80 text-[11px] font-semibold text-gray-500 dark:text-gray-400 flex items-center justify-between">
-                <span>
-                  {searchColorText.trim()
-                    ? `Matching Colors (${topColorSuggestions.length} found)`
-                    : "Popular Fabric Colors (Click to add to product)"}
-                </span>
-                <span>Enter to add</span>
-              </div>
-
-              {topColorSuggestions.map((item, idx) => {
-                const isHighlighted = idx === highlightedIndex;
-                const isAlreadyAdded = rows.some(
-                  (r) => r.colorName?.trim().toLowerCase() === item.name.toLowerCase()
-                );
-
-                return (
-                  <button
-                    key={item.name + item.hex + (item.isCustom ? "-cust" : "")}
-                    type="button"
-                    onClick={() => handleAddColorToProduct(item)}
-                    onMouseEnter={() => setHighlightedIndex(idx)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
-                      isHighlighted
-                        ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-100"
-                        : isAlreadyAdded
-                        ? "bg-gray-50/70 dark:bg-gray-800/40 text-gray-400"
-                        : item.isCustom
-                        ? "bg-amber-50/60 dark:bg-amber-950/20 text-amber-900 dark:text-amber-100 hover:bg-amber-50"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span
-                        className="w-6 h-6 rounded-full shrink-0 border border-black/15 shadow-xs flex items-center justify-center"
-                        style={{ backgroundColor: item.hex }}
-                      >
-                        {item.isCustom ? (
-                          <FiPlus size={12} className="text-white drop-shadow-sm" />
-                        ) : isAlreadyAdded ? (
-                          <FiCheck size={12} className="text-white" />
-                        ) : null}
-                      </span>
-                      <div className="min-w-0">
-                        <span className="text-sm font-semibold block truncate">
-                          {item.isCustom ? `+ Add "${item.name}" as New Color` : item.name}
-                        </span>
-                        <span className="text-[10px] text-gray-400">
-                          {isAlreadyAdded
-                            ? "✓ Already added to product"
-                            : item.isCustom
-                            ? "Custom Color · Click to add variant"
-                            : item.family}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0 ml-2">
-                      <span
-                        className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${
-                          isAlreadyAdded
-                            ? "bg-gray-200 dark:bg-gray-700 text-gray-500"
-                            : item.isCustom
-                            ? "bg-emerald-600 text-white"
-                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                        }`}
-                      >
-                        {isAlreadyAdded ? "Added" : item.isCustom ? "Add" : item.family}
-                      </span>
-                      <span className="text-xs font-mono font-bold text-gray-400">
-                        {item.hex}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-
-              {topColorSuggestions.length === 0 && (
-                <div className="p-4 text-center text-xs text-gray-500 space-y-1.5">
-                  <p>No preset color found for "{searchColorText}"</p>
-                  <Button
-                    type="button"
-                    onClick={() => handleAddColorToProduct(searchColorText.trim())}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-1.5 px-3 rounded-lg"
-                  >
-                    + Add "{searchColorText}" as Custom Color Variant
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Quick 1-Click Popular Ethnic Colors Bar */}
-        <div>
-          <div className="text-[11px] font-semibold text-gray-400 mb-1.5 flex items-center justify-between">
-            <span>Quick 1-Click Add Popular Colors:</span>
-            <span>Click to add immediately</span>
-          </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {QUICK_COLORS.map((qc) => {
-              const isAlreadyAdded = rows.some(
-                (r) => r.colorName?.toLowerCase() === qc.name.toLowerCase()
-              );
-              return (
-                <button
-                  key={qc.name}
-                  type="button"
-                  onClick={() => handleAddColorToProduct(qc)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                    isAlreadyAdded
-                      ? "border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 font-semibold"
-                      : "border-gray-200 dark:border-gray-700 hover:border-emerald-500 bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 hover:bg-white"
-                  }`}
-                  title={isAlreadyAdded ? `"${qc.name}" is already in product` : `Click to add ${qc.name}`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0"
-                    style={{ backgroundColor: qc.hex }}
-                  />
-                  <span>{qc.name}</span>
-                  {isAlreadyAdded ? (
-                    <FiCheck size={12} className="text-emerald-600" />
-                  ) : (
-                    <FiPlus size={11} className="text-gray-400" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Bulk Upload Zone */}
+      {/* SINGLE UNIFIED DRAG & DROP BULK UPLOAD ZONE */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -652,108 +455,71 @@ const ColorVariantManager = ({
             handleBulkUploadFiles(e.dataTransfer.files);
           }
         }}
-        onClick={() => !isUploading && bulkFileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${
+        onClick={() => bulkFileInputRef.current?.click()}
+        className={`relative border-2 border-dashed rounded-2xl p-7 text-center cursor-pointer transition-all duration-200 ${
           isDragging
             ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/20 scale-[1.01]"
             : "border-emerald-300/80 hover:border-emerald-500 bg-emerald-50/30 hover:bg-emerald-50/60 dark:bg-gray-800/40 dark:border-emerald-700/50"
         }`}
       >
-        {isUploading ? (
-          <div className="py-4 space-y-3">
-            <div className="inline-flex p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 animate-spin">
-              <FiRefreshCw size={24} />
-            </div>
-            <p className="text-sm font-bold text-gray-800 dark:text-gray-100">
-              Uploading photo {uploadStats.current} of {uploadStats.total}...
-            </p>
-            {uploadStats.fileName && (
-              <p className="text-xs text-gray-500 font-mono truncate max-w-sm mx-auto">
-                {uploadStats.fileName}
-              </p>
-            )}
-            <div className="w-64 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto overflow-hidden">
-              <div
-                className="h-full bg-emerald-600 transition-all duration-300"
-                style={{
-                  width: `${(uploadStats.current / (uploadStats.total || 1)) * 100}%`,
-                }}
-              />
-            </div>
+        <div className="py-2 space-y-2">
+          <div className="inline-flex p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 mb-1">
+            <FiUploadCloud size={30} />
           </div>
-        ) : (
-          <div className="py-2 space-y-2">
-            <div className="inline-flex p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 mb-1">
-              <FiUploadCloud size={28} />
-            </div>
-            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-              Drag & Drop All Color Suit Photos Here (Bulk Upload)
-            </h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              Select multiple photos at once (e.g. Red suit, Blue suit, Green suit). A color variant card will be created for each photo automatically!
-            </p>
-            <div className="pt-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-colors">
-                <FiCamera size={14} /> Select All Color Photos at Once
-              </span>
-            </div>
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100">
+            Click or Drag & Drop All Suit Photos at Once
+          </h4>
+          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+            Select all suit photos together (e.g. Green suit, Red suit, Yellow suit). Cards appear below automatically!
+          </p>
+          <div className="pt-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-colors">
+              <FiCamera size={14} /> Select All Suit Photos
+            </span>
+          </div>
+        </div>
+
+        {/* Upload progress indicator */}
+        {isUploading && (
+          <div className="mt-4 pt-3 border-t border-emerald-200/50 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+            <FiRefreshCw size={14} className="animate-spin text-emerald-600" />
+            <span>Securing {uploadStats.current} of {uploadStats.total} images to cloud...</span>
           </div>
         )}
       </div>
 
-      {/* Bonus Helper: Pick from already uploaded product photos */}
-      {unassignedExistingImages.length > 0 && (
-        <div className="p-3 bg-amber-50/60 dark:bg-amber-950/20 rounded-xl border border-amber-200/70 dark:border-amber-800/40 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
-            <FiInfo size={14} /> Or click any already-uploaded product photo to turn it into a color variant:
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {unassignedExistingImages.map((imgUrl, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectExistingImage(imgUrl)}
-                className="group relative w-14 h-14 rounded-lg overflow-hidden border-2 border-amber-300 hover:border-emerald-500 shadow-sm transition-all"
-                title="Click to add as color variant"
-              >
-                <img
-                  src={resolveCloudinaryUrl(imgUrl) || imgUrl}
-                  alt="Product Photo"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
-                  <FiPlus size={16} />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Cards List: Each suit photo has its own card to assign Color, Stock & SKU */}
-      {rows.length === 0 ? (
-        <div className="text-center py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 text-sm">
-          No color variants added yet. Use the search bar above to add colors, or drop your suit photos!
-        </div>
-      ) : (
+      {/* SUIT CARDS LIST (APPEARS DIRECTLY BELOW UPLOAD BOX) */}
+      {rows.length > 0 && (
         <div className="space-y-4">
-          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-            Product Colors & Stock ({rows.length} {rows.length === 1 ? "Color" : "Colors"}):
+          <div className="flex items-center justify-between text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+            <span>Uploaded Suits ({rows.length} {rows.length === 1 ? "Suit" : "Suits"}):</span>
+            <span className="text-[11px] font-normal lowercase text-gray-400">
+              Click "Set as Main" on whichever suit is your primary storefront photo
+            </span>
           </div>
 
           {rows.map((row, index) => {
             const mainImg = row.images?.[0] || null;
             const extraImgs = (row.images || []).slice(1);
 
+            // Determine if this card is currently the Main Photo / Default Color
+            const isMain =
+              (featuredImage && mainImg && (mainImg === featuredImage || row._localUrl === featuredImage)) ||
+              (!featuredImage && index === 0);
+
             return (
               <div
-                key={index}
-                className="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow space-y-4"
+                key={row._localId || index}
+                className={`p-4 sm:p-5 border-2 rounded-2xl bg-white dark:bg-gray-800 transition-all duration-200 ${
+                  isMain
+                    ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-md"
+                    : "border-gray-200 dark:border-gray-700 shadow-xs hover:border-gray-300"
+                }`}
               >
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-                  {/* Left Column: Suit Photo Preview & Additional Angles */}
-                  <div className="md:col-span-4 lg:col-span-3 space-y-2.5">
-                    <div className="relative group w-full aspect-square max-w-[150px] mx-auto md:mx-0 rounded-2xl overflow-hidden border-2 border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-inner flex items-center justify-center">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                  {/* Left Column: Suit Photo Preview & Main Badge */}
+                  <div className="md:col-span-4 lg:col-span-3 space-y-2">
+                    <div className="relative group w-full aspect-square max-w-[140px] mx-auto md:mx-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-inner flex items-center justify-center">
                       {mainImg ? (
                         <>
                           <img
@@ -761,14 +527,33 @@ const ColorVariantManager = ({
                             alt={row.colorName || "Suit Color"}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 transition-opacity text-white p-2">
+
+                          {/* Saving spinner */}
+                          {row._isUploading && (
+                            <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <FiRefreshCw size={10} className="animate-spin" /> Saving...
+                            </div>
+                          )}
+
+                          {/* Hover actions */}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 transition-opacity text-white p-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplacePhotoIndex(index);
+                                replaceFileInputRef.current?.click();
+                              }}
+                              className="px-2.5 py-1 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold shadow-xs transition-colors"
+                            >
+                              Change Photo
+                            </button>
                             <button
                               type="button"
                               onClick={() => {
                                 setActiveAngleUploadIndex(index);
                                 angleFileInputRef.current?.click();
                               }}
-                              className="px-2.5 py-1 text-[11px] bg-white/90 hover:bg-white text-gray-800 rounded-lg font-semibold shadow"
+                              className="px-2.5 py-1 text-[11px] bg-white text-gray-800 rounded-lg font-semibold shadow-xs hover:bg-gray-100 transition-colors"
                             >
                               + Add Angle
                             </button>
@@ -788,72 +573,96 @@ const ColorVariantManager = ({
                             setActiveAngleUploadIndex(index);
                             angleFileInputRef.current?.click();
                           }}
-                          className="flex flex-col items-center justify-center text-gray-400 hover:text-emerald-600 p-4 transition-colors"
+                          className="flex flex-col items-center justify-center text-gray-400 hover:text-emerald-600 p-4 transition-colors text-center"
                         >
                           <FiCamera size={26} className="mb-1" />
-                          <span className="text-[11px] font-semibold text-center leading-tight">
-                            Click to upload suit photo
+                          <span className="text-[11px] font-semibold leading-tight">
+                            Upload suit photo
                           </span>
                         </button>
                       )}
+                    </div>
 
-                      {/* Small badge if assigned color */}
-                      {row.colorCode && (
-                        <div
-                          className="absolute top-2 left-2 w-5 h-5 rounded-full border-2 border-white shadow-md"
-                          style={{ backgroundColor: row.colorCode }}
-                          title={row.colorName || row.colorCode}
-                        />
+                    {/* Main Photo Status & Toggle Button */}
+                    <div className="max-w-[140px] mx-auto md:mx-0">
+                      {isMain ? (
+                        <div className="w-full text-center py-1.5 bg-emerald-600 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs">
+                          <FiStar className="fill-current text-amber-300" size={12} /> Main Suit Photo
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetMainSuit(index)}
+                          className="w-full text-center py-1.5 border border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-center gap-1"
+                        >
+                          <FiStar size={12} /> Set as Main Suit
+                        </button>
                       )}
                     </div>
 
-                    {/* Extra angle thumbnails */}
-                    {extraImgs.length > 0 && (
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {extraImgs.map((img, extraIdx) => (
-                          <div
-                            key={extraIdx}
-                            className="relative group w-9 h-9 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
-                          >
-                            <img
-                              src={resolveCloudinaryUrl(img) || img}
-                              alt="Extra angle"
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePhotoFromVariant(index, extraIdx + 1)}
-                              className="absolute inset-0 bg-red-600/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                    {/* Extra Angles Section */}
+                    <div className="pt-1 max-w-[160px] mx-auto md:mx-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveAngleUploadIndex(index);
+                          angleFileInputRef.current?.click();
+                        }}
+                        className="w-full py-1.5 px-2 text-[11px] font-medium border border-dashed border-gray-300 dark:border-gray-600 hover:border-emerald-500 text-gray-600 dark:text-gray-300 hover:text-emerald-600 rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <FiCamera size={13} className="text-emerald-600" /> + Add Angle Photos
+                      </button>
+
+                      {extraImgs.length > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                          {extraImgs.map((img, extraIdx) => (
+                            <div
+                              key={extraIdx}
+                              className="relative group w-9 h-9 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-xs"
+                              title="Extra Angle Photo"
                             >
-                              <FiX size={12} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                              <img
+                                src={resolveCloudinaryUrl(img) || img}
+                                alt="Extra angle"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhotoFromVariant(index, extraIdx + 1)}
+                                className="absolute inset-0 bg-red-600/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                                title="Remove this angle"
+                              >
+                                <FiX size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Middle Column: Color Assignment + Quick Chips */}
-                  <div className="md:col-span-8 lg:col-span-9 space-y-3.5">
+                  {/* Right Column: Clean Color Name + Stock + SKU + Delete */}
+                  <div className="md:col-span-8 lg:col-span-9 space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                      {/* Color Picker with Autocomplete, Eyedropper & Palette */}
-                      <div className="sm:col-span-6 lg:col-span-6">
+                      {/* Clean Color Input */}
+                      <div className="sm:col-span-5">
                         <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-1.5">
-                          Color Name & Swatch *
+                          Color Name *
                         </label>
                         <ColorPickerInput
+                          simple={true}
                           colorName={row.colorName || ""}
                           colorCode={row.colorCode || ""}
                           onChange={({ colorName, colorCode }) =>
                             updateColorBoth(index, colorName, colorCode)
                           }
-                          placeholder="e.g. Rani Pink, Bottle Green, Teal"
+                          placeholder="e.g. Bottle Green, Rani Pink, Wine"
                           required
                         />
                       </div>
 
                       {/* Stock Quantity */}
-                      <div className="sm:col-span-3 lg:col-span-3">
+                      <div className="sm:col-span-3">
                         <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-1.5">
                           Stock (Units) *
                         </label>
@@ -865,69 +674,34 @@ const ColorVariantManager = ({
                           onChange={(e) =>
                             updateRow(index, "stock", Number(e.target.value))
                           }
-                          className="font-semibold text-gray-800 dark:text-gray-100"
+                          className="font-bold text-gray-800 dark:text-gray-100 text-sm"
                         />
                       </div>
 
                       {/* SKU (Optional) */}
-                      <div className="sm:col-span-3 lg:col-span-3">
+                      <div className="sm:col-span-3">
                         <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300 mb-1.5">
                           SKU (Optional)
                         </label>
                         <Input
                           value={row.sku || ""}
                           onChange={(e) => updateRow(index, "sku", e.target.value)}
-                          placeholder="e.g. MAN-RED-01"
+                          placeholder="e.g. MAN-GRN-01"
                           className="text-xs"
                         />
                       </div>
-                    </div>
 
-                    {/* Quick 1-Click Color Buttons for this specific row */}
-                    <div>
-                      <div className="text-[11px] font-semibold text-gray-400 mb-1.5">
-                        Change Color (Quick 1-Click):
+                      {/* Delete Button */}
+                      <div className="sm:col-span-1 flex justify-end pb-1">
+                        <button
+                          type="button"
+                          onClick={() => removeRow(index)}
+                          className="p-2.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors"
+                          title="Remove this suit"
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
                       </div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {QUICK_COLORS.map((qc) => {
-                          const isSelected =
-                            row.colorName?.toLowerCase() === qc.name.toLowerCase();
-                          return (
-                            <button
-                              key={qc.name}
-                              type="button"
-                              onClick={() => updateColorBoth(index, qc.name, qc.hex)}
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                                isSelected
-                                  ? "border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-sm scale-105 font-bold"
-                                  : "border-gray-200 dark:border-gray-700 hover:border-gray-300 bg-gray-50 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100"
-                              }`}
-                            >
-                              <span
-                                className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0"
-                                style={{ backgroundColor: qc.hex }}
-                              />
-                              <span>{qc.name}</span>
-                              {isSelected && <FiCheck size={12} className="text-emerald-600" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Card Footer: Remove Button */}
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/60">
-                      <div className="text-[11px] text-gray-400">
-                        {row.images?.length || 0} photo{row.images?.length === 1 ? "" : "s"} attached to this color
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeRow(index)}
-                        className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-semibold transition-colors py-1 px-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30"
-                        title="Remove this color variant"
-                      >
-                        <FiTrash2 size={13} /> Remove Suit
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -936,6 +710,25 @@ const ColorVariantManager = ({
           })}
         </div>
       )}
+
+      {/* PRODUCT VIDEO SECTION (Compact & Clean) */}
+      <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xs space-y-3">
+        <div className="flex items-center gap-2">
+          <FiFilm className="text-emerald-600" size={18} />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">
+            Product Video (Reels / Details Page) - Optional
+          </h4>
+        </div>
+        <VideoUploader
+          value={video}
+          onChange={setVideo}
+          folder="product-videos"
+          title="Upload product video"
+        />
+        <p className="text-xs text-gray-400">
+          Upload MP4 video for reels and storefront product view.
+        </p>
+      </div>
     </div>
   );
 };

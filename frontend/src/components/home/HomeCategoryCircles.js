@@ -1,6 +1,7 @@
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { normalizeProductImageUrl } from "@utils/brandAssets";
 
 const FALLBACK_IMAGE = "/placeholder.png";
 
@@ -49,7 +50,7 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
                   {/* padding-bottom trick forces a perfect square regardless of Tailwind aspect support */}
                   <div className="pb-[100%]" />
                   <img
-                    src={cat.image || FALLBACK_IMAGE}
+                    src={normalizeProductImageUrl(cat.image) || FALLBACK_IMAGE}
                     alt={cat.title}
                     className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"

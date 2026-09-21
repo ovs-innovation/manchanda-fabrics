@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiMonitor, FiSmartphone } from "react-icons/fi";
+import { FiMonitor, FiSmartphone, FiCamera } from "react-icons/fi";
 
 const ProductPreviewCard = ({
   title,
@@ -26,7 +26,7 @@ const ProductPreviewCard = ({
     return Math.max(0, final).toFixed(2);
   })();
 
-  const imageToDisplay = isHovered && hoverImage ? hoverImage : (featuredImage || "/placeholder.png");
+  const imageToDisplay = isHovered && hoverImage ? hoverImage : (featuredImage || "");
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
@@ -88,17 +88,25 @@ const ProductPreviewCard = ({
             onMouseLeave={() => setIsHovered(false)}
           >
             {/* Image Wrap */}
-            <div className="aspect-[4/5] w-full overflow-hidden bg-gray-100 dark:bg-gray-800 relative">
+            <div className="aspect-[4/5] w-full overflow-hidden bg-gray-100 dark:bg-gray-800 relative flex items-center justify-center">
               {badge && (
                 <span className="absolute top-3 left-3 bg-black text-white dark:bg-white dark:text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md z-10 shadow-md">
                   {badge}
                 </span>
               )}
-              <img
-                src={imageToDisplay}
-                alt={title || "Product Image"}
-                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-              />
+              {imageToDisplay ? (
+                <img
+                  src={imageToDisplay}
+                  alt={title || "Product Image"}
+                  className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-6 text-center text-gray-400 dark:text-gray-500 select-none">
+                  <FiCamera size={34} className="mb-2 opacity-40 text-emerald-600" />
+                  <span className="text-xs font-bold text-gray-600 dark:text-gray-300">No Photo Selected</span>
+                  <span className="text-[10px] text-gray-400 mt-0.5">Upload suit photos on the left</span>
+                </div>
+              )}
             </div>
 
             {/* Content */}

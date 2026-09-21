@@ -97,15 +97,15 @@ const VideoUploader = ({
       try {
         return await uploadViaCloudinary(file, safeFolder, public_id);
       } catch (err) {
-        if (file.size > 45 * 1024 * 1024) {
+        if (file.size > maxSize) {
           throw err;
         }
       }
     }
 
-    if (file.size > 45 * 1024 * 1024) {
+    if (file.size > maxSize) {
       throw new Error(
-        `Video is too large for server upload. Use a file under ${maxSizeMB}MB or configure Cloudinary in admin .env`
+        `Video is too large for upload. Use a file under ${maxSizeMB}MB.`
       );
     }
 

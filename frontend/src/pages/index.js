@@ -16,6 +16,7 @@ import HomeMarqueeStrip from "@components/home/HomeMarqueeStrip";
 import HomeTrustBadges from "@components/home/HomeTrustBadges";
 import CategoryServices from "@services/CategoryServices";
 import { mergeHomepage } from "@utils/homepageDefaults";
+import { normalizeProductImageUrl } from "@utils/brandAssets";
 
 
 
@@ -102,19 +103,29 @@ const Home = ({
     categoryCounts[c.slug] = productsOfCategory(c).length;
   });
 
-  // Real store categories for the circles — image comes from a product
-  // of that category so it can never be broken.
+  // Real store categories for the circles — prioritize uploaded category icon/banner, then product image
   const circleCategories = (categories || [])
     .map((c) => {
       const catProducts = productsOfCategory(c);
-      const firstImage =
+      const firstValidProductImage =
         catProducts
           .map((p) => p?.featuredImage || p?.image?.[0] || p?.images?.[0])
-          .find(Boolean) || null;
+          .find((img) => img && typeof img === "string" && !img.startsWith("blob:")) || null;
+
+      const rawCatImg =
+        c?.icon ||
+        c?.banner ||
+        c?.image ||
+        (Array.isArray(c?.images) && c.images[0]) ||
+        firstValidProductImage ||
+        null;
+
+      const finalImage = normalizeProductImageUrl(rawCatImg);
+
       return {
         slug: c?.slug,
         title: c?.name?.en || c?.name || "",
-        image: firstImage,
+        image: finalImage,
         count: catProducts.length,
       };
     })
@@ -243,7 +254,7 @@ const Home = ({
           </section>
         )}
 
-        {/* 5 ── Shop Latest Collection (reels-style product carousel like ref) */}
+        {/* 5 ── Shop Latest Collection (reels-style product carousel) */}
         <HomeShopLatestCarousel items={reelProducts.slice(0, 4)} />
 
         {/* 7 ── Scrolling marquee strip like ref */}

@@ -24,6 +24,7 @@ const ColorPickerInput = ({
   disabled = false,
   className = "",
   compact = false,
+  simple = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false); // Full palette popover
   const [isSearchOpen, setIsSearchOpen] = useState(false); // Live autocomplete dropdown
@@ -220,13 +221,18 @@ const ColorPickerInput = ({
         <button
           type="button"
           onClick={() => {
-            setIsOpen(!isOpen);
-            setIsSearchOpen(false);
+            if (simple) {
+              // In simple mode, clicking swatch directly opens native color picker wheel
+              colorInputRef.current?.click();
+            } else {
+              setIsOpen(!isOpen);
+              setIsSearchOpen(false);
+            }
           }}
           disabled={disabled}
           title={
             effectiveHex
-              ? `${colorName || "Selected color"}: ${effectiveHex} (Click to browse shades)`
+              ? `${colorName || "Selected color"}: ${effectiveHex} (Click to change shade)`
               : "Click to select a color"
           }
           className="relative w-10 h-10 rounded-xl border-2 border-gray-300 dark:border-gray-600 shadow-sm shrink-0 flex items-center justify-center transition-all hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 overflow-hidden group"
@@ -286,85 +292,76 @@ const ColorPickerInput = ({
           )}
         </div>
 
-        {/* Hex Code Input (compact) */}
-        <div className="relative w-24 shrink-0">
-          <input
-            type="text"
-            disabled={disabled}
-            value={effectiveHex || colorCode}
-            onChange={handleHexChange}
-            placeholder="#HEX"
-            maxLength={7}
-            className="w-full text-xs uppercase font-mono font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none text-center"
-          />
-        </div>
+        {/* Extra Tools (Rendered ONLY in advanced/non-simple mode) */}
+        {!simple && (
+          <>
+            {/* Hex Code Input (compact) */}
+            <div className="relative w-24 shrink-0">
+              <input
+                type="text"
+                disabled={disabled}
+                value={effectiveHex || colorCode}
+                onChange={handleHexChange}
+                placeholder="#HEX"
+                maxLength={7}
+                className="w-full text-xs uppercase font-mono font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none text-center"
+              />
+            </div>
 
-        {/* Action: Native Color Picker Wheel */}
-        <button
-          type="button"
-          onClick={() => colorInputRef.current && colorInputRef.current.click()}
-          title="Open custom color wheel"
-          className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors shrink-0"
-        >
-          <BiColorFill size={18} />
-        </button>
+            {/* Action: Native Color Picker Wheel */}
+            <button
+              type="button"
+              onClick={() => colorInputRef.current && colorInputRef.current.click()}
+              title="Open custom color wheel"
+              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors shrink-0"
+            >
+              <BiColorFill size={18} />
+            </button>
 
-        {/* Action: EyeDropper tool (sample color from photo) */}
-        {Boolean(window.EyeDropper) && (
-          <button
-            type="button"
-            onClick={handleEyeDropper}
-            title="Pick color directly from product image"
-            className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-400 transition-colors shrink-0 flex items-center gap-1 text-xs font-semibold"
-          >
-            <FiEye size={15} />
-            <span className="hidden sm:inline">Pick</span>
-          </button>
-        )}
+            {/* Action: EyeDropper tool (sample color from photo) */}
+            {Boolean(window.EyeDropper) && (
+              <button
+                type="button"
+                onClick={handleEyeDropper}
+                title="Pick color directly from product image"
+                className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-400 transition-colors shrink-0 flex items-center gap-1 text-xs font-semibold"
+              >
+                <FiEye size={15} />
+                <span className="hidden sm:inline">Pick</span>
+              </button>
+            )}
 
-        {/* Action: Full Palette dropdown toggle */}
-        <button
-          type="button"
-          onClick={() => {
-            setIsOpen(!isOpen);
-            setIsSearchOpen(false);
-          }}
-          title="Browse all fabric color shades"
-          className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors shrink-0"
-        >
-          <FiChevronDown
-            size={16}
-            className={`transition-transform duration-200 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* 1. Instant Autocomplete Search Suggestions Dropdown */}
-      {isSearchOpen && (
-        <div className="absolute z-50 left-0 right-0 mt-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 max-w-lg">
-          {/* Header label */}
-          <div className="px-3.5 py-2 bg-gray-50/80 dark:bg-gray-900/80 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-            <span>
-              {colorName?.trim()
-                ? `Matching Colors (${searchSuggestions.length} found)`
-                : "Popular Fabric Colors (Type to search 250+ shades)"}
-            </span>
+            {/* Action: Full Palette dropdown toggle */}
             <button
               type="button"
               onClick={() => {
+                setIsOpen(!isOpen);
                 setIsSearchOpen(false);
-                setIsOpen(true);
               }}
-              className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+              title="Browse all fabric color shades"
+              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors shrink-0"
             >
-              Browse Palette
+              <FiChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
+          </>
+        )}
+      </div>
+
+      {/* 1. Clean, Spacious Autocomplete Suggestions Dropdown */}
+      {isSearchOpen && (
+        <div className="absolute z-50 left-0 mt-1.5 w-[300px] sm:w-[340px] max-w-[90vw] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+          {/* Minimal header */}
+          <div className="px-3.5 py-2 bg-gray-50 dark:bg-gray-900/80 border-b border-gray-100 dark:border-gray-700 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+            {colorName?.trim() ? "Matching Colors:" : "Popular Colors:"}
           </div>
 
           {/* Suggestions List */}
-          <div ref={listRef} className="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800/60 scrollbar-thin">
+          <div ref={listRef} className="max-h-56 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800/60">
             {searchSuggestions.map((item, idx) => {
               const isHighlighted = idx === highlightedIndex;
               const isCurrent =
@@ -380,69 +377,49 @@ const ColorPickerInput = ({
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left transition-colors ${
                     isHighlighted
                       ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-100"
-                      : item.isCustom
-                      ? "bg-amber-50/50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-100 hover:bg-amber-50 dark:hover:bg-amber-950/50"
                       : isCurrent
-                      ? "bg-emerald-50/40 dark:bg-emerald-950/20"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200"
+                      ? "bg-emerald-50/40 dark:bg-emerald-950/20 font-semibold"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-800 dark:text-gray-200"
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     {/* Swatch circle */}
                     <span
-                      className="w-6 h-6 rounded-full shrink-0 border border-black/15 shadow-xs flex items-center justify-center"
+                      className="w-5 h-5 rounded-full shrink-0 border border-black/15 shadow-xs flex items-center justify-center"
                       style={{ backgroundColor: item.hex }}
                     >
-                      {item.isCustom ? (
-                        <FiPlus size={12} className="text-white drop-shadow-sm" />
-                      ) : (
-                        isCurrent && (
-                          <FiCheck
-                            size={12}
-                            className={
-                              ["#FFFFFF", "#FAF9F6", "#FFFFF0", "#FFFDD0", "#F5F5DC", "#FDFD96", "#FFF44F", "#FFE5B4", "#FFE4E1", "#FFD1DC", "#F4C2C2"].includes(item.hex)
-                                ? "text-gray-800"
-                                : "text-white"
-                            }
-                          />
-                        )
+                      {isCurrent && (
+                        <FiCheck
+                          size={11}
+                          className={
+                            ["#FFFFFF", "#FAF9F6", "#FFFFF0", "#FFFDD0", "#F5F5DC", "#FDFD96", "#FFF44F", "#FFE5B4", "#FFE4E1", "#FFD1DC", "#F4C2C2"].includes(item.hex)
+                              ? "text-gray-800"
+                              : "text-white"
+                          }
+                        />
                       )}
                     </span>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold block truncate">
-                          {item.isCustom ? `+ Add "${item.name}" as Color` : item.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                        {item.isCustom ? "Custom color name · Click to select" : item.family}
-                      </span>
-                    </div>
+                    <span className="text-xs font-semibold truncate text-gray-800 dark:text-gray-200">
+                      {item.isCustom ? `Use "${item.name}"` : item.name}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span
-                      className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${
-                        item.isCustom
-                          ? "bg-emerald-600 text-white"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                      }`}
-                    >
-                      {item.isCustom ? "Add" : item.family}
+                  {item.isCustom ? (
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 px-2 py-0.5 rounded-md shrink-0">
+                      Custom
                     </span>
-                    <span className="text-xs font-mono font-bold text-gray-400 dark:text-gray-400">
-                      {item.hex}
+                  ) : (
+                    <span className="text-[11px] text-gray-400 dark:text-gray-500 font-normal shrink-0">
+                      {item.family}
                     </span>
-                  </div>
+                  )}
                 </button>
               );
             })}
 
             {searchSuggestions.length === 0 && (
-              <div className="p-4 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                <p className="font-semibold text-gray-700 dark:text-gray-200">
-                  No preset color matched "{colorName}"
-                </p>
+              <div className="p-3.5 text-center text-xs text-gray-500 dark:text-gray-400">
+                <p className="font-medium">No color matched "{colorName}"</p>
                 <button
                   type="button"
                   onClick={() =>
@@ -452,18 +429,12 @@ const ColorPickerInput = ({
                       family: "Custom Color",
                     })
                   }
-                  className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 text-white rounded-lg font-medium text-xs shadow-sm hover:bg-emerald-700 transition-colors"
+                  className="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-emerald-600 text-white rounded-lg font-semibold text-xs shadow-xs hover:bg-emerald-700 transition-colors"
                 >
-                  <FiPlus size={13} /> Add "{colorName}" as Custom Color
+                  <FiPlus size={12} /> Use "{colorName}"
                 </button>
               </div>
             )}
-          </div>
-
-          {/* Footer note */}
-          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 text-[10px] text-gray-400 flex items-center justify-between">
-            <span>↑↓ Navigate • Enter to select • Esc to close</span>
-            <span>250+ Ethnic & Fashion Colors</span>
           </div>
         </div>
       )}

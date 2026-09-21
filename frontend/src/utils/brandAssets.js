@@ -33,3 +33,22 @@ export const pickBrandLogo = (...candidates) => {
   }
   return DEFAULT_BRAND_LOGO;
 };
+
+/** Normalizes image URLs, sanitizes blob: URLs, and matches backend loopback host */
+export const normalizeProductImageUrl = (url) => {
+  if (!url || typeof url !== "string") return "";
+  const trimmed = url.trim();
+  if (trimmed.startsWith("blob:")) return "";
+  if (typeof window !== "undefined") {
+    const is127 = window.location.hostname === "127.0.0.1";
+    if (is127 && trimmed.includes("localhost:8092")) {
+      return trimmed.replace("localhost:8092", "127.0.0.1:8092");
+    }
+    const isLocalhost = window.location.hostname === "localhost";
+    if (isLocalhost && trimmed.includes("127.0.0.1:8092")) {
+      return trimmed.replace("127.0.0.1:8092", "localhost:8092");
+    }
+  }
+  return trimmed;
+};
+

@@ -72,6 +72,9 @@ router.get("/", getAllProducts);
 //get a product by slug
 router.get("/product/:slug", getProductBySlug);
 
+//get a product by id (supports both GET and POST)
+router.get("/:id", getProductById);
+
 //update a product
 router.patch("/:id", isAuth, isAdmin, updateProduct);
 

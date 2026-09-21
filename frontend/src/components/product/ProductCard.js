@@ -13,7 +13,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import ProductModal from "@components/modal/ProductModal";
 import { handleLogEvent } from "src/lib/analytics";
 import { addToWishlist, removeFromWishlist, isInWishlist } from "@lib/wishlist";
-import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { PRODUCT_PLACEHOLDER, normalizeProductImageUrl } from "@utils/brandAssets";
 import { translateLabel } from "@utils/locale";
 import { resolveColorHex } from "@utils/resolveColorHex";
 
@@ -134,17 +134,38 @@ const ProductCard = ({
 
   const combinedColorVariants = useMemo(() => {
     const list = [];
-    if (product?.defaultColorName) {
-      list.push({
-        colorName: product.defaultColorName,
-        colorCode: product.defaultColorCode || "#000000",
-        images: product.featuredImage || (Array.isArray(product.image) && product.image[0]) ? [product.featuredImage || product.image[0]] : [],
-        isDefault: true,
+    const seenColors = new Set();
+
+    if (product?.colorVariants && Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+      product.colorVariants.forEach((cv) => {
+        const norm = (cv.colorName || "").trim().toLowerCase();
+        if (norm && !seenColors.has(norm)) {
+          seenColors.add(norm);
+          const isDef = product.defaultColorName
+            ? norm === product.defaultColorName.trim().toLowerCase()
+            : false;
+          list.push({
+            ...cv,
+            colorName: (cv.colorName || "").trim(),
+            isDefault: isDef,
+          });
+        }
       });
     }
-    if (product?.colorVariants && Array.isArray(product.colorVariants)) {
-      list.push(...product.colorVariants.map(cv => ({ ...cv, isDefault: false })));
+
+    if (product?.defaultColorName) {
+      const normDef = product.defaultColorName.trim().toLowerCase();
+      if (normDef && !seenColors.has(normDef)) {
+        seenColors.add(normDef);
+        list.unshift({
+          colorName: product.defaultColorName.trim(),
+          colorCode: product.defaultColorCode || "#000000",
+          images: product.featuredImage || (Array.isArray(product.image) && product.image[0]) ? [product.featuredImage || product.image[0]] : [],
+          isDefault: true,
+        });
+      }
     }
+
     return list;
   }, [product]);
 
@@ -159,8 +180,10 @@ const ProductCard = ({
   const isSoldOut = product.stock < 1;
   const title = showingTranslateValue(product?.title);
 
-  const primaryImg = previewColorImg || product.featuredImage || product.image?.[0];
-  const hoverImg = product.hoverImage || product.image?.[1];
+  const rawPrimary = previewColorImg || product.featuredImage || (Array.isArray(product.image) ? product.image[0] : product.image);
+  const primaryImg = normalizeProductImageUrl(rawPrimary);
+  const rawHover = product.hoverImage || (Array.isArray(product.image) ? product.image[1] : null);
+  const hoverImg = normalizeProductImageUrl(rawHover);
 
   // Dynamic luxury status badge
   const getBadgeText = () => {
@@ -233,6 +256,10 @@ const ProductCard = ({
                 src={primaryImg}
                 alt={title}
                 className="h-full w-full object-cover object-top transition duration-700 ease-in-out group-hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = PRODUCT_PLACEHOLDER;
+                }}
               />
             </div>
           ) : (

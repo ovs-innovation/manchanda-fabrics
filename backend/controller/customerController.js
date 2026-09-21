@@ -753,9 +753,63 @@ const cloudinaryUpload = async (req, res) => {
     const { file, publicId, folder = 'manchanda', resourceType } = req.body;
     if (!file) return res.status(400).send({ message: 'file (data URL) is required' });
 
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error('Cloudinary credentials missing for upload');
-      return res.status(503).send({ message: 'Cloudinary credentials are not configured on the server. Uploads unavailable.' });
+    // Helper to save base64 directly to local disk
+    const saveToLocalDisk = () => {
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        if (typeof file !== 'string' || !file.startsWith('data:')) {
+          return null;
+        }
+
+        const commaIdx = file.indexOf(',');
+        const semiIdx = file.indexOf(';');
+        if (commaIdx === -1 || semiIdx === -1) {
+          return null;
+        }
+
+        const mimeType = file.substring(5, semiIdx).toLowerCase();
+        const base64Data = file.substring(commaIdx + 1);
+
+        let ext = 'jpg';
+        if (mimeType.includes('mp4')) ext = 'mp4';
+        else if (mimeType.includes('quicktime') || mimeType.includes('mov')) ext = 'mov';
+        else if (mimeType.includes('webm')) ext = 'webm';
+        else if (mimeType.includes('png')) ext = 'png';
+        else if (mimeType.includes('webp')) ext = 'webp';
+        else if (mimeType.includes('gif')) ext = 'gif';
+        else if (mimeType.includes('svg')) ext = 'svg';
+        else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
+        else {
+          const parts = mimeType.split('/');
+          if (parts[1]) ext = parts[1].replace(/[^a-z0-9]/gi, '') || 'bin';
+        }
+
+        const cleanFolder = (folder || 'uploads').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const filename = `${cleanFolder}_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+        const uploadsDir = path.join(__dirname, '../uploads');
+        if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+        const filePath = path.join(uploadsDir, filename);
+        fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+
+        const host = req.get('host') || 'localhost:8092';
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${filename}`;
+        console.log('✅ Local disk media upload succeeded:', localUrl);
+
+        return { url: localUrl, secure_url: localUrl, publicId: filename };
+      } catch (saveErr) {
+        console.error('saveToLocalDisk error:', saveErr);
+        return null;
+      }
+    };
+
+    // If Cloudinary cloud_name is detqbiabu (disabled account) or credentials missing, immediately save to local disk!
+    if (process.env.CLOUDINARY_CLOUD_NAME === "detqbiabu" || !process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      const saved = saveToLocalDisk();
+      if (saved) return res.send(saved);
+      return res.status(503).send({ message: 'Upload failed: unable to process file data.' });
     }
 
     const cloudinary = require('cloudinary').v2;
@@ -773,8 +827,17 @@ const cloudinaryUpload = async (req, res) => {
     // request delete token since this is a signed upload
     options.return_delete_token = true;
 
-    const result = await cloudinary.uploader.upload(file, options);
-    return res.send({ url: result.secure_url, publicId: result.public_id, deleteToken: result.delete_token || null, raw: result });
+    try {
+      const result = await cloudinary.uploader.upload(file, options);
+      return res.send({ url: result.secure_url, publicId: result.public_id, deleteToken: result.delete_token || null, raw: result });
+    } catch (cloudErr) {
+      console.warn('Cloudinary upload failed, falling back to local disk storage:', cloudErr?.message || cloudErr);
+
+      const saved = saveToLocalDisk();
+      if (saved) return res.send(saved);
+
+      throw cloudErr;
+    }
   } catch (err) {
     console.error('cloudinaryUpload error:', err);
     res.status(500).send({ message: err.message });

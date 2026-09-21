@@ -40,6 +40,18 @@ const connectDB = async () => {
   }
 };
 
+// Automatic reconnection handlers to maintain live database connection
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️ MongoDB disconnected. Reconnecting in 3s...");
+  setTimeout(() => {
+    connectDB().catch((e) => console.error("Auto-reconnect notice:", e.message));
+  }, 3000);
+});
+
+mongoose.connection.on("error", (err) => {
+  console.warn("MongoDB connection event notice:", err.message);
+});
+
 // Reuse the default connection to avoid spawning a second connection pool
 const mongo_connection = mongoose.connection;
 

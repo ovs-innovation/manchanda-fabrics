@@ -9,12 +9,22 @@ import "swiper/css/autoplay";
 import ReelModal from "@components/home/ReelModal";
 import ProductServices from "@services/ProductServices";
 
+const resolveReelVideo = (src) => {
+  if (!src || typeof src !== "string") return "";
+  if (src.includes("detqbiabu")) {
+    const match = src.match(/\/R(\d+)[_\.]/i);
+    if (match) return `/R${match[1]}.mp4`;
+    return "/R1.mp4";
+  }
+  return src;
+};
+
 const canUseVideo = (src) => {
-  if (!src) return false;
-  if (typeof src !== "string") return false;
-  const clean = src.split("?")[0].toLowerCase();
+  const resolved = resolveReelVideo(src);
+  if (!resolved || typeof resolved !== "string") return false;
+  const clean = resolved.split("?")[0].toLowerCase();
   return (
-    (src.startsWith("http") || src.startsWith("/")) &&
+    (resolved.startsWith("http") || resolved.startsWith("/")) &&
     (clean.endsWith(".mp4") || clean.endsWith(".webm") || clean.endsWith(".mov"))
   );
 };

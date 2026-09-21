@@ -111,7 +111,7 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
           </div>
         </div>
 
-        <main className="pt-0 lg:pt-[146px]">{children}</main>
+        <main className={`pt-0 ${isHome ? "lg:pt-[146px]" : "lg:pt-[175px]"}`}>{children}</main>
 
         <Footer />
         <FloatingWhatsApp />

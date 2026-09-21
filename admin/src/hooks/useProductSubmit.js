@@ -15,6 +15,25 @@ import { notifyError, notifySuccess } from "@/utils/toast";
 import { sanitizeHomepagePlacementTags } from "@/lib/homepage-placements";
 import useTranslationValue from "./useTranslationValue";
 import { FABRIC_COLORS } from "@/utils/fabricColors";
+import { uploadImageFile } from "@/utils/imageUpload";
+
+const ensurePersistentUrl = async (url, fileFallback = null) => {
+  if (!url || typeof url !== "string") return "";
+  if (!url.startsWith("blob:")) return url;
+  try {
+    let file = fileFallback;
+    if (!file) {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      file = new File([blob], `suit_${Date.now()}.jpg`, { type: blob.type || "image/jpeg" });
+    }
+    const uploadedUrl = await uploadImageFile(file, "product");
+    return uploadedUrl || "";
+  } catch (err) {
+    console.error("Failed to upload blob url:", url, err);
+    return "";
+  }
+};
 
 const generateVariantSku = (baseSku, index) => {
   const sanitized =
@@ -258,9 +277,17 @@ const useProductSubmit = (id) => {
     // console.log('data is data',data)
     try {
       setIsSubmitting(true);
-      if (!featuredImage) {
+      let effectiveFeaturedImage = featuredImage;
+      if (!effectiveFeaturedImage && colorVariants?.length > 0) {
+        effectiveFeaturedImage = colorVariants.find((cv) => cv.images?.length > 0)?.images?.[0] || "";
+        if (effectiveFeaturedImage) {
+          setFeaturedImage(effectiveFeaturedImage);
+        }
+      }
+
+      if (!effectiveFeaturedImage) {
         setIsSubmitting(false);
-        return notifyError("Image is required!");
+        return notifyError("At least one suit photo / image is required!");
       }
 
       if (data.discountType === "percentage") {
@@ -276,7 +303,14 @@ const useProductSubmit = (id) => {
           );
         }
       }
-      if (!defaultCategory[0]) {
+
+      let effectiveCategory = defaultCategory;
+      if ((!effectiveCategory || !effectiveCategory[0]) && selectedCategory?.length > 0) {
+        effectiveCategory = selectedCategory;
+        setDefaultCategory(selectedCategory);
+      }
+
+      if (!effectiveCategory || !effectiveCategory[0]) {
         setIsSubmitting(false);
         return notifyError("Default Category is required!");
       }
@@ -358,8 +392,40 @@ const useProductSubmit = (id) => {
         finalStock = inputStock;
       }
 
+      // Ensure all blob: images are uploaded to server before submitting
+      let resolvedFeaturedImage = featuredImage;
+      if (resolvedFeaturedImage && resolvedFeaturedImage.startsWith("blob:")) {
+        resolvedFeaturedImage = await ensurePersistentUrl(resolvedFeaturedImage);
+      }
+
+      let resolvedHoverImage = hoverImage;
+      if (resolvedHoverImage && resolvedHoverImage.startsWith("blob:")) {
+        resolvedHoverImage = await ensurePersistentUrl(resolvedHoverImage);
+      }
+
+      const persistentColorVariants = await Promise.all(
+        (colorVariants || []).map(async (cv) => {
+          const cleanImgs = await Promise.all(
+            (cv.images || []).map(async (img) => {
+              if (img && typeof img === "string" && img.startsWith("blob:")) {
+                return await ensurePersistentUrl(img, cv._file);
+              }
+              return img;
+            })
+          );
+          return {
+            ...cv,
+            images: cleanImgs.filter(Boolean),
+          };
+        })
+      );
+
+      if (!resolvedFeaturedImage && persistentColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) {
+        resolvedFeaturedImage = persistentColorVariants.find((cv) => cv.images?.length > 0).images[0];
+      }
+
       // Normalize colorVariants and ensure variant stocks are not left at 0 if user provided main stock
-      let normalizedColorVariants = (colorVariants || []).map((cv) => {
+      let normalizedColorVariants = persistentColorVariants.map((cv) => {
         let code = cv.colorCode || "";
         if (!/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(code)) {
           const matched = FABRIC_COLORS.find(
@@ -526,29 +592,60 @@ const useProductSubmit = (id) => {
           ? data.slug
           : data.title.toLowerCase().replace(/[^A-Z0-9]+/gi, "-"),
 
-        categories: selectedCategory.map((item) => item._id),
-        category: defaultCategory[0]._id,
+        categories: selectedCategory.length > 0
+          ? selectedCategory.map((item) => item._id).filter(Boolean)
+          : [effectiveCategory[0]._id].filter(Boolean),
+        category: effectiveCategory[0]._id,
 
-        image: [featuredImage, ...imageUrl].filter(Boolean),
-        thumbnail: thumbnailUrl,
+        image: (() => {
+          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []);
+          const chosenFeatured =
+            resolvedFeaturedImage ||
+            (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) ||
+            "";
+          return Array.from(new Set([chosenFeatured, ...(Array.isArray(imageUrl) ? imageUrl : [imageUrl]), ...allVarImages].filter(Boolean)));
+        })(),
+        thumbnail: thumbnailUrl || resolvedFeaturedImage || (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) || "",
         stock: finalStock,
         tag: sanitizeHomepagePlacementTags(tag),
         colorVariants: normalizedColorVariants,
-        defaultColorName: data.defaultColorName || "",
-        defaultColorCode:
-          data.defaultColorCode && /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(data.defaultColorCode.trim())
-            ? data.defaultColorCode.trim()
-            : (FABRIC_COLORS.find(
-                (c) => c.name.toLowerCase() === (data.defaultColorName || "").trim().toLowerCase()
-              )?.hex || data.defaultColorCode || ""),
+        defaultColorName: (() => {
+          if (data.defaultColorName && data.defaultColorName.trim()) return data.defaultColorName.trim();
+          if (normalizedColorVariants.length > 0) {
+            const mainVar =
+              normalizedColorVariants.find((cv) => cv.images?.includes(resolvedFeaturedImage)) ||
+              normalizedColorVariants[0];
+            return mainVar?.colorName || "";
+          }
+          return "";
+        })(),
+        defaultColorCode: (() => {
+          if (data.defaultColorCode && /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(data.defaultColorCode.trim())) {
+            return data.defaultColorCode.trim();
+          }
+          const chosenName =
+            data.defaultColorName ||
+            (normalizedColorVariants.find((cv) => cv.images?.includes(resolvedFeaturedImage)) || normalizedColorVariants[0])?.colorName ||
+            "";
+          const matched = FABRIC_COLORS.find(
+            (c) => c.name.toLowerCase() === chosenName.trim().toLowerCase()
+          );
+          if (matched) return matched.hex;
+          const fromVar = (normalizedColorVariants.find((cv) => cv.images?.includes(resolvedFeaturedImage)) || normalizedColorVariants[0])?.colorCode;
+          if (fromVar && /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(fromVar.trim())) return fromVar.trim();
+          return data.defaultColorCode || (chosenName ? resolveHex("", chosenName) : "") || "";
+        })(),
 
         gender: data.gender || "",
         productType: data.productType || "",
         metaTitle: data.metaTitle || "",
         metaDescription: data.metaDescription || "",
         seoImage: seoImage || "",
-        featuredImage: featuredImage || "",
-        hoverImage: hoverImage || "",
+        featuredImage:
+          resolvedFeaturedImage ||
+          (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) ||
+          "",
+        hoverImage: resolvedHoverImage || resolvedFeaturedImage || (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) || "",
         video: video || "",
         badge: badge || "",
         status: mapStatusForApi(data.status || "Published"),

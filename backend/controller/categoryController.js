@@ -278,6 +278,8 @@ const readyToParentAndChildrenCategory = (categories, parentId = null) => {
     parentName: item.parentName,
     description: item.description,
     icon: item.icon,
+    images: item.images || [],
+    banner: item.banner || "",
     status: item.status,
     featured: item.featured,
     priority: item.priority,

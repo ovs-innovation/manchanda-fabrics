@@ -27,33 +27,34 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
     .replace(/^-+|-+$/g, "");
   const public_id = `${cleanPublicId || "suit"}_${Date.now()}`;
 
-  // Attempt direct Cloudinary upload first
-  if (uploadPreset && baseUrl) {
+  // Attempt direct Cloudinary upload first (skip if disabled or detqbiabu)
+  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu");
+  if (uploadPreset && baseUrl && !isCloudinaryDisabled) {
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
-      formData.append("folder", folder);
-      formData.append("public_id", public_id);
 
-      const res = await axios.post(baseUrl, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(baseUrl, formData);
       const url = res.data?.secure_url || res.data?.url;
       if (url) return url;
     } catch (directErr) {
-      console.warn("Direct Cloudinary upload failed, using backend fallback:", directErr?.message);
+      console.warn("Direct Cloudinary upload failed, using backend fallback:", directErr?.response?.data || directErr?.message);
     }
   }
 
   // Fallback via backend endpoint
-  const dataUrl = await fileToDataUrl(file);
-  const backendRes = await requests.post("/customer/cloudinary-upload", {
-    file: dataUrl,
-    folder,
-    publicId: `${folder}/${public_id}`,
-  });
-  return backendRes.url || backendRes.secure_url;
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    const backendRes = await requests.post("/customer/cloudinary-upload", {
+      file: dataUrl,
+      folder,
+    });
+    return backendRes.url || backendRes.secure_url;
+  } catch (backendErr) {
+    console.error("Backend Cloudinary upload failed:", backendErr?.response?.data || backendErr?.message);
+    return null;
+  }
 };
 
 /**
@@ -117,97 +118,325 @@ export const guessColorFromFilename = (filename) => {
 
 /**
  * Extract dominant fabric color from an image File using canvas pixel sampling + fabric color catalog.
+/**
+ * Convert RGB (0-255) to HSL:
+ * h in [0, 360), s in [0, 1], l in [0, 1]
  */
-export const extractDominantColorFromFile = (file) => {
+const rgbToHsl = (r, g, b) => {
+  const rNorm = r / 255;
+  const gNorm = g / 255;
+  const bNorm = b / 255;
+
+  const max = Math.max(rNorm, gNorm, bNorm);
+  const min = Math.min(rNorm, gNorm, bNorm);
+  const delta = max - min;
+
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (delta !== 0) {
+    s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+
+    switch (max) {
+      case rNorm:
+        h = ((gNorm - bNorm) / delta + (gNorm < bNorm ? 6 : 0)) * 60;
+        break;
+      case gNorm:
+        h = ((bNorm - rNorm) / delta + 2) * 60;
+        break;
+      case bNorm:
+        h = ((rNorm - gNorm) / delta + 4) * 60;
+        break;
+    }
+  }
+
+  return { h, s, l };
+};
+
+/**
+ * Intelligent Ethnic Suit Color Classifier
+ * Analyzes pixel distribution in the garment area, isolates dominant fabric color from embroidery & background
+ */
+export const detectGarmentColorFromImageData = (data, width, height) => {
+  if (!data || data.length === 0) return null;
+
+  // Focus on the central 70% of the image (garment body, avoids edge background)
+  const startX = Math.floor(width * 0.15);
+  const endX = Math.floor(width * 0.85);
+  const startY = Math.floor(height * 0.15);
+  const endY = Math.floor(height * 0.85);
+
+  const buckets = {
+    red: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Bridal Red", hex: "#C41E3A" },
+    maroon: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Maroon", hex: "#800000" },
+    wine: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Deep Wine", hex: "#722F37" },
+    pink: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Rani Pink", hex: "#E3007E" },
+    green: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Bottle Green", hex: "#004B23" },
+    pista: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Pista Green", hex: "#93C572" },
+    mehndi: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Mehndi Green", hex: "#7F8C42" },
+    blue: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Royal Blue", hex: "#4169E1" },
+    navy: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Navy Blue", hex: "#000080" },
+    firozi: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Firozi Blue", hex: "#00A8CC" },
+    yellow: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Mustard Yellow", hex: "#E1AD01" },
+    orange: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Rust Orange", hex: "#C85A17" },
+    peach: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Peach", hex: "#FFE5B4" },
+    purple: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Royal Purple", hex: "#7851A9" },
+    lavender: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Lavender", hex: "#E6E6FA" },
+    brown: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Coffee Brown", hex: "#4A2E18" },
+    black: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Jet Black", hex: "#0A0A0A" },
+    white: { count: 0, rSum: 0, gSum: 0, bSum: 0, defaultName: "Off White", hex: "#FAF9F6" },
+  };
+
+  let totalSampled = 0;
+
+  for (let y = startY; y < endY; y++) {
+    for (let x = startX; x < endX; x++) {
+      const idx = (y * width + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+
+      if (a < 128) continue;
+      totalSampled++;
+
+      const { h, s, l } = rgbToHsl(r, g, b);
+
+      // Studio White / Light Background / Silver Lace
+      if (l > 0.86 && s < 0.22) {
+        buckets.white.count++;
+        buckets.white.rSum += r;
+        buckets.white.gSum += g;
+        buckets.white.bSum += b;
+        continue;
+      }
+
+      // Very Dark / Shadow / Black Fabric
+      if (l < 0.18) {
+        buckets.black.count++;
+        buckets.black.rSum += r;
+        buckets.black.gSum += g;
+        buckets.black.bSum += b;
+        continue;
+      }
+
+      // Low Saturation Neutrals (Grey / Off-white / Dark Charcoal)
+      if (s < 0.16) {
+        if (l < 0.35) {
+          buckets.black.count++;
+          buckets.black.rSum += r;
+          buckets.black.gSum += g;
+          buckets.black.bSum += b;
+        } else if (l > 0.72) {
+          buckets.white.count++;
+          buckets.white.rSum += r;
+          buckets.white.gSum += g;
+          buckets.white.bSum += b;
+        }
+        continue;
+      }
+
+      // Chromatic Fabric Pixels
+      let bucketKey = null;
+
+      if (h >= 345 || h < 14) {
+        if (l < 0.28) {
+          bucketKey = "maroon";
+        } else if (l < 0.38 && s < 0.65) {
+          bucketKey = "wine";
+        } else {
+          bucketKey = "red";
+        }
+      } else if (h >= 14 && h < 45) {
+        if (l > 0.68) {
+          bucketKey = "peach";
+        } else if (l < 0.32 && s < 0.65) {
+          bucketKey = "brown";
+        } else {
+          bucketKey = "orange";
+        }
+      } else if (h >= 45 && h < 75) {
+        bucketKey = "yellow";
+      } else if (h >= 75 && h < 165) {
+        if (l < 0.30) {
+          bucketKey = "green"; // Bottle Green
+        } else if (l > 0.58) {
+          bucketKey = "pista"; // Pista Green
+        } else if (h < 95) {
+          bucketKey = "mehndi"; // Mehndi Green
+        } else {
+          bucketKey = "green";
+        }
+      } else if (h >= 165 && h < 200) {
+        bucketKey = "firozi";
+      } else if (h >= 200 && h < 260) {
+        if (l < 0.28) {
+          bucketKey = "navy";
+        } else {
+          bucketKey = "blue";
+        }
+      } else if (h >= 260 && h < 315) {
+        if (l > 0.68) {
+          bucketKey = "lavender";
+        } else if (l < 0.34) {
+          bucketKey = "wine";
+        } else {
+          bucketKey = "purple";
+        }
+      } else if (h >= 315 && h < 345) {
+        bucketKey = "pink";
+      }
+
+      if (bucketKey && buckets[bucketKey]) {
+        buckets[bucketKey].count++;
+        buckets[bucketKey].rSum += r;
+        buckets[bucketKey].gSum += g;
+        buckets[bucketKey].bSum += b;
+      }
+    }
+  }
+
+  const colorfulKeys = [
+    "red", "maroon", "wine", "pink", "green", "pista", "mehndi",
+    "blue", "navy", "firozi", "yellow", "orange", "peach", "purple", "lavender", "brown"
+  ];
+
+  let bestColorful = null;
+  let maxColorfulCount = 0;
+  let totalColorfulCount = 0;
+
+  for (const key of colorfulKeys) {
+    const b = buckets[key];
+    totalColorfulCount += b.count;
+    if (b.count > maxColorfulCount) {
+      maxColorfulCount = b.count;
+      bestColorful = b;
+    }
+  }
+
+  // Dominant colorful fabric detected
+  if (bestColorful && maxColorfulCount > 0 && (totalColorfulCount >= totalSampled * 0.06 || maxColorfulCount > buckets.black.count * 0.5)) {
+    const avgR = Math.round(bestColorful.rSum / bestColorful.count);
+    const avgG = Math.round(bestColorful.gSum / bestColorful.count);
+    const avgB = Math.round(bestColorful.bSum / bestColorful.count);
+    const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
+    const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
+
+    const closest = findClosestFabricColor(hex);
+    return {
+      colorName: closest?.name || bestColorful.defaultName,
+      colorCode: closest?.hex || bestColorful.hex,
+    };
+  }
+
+  // Black / Charcoal suit
+  if (buckets.black.count > buckets.white.count && buckets.black.count > 0) {
+    return { colorName: "Jet Black", colorCode: "#0A0A0A" };
+  }
+
+  // White / Off-white suit
+  if (buckets.white.count > 0) {
+    return { colorName: "Off White", colorCode: "#FAF9F6" };
+  }
+
+  return { colorName: "Bridal Red", colorCode: "#C41E3A" };
+};
+
+/**
+ * Extract dominant fabric color from an image File using fast Bitmap or Image fallback
+ */
+export const extractDominantColorFromFile = async (file) => {
+  if (!file) return null;
+
+  // 1. Check filename first
+  const guessed = guessColorFromFilename(file.name);
+  if (guessed?.colorName) return guessed;
+
+  const targetSize = 64;
+
+  // 2. Try createImageBitmap (modern, high-speed, no DOM/ObjectURL issues)
+  if (typeof window !== "undefined" && typeof window.createImageBitmap === "function") {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = targetSize;
+      canvas.height = targetSize;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (ctx) {
+        ctx.drawImage(bitmap, 0, 0, targetSize, targetSize);
+        bitmap.close();
+        const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
+        const result = detectGarmentColorFromImageData(data, targetSize, targetSize);
+        if (result?.colorName) return result;
+      }
+    } catch (bitmapErr) {
+      // Continue to Image fallback
+    }
+  }
+
+  // 3. Fallback to HTML Image element with ObjectURL or DataURL
   return new Promise((resolve) => {
-    // 1. Check filename for direct match
-    const guessed = guessColorFromFilename(file?.name);
-    if (guessed) {
-      return resolve(guessed);
+    let objectUrl = null;
+    try {
+      objectUrl = URL.createObjectURL(file);
+    } catch {
+      // ignore
     }
 
-    if (!file || !(file instanceof Blob) || !file.type.startsWith("image/")) {
-      return resolve(null);
-    }
-
-    const objectUrl = URL.createObjectURL(file);
     const img = new Image();
+    img.crossOrigin = "anonymous";
 
-    img.onload = () => {
+    const processImg = () => {
       try {
         const canvas = document.createElement("canvas");
-        const size = 64;
-        canvas.width = size;
-        canvas.height = size;
+        canvas.width = targetSize;
+        canvas.height = targetSize;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        ctx.drawImage(img, 0, 0, size, size);
-        const { data } = ctx.getImageData(0, 0, size, size);
+        if (!ctx) return resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
 
-        let rSum = 0, gSum = 0, bSum = 0, count = 0;
-        const start = Math.floor(size * 0.15);
-        const end = Math.floor(size * 0.85);
-
-        for (let y = start; y < end; y++) {
-          for (let x = start; x < end; x++) {
-            const idx = (y * size + x) * 4;
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
-            const a = data[idx + 3];
-
-            if (a < 128) continue;
-            // Ignore near-white / studio background (r,g,b > 220 and low saturation)
-            const maxVal = Math.max(r, g, b);
-            const minVal = Math.min(r, g, b);
-            const sat = maxVal - minVal;
-            if (minVal > 220 && sat < 25) continue;
-            // Ignore near-black shadows/borders
-            if (maxVal < 30) continue;
-
-            rSum += r;
-            gSum += g;
-            bSum += b;
-            count++;
-          }
-        }
-
-        URL.revokeObjectURL(objectUrl);
-
-        if (count === 0) {
-          for (let i = 0; i < data.length; i += 4) {
-            rSum += data[i];
-            gSum += data[i + 1];
-            bSum += data[i + 2];
-            count++;
-          }
-        }
-
-        if (count === 0) return resolve(null);
-
-        const avgR = Math.round(rSum / count);
-        const avgG = Math.round(gSum / count);
-        const avgB = Math.round(bSum / count);
-        const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
-        const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
-
-        const closest = findClosestFabricColor(hex);
-        if (closest) {
-          resolve({ colorName: closest.name, colorCode: closest.hex });
-        } else {
-          resolve({ colorName: "", colorCode: hex });
-        }
+        ctx.drawImage(img, 0, 0, targetSize, targetSize);
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
+        const result = detectGarmentColorFromImageData(data, targetSize, targetSize);
+        resolve(result || { colorName: "Bridal Red", colorCode: "#C41E3A" });
       } catch (err) {
-        URL.revokeObjectURL(objectUrl);
-        resolve(null);
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
       }
     };
 
+    img.onload = processImg;
     img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(null);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = targetSize;
+            canvas.height = targetSize;
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            ctx.drawImage(fallbackImg, 0, 0, targetSize, targetSize);
+            const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
+            resolve(detectGarmentColorFromImageData(data, targetSize, targetSize));
+          } catch {
+            resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
+          }
+        };
+        fallbackImg.onerror = () => resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
+        fallbackImg.src = reader.result;
+      };
+      reader.onerror = () => resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
+      reader.readAsDataURL(file);
     };
 
-    img.src = objectUrl;
+    if (objectUrl) {
+      img.src = objectUrl;
+    } else {
+      img.onerror();
+    }
   });
 };
 
@@ -218,10 +447,10 @@ export const extractDominantColorFromUrl = (url) => {
   return new Promise((resolve) => {
     if (!url || typeof url !== "string") return resolve(null);
     const guessed = guessColorFromFilename(url);
-    if (guessed) return resolve(guessed);
+    if (guessed?.colorName) return resolve(guessed);
 
     const img = new Image();
-    img.crossOrigin = "Anonymous";
+    img.crossOrigin = "anonymous";
 
     img.onload = () => {
       try {
@@ -232,56 +461,8 @@ export const extractDominantColorFromUrl = (url) => {
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
         ctx.drawImage(img, 0, 0, size, size);
         const { data } = ctx.getImageData(0, 0, size, size);
-
-        let rSum = 0, gSum = 0, bSum = 0, count = 0;
-        const start = Math.floor(size * 0.15);
-        const end = Math.floor(size * 0.85);
-
-        for (let y = start; y < end; y++) {
-          for (let x = start; x < end; x++) {
-            const idx = (y * size + x) * 4;
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
-            const a = data[idx + 3];
-
-            if (a < 128) continue;
-            const maxVal = Math.max(r, g, b);
-            const minVal = Math.min(r, g, b);
-            const sat = maxVal - minVal;
-            if (minVal > 220 && sat < 25) continue;
-            if (maxVal < 30) continue;
-
-            rSum += r;
-            gSum += g;
-            bSum += b;
-            count++;
-          }
-        }
-
-        if (count === 0) {
-          for (let i = 0; i < data.length; i += 4) {
-            rSum += data[i];
-            gSum += data[i + 1];
-            bSum += data[i + 2];
-            count++;
-          }
-        }
-
-        if (count === 0) return resolve(null);
-
-        const avgR = Math.round(rSum / count);
-        const avgG = Math.round(gSum / count);
-        const avgB = Math.round(bSum / count);
-        const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
-        const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
-
-        const closest = findClosestFabricColor(hex);
-        if (closest) {
-          resolve({ colorName: closest.name, colorCode: closest.hex });
-        } else {
-          resolve({ colorName: "", colorCode: hex });
-        }
+        const result = detectGarmentColorFromImageData(data, size, size);
+        resolve(result || { colorName: "Bridal Red", colorCode: "#C41E3A" });
       } catch (e) {
         resolve(null);
       }

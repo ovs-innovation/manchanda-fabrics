@@ -21,13 +21,24 @@ const createReel = async (req, res) => {
   }
 };
 
+const resolveReelVideo = (video) => {
+  if (!video || typeof video !== "string") return video;
+  if (video.includes("detqbiabu")) {
+    const match = video.match(/\/R(\d+)[_\.]/i);
+    if (match) return `/R${match[1]}.mp4`;
+    return "/R1.mp4";
+  }
+  return video;
+};
+
 const getPublicReels = async (req, res) => {
   try {
     const reels = await Reel.find({ status: "published" })
       .populate("product")
       .sort({ createdAt: -1 })
       .lean();
-    res.send(reels);
+    const mapped = reels.map((r) => ({ ...r, video: resolveReelVideo(r.video) }));
+    res.send(mapped);
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
@@ -39,7 +50,8 @@ const getAllReels = async (req, res) => {
       .populate("product")
       .sort({ createdAt: -1 })
       .lean();
-    res.send(reels);
+    const mapped = reels.map((r) => ({ ...r, video: resolveReelVideo(r.video) }));
+    res.send(mapped);
   } catch (err) {
     res.status(500).send({ message: err.message });
   }

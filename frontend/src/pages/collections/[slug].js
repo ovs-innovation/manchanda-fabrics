@@ -22,6 +22,7 @@ import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
 import { translateProductTitle } from "@utils/fashionTranslations";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { normalizeProductImageUrl } from "@utils/brandAssets";
 
 const findCategoryBySlugOrId = (catList, slugOrId) => {
   if (!slugOrId || !Array.isArray(catList)) return null;
@@ -334,6 +335,8 @@ const CollectionsSlug = ({
   const collectionTitle = matchedCategory
     ? (showingTranslateValue(matchedCategory.name) || matchedCategory.name?.en || String(slug).replace(/-/g, " "))
     : (slug ? String(slug).replace(/-/g, " ") : "Collections");
+  const categoryBannerUrl = normalizeProductImageUrl(matchedCategory?.banner);
+  const categoryIconUrl = normalizeProductImageUrl(matchedCategory?.icon);
   const pageTitle = `${collectionTitle} | Manchanda Fabrics`;
 
   return (
@@ -478,23 +481,7 @@ const CollectionsSlug = ({
         </button>
       </div>
 
-      {/* Desktop header */}
-      <div className="hidden lg:block bg-white border-b border-neutral-100">
-        <div className="max-w-screen-2xl mx-auto px-6 sm:px-10 lg:px-16 py-10">
-          <p className="text-[12px] font-semibold tracking-[0.3em] uppercase text-neutral-400">
-            {t("Catalog")}
-          </p>
-          <h1
-            className="mt-3 text-4xl sm:text-5xl font-semibold text-[#111111] capitalize"
-            style={{ fontFamily: "'Poppins', sans-serif" }}
-          >
-            {collectionTitle}
-          </h1>
-          <p className="mt-4 text-sm text-neutral-500 max-w-2xl">
-            {t("Browse the latest pieces in this collection and refine with filters.")}
-          </p>
-        </div>
-      </div>
+
 
       <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-10">
         <div className="flex gap-6">
