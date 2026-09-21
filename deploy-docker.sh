@@ -2,27 +2,49 @@
 set -e
 
 echo "========================================="
-echo " Manchanda Fabrics - Docker Deployment   "
+echo " Manchanda Fabrics - Full Redeploy       "
 echo "========================================="
 
-# 1. Stop only Manchanda PM2 processes if running
-if command -v pm2 &> /dev/null; then
-    echo "Stopping Manchanda PM2 processes to free ports (8092, 3000, 4100)..."
-    pm2 stop manchanda-backend manchanda-frontend manchanda-admin || true
-fi
+cd /var/www/manchanda-fabrics
 
-# 2. Rebuild and launch containers
-echo "Building and launching Docker containers..."
-docker compose down || true
-docker compose up -d --build
+# 1. Pull latest code
+echo ""
+echo "📥 Pulling latest code from GitHub..."
+git pull origin main
 
-# 3. Show running status
-echo "Container Status:"
+# 2. Stop old containers (keep volumes!)
+echo ""
+echo "🛑 Stopping old containers (keeping data volumes)..."
+docker compose down --remove-orphans
+
+# 3. Clear old images to force full rebuild
+echo ""
+echo "🧹 Removing old Docker images to force clean rebuild..."
+docker rmi manchanda-fabrics-backend manchanda-fabrics-frontend manchanda-fabrics-admin 2>/dev/null || true
+
+# 4. Rebuild and start fresh
+echo ""
+echo "🔨 Building and starting containers..."
+docker compose up -d --build --force-recreate
+
+# 5. Wait a moment for containers to start
+echo ""
+echo "⏳ Waiting for containers to start..."
+sleep 10
+
+# 6. Show status
+echo ""
+echo "📊 Container Status:"
 docker compose ps
 
+echo ""
+echo "📜 Recent backend logs:"
+docker logs manchanda-backend --tail=20
+
+echo ""
 echo "========================================="
 echo " Deployment Complete!                    "
-echo " Backend:  http://127.0.0.1:8092         "
-echo " Frontend: http://127.0.0.1:3000         "
-echo " Admin:    http://127.0.0.1:4100         "
+echo " Backend:  https://api.manchandafabric.in"
+echo " Frontend: https://manchandafabric.in    "
+echo " Admin:    https://admin.manchandafabric.in"
 echo "========================================="
