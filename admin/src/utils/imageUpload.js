@@ -2,78 +2,26 @@ import axios from "axios";
 import requests from "@/services/httpService";
 import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
 
-const compressImageIfNeeded = async (file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) => {
-  if (!file || !file.type || !file.type.startsWith("image/")) return file;
-  // If small SVG or already small image (< 400KB), return as-is
-  if (file.type.includes("svg") || file.size <= 400 * 1024) return file;
-
-  return new Promise((resolve) => {
-    try {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (!blob || blob.size >= file.size) {
-              resolve(file);
-            } else {
-              const compressed = new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
-                type: "image/jpeg",
-                lastModified: Date.now(),
-              });
-              resolve(compressed);
-            }
-          },
-          "image/jpeg",
-          quality
-        );
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        resolve(file);
-      };
-      img.src = url;
-    } catch {
-      resolve(file);
-    }
-  });
-};
-
-const fileToDataUrl = (file) =>
-  new Promise((resolve, reject) => {
+const fileToDataUrl = (file) => {
+  if (!file) return Promise.resolve("");
+  if (typeof file === "string") return Promise.resolve(file);
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+};
 
 /**
  * Upload a single image file to Cloudinary with backend fallback.
  */
 export const uploadImageFile = async (file, folder = "manchanda") => {
+  if (!file) return null;
   const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
   const baseUrl = import.meta.env.VITE_APP_CLOUDINARY_URL;
 
-  // Compress image before uploading to avoid 413 or timeout
-  const processedFile = await compressImageIfNeeded(file);
-
-  const name = (processedFile.name || "image").replaceAll(/\s/g, "");
+  const name = (file.name || "image").replaceAll(/\s/g, "");
   const basePublicId = name.substring(0, name.lastIndexOf(".")) || "image";
   const cleanPublicId = basePublicId
     .normalize("NFD")
@@ -83,13 +31,12 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
     .replace(/^-+|-+$/g, "");
   const public_id = `${cleanPublicId || "suit"}_${Date.now()}`;
 
-  // Skip direct Cloudinary upload — use backend endpoint which saves to local disk
-  // (Cloudinary account detqbiabu is disabled; backend handles local storage)
-  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu") || !uploadPreset;
-  if (!isCloudinaryDisabled) {
+  // Attempt direct Cloudinary upload first (skip if disabled or detqbiabu)
+  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu");
+  if (uploadPreset && baseUrl && !isCloudinaryDisabled) {
     try {
       const formData = new FormData();
-      formData.append("file", processedFile);
+      formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
 
       const res = await axios.post(baseUrl, formData);
@@ -102,7 +49,8 @@ export const uploadImageFile = async (file, folder = "manchanda") => {
 
   // Fallback via backend endpoint
   try {
-    const dataUrl = await fileToDataUrl(processedFile);
+    const dataUrl = await fileToDataUrl(file);
+    if (!dataUrl) return null;
     const backendRes = await requests.post("/customer/cloudinary-upload", {
       file: dataUrl,
       folder,
@@ -412,28 +360,28 @@ export const extractDominantColorFromFile = async (file) => {
 
   const targetSize = 64;
 
-  // 2. Try createImageBitmap (modern, high-speed, no DOM/ObjectURL issues)
-  if (typeof window !== "undefined" && typeof window.createImageBitmap === "function") {
-    try {
-      const bitmap = await createImageBitmap(file);
-      const canvas = document.createElement("canvas");
-      canvas.width = targetSize;
-      canvas.height = targetSize;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (ctx) {
-        ctx.drawImage(bitmap, 0, 0, targetSize, targetSize);
-        bitmap.close();
-        const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
-        const result = detectGarmentColorFromImageData(data, targetSize, targetSize);
-        if (result?.colorName) return result;
+  const extractionPromise = new Promise(async (resolve) => {
+    // 2. Try createImageBitmap (modern, high-speed, no DOM/ObjectURL issues)
+    if (typeof window !== "undefined" && typeof window.createImageBitmap === "function") {
+      try {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (ctx) {
+          ctx.drawImage(bitmap, 0, 0, targetSize, targetSize);
+          bitmap.close();
+          const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
+          const result = detectGarmentColorFromImageData(data, targetSize, targetSize);
+          if (result?.colorName) return resolve(result);
+        }
+      } catch (bitmapErr) {
+        // Continue to Image fallback
       }
-    } catch (bitmapErr) {
-      // Continue to Image fallback
     }
-  }
 
-  // 3. Fallback to HTML Image element with ObjectURL or DataURL
-  return new Promise((resolve) => {
+    // 3. Fallback to HTML Image element with ObjectURL or DataURL
     let objectUrl = null;
     try {
       objectUrl = URL.createObjectURL(file);
@@ -442,7 +390,15 @@ export const extractDominantColorFromFile = async (file) => {
     }
 
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    // NOTE: NEVER set crossOrigin on blob: URLs as Chromium blocks it with CORS error!
+
+    const cleanup = () => {
+      if (objectUrl) {
+        try {
+          URL.revokeObjectURL(objectUrl);
+        } catch {}
+      }
+    };
 
     const processImg = () => {
       try {
@@ -450,51 +406,42 @@ export const extractDominantColorFromFile = async (file) => {
         canvas.width = targetSize;
         canvas.height = targetSize;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
+        if (!ctx) {
+          cleanup();
+          return resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
+        }
 
         ctx.drawImage(img, 0, 0, targetSize, targetSize);
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        cleanup();
         const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
         const result = detectGarmentColorFromImageData(data, targetSize, targetSize);
         resolve(result || { colorName: "Bridal Red", colorCode: "#C41E3A" });
       } catch (err) {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        cleanup();
         resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
       }
     };
 
     img.onload = processImg;
     img.onerror = () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const fallbackImg = new Image();
-        fallbackImg.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            canvas.width = targetSize;
-            canvas.height = targetSize;
-            const ctx = canvas.getContext("2d", { willReadFrequently: true });
-            ctx.drawImage(fallbackImg, 0, 0, targetSize, targetSize);
-            const { data } = ctx.getImageData(0, 0, targetSize, targetSize);
-            resolve(detectGarmentColorFromImageData(data, targetSize, targetSize));
-          } catch {
-            resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
-          }
-        };
-        fallbackImg.onerror = () => resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
-        fallbackImg.src = reader.result;
-      };
-      reader.onerror = () => resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
-      reader.readAsDataURL(file);
+      cleanup();
+      resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
     };
 
     if (objectUrl) {
       img.src = objectUrl;
     } else {
-      img.onerror();
+      resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" });
     }
   });
+
+  // Guarantee resolution within 1.5 seconds so it can never hang!
+  return Promise.race([
+    extractionPromise,
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ colorName: "Bridal Red", colorCode: "#C41E3A" }), 1500)
+    ),
+  ]);
 };
 
 /**

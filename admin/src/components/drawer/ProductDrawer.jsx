@@ -2317,7 +2317,19 @@ const ProductDrawer = ({ id }) => {
               <ColorVariantManager
                 colorVariants={colorVariants}
                 setColorVariants={setColorVariants}
+                featuredImage={featuredImage}
+                setFeaturedImage={setFeaturedImage}
+                defaultColorName={watch("defaultColorName")}
+                setDefaultColor={({ colorName, colorCode }) => {
+                  setValue("defaultColorName", colorName, { shouldValidate: true });
+                  setValue("defaultColorCode", colorCode, { shouldValidate: true });
+                }}
                 onStockChange={(total) => setValue("stock", total, { shouldValidate: true })}
+                video={video}
+                setVideo={setVideo}
+                imageUrl={imageUrl}
+                setImageUrl={setImageUrl}
+                availableImages={[featuredImage, ...(Array.isArray(imageUrl) ? imageUrl : [imageUrl])].filter(Boolean)}
               />
             </div>
           )}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FiMonitor, FiSmartphone, FiCamera } from "react-icons/fi";
+import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const ProductPreviewCard = ({
   title,
@@ -26,7 +27,8 @@ const ProductPreviewCard = ({
     return Math.max(0, final).toFixed(2);
   })();
 
-  const imageToDisplay = isHovered && hoverImage ? hoverImage : (featuredImage || "");
+  const rawImage = isHovered && hoverImage ? hoverImage : (featuredImage || "");
+  const imageToDisplay = resolveCloudinaryUrl(rawImage) || rawImage;
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
@@ -98,6 +100,11 @@ const ProductPreviewCard = ({
                 <img
                   src={imageToDisplay}
                   alt={title || "Product Image"}
+                  onError={(e) => {
+                    if (featuredImage && e.target.src !== featuredImage) {
+                      e.target.src = featuredImage;
+                    }
+                  }}
                   className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                 />
               ) : (

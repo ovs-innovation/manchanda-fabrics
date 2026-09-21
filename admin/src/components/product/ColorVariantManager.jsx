@@ -102,26 +102,22 @@ const ColorVariantManager = ({
     const updated = rows.filter((_, i) => i !== index);
     setColorVariants(updated);
 
-    // If all rows removed, clear featuredImage, defaultColor and imageUrl
+    // If all rows removed, clear featuredImage and defaultColor
     if (updated.length === 0) {
       if (typeof setFeaturedImage === "function") setFeaturedImage("");
-      if (typeof setImageUrl === "function") setImageUrl([]);
       if (typeof setDefaultColor === "function") setDefaultColor({ colorName: "", colorCode: "" });
-    } else {
-      const allRem = updated.flatMap((r) => r.images || []).filter(Boolean);
-      if (allRem.length === 0) {
-        if (typeof setFeaturedImage === "function") setFeaturedImage("");
-        if (typeof setImageUrl === "function") setImageUrl([]);
-      } else if (removedRow?.images?.includes(featuredImage) || !featuredImage) {
-        if (typeof setFeaturedImage === "function") setFeaturedImage(allRem[0]);
-        if (typeof setImageUrl === "function") setImageUrl(allRem.slice(1));
-        const nextMain = updated.find((r) => r.images?.[0]) || updated[0];
-        if (typeof setDefaultColor === "function" && nextMain?.colorName) {
-          setDefaultColor({
-            colorName: nextMain.colorName,
-            colorCode: nextMain.colorCode || "",
-          });
-        }
+    } else if (removedRow?.images?.[0] === featuredImage || !featuredImage) {
+      const nextMain = updated.find((r) => r.images?.[0]) || updated[0];
+      if (nextMain?.images?.[0] && typeof setFeaturedImage === "function") {
+        setFeaturedImage(nextMain.images[0]);
+      } else if (typeof setFeaturedImage === "function") {
+        setFeaturedImage("");
+      }
+      if (typeof setDefaultColor === "function" && nextMain?.colorName) {
+        setDefaultColor({
+          colorName: nextMain.colorName,
+          colorCode: nextMain.colorCode || "",
+        });
       }
     }
 
@@ -131,110 +127,130 @@ const ColorVariantManager = ({
     }
   };
 
-  // Bulk Upload Handler: Auto-detects color immediately and uploads in background
-  const handleBulkUploadFiles = async (filesList) => {
-    const fileArray = Array.from(filesList || []).filter(
-      (f) => f.type.startsWith("image/") || /\.(jpe?g|png|webp|jfif|avif|gif)$/i.test(f.name)
-    );
-    if (fileArray.length === 0) return;
-
-    // 1. INSTANT LOCAL CARDS: Read local previews and detect dominant colors right away!
-    // 1. INSTANT LOCAL CARDS: Read local previews and detect dominant colors right away!
-    const initialNewRows = await Promise.all(
-      fileArray.map(async (file) => {
-        const localUrl = URL.createObjectURL(file);
-        let detected = guessColorFromFilename(file.name);
-        if (!detected?.colorName) {
-          try {
-            detected = await extractDominantColorFromFile(file);
-          } catch (e) {
-            console.warn("Color detection notice:", e);
-          }
-        }
-
-        const colorName = detected?.colorName || "Suit Color";
-        const colorCode = detected?.colorCode || resolveHex("", colorName) || "#C41E3A";
-
-        return {
-          colorName,
-          colorCode,
-          images: [localUrl],
-          stock: 5,
-          sku: "",
-          _localId: Math.random().toString(36).substring(7),
-          _localUrl: localUrl,
-          _file: file,
-          _isUploading: true,
-        };
-      })
+  // Bulk Upload Handler: Creates cards INSTANTLY with local preview, then uploads in background
+  const handleBulkUploadFiles = (filesList) => {
+    const rawFiles = Array.from(filesList || []);
+    const fileArray = rawFiles.filter(
+      (f) =>
+        (f && f.type && f.type.startsWith("image/")) ||
+        (f && f.name && /\.(jpe?g|png|webp|jfif|avif|gif|bmp|heic)$/i.test(f.name))
     );
 
-    // Immediately put suit cards on screen!
-    const mergedWithLocal = [...rows, ...initialNewRows];
-    setColorVariants(mergedWithLocal);
+    if (fileArray.length === 0) {
+      if (rawFiles.length > 0) {
+        notifyError("Please select valid image files (JPG, PNG, WEBP, etc.)");
+      }
+      return;
+    }
 
-    // If no featured image yet, set first photo as main photo immediately
-    if (!featuredImage && initialNewRows[0]?.images?.[0]) {
-      setFeaturedImage(initialNewRows[0].images[0]);
+    // 1. INSTANT LOCAL CARDS: 100% synchronous — ZERO waiting! Cards appear in 0ms!
+    const initialNewRows = fileArray.map((file) => {
+      let localUrl = "";
+      try {
+        localUrl = URL.createObjectURL(file);
+      } catch (e) {
+        console.warn("Could not create object URL:", e);
+      }
+      const detected = guessColorFromFilename(file.name);
+      const colorName = detected?.colorName || "Suit Color";
+      const colorCode = detected?.colorCode || resolveHex("", colorName) || "#004B23";
+
+      return {
+        colorName,
+        colorCode,
+        images: localUrl ? [localUrl] : [],
+        stock: 5,
+        sku: "",
+        _localId: Math.random().toString(36).substring(7),
+        _localUrl: localUrl,
+        _file: file,
+        _isUploading: true,
+      };
+    });
+
+    // Put suit cards on screen IMMEDIATELY!
+    setColorVariants((prev = []) => {
+      const currentList = Array.isArray(prev) ? prev : [];
+      const merged = [...currentList, ...initialNewRows];
+      if (typeof onStockChange === "function") {
+        const sum = merged.reduce((s, r) => s + Number(r.stock || 0), 0);
+        onStockChange(sum);
+      }
+      return merged;
+    });
+
+    // Set first photo as featured image immediately if not set yet
+    const firstImg = initialNewRows[0]?.images?.[0];
+    if (firstImg) {
+      if (!featuredImage && typeof setFeaturedImage === "function") {
+        setFeaturedImage(firstImg);
+      }
       if (initialNewRows[0].colorName && typeof setDefaultColor === "function") {
         setDefaultColor({
           colorName: initialNewRows[0].colorName,
           colorCode: initialNewRows[0].colorCode,
         });
       }
-    }
-
-    if (typeof onStockChange === "function") {
-      const sum = mergedWithLocal.reduce((s, r) => s + Number(r.stock || 0), 0);
-      onStockChange(sum);
+      if (typeof setImageUrl === "function") {
+        setImageUrl((prev = []) => {
+          const list = Array.isArray(prev) ? prev : [prev].filter(Boolean);
+          return Array.from(new Set([...list, ...initialNewRows.map((r) => r.images[0]).filter(Boolean)]));
+        });
+      }
     }
 
     setIsUploading(true);
     setUploadStats({ current: 0, total: fileArray.length, fileName: "" });
 
-    // 2. BACKGROUND UPLOAD TO CLOUDINARY
-    await Promise.all(
-      initialNewRows.map(async (rowItem) => {
+    // 2. BACKGROUND UPLOAD & COLOR REFINEMENT
+    (async () => {
+      for (let i = 0; i < initialNewRows.length; i++) {
+        const rowItem = initialNewRows[i];
         const file = rowItem._file;
         setUploadStats((prev) => ({
           ...prev,
-          current: prev.current + 1,
+          current: i + 1,
           fileName: file.name,
         }));
 
+        // Try to refine color if it was "Suit Color"
+        if (!rowItem.colorName || rowItem.colorName === "Suit Color") {
+          try {
+            const detectedColor = await Promise.race([
+              extractDominantColorFromFile(file),
+              new Promise((resolve) => setTimeout(() => resolve(null), 1200)),
+            ]);
+            if (detectedColor?.colorName && detectedColor.colorName !== "Suit Color") {
+              setColorVariants((prev = []) =>
+                prev.map((r) =>
+                  r._localId === rowItem._localId
+                    ? {
+                        ...r,
+                        colorName: detectedColor.colorName,
+                        colorCode: detectedColor.colorCode || resolveHex("", detectedColor.colorName) || r.colorCode,
+                      }
+                    : r
+                )
+              );
+            }
+          } catch (e) {
+            console.warn("Background color extraction:", e);
+          }
+        }
+
+        // Upload to server/Cloudinary
         try {
           const uploadedUrl = await uploadImageFile(file, "product");
-
           if (uploadedUrl) {
-            let remoteColor = null;
-            if (!rowItem.colorName || rowItem.colorName === "Suit Color") {
-              try {
-                remoteColor = await extractDominantColorFromUrl(uploadedUrl);
-              } catch (e) {
-                console.warn("Remote color extraction notice:", e);
-              }
-            }
-
-            setColorVariants((prev) =>
+            setColorVariants((prev = []) =>
               prev.map((r) => {
                 if (r._localId === rowItem._localId) {
-                  const updatedName =
-                    r.colorName && r.colorName !== "Suit Color"
-                      ? r.colorName
-                      : remoteColor?.colorName || r.colorName || "Suit Color";
-                  const updatedCode =
-                    r.colorCode && r.colorCode !== "#C41E3A"
-                      ? r.colorCode
-                      : remoteColor?.colorCode || resolveHex("", updatedName) || "#C41E3A";
-
                   return {
                     ...r,
                     images: [
                       uploadedUrl,
                       ...(r.images || []).slice(1).filter((img) => img !== rowItem._localUrl),
                     ],
-                    colorName: updatedName,
-                    colorCode: updatedCode,
                     _isUploading: false,
                   };
                 }
@@ -242,30 +258,40 @@ const ColorVariantManager = ({
               })
             );
 
-            setFeaturedImage((prevFeatured) => {
-              if (prevFeatured === rowItem._localUrl || !prevFeatured) {
-                return uploadedUrl;
-              }
-              return prevFeatured;
-            });
+            if (typeof setFeaturedImage === "function") {
+              setFeaturedImage((prevFeatured) => {
+                if (prevFeatured === rowItem._localUrl || !prevFeatured) {
+                  return uploadedUrl;
+                }
+                return prevFeatured;
+              });
+            }
+
+            if (typeof setImageUrl === "function") {
+              setImageUrl((prev = []) => {
+                const list = Array.isArray(prev) ? prev : [prev].filter(Boolean);
+                return Array.from(new Set([...list.filter((u) => u !== rowItem._localUrl), uploadedUrl]));
+              });
+            }
           } else {
-            setColorVariants((prev) =>
+            // Upload returned null/failed, but keep local image so user still sees the suit photo
+            setColorVariants((prev = []) =>
               prev.map((r) => (r._localId === rowItem._localId ? { ...r, _isUploading: false } : r))
             );
           }
-        } catch (err) {
-          console.error("Upload notice for file:", file.name, err);
-          setColorVariants((prev) =>
+        } catch (uploadErr) {
+          console.error("Upload notice for file:", file.name, uploadErr);
+          setColorVariants((prev = []) =>
             prev.map((r) => (r._localId === rowItem._localId ? { ...r, _isUploading: false } : r))
           );
         }
-      })
-    );
+      }
 
-    setIsUploading(false);
-    setUploadStats({ current: 0, total: 0, fileName: "" });
-    if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
-    notifySuccess(`Added ${fileArray.length} suit photo${fileArray.length > 1 ? "s" : ""}!`);
+      setIsUploading(false);
+      setUploadStats({ current: 0, total: 0, fileName: "" });
+      if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
+      notifySuccess(`Added ${fileArray.length} suit photo${fileArray.length > 1 ? "s" : ""}!`);
+    })();
   };
 
   // Add extra angle photo(s) to a specific color variant
@@ -309,20 +335,12 @@ const ColorVariantManager = ({
           uploadResults.forEach(({ localUrl, url }) => {
             if (url) {
               currentImgs = currentImgs.map((img) => (img === localUrl ? url : img));
-            } else {
-              currentImgs = currentImgs.filter((img) => img !== localUrl);
             }
           });
           return { ...row, images: currentImgs };
         })
       );
-      const firstSuccessful = uploadResults.find((r) => r.url)?.url;
-      if (firstSuccessful) {
-        if (!featuredImage || index === 0) {
-          if (typeof setFeaturedImage === "function") setFeaturedImage(firstSuccessful);
-        }
-      }
-      notifySuccess(`Added ${files.length} suit photo${files.length > 1 ? "s" : ""}!`);
+      notifySuccess(`Added ${files.length} angle photo${files.length > 1 ? "s" : ""}!`);
     } catch (err) {
       console.error("Failed to upload angle photos:", err);
     } finally {
@@ -365,6 +383,10 @@ const ColorVariantManager = ({
           setFeaturedImage(url);
         }
         notifySuccess("Suit photo updated!");
+      } else {
+        setColorVariants((prev) =>
+          prev.map((row, i) => (i === index ? { ...row, _isUploading: false } : row))
+        );
       }
     } catch (err) {
       console.error("Failed to replace suit photo:", err);
@@ -392,10 +414,8 @@ const ColorVariantManager = ({
     const allRemaining = updated.flatMap((r) => r.images || []).filter(Boolean);
     if (allRemaining.length === 0) {
       if (typeof setFeaturedImage === "function") setFeaturedImage("");
-      if (typeof setImageUrl === "function") setImageUrl([]);
-    } else if (removedPhoto === featuredImage || !featuredImage) {
+    } else if (removedPhoto === featuredImage) {
       if (typeof setFeaturedImage === "function") setFeaturedImage(allRemaining[0]);
-      if (typeof setImageUrl === "function") setImageUrl(allRemaining.slice(1));
     }
   };
 
@@ -408,31 +428,45 @@ const ColorVariantManager = ({
         ref={bulkFileInputRef}
         type="file"
         multiple
-        accept="image/*"
+        accept="image/*,.jpg,.jpeg,.png,.webp,.avif,.jfif,.heic"
         className="hidden"
-        onChange={(e) => handleBulkUploadFiles(e.target.files)}
+        onClick={(e) => {
+          e.target.value = "";
+        }}
+        onChange={(e) => {
+          handleBulkUploadFiles(e.target.files);
+          e.target.value = "";
+        }}
       />
       <input
         ref={angleFileInputRef}
         type="file"
         multiple
-        accept="image/*"
+        accept="image/*,.jpg,.jpeg,.png,.webp,.avif,.jfif,.heic"
         className="hidden"
+        onClick={(e) => {
+          e.target.value = "";
+        }}
         onChange={(e) => {
           if (activeAngleUploadIndex !== null) {
             handleAddAnglePhoto(activeAngleUploadIndex, e.target.files);
           }
+          e.target.value = "";
         }}
       />
       <input
         ref={replaceFileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.jpg,.jpeg,.png,.webp,.avif,.jfif,.heic"
         className="hidden"
+        onClick={(e) => {
+          e.target.value = "";
+        }}
         onChange={(e) => {
           if (replacePhotoIndex !== null) {
             handleReplacePhoto(replacePhotoIndex, e.target.files);
           }
+          e.target.value = "";
         }}
       />
 
@@ -467,35 +501,84 @@ const ColorVariantManager = ({
             handleBulkUploadFiles(e.dataTransfer.files);
           }
         }}
-        onClick={() => bulkFileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-2xl p-7 text-center cursor-pointer transition-all duration-200 ${
+        onClick={() => {
+          if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
+          bulkFileInputRef.current?.click();
+        }}
+        className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${
           isDragging
             ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/20 scale-[1.01]"
             : "border-emerald-300/80 hover:border-emerald-500 bg-emerald-50/30 hover:bg-emerald-50/60 dark:bg-gray-800/40 dark:border-emerald-700/50"
         }`}
       >
         <div className="py-2 space-y-2">
-          <div className="inline-flex p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 mb-1">
-            <FiUploadCloud size={30} />
-          </div>
-          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-            Click or Drag & Drop All Suit Photos at Once
-          </h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-            Select all suit photos together (e.g. Green suit, Red suit, Yellow suit). Cards appear below automatically!
-          </p>
-          <div className="pt-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-colors">
-              <FiCamera size={14} /> Select All Suit Photos
-            </span>
-          </div>
+          {rows.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2 text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                {rows.length} {rows.length === 1 ? "Suit Photo" : "Suit Photos"} Selected
+              </div>
+              <div className="flex items-center justify-center gap-2.5 flex-wrap max-w-xl mx-auto py-1">
+                {rows.map((r, i) => {
+                  const img = r.images?.[0] || r._localUrl;
+                  return (
+                    <div
+                      key={r._localId || i}
+                      className="relative w-14 h-14 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-sm bg-gray-100 flex-shrink-0"
+                    >
+                      <img
+                        src={resolveCloudinaryUrl(img) || img || r._localUrl}
+                        alt={r.colorName || "Suit"}
+                        onError={(e) => {
+                          if (r._localUrl && e.target.src !== r._localUrl) {
+                            e.target.src = r._localUrl;
+                          }
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                      <span
+                        className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs"
+                        style={{ backgroundColor: r.colorCode || "#004B23" }}
+                        title={r.colorName}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Click here or drag more photos to add more colors & suits
+              </p>
+              <div className="pt-1">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-colors">
+                  <FiCamera size={14} /> + Add More Suit Photos
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="inline-flex p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 mb-1">
+                <FiUploadCloud size={30} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100">
+                Click or Drag & Drop All Suit Photos at Once
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                Select all suit photos together (e.g. Green suit, Red suit, Yellow suit). Cards appear below automatically!
+              </p>
+              <div className="pt-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-colors">
+                  <FiCamera size={14} /> Select All Suit Photos
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Upload progress indicator */}
         {isUploading && (
           <div className="mt-4 pt-3 border-t border-emerald-200/50 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
             <FiRefreshCw size={14} className="animate-spin text-emerald-600" />
-            <span>Securing {uploadStats.current} of {uploadStats.total} images to cloud...</span>
+            <span>Uploading {uploadStats.current} of {uploadStats.total} images...</span>
           </div>
         )}
       </div>
@@ -535,14 +618,19 @@ const ColorVariantManager = ({
                       {mainImg ? (
                         <>
                           <img
-                            src={resolveCloudinaryUrl(mainImg) || mainImg}
+                            src={resolveCloudinaryUrl(mainImg) || mainImg || row._localUrl}
                             alt={row.colorName || "Suit Color"}
+                            onError={(e) => {
+                              if (row._localUrl && e.target.src !== row._localUrl) {
+                                e.target.src = row._localUrl;
+                              }
+                            }}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
 
                           {/* Saving spinner */}
                           {row._isUploading && (
-                            <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <div className="absolute top-2 right-2 bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
                               <FiRefreshCw size={10} className="animate-spin" /> Saving...
                             </div>
                           )}
