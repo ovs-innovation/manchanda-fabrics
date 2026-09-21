@@ -3,7 +3,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import { mergeHomepage } from "@utils/homepageDefaults";
-import { normalizeProductImageUrl } from "@utils/brandAssets";
 
 const HeroBanner = ({ homepage: homepageProp }) => {
   const homepage = mergeHomepage(homepageProp);
@@ -22,9 +21,8 @@ const HeroBanner = ({ homepage: homepageProp }) => {
       : rawWelcomeStr;
   const brandText = homepage.heroBrandName || t("hero_brand_text");
 
-  const rawDesktop = homepage.heroVideo || "/main1.mp4";
-  const desktopVideo = normalizeProductImageUrl(rawDesktop) || "/main1.mp4";
-  const mobileVideo = normalizeProductImageUrl(homepage.heroMobileVideo) || null;
+  const desktopVideo = homepage.heroVideo || "/main1.mp4";
+  const mobileVideo = homepage.heroMobileVideo || null;
 
   const handleDesktopMetadata = () => {
     if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {

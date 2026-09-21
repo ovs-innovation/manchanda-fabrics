@@ -770,6 +770,7 @@ const cloudinaryUpload = async (req, res) => {
 
         const mimeType = file.substring(5, semiIdx).toLowerCase();
         const base64Data = file.substring(commaIdx + 1);
+        const buffer = Buffer.from(base64Data, 'base64');
 
         let ext = 'jpg';
         if (mimeType.includes('mp4')) ext = 'mp4';
@@ -781,8 +782,31 @@ const cloudinaryUpload = async (req, res) => {
         else if (mimeType.includes('svg')) ext = 'svg';
         else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
         else {
-          const parts = mimeType.split('/');
-          if (parts[1]) ext = parts[1].replace(/[^a-z0-9]/gi, '') || 'bin';
+          // Inspect magic bytes of the decoded buffer
+          if (buffer.length >= 3 && buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
+            ext = 'jpg';
+          } else if (buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+            ext = 'png';
+          } else if (buffer.length >= 3 && buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+            ext = 'gif';
+          } else if (buffer.length >= 12 && buffer.toString('ascii', 8, 12) === 'WEBP') {
+            ext = 'webp';
+          } else if (buffer.length >= 12 && buffer.toString('ascii', 4, 8) === 'ftyp') {
+            const brand = buffer.toString('ascii', 8, 12).toLowerCase();
+            if (['mp41', 'mp42', 'isom', 'iso2', 'avc1'].includes(brand)) ext = 'mp4';
+            else ext = 'jpg';
+          } else {
+            const parts = mimeType.split('/');
+            const candidate = parts[1] ? parts[1].replace(/[^a-z0-9]/gi, '') : '';
+            if (candidate && !['octetstream', 'bin', 'plain'].includes(candidate)) {
+              ext = candidate;
+            } else {
+              ext = 'jpg';
+            }
+          }
+        }
+        if (['octetstream', 'bin', 'plain', 'heic', 'heif'].includes(ext)) {
+          ext = 'jpg';
         }
 
         const cleanFolder = (folder || 'uploads').replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -791,19 +815,11 @@ const cloudinaryUpload = async (req, res) => {
         if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
         const filePath = path.join(uploadsDir, filename);
-        fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+        fs.writeFileSync(filePath, buffer);
 
-        const forwardedHost = req.headers['x-forwarded-host'];
-        const host = req.get('host') || '';
-        const isLive = process.env.NODE_ENV === 'production' || host.includes('manchandafabric.in') || (forwardedHost && forwardedHost.includes('manchandafabric.in'));
-        
-        let localUrl;
-        if (isLive) {
-          localUrl = `https://api.manchandafabric.in/uploads/${filename}`;
-        } else {
-          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-          localUrl = `${protocol}://${host || 'localhost:8092'}/uploads/${filename}`;
-        }
+        const host = req.get('host') || 'localhost:8092';
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const localUrl = `${protocol}://${host}/uploads/${filename}`;
         console.log('✅ Local disk media upload succeeded:', localUrl);
 
         return { url: localUrl, secure_url: localUrl, publicId: filename };

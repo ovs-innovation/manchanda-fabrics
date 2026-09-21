@@ -4,7 +4,6 @@ import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { FiUploadCloud, FiXCircle, FiCheck, FiAlertCircle, FiFilm } from "react-icons/fi";
 import requests from "@/services/httpService";
-import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
@@ -94,9 +93,7 @@ const VideoUploader = ({
     const basePublicId = name?.substring(0, name.lastIndexOf(".")) || "video";
     const public_id = `${basePublicId}_${Date.now()}`.replace(/[^a-zA-Z0-9-_]/g, "-");
 
-    const videoUploadUrl = getVideoUploadUrl();
-    const isCloudinaryDisabled = !videoUploadUrl || videoUploadUrl.includes("detqbiabu");
-    if (!isCloudinaryDisabled && import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET) {
+    if (getVideoUploadUrl() && import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET) {
       try {
         return await uploadViaCloudinary(file, safeFolder, public_id);
       } catch (err) {
@@ -165,7 +162,7 @@ const VideoUploader = ({
     <div className="w-full space-y-3">
       {value ? (
         <div className="relative border rounded-xl overflow-hidden bg-black">
-          <video src={resolveCloudinaryUrl(value) || value} controls className="w-full max-h-64 object-contain" />
+          <video src={value} controls className="w-full max-h-64 object-contain" />
           <button
             type="button"
             className="absolute top-2 right-2 bg-white/90 rounded-full p-1 text-red-500 shadow"

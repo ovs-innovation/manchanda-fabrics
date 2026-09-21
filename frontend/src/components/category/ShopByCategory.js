@@ -3,7 +3,6 @@ import Link from "next/link";
 import { IoSparkles, IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { mergeCategoryBanners } from "@utils/shopCategories";
 import { LOCAL_BANNERS } from "@utils/traditionalImagery";
-import { normalizeProductImageUrl } from "@utils/brandAssets";
 import useTranslation from "next-translate/useTranslation";
 
 const canUseVideo = (src) => {
@@ -28,18 +27,18 @@ const CategoryTile = ({ cat, featured = false, video, registerVideoEl }) => {
       {canUseVideo(video) ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
-          src={normalizeProductImageUrl(video)}
+          src={video}
           muted
           loop
           playsInline
           autoPlay
           preload="metadata"
-          poster={normalizeProductImageUrl(cat.image) || undefined}
+          poster={cat.image || undefined}
           ref={(el) => registerVideoEl(cat.slug, el)}
         />
       ) : (
         <img
-          src={normalizeProductImageUrl(cat.image)}
+          src={cat.image}
           alt={cat.title}
           className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
           loading="lazy"

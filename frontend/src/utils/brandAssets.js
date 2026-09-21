@@ -39,37 +39,14 @@ export const normalizeProductImageUrl = (url) => {
   if (!url || typeof url !== "string") return "";
   const trimmed = url.trim();
   if (trimmed.startsWith("blob:")) return "";
-
   if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-    const isLive = hostname !== "localhost" && hostname !== "127.0.0.1";
-
-    // On live site: replace any localhost:8092 or 127.0.0.1:8092 with live API domain
-    if (isLive) {
-      if (trimmed.includes("localhost:8092") || trimmed.includes("127.0.0.1:8092")) {
-        return trimmed.replace(/https?:\/\/(localhost|127\.0\.0\.1):8092/g, "https://api.manchandafabric.in");
-      }
-      if (trimmed.startsWith("/uploads/")) {
-        return `https://api.manchandafabric.in${trimmed}`;
-      }
-    } else {
-      // On local dev: swap 127.0.0.1 <-> localhost
-      if (hostname === "127.0.0.1" && trimmed.includes("localhost:8092")) {
-        return trimmed.replace("localhost:8092", "127.0.0.1:8092");
-      }
-      if (hostname === "localhost" && trimmed.includes("127.0.0.1:8092")) {
-        return trimmed.replace("127.0.0.1:8092", "localhost:8092");
-      }
+    const is127 = window.location.hostname === "127.0.0.1";
+    if (is127 && trimmed.includes("localhost:8092")) {
+      return trimmed.replace("localhost:8092", "127.0.0.1:8092");
     }
-  } else {
-    // Server-side (SSR)
-    if (process.env.NODE_ENV === "production") {
-      if (trimmed.includes("localhost:8092") || trimmed.includes("127.0.0.1:8092")) {
-        return trimmed.replace(/https?:\/\/(localhost|127\.0\.0\.1):8092/g, "https://api.manchandafabric.in");
-      }
-      if (trimmed.startsWith("/uploads/")) {
-        return `https://api.manchandafabric.in${trimmed}`;
-      }
+    const isLocalhost = window.location.hostname === "localhost";
+    if (isLocalhost && trimmed.includes("127.0.0.1:8092")) {
+      return trimmed.replace("127.0.0.1:8092", "localhost:8092");
     }
   }
   return trimmed;

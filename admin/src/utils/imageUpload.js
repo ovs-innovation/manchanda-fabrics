@@ -1,6 +1,70 @@
 import axios from "axios";
+import heic2any from "heic2any";
 import requests from "@/services/httpService";
 import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
+
+export const isHeicFile = (file) => {
+  if (!file) return false;
+  const name = (file.name || "").toLowerCase();
+  const type = (file.type || "").toLowerCase();
+  return (
+    /\.(heic|heif)$/i.test(name) ||
+    type.includes("heic") ||
+    type.includes("heif")
+  );
+};
+
+export const checkIsHeic = async (file) => {
+  if (!file) return false;
+  if (isHeicFile(file)) return true;
+  try {
+    const buffer = await file.slice(0, 16).arrayBuffer();
+    const arr = new Uint8Array(buffer);
+    if (arr[4] === 0x66 && arr[5] === 0x74 && arr[6] === 0x79 && arr[7] === 0x70) {
+      const brand = String.fromCharCode(arr[8], arr[9], arr[10], arr[11]).toLowerCase();
+      if (["heic", "heix", "hevc", "heim", "heis", "mif1", "msf1"].includes(brand)) {
+        return true;
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  return false;
+};
+
+export const isBrowserStandardImage = (file) => {
+  if (!file) return false;
+  const type = (file.type || "").toLowerCase();
+  const name = (file.name || "").toLowerCase();
+  if (type === "image/jpeg" || type === "image/png" || type === "image/webp" || type === "image/gif") {
+    return true;
+  }
+  if (/\.(jpe?g|png|webp|gif)$/i.test(name)) {
+    return true;
+  }
+  return false;
+};
+
+export const ensureBrowserCompatibleFile = async (file) => {
+  if (!file) return file;
+  if (isBrowserStandardImage(file)) return file;
+  try {
+    const isHeic = await checkIsHeic(file);
+    if (isHeic) {
+      const result = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.88,
+      });
+      const blob = Array.isArray(result) ? result[0] : result;
+      const baseName = (file.name || "suit").replace(/\.(heic|heif|bin|octetstream)$/i, "");
+      return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+    }
+  } catch (err) {
+    console.warn("HEIC image conversion fallback:", err);
+  }
+  return file;
+};
 
 const fileToDataUrl = (file) => {
   if (!file) return Promise.resolve("");
@@ -16,8 +80,9 @@ const fileToDataUrl = (file) => {
 /**
  * Upload a single image file to Cloudinary with backend fallback.
  */
-export const uploadImageFile = async (file, folder = "manchanda") => {
-  if (!file) return null;
+export const uploadImageFile = async (rawFile, folder = "manchanda") => {
+  if (!rawFile) return null;
+  const file = await ensureBrowserCompatibleFile(rawFile);
   const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
   const baseUrl = import.meta.env.VITE_APP_CLOUDINARY_URL;
 
@@ -351,8 +416,9 @@ export const detectGarmentColorFromImageData = (data, width, height) => {
 /**
  * Extract dominant fabric color from an image File using fast Bitmap or Image fallback
  */
-export const extractDominantColorFromFile = async (file) => {
-  if (!file) return null;
+export const extractDominantColorFromFile = async (rawFile) => {
+  if (!rawFile) return null;
+  const file = await ensureBrowserCompatibleFile(rawFile);
 
   // 1. Check filename first
   const guessed = guessColorFromFilename(file.name);

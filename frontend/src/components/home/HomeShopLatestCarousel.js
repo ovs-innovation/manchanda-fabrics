@@ -11,16 +11,12 @@ import ProductServices from "@services/ProductServices";
 
 const resolveReelVideo = (src) => {
   if (!src || typeof src !== "string") return "";
-  let clean = src.trim();
-  if (clean.includes("localhost:8092/uploads/") || clean.includes("127.0.0.1:8092/uploads/")) {
-    return clean.replace(/https?:\/\/(localhost|127\.0\.0\.1):8092\/uploads\//g, "https://api.manchandafabric.in/uploads/");
-  }
-  if (clean.includes("detqbiabu")) {
-    const match = clean.match(/\/R(\d+)[_\.]/i);
+  if (src.includes("detqbiabu")) {
+    const match = src.match(/\/R(\d+)[_\.]/i);
     if (match) return `/R${match[1]}.mp4`;
     return "/R1.mp4";
   }
-  return clean;
+  return src;
 };
 
 const canUseVideo = (src) => {

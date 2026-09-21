@@ -38,14 +38,9 @@ const { isAuth, isAdmin } = require("../config/auth");
 //   getStoreCustomizationSetting,
 // } = require("../lib/notification/setting");
 
-connectDB()
-  .then(() => {
-    const { autoMigrateLocalhostMedia } = require("../utils/migrateLocalhostMedia");
-    autoMigrateLocalhostMedia();
-  })
-  .catch((err) => {
-    console.error("⚠️  MongoDB connection failed — server will still start but DB operations will fail.", err.message);
-  });
+connectDB().catch((err) => {
+  console.error("⚠️  MongoDB connection failed — server will still start but DB operations will fail.", err.message);
+});
 const app = express();
 
 
@@ -157,10 +152,18 @@ app.use((err, req, res, next) => {
 });
 
 // Serve static files from the "public" directory
-app.use("/static", express.static(path.join(__dirname, "../public")));
+app.use("/static", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static(path.join(__dirname, "../public")));
 
 // Serve uploaded files (static uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use("/uploads", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static(path.join(__dirname, "../uploads")));
 
 // 404 Handler for undefined routes
 app.use((req, res) => {

@@ -50,8 +50,10 @@ const ProductPhotoManager = ({
 
   // Upload handler for all product photos in bulk
   const handleBulkUpload = async (filesList) => {
-    const fileArray = Array.from(filesList || []).filter((f) =>
-      f.type.startsWith("image/")
+    const fileArray = Array.from(filesList || []).filter(
+      (f) =>
+        (f && f.type && (f.type.startsWith("image/") || f.type === "application/octet-stream")) ||
+        (f && f.name && /\.(jpe?g|png|webp|jfif|avif|gif|bmp|heic|heif)$/i.test(f.name))
     );
     if (fileArray.length === 0) return;
 

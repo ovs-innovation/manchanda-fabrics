@@ -38,34 +38,16 @@ router.get("/store-setting/seo", getStoreSeoSetting);
 //update store setting
 router.put("/store-setting/update", isAuth, isAdmin, updateStoreSetting);
 
-//store customization routes (supports both /store/customization and /store-customization aliases)
-router.post(
-  ["/store/customization/add", "/store-customization/add", "/store-customization"],
-  isAuth,
-  isAdmin,
-  addStoreCustomizationSetting
-);
+//store customization routes
 
-router.get(
-  [
-    "/store/customization/all",
-    "/store/customization",
-    "/store-customization",
-    "/store-customization/all",
-  ],
-  getStoreCustomizationSetting
-);
+//add a online store customization setting
+router.post("/store/customization/add", isAuth, isAdmin, addStoreCustomizationSetting);
 
-router.put(
-  [
-    "/store/customization/update",
-    "/store-customization/update",
-    "/store-customization",
-  ],
-  isAuth,
-  isAdmin,
-  updateStoreCustomizationSetting
-);
+//get online store customization setting
+router.get("/store/customization/all", getStoreCustomizationSetting);
+
+//update online store customization setting
+router.put("/store/customization/update", isAuth, isAdmin, updateStoreCustomizationSetting);
 
 
 // AI translation endpoint (NVIDIA Nemotron 3 Ultra via OpenRouter)

@@ -598,24 +598,14 @@ const useProductSubmit = (id) => {
         category: effectiveCategory[0]._id,
 
         image: (() => {
-          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []).filter(Boolean);
-          if (allVarImages.length > 0) {
-            const chosen = (resolvedFeaturedImage && allVarImages.includes(resolvedFeaturedImage))
-              ? resolvedFeaturedImage
-              : allVarImages[0];
-            return Array.from(new Set([chosen, ...allVarImages]));
-          }
-          return Array.from(new Set([resolvedFeaturedImage, ...(Array.isArray(imageUrl) ? imageUrl : [imageUrl])].filter(Boolean)));
+          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []);
+          const chosenFeatured =
+            resolvedFeaturedImage ||
+            (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) ||
+            "";
+          return Array.from(new Set([chosenFeatured, ...(Array.isArray(imageUrl) ? imageUrl : [imageUrl]), ...allVarImages].filter(Boolean)));
         })(),
-        thumbnail: (() => {
-          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []).filter(Boolean);
-          if (allVarImages.length > 0) {
-            return (resolvedFeaturedImage && allVarImages.includes(resolvedFeaturedImage))
-              ? resolvedFeaturedImage
-              : allVarImages[0];
-          }
-          return thumbnailUrl || resolvedFeaturedImage || "";
-        })(),
+        thumbnail: thumbnailUrl || resolvedFeaturedImage || (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) || "",
         stock: finalStock,
         tag: sanitizeHomepagePlacementTags(tag),
         colorVariants: normalizedColorVariants,
@@ -651,26 +641,11 @@ const useProductSubmit = (id) => {
         metaTitle: data.metaTitle || "",
         metaDescription: data.metaDescription || "",
         seoImage: seoImage || "",
-        featuredImage: (() => {
-          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []).filter(Boolean);
-          if (allVarImages.length > 0) {
-            return (resolvedFeaturedImage && allVarImages.includes(resolvedFeaturedImage))
-              ? resolvedFeaturedImage
-              : allVarImages[0];
-          }
-          return resolvedFeaturedImage || "";
-        })(),
-        hoverImage: (() => {
-          const allVarImages = (normalizedColorVariants || []).flatMap((cv) => cv.images || []).filter(Boolean);
-          if (allVarImages.length > 0) {
-            const main = (resolvedFeaturedImage && allVarImages.includes(resolvedFeaturedImage))
-              ? resolvedFeaturedImage
-              : allVarImages[0];
-            const secondary = allVarImages.find((img) => img !== main);
-            return secondary || main;
-          }
-          return resolvedHoverImage || resolvedFeaturedImage || "";
-        })(),
+        featuredImage:
+          resolvedFeaturedImage ||
+          (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) ||
+          "",
+        hoverImage: resolvedHoverImage || resolvedFeaturedImage || (normalizedColorVariants.find((cv) => cv.images?.length > 0)?.images?.[0]) || "",
         video: video || "",
         badge: badge || "",
         status: mapStatusForApi(data.status || "Published"),

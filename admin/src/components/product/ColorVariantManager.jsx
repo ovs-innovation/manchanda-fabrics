@@ -17,10 +17,12 @@ import {
   guessColorFromFilename,
   extractDominantColorFromFile,
   extractDominantColorFromUrl,
+  ensureBrowserCompatibleFile,
+  isHeicFile,
 } from "@/utils/imageUpload";
 import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 import { resolveHex } from "@/utils/fabricColors";
-import { notifySuccess } from "@/utils/toast";
+import { notifySuccess, notifyError } from "@/utils/toast";
 
 const ColorVariantManager = ({
   colorVariants = [],
@@ -127,24 +129,35 @@ const ColorVariantManager = ({
     }
   };
 
-  // Bulk Upload Handler: Creates cards INSTANTLY with local preview, then uploads in background
-  const handleBulkUploadFiles = (filesList) => {
+  // Bulk Upload Handler: Converts any HEIC to JPEG, creates cards with local preview, then uploads in background
+  const handleBulkUploadFiles = async (filesList) => {
     const rawFiles = Array.from(filesList || []);
     const fileArray = rawFiles.filter(
       (f) =>
-        (f && f.type && f.type.startsWith("image/")) ||
-        (f && f.name && /\.(jpe?g|png|webp|jfif|avif|gif|bmp|heic)$/i.test(f.name))
+        (f && f.type && (f.type.startsWith("image/") || f.type === "application/octet-stream")) ||
+        (f && f.name && /\.(jpe?g|png|webp|jfif|avif|gif|bmp|heic|heif)$/i.test(f.name))
     );
 
     if (fileArray.length === 0) {
       if (rawFiles.length > 0) {
-        notifyError("Please select valid image files (JPG, PNG, WEBP, etc.)");
+        notifyError("Please select valid image files (JPG, PNG, WEBP, HEIC, etc.)");
       }
       return;
     }
 
-    // 1. INSTANT LOCAL CARDS: 100% synchronous — ZERO waiting! Cards appear in 0ms!
-    const initialNewRows = fileArray.map((file) => {
+    const anyHeic = fileArray.some((f) => isHeicFile(f));
+    if (anyHeic) {
+      setIsUploading(true);
+      setUploadStats({ current: 0, total: fileArray.length, fileName: "Optimizing iPhone photos..." });
+    }
+
+    // Convert HEIC photos to browser-compatible JPEG (0ms for standard JPG/PNG)
+    const compatibleFiles = await Promise.all(
+      fileArray.map((f) => ensureBrowserCompatibleFile(f))
+    );
+
+    // 1. INSTANT LOCAL CARDS: Zero waiting, cards appear with browser-compatible preview URLs
+    const initialNewRows = compatibleFiles.map((file) => {
       let localUrl = "";
       try {
         localUrl = URL.createObjectURL(file);
@@ -200,7 +213,7 @@ const ColorVariantManager = ({
     }
 
     setIsUploading(true);
-    setUploadStats({ current: 0, total: fileArray.length, fileName: "" });
+    setUploadStats({ current: 0, total: compatibleFiles.length, fileName: "" });
 
     // 2. BACKGROUND UPLOAD & COLOR REFINEMENT
     (async () => {
@@ -290,16 +303,22 @@ const ColorVariantManager = ({
       setIsUploading(false);
       setUploadStats({ current: 0, total: 0, fileName: "" });
       if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
-      notifySuccess(`Added ${fileArray.length} suit photo${fileArray.length > 1 ? "s" : ""}!`);
+      notifySuccess(`Added ${compatibleFiles.length} suit photo${compatibleFiles.length > 1 ? "s" : ""}!`);
     })();
   };
 
   // Add extra angle photo(s) to a specific color variant
   const handleAddAnglePhoto = async (index, filesList) => {
-    const files = Array.from(filesList || []).filter(
-      (f) => f && f.type && f.type.startsWith("image/")
+    const rawFiles = Array.from(filesList || []).filter(
+      (f) =>
+        (f && f.type && (f.type.startsWith("image/") || f.type === "application/octet-stream")) ||
+        (f && f.name && /\.(jpe?g|png|webp|jfif|avif|gif|bmp|heic|heif)$/i.test(f.name))
     );
-    if (files.length === 0) return;
+    if (rawFiles.length === 0) return;
+
+    const files = await Promise.all(
+      rawFiles.map((file) => ensureBrowserCompatibleFile(file))
+    );
 
     // Create local preview URLs for instant UI responsiveness
     const localEntries = files.map((file) => ({
@@ -352,9 +371,10 @@ const ColorVariantManager = ({
 
   // Replace primary photo of a specific color variant
   const handleReplacePhoto = async (index, filesList) => {
-    const file = filesList?.[0];
-    if (!file || !file.type.startsWith("image/")) return;
+    const rawFile = filesList?.[0];
+    if (!rawFile) return;
 
+    const file = await ensureBrowserCompatibleFile(rawFile);
     const localUrl = URL.createObjectURL(file);
     setColorVariants((prev) =>
       prev.map((row, i) => {
