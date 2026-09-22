@@ -96,8 +96,8 @@ export const uploadImageFile = async (rawFile, folder = "manchanda") => {
     .replace(/^-+|-+$/g, "");
   const public_id = `${cleanPublicId || "suit"}_${Date.now()}`;
 
-  // Attempt direct Cloudinary upload first (skip if disabled or detqbiabu)
-  const isCloudinaryDisabled = !baseUrl || baseUrl.includes("detqbiabu");
+  // Attempt direct Cloudinary upload first
+  const isCloudinaryDisabled = !baseUrl;
   if (uploadPreset && baseUrl && !isCloudinaryDisabled) {
     try {
       const formData = new FormData();

@@ -829,8 +829,8 @@ const cloudinaryUpload = async (req, res) => {
       }
     };
 
-    // If Cloudinary cloud_name is detqbiabu (disabled account) or credentials missing, immediately save to local disk!
-    if (process.env.CLOUDINARY_CLOUD_NAME === "detqbiabu" || !process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    // If Cloudinary credentials missing, save to local disk fallback!
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       const saved = saveToLocalDisk();
       if (saved) return res.send(saved);
       return res.status(503).send({ message: 'Upload failed: unable to process file data.' });

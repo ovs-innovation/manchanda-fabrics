@@ -27,9 +27,9 @@ services:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://api.manchandafabric.in/api}
         NEXT_PUBLIC_API_SOCKET_URL: ${NEXT_PUBLIC_API_SOCKET_URL:-https://api.manchandafabric.in}
         NEXT_PUBLIC_STORE_DOMAIN: ${NEXT_PUBLIC_STORE_DOMAIN:-https://manchandafabric.in}
-        NEXT_PUBLIC_CLOUDINARY_URL: ${NEXT_PUBLIC_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/detqbiabu/image/upload}
+        NEXT_PUBLIC_CLOUDINARY_URL: ${NEXT_PUBLIC_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/tu23xpla/image/upload}
         NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ${NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET:-ml_default}
-        NEXT_PUBLIC_CLOUDINARY_API_KEY: ${NEXT_PUBLIC_CLOUDINARY_API_KEY:-988826349828863}
+        NEXT_PUBLIC_CLOUDINARY_API_KEY: ${NEXT_PUBLIC_CLOUDINARY_API_KEY:-833674979852618}
         NEXT_PUBLIC_PHONE_OTP_PROVIDER: ${NEXT_PUBLIC_PHONE_OTP_PROVIDER:-firebase}
     container_name: manchanda-frontend
     restart: always
@@ -52,10 +52,10 @@ services:
       args:
         VITE_APP_API_BASE_URL: ${VITE_APP_API_BASE_URL:-https://api.manchandafabric.in/api}
         VITE_APP_API_SOCKET_URL: ${VITE_APP_API_SOCKET_URL:-https://api.manchandafabric.in}
-        VITE_APP_CLOUD_NAME: ${VITE_APP_CLOUD_NAME:-detqbiabu}
-        VITE_APP_CLOUDINARY_API_KEY: ${VITE_APP_CLOUDINARY_API_KEY:-988826349828863}
+        VITE_APP_CLOUD_NAME: ${VITE_APP_CLOUD_NAME:-tu23xpla}
+        VITE_APP_CLOUDINARY_API_KEY: ${VITE_APP_CLOUDINARY_API_KEY:-833674979852618}
         VITE_APP_CLOUDINARY_UPLOAD_PRESET: ${VITE_APP_CLOUDINARY_UPLOAD_PRESET:-ml_default}
-        VITE_APP_CLOUDINARY_URL: ${VITE_APP_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/detqbiabu/image/upload}
+        VITE_APP_CLOUDINARY_URL: ${VITE_APP_CLOUDINARY_URL:-https://api.cloudinary.com/v1_1/tu23xpla/image/upload}
     container_name: manchanda-admin
     restart: always
     ports:

@@ -10,10 +10,10 @@ COPY . .
 # Build arguments for Vite bundling
 ARG VITE_APP_API_BASE_URL=https://api.manchandafabric.in/api
 ARG VITE_APP_API_SOCKET_URL=https://api.manchandafabric.in
-ARG VITE_APP_CLOUD_NAME=detqbiabu
-ARG VITE_APP_CLOUDINARY_API_KEY=988826349828863
+ARG VITE_APP_CLOUD_NAME=tu23xpla
+ARG VITE_APP_CLOUDINARY_API_KEY=833674979852618
 ARG VITE_APP_CLOUDINARY_UPLOAD_PRESET=ml_default
-ARG VITE_APP_CLOUDINARY_URL=https://api.cloudinary.com/v1_1/detqbiabu/image/upload
+ARG VITE_APP_CLOUDINARY_URL=https://api.cloudinary.com/v1_1/tu23xpla/image/upload
 ARG VITE_APP_ENCRYPT_PASSWORD=your_32_byte_hex_key
 
 ENV VITE_APP_API_BASE_URL=$VITE_APP_API_BASE_URL
