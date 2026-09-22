@@ -32,10 +32,30 @@ export default async function handler(req, res) {
       return videoUrl;
     };
 
-    reels = (reels || []).map((reel) => ({
-      ...reel,
-      video: resolveBrokenVideoUrl(reel.video),
-    }));
+    const resolveThumbnailUrl = (thumbUrl, videoUrl) => {
+      if (!thumbUrl || typeof thumbUrl !== "string") {
+        if (videoUrl?.includes("R9")) return "/reels/thumb_red_suit.jpg";
+        if (videoUrl?.includes("R7")) return "/reels/thumb_pink_suit.jpg";
+        if (videoUrl?.includes("R4")) return "/reels/thumb_yellow_suit.jpg";
+        return thumbUrl;
+      }
+      if (thumbUrl.includes("2stydj") || thumbUrl.includes("thumb_red")) return "/reels/thumb_red_suit.jpg";
+      if (thumbUrl.includes("bpq6y6") || thumbUrl.includes("thumb_pink")) return "/reels/thumb_pink_suit.jpg";
+      if (thumbUrl.includes("6zlca") || thumbUrl.includes("thumb_yellow")) return "/reels/thumb_yellow_suit.jpg";
+      if (thumbUrl.includes("localhost:8092")) {
+        return thumbUrl.replace(/http:\/\/localhost:8092/g, "");
+      }
+      return thumbUrl;
+    };
+
+    reels = (reels || []).map((reel) => {
+      const fixedVideo = resolveBrokenVideoUrl(reel.video);
+      return {
+        ...reel,
+        video: fixedVideo,
+        thumbnail: resolveThumbnailUrl(reel.thumbnail, fixedVideo),
+      };
+    });
 
     const videos = [];
     const manifest = { products: {}, categories: {} };

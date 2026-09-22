@@ -106,7 +106,13 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
         const product = reel.product || null;
         const video = reel.video;
         const title = reel.title || (product ? product.title?.en || product.title || product.name : "Reel");
-        const rawImage = reel.thumbnail || (product ? pickImage(product) : null);
+        let rawImage = reel.thumbnail || (product ? pickImage(product) : null);
+        if (typeof rawImage === "string") {
+          if (rawImage.includes("2stydj") || rawImage.includes("thumb_red")) rawImage = "/reels/thumb_red_suit.jpg";
+          else if (rawImage.includes("bpq6y6") || rawImage.includes("thumb_pink")) rawImage = "/reels/thumb_pink_suit.jpg";
+          else if (rawImage.includes("6zlca") || rawImage.includes("thumb_yellow")) rawImage = "/reels/thumb_yellow_suit.jpg";
+          else if (rawImage.includes("localhost:8092")) rawImage = rawImage.replace(/http:\/\/localhost:8092/g, "");
+        }
         const image = rawImage && rawImage.includes("/uploads/")
           ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(reel.updatedAt || Date.now()).getTime()}_clean`
           : rawImage;
