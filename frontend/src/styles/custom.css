@@ -2224,3 +2224,16 @@ p:not(:last-of-type) {
   color: #ffffff !important;
   opacity: 1;
 }
+
+/* Product Gallery Swiper Mobile Touch & Layout */
+.product-gallery-swiper,
+.product-gallery-swiper .swiper-wrapper,
+.product-gallery-swiper .swiper-slide {
+  height: 100% !important;
+}
+
+.product-gallery-swiper {
+  touch-action: pan-y !important;
+  -webkit-user-select: none;
+  user-select: none;
+}

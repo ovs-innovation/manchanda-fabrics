@@ -17,8 +17,6 @@ const ProductImageGallery = ({
   variant = "default",
   selectedColorVar,
   onColorVarChange,
-  isAutoSliding = false,
-  setIsAutoSliding,
 }) => {
   const isAisha = variant === "aisha";
   const swiperRef = useRef(null);
@@ -95,6 +93,8 @@ const ProductImageGallery = ({
     ];
   }, [rawSlides, images]);
 
+  const isLoop = displaySlides.length > 1;
+
   // Sync active slide index when selectedColorVar changes from outside (e.g. user clicked a color circle)
   useEffect(() => {
     if (!selectedColorVar || !swiperRef.current || displaySlides.length <= 1) return;
@@ -125,10 +125,14 @@ const ProductImageGallery = ({
     });
 
     if (targetIdx !== -1 && targetIdx !== activeIndex) {
-      swiperRef.current.slideTo(targetIdx, 400);
+      if (isLoop) {
+        swiperRef.current.slideToLoop(targetIdx, 400);
+      } else {
+        swiperRef.current.slideTo(targetIdx, 400);
+      }
       setActiveIndex(targetIdx);
     }
-  }, [selectedColorVar, displaySlides, activeIndex]);
+  }, [selectedColorVar, displaySlides, isLoop, activeIndex]);
 
   // Scroll active thumbnail into view
   useEffect(() => {
@@ -144,7 +148,7 @@ const ProductImageGallery = ({
   }, [activeIndex]);
 
   const handleSlideChange = (swiper) => {
-    const idx = swiper.activeIndex;
+    const idx = isLoop ? swiper.realIndex : swiper.activeIndex;
     setActiveIndex(idx);
     const activeSlide = displaySlides[idx];
     if (activeSlide?.colorVar && onColorVarChange) {
@@ -154,9 +158,12 @@ const ProductImageGallery = ({
 
   const handleThumbnailClick = (index) => {
     if (index >= 0 && index < displaySlides.length) {
-      setIsAutoSliding?.(false);
       if (swiperRef.current) {
-        swiperRef.current.slideTo(index, 400);
+        if (isLoop) {
+          swiperRef.current.slideToLoop(index, 400);
+        } else {
+          swiperRef.current.slideTo(index, 400);
+        }
       }
       setActiveIndex(index);
       const activeSlide = displaySlides[index];
@@ -168,7 +175,6 @@ const ProductImageGallery = ({
 
   const handlePrev = (e) => {
     e?.stopPropagation?.();
-    setIsAutoSliding?.(false);
     if (swiperRef.current) {
       swiperRef.current.slidePrev(400);
     }
@@ -176,7 +182,6 @@ const ProductImageGallery = ({
 
   const handleNext = (e) => {
     e?.stopPropagation?.();
-    setIsAutoSliding?.(false);
     if (swiperRef.current) {
       swiperRef.current.slideNext(400);
     }
@@ -295,8 +300,7 @@ const ProductImageGallery = ({
               <button
                 type="button"
                 onClick={handlePrev}
-                disabled={activeIndex === 0}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer border border-neutral-200/70 sm:flex hidden"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer border border-neutral-200/70 sm:flex hidden"
                 aria-label="Previous image"
               >
                 <FiChevronLeft size={20} />
@@ -304,8 +308,7 @@ const ProductImageGallery = ({
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={activeIndex === displaySlides.length - 1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer border border-neutral-200/70 sm:flex hidden"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer border border-neutral-200/70 sm:flex hidden"
                 aria-label="Next image"
               >
                 <FiChevronRight size={20} />
@@ -313,22 +316,25 @@ const ProductImageGallery = ({
             </>
           )}
 
-          {/* Swiper Slider */}
+          {/* Swiper Slider with Seamless Infinite Loop & Automatic Sliding */}
           <Swiper
             modules={[Navigation, Autoplay]}
             slidesPerView={1}
             spaceBetween={0}
-            speed={400}
+            loop={isLoop}
+            speed={450}
             grabCursor={true}
             resistance={true}
-            resistanceRatio={0.8}
-            touchRatio={1.2}
+            resistanceRatio={0.85}
+            touchRatio={1}
             threshold={5}
-            touchAngle={45}
+            touchStartPreventDefault={false}
+            preventClicks={false}
+            preventClicksPropagation={false}
             autoplay={
-              isAutoSliding && displaySlides.length > 1
+              displaySlides.length > 1
                 ? {
-                    delay: 3200,
+                    delay: 3500,
                     disableOnInteraction: false,
                     pauseOnMouseEnter: true,
                   }
@@ -338,19 +344,8 @@ const ProductImageGallery = ({
               swiperRef.current = swiper;
             }}
             onSlideChange={handleSlideChange}
-            onTouchStart={() => {
-              setIsAutoSliding?.(false);
-            }}
-            onReachEnd={() => {
-              if (isAutoSliding && displaySlides.length > 1) {
-                setTimeout(() => {
-                  if (swiperRef.current && isAutoSliding) {
-                    swiperRef.current.slideTo(0, 500);
-                  }
-                }, 3200);
-              }
-            }}
-            className="w-full h-full"
+            style={{ width: "100%", height: "100%", touchAction: "pan-y" }}
+            className="w-full h-full product-gallery-swiper"
           >
             {displaySlides.map((slide, index) => {
               const mediaUrl = slide.url;

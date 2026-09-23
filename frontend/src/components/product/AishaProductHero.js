@@ -87,22 +87,7 @@ const AishaProductHero = ({
 
   // Build unified slide deck across all color variants and media for buttery-smooth swiping
   const allSlides = useMemo(() => {
-    // 1. If explicit currentImages array is provided and not empty
-    if (currentImages && currentImages.length > 0) {
-      const valid = currentImages.filter(
-        (u) => u && typeof u === "string" && u.trim() !== ""
-      );
-      if (valid.length > 0) {
-        return valid.map((url, i) => ({
-          url: url.trim(),
-          colorVar: null,
-          colorName: null,
-          id: `curr-${i}-${url}`,
-        }));
-      }
-    }
-
-    // 2. If product has colorVariants, gather every image from all variants in order
+    // 1. If product has colorVariants, gather every image from all variants in order
     if (product?.colorVariants && product.colorVariants.length > 0) {
       const list = [];
       product.colorVariants.forEach((cv, cvIdx) => {
@@ -129,6 +114,21 @@ const AishaProductHero = ({
         }
       });
       if (list.length > 0) return list;
+    }
+
+    // 2. If explicit currentImages array is provided and not empty
+    if (currentImages && currentImages.length > 0) {
+      const valid = currentImages.filter(
+        (u) => u && typeof u === "string" && u.trim() !== ""
+      );
+      if (valid.length > 0) {
+        return valid.map((url, i) => ({
+          url: url.trim(),
+          colorVar: null,
+          colorName: null,
+          id: `curr-${i}-${url}`,
+        }));
+      }
     }
 
     // 3. Fallback to productImages or product.image array
