@@ -43,33 +43,6 @@ const AishaProductHero = ({
   const sku = selectedColorVar?.sku || selectVariant?.sku || product?.sku || "—";
 
   const [wishlistActive, setWishlistActive] = useState(false);
-  const [isAutoSliding, setIsAutoSliding] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Automatically slide through color variants one by one when page opens
-  useEffect(() => {
-    const variants = product?.colorVariants;
-    if (!variants || variants.length <= 1) return;
-    if (!isAutoSliding || isHovered) return;
-
-    const interval = setInterval(() => {
-      setSelectedColorVar((prev) => {
-        if (!prev) return variants[0];
-        const currentIndex = variants.findIndex((cv) => {
-          if (prev._id && cv._id) return String(prev._id) === String(cv._id);
-          return (
-            prev.colorName &&
-            cv.colorName &&
-            prev.colorName.toLowerCase() === cv.colorName.toLowerCase()
-          );
-        });
-        const nextIndex = (currentIndex + 1) % variants.length;
-        return variants[nextIndex];
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [product?.colorVariants, isAutoSliding, isHovered, setSelectedColorVar]);
 
   useEffect(() => {
     if (product?._id) {
@@ -112,36 +85,101 @@ const AishaProductHero = ({
     }
   };
 
-  const galleryImages = useMemo(() => {
-    // 1. If currentImages has items, use them
-    if (currentImages && currentImages.length > 0) return currentImages;
-    // 2. If a color variant is selected, use only that variant's images
-    if (selectedColorVar?.images && selectedColorVar.images.length > 0) return selectedColorVar.images;
-    // 3. If product has color variants, use default or first variant's images
-    if (product?.colorVariants && product.colorVariants.length > 0) {
-      const targetVar =
-        product.colorVariants.find(
-          (cv) => cv.colorName?.toLowerCase() === product.defaultColorName?.toLowerCase()
-        ) || product.colorVariants[0];
-      if (targetVar?.images?.length > 0) return targetVar.images;
-      if (product.featuredImage) return [product.featuredImage];
+  // Build unified slide deck across all color variants and media for buttery-smooth swiping
+  const allSlides = useMemo(() => {
+    // 1. If explicit currentImages array is provided and not empty
+    if (currentImages && currentImages.length > 0) {
+      const valid = currentImages.filter(
+        (u) => u && typeof u === "string" && u.trim() !== ""
+      );
+      if (valid.length > 0) {
+        return valid.map((url, i) => ({
+          url: url.trim(),
+          colorVar: null,
+          colorName: null,
+          id: `curr-${i}-${url}`,
+        }));
+      }
     }
-    // 4. Fallback for non-variant products
-    return productImages || [];
-  }, [currentImages, selectedColorVar, product, productImages]);
+
+    // 2. If product has colorVariants, gather every image from all variants in order
+    if (product?.colorVariants && product.colorVariants.length > 0) {
+      const list = [];
+      product.colorVariants.forEach((cv, cvIdx) => {
+        const cvImages =
+          Array.isArray(cv.images) && cv.images.length > 0 ? cv.images : [];
+        if (cvImages.length > 0) {
+          cvImages.forEach((imgUrl, imgIdx) => {
+            if (imgUrl && typeof imgUrl === "string" && imgUrl.trim() !== "") {
+              list.push({
+                url: imgUrl.trim(),
+                colorVar: cv,
+                colorName: cv.colorName,
+                id: `cv-${cv._id || cvIdx}-${imgIdx}-${imgUrl}`,
+              });
+            }
+          });
+        } else if (product.featuredImage) {
+          list.push({
+            url: product.featuredImage,
+            colorVar: cv,
+            colorName: cv.colorName,
+            id: `cv-${cv._id || cvIdx}-feat`,
+          });
+        }
+      });
+      if (list.length > 0) return list;
+    }
+
+    // 3. Fallback to productImages or product.image array
+    const rawImages =
+      productImages && productImages.length > 0
+        ? productImages
+        : Array.isArray(product?.image)
+        ? product.image
+        : product?.image
+        ? [product.image]
+        : [];
+
+    const validImages = rawImages.filter(
+      (u) => u && typeof u === "string" && u.trim() !== ""
+    );
+
+    if (validImages.length > 0) {
+      return validImages.map((url, i) => ({
+        url: url.trim(),
+        colorVar: null,
+        colorName: null,
+        id: `img-${i}-${url}`,
+      }));
+    }
+
+    return [
+      {
+        url: PRODUCT_PLACEHOLDER,
+        colorVar: null,
+        colorName: null,
+        id: "placeholder",
+      },
+    ];
+  }, [
+    currentImages,
+    product?.colorVariants,
+    product?.featuredImage,
+    productImages,
+    product?.image,
+  ]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
       {/* Left — gallery */}
-      <div
-        className="w-full lg:w-[48%] xl:w-[46%]"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="w-full lg:w-[48%] xl:w-[46%] min-w-0">
         <ProductImageGallery
           variant="aisha"
-          images={galleryImages}
+          slides={allSlides}
           productTitle={title}
+          selectedColorVar={selectedColorVar}
+          onColorVarChange={setSelectedColorVar}
         />
       </div>
 
@@ -180,17 +218,6 @@ const AishaProductHero = ({
               >
                 Color: <span className="font-semibold text-neutral-800">{selectedColorVar?.colorName}</span>
               </p>
-              {product.colorVariants.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setIsAutoSliding((prev) => !prev)}
-                  className="text-xs text-neutral-600 hover:text-black flex items-center gap-1.5 transition-colors px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 cursor-pointer"
-                  title={isAutoSliding ? "Pause auto slide" : "Play auto slide"}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${isAutoSliding ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`} />
-                  <span className="text-[11px] font-medium">{isAutoSliding ? "Auto-sliding colors" : "Paused • Click to slide"}</span>
-                </button>
-              )}
             </div>
             <div className="flex flex-wrap gap-2.5">
               {product.colorVariants.map((colorVar, idx) => {
@@ -201,10 +228,7 @@ const AishaProductHero = ({
                   <button
                     key={colorVar._id || colorVar.colorName || idx}
                     type="button"
-                    onClick={() => {
-                      setIsAutoSliding(false);
-                      setSelectedColorVar(colorVar);
-                    }}
+                    onClick={() => setSelectedColorVar(colorVar)}
                     className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
                       isSelected
                         ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"

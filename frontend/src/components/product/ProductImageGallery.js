@@ -1,14 +1,31 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/autoplay";
 
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { resolveColorHex } from "@utils/resolveColorHex";
 
-const ProductImageGallery = ({ images, productTitle = "Product", buttons, variant = "default" }) => {
+const ProductImageGallery = ({
+  slides: rawSlides,
+  images,
+  productTitle = "Product",
+  buttons,
+  variant = "default",
+  selectedColorVar,
+  onColorVarChange,
+  isAutoSliding = false,
+  setIsAutoSliding,
+}) => {
   const isAisha = variant === "aisha";
+  const swiperRef = useRef(null);
+  const thumbRefs = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isZooming, setIsZooming] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
 
-  // Only treat direct video files as video; YouTube URLs will be shown as images (thumbnail)
+  // Helper media checkers
   const isVideoUrl = (url = "") => {
     if (!url || typeof url !== "string") return false;
     const lowered = url.toLowerCase();
@@ -27,11 +44,10 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons, varian
 
   const getYoutubeThumbnail = (url = "") => {
     if (!isYoutubeUrl(url)) return null;
-    // Extract video id from common YouTube URL formats
     const ytMatch =
-      url.match(/[?&]v=([^&#]+)/i) || // https://www.youtube.com/watch?v=ID
-      url.match(/youtu\.be\/([^&#?/]+)/i) || // https://youtu.be/ID
-      url.match(/\/embed\/([^&#?/]+)/i); // embedded format
+      url.match(/[?&]v=([^&#]+)/i) ||
+      url.match(/youtu\.be\/([^&#?/]+)/i) ||
+      url.match(/\/embed\/([^&#?/]+)/i);
     const videoId = ytMatch?.[1];
     if (!videoId) return null;
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -48,171 +64,354 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons, varian
     return `https://www.youtube.com/embed/${videoId}`;
   };
 
-  // Filter valid media (images + videos)
-  const validMedia = Array.isArray(images)
-    ? images.filter((url) => url && typeof url === "string" && url.trim() !== "")
-    : [];
+  // Build clean slides list from slides prop or fallback images
+  const displaySlides = useMemo(() => {
+    if (Array.isArray(rawSlides) && rawSlides.length > 0) {
+      const valid = rawSlides.filter(
+        (s) => s && s.url && typeof s.url === "string" && s.url.trim() !== ""
+      );
+      if (valid.length > 0) return valid;
+    }
+    if (Array.isArray(images) && images.length > 0) {
+      const valid = images.filter(
+        (u) => u && typeof u === "string" && u.trim() !== ""
+      );
+      if (valid.length > 0) {
+        return valid.map((url, i) => ({
+          url,
+          colorVar: null,
+          colorName: null,
+          id: `img-${i}-${url}`,
+        }));
+      }
+    }
+    return [
+      {
+        url: PRODUCT_PLACEHOLDER,
+        colorVar: null,
+        colorName: null,
+        id: "placeholder",
+      },
+    ];
+  }, [rawSlides, images]);
 
-  // If no media, show placeholder
-  const displayImages = validMedia.length > 0
-    ? validMedia
-    : [PRODUCT_PLACEHOLDER];
-
-  const activeImage = displayImages[activeIndex] || displayImages[0];
-  const placeholder = PRODUCT_PLACEHOLDER;
-
-  // Reset active index when images change
+  // Sync active slide index when selectedColorVar changes from outside (e.g. user clicked a color circle)
   useEffect(() => {
-    setActiveIndex(0);
-  }, [images]);
+    if (!selectedColorVar || !swiperRef.current || displaySlides.length <= 1) return;
+    const currentSlide = displaySlides[activeIndex];
+    const isMatching =
+      currentSlide?.colorVar &&
+      ((selectedColorVar._id &&
+        currentSlide.colorVar._id &&
+        String(selectedColorVar._id) === String(currentSlide.colorVar._id)) ||
+        (selectedColorVar.colorName &&
+          currentSlide.colorVar.colorName &&
+          selectedColorVar.colorName.toLowerCase() ===
+            currentSlide.colorVar.colorName.toLowerCase()));
 
-  // Handle thumbnail click
+    if (isMatching) return;
+
+    const targetIdx = displaySlides.findIndex((s) => {
+      if (!s.colorVar) return false;
+      if (selectedColorVar._id && s.colorVar._id) {
+        return String(selectedColorVar._id) === String(s.colorVar._id);
+      }
+      return (
+        selectedColorVar.colorName &&
+        s.colorVar.colorName &&
+        selectedColorVar.colorName.toLowerCase() ===
+          s.colorVar.colorName.toLowerCase()
+      );
+    });
+
+    if (targetIdx !== -1 && targetIdx !== activeIndex) {
+      swiperRef.current.slideTo(targetIdx, 400);
+      setActiveIndex(targetIdx);
+    }
+  }, [selectedColorVar, displaySlides, activeIndex]);
+
+  // Scroll active thumbnail into view
+  useEffect(() => {
+    if (thumbRefs.current[activeIndex]) {
+      try {
+        thumbRefs.current[activeIndex].scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        });
+      } catch (err) {}
+    }
+  }, [activeIndex]);
+
+  const handleSlideChange = (swiper) => {
+    const idx = swiper.activeIndex;
+    setActiveIndex(idx);
+    const activeSlide = displaySlides[idx];
+    if (activeSlide?.colorVar && onColorVarChange) {
+      onColorVarChange(activeSlide.colorVar);
+    }
+  };
+
   const handleThumbnailClick = (index) => {
-    if (index >= 0 && index < displayImages.length) {
+    if (index >= 0 && index < displaySlides.length) {
+      setIsAutoSliding?.(false);
+      if (swiperRef.current) {
+        swiperRef.current.slideTo(index, 400);
+      }
       setActiveIndex(index);
+      const activeSlide = displaySlides[index];
+      if (activeSlide?.colorVar && onColorVarChange) {
+        onColorVarChange(activeSlide.colorVar);
+      }
     }
   };
 
-  // Handle image error
+  const handlePrev = (e) => {
+    e?.stopPropagation?.();
+    setIsAutoSliding?.(false);
+    if (swiperRef.current) {
+      swiperRef.current.slidePrev(400);
+    }
+  };
+
+  const handleNext = (e) => {
+    e?.stopPropagation?.();
+    setIsAutoSliding?.(false);
+    if (swiperRef.current) {
+      swiperRef.current.slideNext(400);
+    }
+  };
+
   const handleImageError = (e) => {
-    if (e.target.src !== placeholder) {
-      e.target.src = placeholder;
+    if (e.target.src !== PRODUCT_PLACEHOLDER) {
+      e.target.src = PRODUCT_PLACEHOLDER;
     }
-  };
-
-
-  const handleMouseMove = (e) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.pageX - left) / width) * 100;
-    const y = ((e.pageY - top) / height) * 100;
-
-    setZoomPosition({ x, y });
-  };
-
-  const handleMouseEnter = () => {
-    setIsZooming(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsZooming(false);
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:items-start bg-transparent rounded-2xl ">
-      {/* Vertical Thumbnail Gallery - Left Side (Flipkart Style) */}
-      {displayImages.length > 1 && (
-        <div className="flex lg:flex-col flex-row gap-3 order-2 lg:order-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto max-h-[560px] pb-2 lg:pb-0 scrollbar-thin">
-          {displayImages.map((mediaUrl, index) => (
-            <button
-              key={`thumb-${index}-${mediaUrl}`}
-              onClick={() => handleThumbnailClick(index)}
-              className={`flex-shrink-0 relative w-16 h-16 lg:w-[72px] lg:h-[88px] border overflow-hidden transition-all duration-200 ${
-                index === activeIndex
-                  ? isAisha
-                    ? "border-[#111111] ring-1 ring-[#111111]"
-                    : "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/20 shadow-md scale-105"
-                  : isAisha
-                    ? "border-neutral-200 hover:border-neutral-400"
-                    : "border-[#E6D1CB]/60 hover:border-[#E6D1CB]/60 hover:shadow-sm grayscale-[0.5] hover:grayscale-0"
-              }`}
-              type="button"
-            >
-              {isVideoUrl(mediaUrl) ? (
-                <video
-                  src={mediaUrl}
-                  className="w-full h-full object-cover"
-                  muted
-                  playsInline
-                />
-              ) : (
-                <>
-                  <img
-                    src={
-                      isYoutubeUrl(mediaUrl)
-                        ? getYoutubeThumbnail(mediaUrl) || placeholder
-                        : mediaUrl || placeholder
-                    }
-                    alt={`${productTitle} - View ${index + 1}`}
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start bg-transparent">
+      {/* Thumbnail Strip: Left Vertical on Desktop, Horizontal Scroll on Mobile */}
+      {displaySlides.length > 1 && (
+        <div className="flex lg:flex-col flex-row gap-2.5 order-2 lg:order-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto max-h-[560px] pb-2 lg:pb-0 scrollbar-thin select-none">
+          {displaySlides.map((slide, index) => {
+            const isSlideActive = index === activeIndex;
+            const mediaUrl = slide.url;
+            return (
+              <button
+                key={`thumb-${slide.id || index}`}
+                ref={(el) => (thumbRefs.current[index] = el)}
+                onClick={() => handleThumbnailClick(index)}
+                className={`flex-shrink-0 relative w-16 h-20 sm:w-[72px] sm:h-[90px] rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer ${
+                  isSlideActive
+                    ? isAisha
+                      ? "border-[#111111] ring-2 ring-[#111111]/30 shadow-md scale-[1.03]"
+                      : "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/30 shadow-md scale-[1.03]"
+                    : "border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 bg-neutral-50"
+                }`}
+                type="button"
+                title={slide.colorName ? `${productTitle} - ${slide.colorName}` : `${productTitle} - ${index + 1}`}
+              >
+                {isVideoUrl(mediaUrl) ? (
+                  <video
+                    src={mediaUrl}
                     className="w-full h-full object-cover"
-                    onError={handleImageError}
-                    loading="lazy"
+                    muted
+                    playsInline
                   />
-                  {isYoutubeUrl(mediaUrl) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25">
-                      <span className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow">
-                        <span className="ml-0.5 border-l-8 border-y-4 border-l-red-600 border-y-transparent" />
-                      </span>
-                    </div>
-                  )} </>
-              )}
-              {index === activeIndex && (
-                <div className="absolute inset-0 border-2 border-[#9C6A5A]" />
-              )}
-            </button>
-          ))}
+                ) : (
+                  <>
+                    <img
+                      src={
+                        isYoutubeUrl(mediaUrl)
+                          ? getYoutubeThumbnail(mediaUrl) || PRODUCT_PLACEHOLDER
+                          : mediaUrl || PRODUCT_PLACEHOLDER
+                      }
+                      alt={`${productTitle} - View ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={handleImageError}
+                      loading="lazy"
+                    />
+                    {isYoutubeUrl(mediaUrl) && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25">
+                        <span className="w-5 h-5 bg-white rounded-full flex items-center justify-center shadow">
+                          <span className="ml-0.5 border-l-6 border-y-3 border-l-red-600 border-y-transparent" />
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Optional mini color indicator dot on thumbnail */}
+                {slide.colorVar && (
+                  <span
+                    className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full border border-white shadow-xs"
+                    style={{
+                      backgroundColor: resolveColorHex(
+                        slide.colorVar.colorCode,
+                        slide.colorVar.colorName
+                      ),
+                    }}
+                    title={slide.colorVar.colorName}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
-      {/* Main Preview Image / Video - Right Side (Flipkart Style) */}
-      <div className="flex-1 order-1 lg:order-2 w-full">
+      {/* Main Preview Slider with Full Touch-Swipe Support */}
+      <div className="flex-1 order-1 lg:order-2 w-full min-w-0">
         <div
-          className={`relative w-full aspect-[4/5] bg-white overflow-hidden ${
-            isAisha ? "border border-neutral-200" : "border border-[#E6D1CB]/60 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+          className={`group relative w-full aspect-[4/5] bg-white overflow-hidden rounded-xl sm:rounded-2xl select-none ${
+            isAisha
+              ? "border border-neutral-200/80 shadow-xs"
+              : "border border-[#E6D1CB]/60 shadow-lg"
           }`}
         >
-
-          {/* Buttons overlay */}
+          {/* Overlay Buttons (e.g. wishlist/share) */}
           {buttons}
 
-          {activeImage ? (
-            isVideoUrl(activeImage) ? (
-              <video
-                key={`main-video-${activeIndex}-${activeImage}`}
-                src={activeImage}
-                className="w-full h-full object-contain"
-                controls
-              />
-            ) : isYoutubeUrl(activeImage) ? (
-              <iframe
-                key={`main-yt-${activeIndex}-${activeImage}`}
-                src={getYoutubeEmbedUrl(activeImage) || ""}
-                title={productTitle}
-                className="w-full min-h-[400px] object-contain"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            ) : (
-              <img
-                key={`main-img-${activeIndex}-${activeImage}`}
-                src={activeImage}
-                alt={productTitle}
-                onError={handleImageError}
-                loading="eager"
-                className={`w-full h-full object-contain animate-product-fade ${isAisha ? "" : ""}`}
-                style={
-                  isAisha
-                    ? undefined
-                    : {
-                        transform: isZooming ? "scale(2.2)" : "scale(1)",
-                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                        cursor: "zoom-in",
-                        transition:
-                          "transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          {/* Floating Slide Counter Badge */}
+          {displaySlides.length > 1 && (
+            <div className="absolute top-3 right-3 z-20 bg-black/65 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-full shadow-sm tracking-wider flex items-center gap-1.5 select-none pointer-events-none">
+              <span>
+                {activeIndex + 1} / {displaySlides.length}
+              </span>
+              {displaySlides[activeIndex]?.colorName && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-white/60" />
+                  <span className="truncate max-w-[90px]">
+                    {displaySlides[activeIndex].colorName}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Navigation Chevron Buttons (Visible on desktop hover) */}
+          {displaySlides.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={activeIndex === 0}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer border border-neutral-200/70 sm:flex hidden"
+                aria-label="Previous image"
+              >
+                <FiChevronLeft size={20} />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={activeIndex === displaySlides.length - 1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 items-center justify-center shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer border border-neutral-200/70 sm:flex hidden"
+                aria-label="Next image"
+              >
+                <FiChevronRight size={20} />
+              </button>
+            </>
+          )}
+
+          {/* Swiper Slider */}
+          <Swiper
+            modules={[Navigation, Autoplay]}
+            slidesPerView={1}
+            spaceBetween={0}
+            speed={400}
+            grabCursor={true}
+            resistance={true}
+            resistanceRatio={0.8}
+            touchRatio={1.2}
+            threshold={5}
+            touchAngle={45}
+            autoplay={
+              isAutoSliding && displaySlides.length > 1
+                ? {
+                    delay: 3200,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                  }
+                : false
+            }
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
+            onSlideChange={handleSlideChange}
+            onTouchStart={() => {
+              setIsAutoSliding?.(false);
+            }}
+            onReachEnd={() => {
+              if (isAutoSliding && displaySlides.length > 1) {
+                setTimeout(() => {
+                  if (swiperRef.current && isAutoSliding) {
+                    swiperRef.current.slideTo(0, 500);
+                  }
+                }, 3200);
+              }
+            }}
+            className="w-full h-full"
+          >
+            {displaySlides.map((slide, index) => {
+              const mediaUrl = slide.url;
+              return (
+                <SwiperSlide
+                  key={slide.id || `slide-${index}`}
+                  className="w-full h-full flex items-center justify-center bg-white"
+                >
+                  {isVideoUrl(mediaUrl) ? (
+                    <video
+                      src={mediaUrl}
+                      className="w-full h-full object-contain"
+                      controls
+                    />
+                  ) : isYoutubeUrl(mediaUrl) ? (
+                    <iframe
+                      src={getYoutubeEmbedUrl(mediaUrl) || ""}
+                      title={productTitle}
+                      className="w-full h-full object-contain"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <img
+                      src={mediaUrl || PRODUCT_PLACEHOLDER}
+                      alt={
+                        slide.colorName
+                          ? `${productTitle} - ${slide.colorName}`
+                          : `${productTitle} - ${index + 1}`
                       }
-                }
-                onMouseMove={isAisha ? undefined : handleMouseMove}
-                onMouseEnter={isAisha ? undefined : handleMouseEnter}
-                onMouseLeave={isAisha ? undefined : handleMouseLeave}
-              />
-            )
-          ) : (
-            <img
-              src={placeholder}
-              alt="Product placeholder"
-              className="w-full h-full object-contain"
-            />
+                      onError={handleImageError}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      draggable={false}
+                      className="w-full h-full object-contain pointer-events-none select-none"
+                    />
+                  )}
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+
+          {/* Discrete Bottom Dots Indicator */}
+          {displaySlides.length > 1 && (
+            <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center items-center pointer-events-none">
+              <div className="bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm pointer-events-auto">
+                {displaySlides.map((s, idx) => (
+                  <button
+                    key={`dot-${idx}-${s.id || idx}`}
+                    type="button"
+                    onClick={() => handleThumbnailClick(idx)}
+                    className={`transition-all duration-300 rounded-full cursor-pointer ${
+                      idx === activeIndex
+                        ? "w-5 h-1.5 bg-white"
+                        : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -221,4 +420,5 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons, varian
 };
 
 export default ProductImageGallery;
+
 
