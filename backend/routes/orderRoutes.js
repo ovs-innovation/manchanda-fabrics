@@ -6,7 +6,9 @@ const {
   getOrderById,
   getOrderCustomer,
   updateOrder,
+  updateShippingId,
   deleteOrder,
+  deleteManyOrders,
   getDashboardOrders,
   getDashboardRecentOrder,
   getBestSellerProductChart,
@@ -35,11 +37,18 @@ router.get("/best-seller/chart", isAuth, isAdmin, getBestSellerProductChart);
 //get all order by a user
 router.get("/customer/:id", isAuth, isAdmin, getOrderCustomer);
 
+//bulk delete orders (must be before /:id)
+router.patch("/delete/many", isAuth, isAdmin, deleteManyOrders);
+router.delete("/delete/many", isAuth, isAdmin, deleteManyOrders);
+
 //get a order by id
 router.get("/:id", isAuth, isAdmin, getOrderById);
 
 //update a order
 router.put("/:id", isAuth, isAdmin, updateOrder);
+
+// update shipping tracking ID for an order
+router.patch("/:id/shipping-id", isAuth, isAdmin, updateShippingId);
 
 //delete a order
 router.delete("/:id", isAuth, isAdmin, deleteOrder);

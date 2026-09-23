@@ -315,8 +315,8 @@ const Header = () => {
         </div>
       )}
 
-      <header className="z-30 py-3 bg-[#FFFCFA] dark:bg-store-900 border-b border-store-200/80 dark:border-store-700/40">
-        <div className="container flex items-center justify-between h-full px-4 sm:px-6 mx-auto text-store-600 dark:text-store-300">
+      <header className="z-30 py-3 bg-[#FFFCFA] dark:bg-store-900 border-b border-store-200/80 dark:border-store-700/40 w-full min-w-0">
+        <div className="w-full max-w-[1600px] min-w-0 flex items-center justify-between h-full px-4 sm:px-6 mx-auto text-store-600 dark:text-store-300">
           <button
             type="button"
             onClick={() => setNavBar(!navBar)}

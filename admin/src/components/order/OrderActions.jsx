@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@windmill/react-ui";
-import { FiMoreVertical } from "react-icons/fi";
+import { FiMoreVertical, FiTrash2 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 import { notifyError, notifySuccess } from "@/utils/toast";
 import ShiprocketServices from "@/services/ShiprocketServices";
 import OrderServices from "@/services/OrderServices";
 
-const OrderActions = ({ order }) => {
+const OrderActions = ({ order, handleModalOpen }) => {
   const [open, setOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
   const btnRef = useRef(null);
@@ -147,10 +147,23 @@ const OrderActions = ({ order }) => {
           <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
           <button
             type="button"
-            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600"
+            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-amber-600 font-medium"
             onClick={handleCancelOrder}
           >
             Cancel Order
+          </button>
+          <button
+            type="button"
+            className="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 font-medium flex items-center gap-1.5"
+            onClick={() => {
+              setOpen(false);
+              if (handleModalOpen) {
+                handleModalOpen(order._id, `Order #${order.invoice}`);
+              }
+            }}
+          >
+            <FiTrash2 className="text-sm shrink-0" />
+            <span>Delete Order</span>
           </button>
         </div>,
         document.body

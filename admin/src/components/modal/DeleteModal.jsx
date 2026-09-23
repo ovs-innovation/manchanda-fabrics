@@ -19,6 +19,7 @@ import AttributeServices from "@/services/AttributeServices";
 import CurrencyServices from "@/services/CurrencyServices";
 import BrandServices from "@/services/BrandServices";
 import PushNotificationServices from "@/services/PushNotificationServices";
+import OrderServices from "@/services/OrderServices";
 import useDisableForDemo from "@/hooks/useDisableForDemo";
 
 const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
@@ -36,6 +37,31 @@ const DeleteModal = ({ id, ids, setIsCheck, category, title, useParamId }) => {
     }
     try {
       setIsSubmitting(true);
+
+      // Order Deletion
+      if (location.pathname === "/orders" || location.pathname.startsWith("/orders")) {
+        if (ids && ids.length > 0) {
+          const res = await OrderServices.deleteManyOrders({ ids: ids });
+          setIsUpdate(true);
+          showAlert(res.message || "Orders deleted successfully!", "success");
+          if (setIsCheck) setIsCheck([]);
+          setServiceId();
+          closeModal();
+          return;
+        } else {
+          const targetId = id || useParamId;
+          if (!targetId) {
+            showAlert("Please select an order first!", "error");
+            return closeModal();
+          }
+          const res = await OrderServices.deleteOrder(targetId);
+          setIsUpdate(true);
+          showAlert(res.message || "Order deleted successfully!", "success");
+          setServiceId();
+          closeModal();
+          return;
+        }
+      }
       
       // Category Deletion
       if (location.pathname === "/categories" || location.pathname.startsWith("/categories/") || category) {

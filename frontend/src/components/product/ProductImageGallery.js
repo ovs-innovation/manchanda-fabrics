@@ -190,7 +190,7 @@ const ProductImageGallery = ({ images, productTitle = "Product", buttons, varian
                 alt={productTitle}
                 onError={handleImageError}
                 loading="eager"
-                className={`w-full h-full object-contain ${isAisha ? "" : ""}`}
+                className={`w-full h-full object-contain animate-product-fade ${isAisha ? "" : ""}`}
                 style={
                   isAisha
                     ? undefined

@@ -100,6 +100,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    shippingTrackingId: {
+      type: String,
+      default: null,
+    },
     paymentMethod: {
       type: String,
       required: true,

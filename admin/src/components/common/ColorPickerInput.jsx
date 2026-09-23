@@ -25,6 +25,7 @@ const ColorPickerInput = ({
   className = "",
   compact = false,
   simple = false,
+  onPickFromPhoto = null,
 }) => {
   const [isOpen, setIsOpen] = useState(false); // Full palette popover
   const [isSearchOpen, setIsSearchOpen] = useState(false); // Live autocomplete dropdown
@@ -221,18 +222,13 @@ const ColorPickerInput = ({
         <button
           type="button"
           onClick={() => {
-            if (simple) {
-              // In simple mode, clicking swatch directly opens native color picker wheel
-              colorInputRef.current?.click();
-            } else {
-              setIsOpen(!isOpen);
-              setIsSearchOpen(false);
-            }
+            setIsOpen(!isOpen);
+            setIsSearchOpen(false);
           }}
           disabled={disabled}
           title={
             effectiveHex
-              ? `${colorName || "Selected color"}: ${effectiveHex} (Click to change shade)`
+              ? `${colorName || "Selected color"}: ${effectiveHex} (Click to browse all shades)`
               : "Click to select a color"
           }
           className="relative w-10 h-10 rounded-xl border-2 border-gray-300 dark:border-gray-600 shadow-sm shrink-0 flex items-center justify-center transition-all hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500 overflow-hidden group"
@@ -256,7 +252,7 @@ const ColorPickerInput = ({
         />
 
         {/* Searchable Color Name Input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-[130px]">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
             <FiSearch size={15} />
           </div>
@@ -274,7 +270,8 @@ const ColorPickerInput = ({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 pl-9 pr-8 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all placeholder:text-gray-400"
+            style={{ paddingLeft: "2.35rem", paddingRight: colorName ? "2.25rem" : "0.75rem" }}
+            className="w-full text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all placeholder:text-gray-400"
           />
           {colorName && (
             <button
@@ -292,63 +289,51 @@ const ColorPickerInput = ({
           )}
         </div>
 
-        {/* Extra Tools (Rendered ONLY in advanced/non-simple mode) */}
+        {/* Action: EyeDropper tool (sample color from photo) */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onPickFromPhoto) {
+              onPickFromPhoto();
+            } else {
+              handleEyeDropper();
+            }
+          }}
+          title="Pick color from suit photo"
+          className="p-2 sm:px-2.5 sm:py-2.5 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-400 transition-colors shrink-0 flex items-center gap-1 text-xs font-semibold"
+        >
+          <FiEye size={15} />
+          <span className="hidden sm:inline">Pick</span>
+        </button>
+
+        {/* Action: Full Palette dropdown toggle */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setIsSearchOpen(false);
+          }}
+          title="Browse all fabric color shades"
+          className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors shrink-0"
+        >
+          <FiChevronDown
+            size={16}
+            className={`transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {/* Native Color Picker Wheel (if not simple) */}
         {!simple && (
-          <>
-            {/* Hex Code Input (compact) */}
-            <div className="relative w-24 shrink-0">
-              <input
-                type="text"
-                disabled={disabled}
-                value={effectiveHex || colorCode}
-                onChange={handleHexChange}
-                placeholder="#HEX"
-                maxLength={7}
-                className="w-full text-xs uppercase font-mono font-semibold rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 px-2.5 py-2.5 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none text-center"
-              />
-            </div>
-
-            {/* Action: Native Color Picker Wheel */}
-            <button
-              type="button"
-              onClick={() => colorInputRef.current && colorInputRef.current.click()}
-              title="Open custom color wheel"
-              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors shrink-0"
-            >
-              <BiColorFill size={18} />
-            </button>
-
-            {/* Action: EyeDropper tool (sample color from photo) */}
-            {Boolean(window.EyeDropper) && (
-              <button
-                type="button"
-                onClick={handleEyeDropper}
-                title="Pick color directly from product image"
-                className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-400 transition-colors shrink-0 flex items-center gap-1 text-xs font-semibold"
-              >
-                <FiEye size={15} />
-                <span className="hidden sm:inline">Pick</span>
-              </button>
-            )}
-
-            {/* Action: Full Palette dropdown toggle */}
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(!isOpen);
-                setIsSearchOpen(false);
-              }}
-              title="Browse all fabric color shades"
-              className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors shrink-0"
-            >
-              <FiChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={() => colorInputRef.current && colorInputRef.current.click()}
+            title="Open custom color wheel"
+            className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors shrink-0 hidden md:block"
+          >
+            <BiColorFill size={18} />
+          </button>
         )}
       </div>
 
@@ -462,29 +447,40 @@ const ColorPickerInput = ({
           </div>
 
           {/* Search bar inside popover */}
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-2.5 text-gray-400" size={14} />
+          <div className="relative flex items-center">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <FiSearch size={15} />
+            </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search shades (e.g. Rani, Firozi, Mehndi, Mustard)..."
-              className="w-full text-xs pl-8 pr-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-emerald-500"
+              style={{
+                paddingLeft: "2.35rem",
+                paddingRight: searchQuery ? "3.5rem" : "0.85rem",
+              }}
+              className="w-full text-xs sm:text-sm py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-xs"
             />
             {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-2 text-gray-400 hover:text-gray-600 text-xs"
-              >
-                Clear
-              </button>
+              <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="px-2 py-0.5 rounded-md text-[11px] font-medium text-gray-500 hover:text-gray-800 dark:hover:text-gray-100 bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
             )}
           </div>
 
           {/* Color Family Tabs */}
           {!searchQuery && (
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+            <div
+              className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               {COLOR_FAMILIES.map((family) => {
                 const isActive = activeFamily === family;
                 return (
@@ -494,7 +490,7 @@ const ColorPickerInput = ({
                     onClick={() => setActiveFamily(family)}
                     className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg whitespace-nowrap transition-colors ${
                       isActive
-                        ? "bg-emerald-600 text-white shadow-sm"
+                        ? "bg-emerald-600 text-white shadow-xs"
                         : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                     }`}
                   >

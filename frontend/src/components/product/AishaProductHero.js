@@ -43,6 +43,33 @@ const AishaProductHero = ({
   const sku = selectedColorVar?.sku || selectVariant?.sku || product?.sku || "—";
 
   const [wishlistActive, setWishlistActive] = useState(false);
+  const [isAutoSliding, setIsAutoSliding] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Automatically slide through color variants one by one when page opens
+  useEffect(() => {
+    const variants = product?.colorVariants;
+    if (!variants || variants.length <= 1) return;
+    if (!isAutoSliding || isHovered) return;
+
+    const interval = setInterval(() => {
+      setSelectedColorVar((prev) => {
+        if (!prev) return variants[0];
+        const currentIndex = variants.findIndex((cv) => {
+          if (prev._id && cv._id) return String(prev._id) === String(cv._id);
+          return (
+            prev.colorName &&
+            cv.colorName &&
+            prev.colorName.toLowerCase() === cv.colorName.toLowerCase()
+          );
+        });
+        const nextIndex = (currentIndex + 1) % variants.length;
+        return variants[nextIndex];
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [product?.colorVariants, isAutoSliding, isHovered, setSelectedColorVar]);
 
   useEffect(() => {
     if (product?._id) {
@@ -106,7 +133,11 @@ const AishaProductHero = ({
   return (
     <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
       {/* Left — gallery */}
-      <div className="w-full lg:w-[48%] xl:w-[46%]">
+      <div
+        className="w-full lg:w-[48%] xl:w-[46%]"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <ProductImageGallery
           variant="aisha"
           images={galleryImages}
@@ -142,12 +173,25 @@ const AishaProductHero = ({
         {/* Color Variants */}
         {product.colorVariants && product.colorVariants.length > 0 && (
           <div className="mb-6">
-            <p
-              className="text-sm font-medium text-[#111111] mb-2"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              Color: <span className="font-semibold text-neutral-800">{selectedColorVar?.colorName}</span>
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p
+                className="text-sm font-medium text-[#111111]"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                Color: <span className="font-semibold text-neutral-800">{selectedColorVar?.colorName}</span>
+              </p>
+              {product.colorVariants.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setIsAutoSliding((prev) => !prev)}
+                  className="text-xs text-neutral-600 hover:text-black flex items-center gap-1.5 transition-colors px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 cursor-pointer"
+                  title={isAutoSliding ? "Pause auto slide" : "Play auto slide"}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isAutoSliding ? "bg-emerald-500 animate-pulse" : "bg-neutral-400"}`} />
+                  <span className="text-[11px] font-medium">{isAutoSliding ? "Auto-sliding colors" : "Paused • Click to slide"}</span>
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2.5">
               {product.colorVariants.map((colorVar, idx) => {
                 const isSelected = (selectedColorVar?._id && colorVar?._id)
@@ -157,11 +201,14 @@ const AishaProductHero = ({
                   <button
                     key={colorVar._id || colorVar.colorName || idx}
                     type="button"
-                    onClick={() => setSelectedColorVar(colorVar)}
+                    onClick={() => {
+                      setIsAutoSliding(false);
+                      setSelectedColorVar(colorVar);
+                    }}
                     className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
                       isSelected
-                        ? "border-[#111111] ring-2 ring-neutral-200"
-                        : "border-neutral-300 hover:border-neutral-800"
+                        ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"
+                        : "border-neutral-300 hover:border-neutral-800 opacity-80 hover:opacity-100"
                     }`}
                     title={colorVar.colorName}
                   >

@@ -50,13 +50,11 @@ const Layout = () => {
         </div>
       )}
       <div
-        className={`flex h-screen bg-store-50 text-store-800 dark:bg-store-900 dark:text-store-200 ${
-          isSidebarOpen && "overflow-hidden"
-        }`}
+        className="flex h-screen w-full max-w-full overflow-hidden bg-store-50 text-store-800 dark:bg-store-900 dark:text-store-200"
       >
         {navBar && <Sidebar />}
 
-        <div className="flex flex-col flex-1 w-full">
+        <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
           <Header />
           <Main>
             <Suspense fallback={<ThemeSuspense />}>

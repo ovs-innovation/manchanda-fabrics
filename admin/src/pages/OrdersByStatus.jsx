@@ -30,6 +30,7 @@ import {
   FiCalendar,
   FiAlignLeft,
   FiZap,
+  FiTrash2,
 } from "react-icons/fi";
 
 //internal import (useLocation already imported above)
@@ -45,6 +46,9 @@ import TableLoading from "@/components/preloader/TableLoading";
 import spinnerLoadingImage from "@/assets/img/spinner.gif";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import AnimatedContent from "@/components/common/AnimatedContent";
+import CheckBox from "@/components/form/others/CheckBox";
+import DeleteModal from "@/components/modal/DeleteModal";
+import useToggleDrawer from "@/hooks/useToggleDrawer";
 
 // Map URL slug → actual backend status value
 const STATUS_MAP = {
@@ -107,9 +111,33 @@ const OrdersByStatus = () => {
 
   const { t } = useTranslation();
 
+  const {
+    title,
+    allId,
+    serviceId,
+    handleModalOpen,
+    handleDeleteMany,
+  } = useToggleDrawer();
+
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheck, setIsCheck] = useState([]);
+
   const [loadingExport, setLoadingExport] = useState(false);
   const [showColumnToggle, setShowColumnToggle] = useState(false);
   const columnToggleRef = useRef(null);
+
+  useEffect(() => {
+    setIsCheck([]);
+    setIsCheckAll(false);
+  }, [currentPage, statusSlug]);
+
+  const handleSelectAll = () => {
+    setIsCheckAll(!isCheckAll);
+    setIsCheck(dataTable?.map((li) => li._id) || []);
+    if (isCheckAll) {
+      setIsCheck([]);
+    }
+  };
 
   const [visibleColumns, setVisibleColumns] = useState({
     invoice: true,
@@ -123,6 +151,7 @@ const OrdersByStatus = () => {
     discount: false,
     method: true,
     amount: true,
+    shippingId: true,
     status: true,
     action: true,
     actions: true,
@@ -220,12 +249,15 @@ const OrdersByStatus = () => {
     setEndDate("");
     setStartDate("");
     setSearchText("");
+    setIsCheck([]);
+    setIsCheckAll(false);
     searchRef.current.value = "";
   };
 
   return (
     <>
       <PageTitle>{pageTitle}</PageTitle>
+      <DeleteModal id={serviceId} ids={allId} setIsCheck={setIsCheck} title={title} />
 
       <AnimatedContent>
         {/* Stats Card */}
@@ -397,6 +429,7 @@ const OrdersByStatus = () => {
                               {col === "discount" && "Discount"}
                               {col === "method" && t("MethodTbl")}
                               {col === "amount" && t("AmountTbl")}
+                              {col === "shippingId" && "Shipping ID"}
                               {col === "status" && t("OderStatusTbl")}
                               {col === "action" && "Action"}
                               {col === "actions" && "Actions"}
@@ -433,7 +466,17 @@ const OrdersByStatus = () => {
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 flex gap-4">
+                  <div className="md:col-span-2 flex flex-wrap gap-4">
+                    {isCheck?.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMany(isCheck)}
+                        className="flex-1 min-w-[130px] h-12 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-bold shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      >
+                        <FiTrash2 className="text-base shrink-0" />
+                        <span>Delete ({isCheck.length})</span>
+                      </button>
+                    )}
                     <button
                       type="submit"
                       className="flex-1 h-12 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl text-xs font-bold shadow-lg shadow-teal-500/20 active:scale-[0.98] transition-all"
@@ -482,78 +525,92 @@ const OrdersByStatus = () => {
         ) : error ? (
           <span className="text-center mx-auto text-red-500">{error}</span>
         ) : serviceData?.length !== 0 ? (
-          <div className="mb-8 overflow-x-auto w-full">
-            <TableContainer className="dark:bg-gray-900 min-w-full">
-              <Table className="w-full min-w-max">
+          <div className="mb-8 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xs">
+            <div className="w-full overflow-x-auto">
+              <Table className="w-full" style={{ minWidth: "1280px" }}>
                 <TableHeader>
                   <tr>
+                    <TableCell className="w-10 text-center">
+                      <CheckBox
+                        type="checkbox"
+                        name="selectAll"
+                        id="selectAllOrdersStatus"
+                        isChecked={isCheckAll}
+                        handleClick={handleSelectAll}
+                      />
+                    </TableCell>
                     {visibleColumns.invoice && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         {t("InvoiceNo")}
                       </TableCell>
                     )}
                     {visibleColumns.time && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[160px]">
                         {t("TimeTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.customerName && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[140px]">
                         {t("CustomerName")}
                       </TableCell>
                     )}
                     {visibleColumns.customerId && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         Customer ID
                       </TableCell>
                     )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[200px]">
                         Product Name
                       </TableCell>
                     )}
                     {visibleColumns.productId && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         Product ID
                       </TableCell>
                     )}
                     {visibleColumns.contact && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[130px]">
                         Contact
                       </TableCell>
                     )}
                     {visibleColumns.shippingCost && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         Shipping
                       </TableCell>
                     )}
                     {visibleColumns.discount && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         Discount
                       </TableCell>
                     )}
                     {visibleColumns.method && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         {t("MethodTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.amount && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         {t("AmountTbl")}
                       </TableCell>
                     )}
+                    {visibleColumns.shippingId && (
+                      <TableCell className="whitespace-nowrap min-w-[140px]">
+                        Shipping ID
+                      </TableCell>
+                    )}
                     {visibleColumns.status && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[110px]">
                         {t("OderStatusTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.action && (
-                      <TableCell className="text-center whitespace-nowrap">
+                      <TableCell className="text-center whitespace-nowrap min-w-[140px]">
                         Action
                       </TableCell>
                     )}
                     {visibleColumns.actions && (
-                      <TableCell className="text-right whitespace-nowrap">
+                      <TableCell className="text-center whitespace-nowrap min-w-[80px]">
                         Actions
                       </TableCell>
                     )}
@@ -563,18 +620,21 @@ const OrdersByStatus = () => {
                 <OrderTable
                   orders={dataTable}
                   visibleColumns={visibleColumns}
+                  isCheck={isCheck}
+                  setIsCheck={setIsCheck}
+                  handleModalOpen={handleModalOpen}
                 />
               </Table>
+            </div>
 
-              <TableFooter>
-                <Pagination
-                  totalResults={data?.totalDoc}
-                  resultsPerPage={resultsPerPage}
-                  onChange={handleChangePage}
-                  label="Table navigation"
-                />
-              </TableFooter>
-            </TableContainer>
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <Pagination
+                totalResults={data?.totalDoc}
+                resultsPerPage={resultsPerPage}
+                onChange={handleChangePage}
+                label="Table navigation"
+              />
+            </div>
           </div>
         ) : (
           <NotFound

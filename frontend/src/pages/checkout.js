@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import {
   IoChevronForward,
@@ -26,6 +27,7 @@ import { getDisplayEmail } from "@utils/profileAuth";
 
 const Checkout = () => {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const formRef = useRef(null);
 
   const [agreeToTerms, setAgreeToTerms] = useState(true);
@@ -75,10 +77,13 @@ const Checkout = () => {
     shippingCost,
     isShippingCalculated,
     isCheckoutSubmit,
+    setIsCheckoutSubmit,
     taxSummary,
     setValue,
     orderType,
     setOrderType,
+    isFastShipping,
+    setIsFastShipping,
   } = useCheckoutSubmit(storeSetting);
 
   const isDigitalPaymentEnabled =
@@ -133,9 +138,81 @@ const Checkout = () => {
     setValue("paymentMethod", "PhonePe");
   }, [setValue]);
 
+  // Handle URL errors (e.g. returning from failed or cancelled PhonePe payment)
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (router.query.error === "payment_failed") {
+      notifyError(t("Payment was not completed. Your items and details are saved — please try again."));
+    } else if (router.query.error === "server_error" || router.query.error === "invalid_transaction") {
+      notifyError(t("Payment processing error. Please try again."));
+    }
+  }, [router.isReady, router.query.error, t]);
+
+  // Handle pageshow event to reset submitting state when returning via Back button
+  useEffect(() => {
+    const handlePageShow = () => {
+      setIsCheckoutSubmit(false);
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [setIsCheckoutSubmit]);
+
+  // Restore form draft if returning from PhonePe or page reload
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const savedDraft = sessionStorage.getItem("checkout_form_draft");
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed) {
+          if (parsed.firstName) setValue("firstName", parsed.firstName);
+          if (parsed.lastName) setValue("lastName", parsed.lastName);
+          if (parsed.contact) setValue("contact", parsed.contact);
+          if (parsed.email) setValue("email", parsed.email);
+          if (parsed.address) setValue("address", parsed.address);
+          if (parsed.address2) setValue("address2", parsed.address2);
+          if (parsed.city) setValue("city", parsed.city);
+          if (parsed.state) setValue("state", parsed.state);
+          if (parsed.zipCode) setValue("zipCode", parsed.zipCode);
+          if (parsed.country) setValue("country", parsed.country || "India");
+          if (parsed.orderType) setOrderType(parsed.orderType);
+          if (parsed.selectedAddressId) setSelectedAddressId(parsed.selectedAddressId);
+          if (parsed.finalCustomerName) setValue("finalCustomerName", parsed.finalCustomerName);
+          if (parsed.finalCustomerContact) setValue("finalCustomerContact", parsed.finalCustomerContact);
+          if (parsed.finalCustomerEmail) setValue("finalCustomerEmail", parsed.finalCustomerEmail);
+          if (parsed.finalCustomerAddress) setValue("finalCustomerAddress", parsed.finalCustomerAddress);
+          if (parsed.finalCustomerAddress2) setValue("finalCustomerAddress2", parsed.finalCustomerAddress2);
+          if (parsed.finalCustomerCity) setValue("finalCustomerCity", parsed.finalCustomerCity);
+          if (parsed.finalCustomerState) setValue("finalCustomerState", parsed.finalCustomerState);
+          if (parsed.finalCustomerZipCode) setValue("finalCustomerZipCode", parsed.finalCustomerZipCode);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to restore checkout draft:", e);
+    }
+  }, [setValue, setOrderType]);
+
+  // Continuously save form draft to sessionStorage as user types
+  useEffect(() => {
+    const subscription = watch((values) => {
+      try {
+        sessionStorage.setItem(
+          "checkout_form_draft",
+          JSON.stringify({
+            ...values,
+            orderType,
+            selectedAddressId,
+          })
+        );
+      } catch (e) { }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, orderType, selectedAddressId]);
+
   // Handle saved address auto-fill
   useEffect(() => {
-    if (shippingAddresses && shippingAddresses.length > 0 && !selectedAddressId) {
+    const hasDraft = typeof window !== "undefined" && Boolean(sessionStorage.getItem("checkout_form_draft"));
+    if (!hasDraft && shippingAddresses && shippingAddresses.length > 0 && !selectedAddressId) {
       const defaultAddr = shippingAddresses.find(addr => addr.isDefault) || shippingAddresses[0];
       if (defaultAddr) {
         setSelectedAddressId(defaultAddr._id || defaultAddr.id || "default");
@@ -279,12 +356,14 @@ const Checkout = () => {
                       <input
                         type="email"
                         id="email"
-                        placeholder={t("Email address *")}
+                        placeholder={t("Email address (Optional)")}
                         {...register("email", {
-                          required: t("Email address is required"),
-                          pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: t("Please enter a valid email address"),
+                          validate: (value) => {
+                            if (!value || !value.trim()) return true;
+                            return (
+                              /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim()) ||
+                              t("Please enter a valid email address")
+                            );
                           },
                         })}
                         className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${errors.email
@@ -292,7 +371,7 @@ const Checkout = () => {
                           : "border-gray-300 focus:border-black focus:ring-black"
                           }`}
                       />
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer">
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer" title={t("Email address (Optional)")}>
                         <IoHelpCircleOutline size={18} />
                         <span className="sr-only">Help</span>
                       </div>
@@ -998,6 +1077,34 @@ const Checkout = () => {
                     <span>{currency}{formatPrice(cartTotal)}</span>
                   </div>
 
+                  {/* Fast Shipping Toggle */}
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                      isFastShipping
+                        ? "border-[#6D3D2E] bg-[#6D3D2E]/5"
+                        : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                    }`}
+                    onClick={() => setIsFastShipping(!isFastShipping)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setIsFastShipping(!isFastShipping)}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">⚡</span>
+                      <div>
+                        <p className={`text-xs font-bold ${ isFastShipping ? "text-[#6D3D2E]" : "text-gray-700"}`}>
+                          {t("Fast Shipping")}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-normal">
+                          {t("Priority dispatch — 2x standard cost")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5 rounded-full relative transition-colors duration-200 ${ isFastShipping ? "bg-[#6D3D2E]" : "bg-gray-300"}`}>
+                      <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${ isFastShipping ? "translate-x-5" : "translate-x-0.5"}`} />
+                    </div>
+                  </div>
+
                   {/* Shipping */}
                   <div className="flex justify-between text-gray-700 font-medium">
                     <span>{t("Shipping")}</span>
@@ -1013,9 +1120,11 @@ const Checkout = () => {
                       <div className="text-right">
                         <span>{currency}{formatPrice(shippingCost)}</span>
                         <p className="text-[10px] text-gray-400 font-normal">
-                          {isDelhiLocation({ state: watch("state"), city: watch("city"), zipCode: watchZipCode })
-                            ? t("Delhi Delivery")
-                            : t("Standard Delivery")}
+                          {isFastShipping
+                            ? t("Fast Delivery ⚡")
+                            : isDelhiLocation({ state: watch("state"), city: watch("city"), zipCode: watchZipCode })
+                              ? t("Delhi Delivery")
+                              : t("Standard Delivery")}
                         </p>
                       </div>
                     )}

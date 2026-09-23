@@ -385,28 +385,59 @@ export const detectGarmentColorFromImageData = (data, width, height) => {
     }
   }
 
-  // Dominant colorful fabric detected
-  if (bestColorful && maxColorfulCount > 0 && (totalColorfulCount >= totalSampled * 0.06 || maxColorfulCount > buckets.black.count * 0.5)) {
-    const avgR = Math.round(bestColorful.rSum / bestColorful.count);
-    const avgG = Math.round(bestColorful.gSum / bestColorful.count);
-    const avgB = Math.round(bestColorful.bSum / bestColorful.count);
-    const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
-    const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
+  const blackCount = buckets.black.count;
+  const whiteCount = buckets.white.count;
 
-    const closest = findClosestFabricColor(hex);
-    return {
-      colorName: closest?.name || bestColorful.defaultName,
-      colorCode: closest?.hex || bestColorful.hex,
-    };
-  }
-
-  // Black / Charcoal suit
-  if (buckets.black.count > buckets.white.count && buckets.black.count > 0) {
+  // 1. Black / Charcoal fabric detection:
+  // If black is the dominant fabric (e.g. black suit with white/silver lace and warm room lighting)
+  if (
+    blackCount > 0 &&
+    blackCount > totalSampled * 0.22 &&
+    blackCount > maxColorfulCount * 1.25 &&
+    blackCount > whiteCount * 0.8
+  ) {
     return { colorName: "Jet Black", colorCode: "#0A0A0A" };
   }
 
-  // White / Off-white suit
-  if (buckets.white.count > 0) {
+  // 2. White / Off-white fabric detection:
+  if (
+    whiteCount > 0 &&
+    whiteCount > totalSampled * 0.35 &&
+    whiteCount > maxColorfulCount * 1.5 &&
+    whiteCount > blackCount * 1.2
+  ) {
+    return { colorName: "Off White", colorCode: "#FAF9F6" };
+  }
+
+  // 3. Dominant colorful fabric detected:
+  // Only accept colorful fabric if it genuinely represents a substantial area or is the single largest bucket
+  if (bestColorful && maxColorfulCount > 0) {
+    const isDominantColor =
+      maxColorfulCount >= blackCount * 0.7 &&
+      maxColorfulCount >= whiteCount * 0.6;
+    const isMajorColorful = totalColorfulCount >= totalSampled * 0.18;
+
+    if (isDominantColor || isMajorColorful) {
+      const avgR = Math.round(bestColorful.rSum / bestColorful.count);
+      const avgG = Math.round(bestColorful.gSum / bestColorful.count);
+      const avgB = Math.round(bestColorful.bSum / bestColorful.count);
+      const toHex = (n) => Math.min(255, Math.max(0, n)).toString(16).padStart(2, "0");
+      const hex = `#${toHex(avgR)}${toHex(avgG)}${toHex(avgB)}`.toUpperCase();
+
+      const closest = findClosestFabricColor(hex);
+      return {
+        colorName: closest?.name || bestColorful.defaultName,
+        colorCode: closest?.hex || bestColorful.hex,
+      };
+    }
+  }
+
+  // 4. Fallbacks based on highest count:
+  if (blackCount > whiteCount && blackCount > 0) {
+    return { colorName: "Jet Black", colorCode: "#0A0A0A" };
+  }
+
+  if (whiteCount > 0) {
     return { colorName: "Off White", colorCode: "#FAF9F6" };
   }
 

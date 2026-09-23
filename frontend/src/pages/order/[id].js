@@ -18,6 +18,7 @@ import Loading from "@components/preloader/Loading";
 import OrderServices from "@services/OrderServices";
 import RefundServices from "@services/RefundServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import useCartDB from "@hooks/useCartDB";
 import downloadInvoicePdf from "@utils/downloadInvoicePdf";
 import OrderTracking from "@components/order/OrderTracking";
 import { setToken } from "@services/httpServices";
@@ -71,11 +72,25 @@ const Order = ({ params }) => {
     }
   };
 
+  const { clearCartWithDB } = useCartDB();
+
   const { data, error, isLoading } = useQuery({
     queryKey: ["order", orderId],
     queryFn: async () => await OrderServices.getOrderById(orderId),
     enabled: !!orderId,
   });
+
+  // Empty cart and clear checkout draft once order details are successfully retrieved and order is valid
+  useEffect(() => {
+    if (data && data._id && data.status !== "Cancel") {
+      clearCartWithDB();
+      Cookies.remove("couponInfo");
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("checkout_form_draft");
+        sessionStorage.removeItem("checkout_pending_order_id");
+      }
+    }
+  }, [data, clearCartWithDB]);
 
   const { showingTranslateValue, currency } = useUtilsFunction();
   const { storeCustomizationSetting, globalSetting } = useGetSetting();

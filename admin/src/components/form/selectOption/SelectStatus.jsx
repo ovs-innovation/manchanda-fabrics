@@ -23,7 +23,7 @@ const SelectStatus = ({ id, order }) => {
     <>
       <Select
         onChange={(e) => handleChangeStatus(id, e.target.value)}
-        className="h-8"
+        className="h-8 text-xs font-medium w-full min-w-[125px]"
       >
         <option value="status" defaultValue hidden>
           {order?.status}

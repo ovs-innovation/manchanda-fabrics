@@ -15,8 +15,7 @@ import {
 import { useContext, useState, useRef, useEffect } from "react";
 import { IoCloudDownloadOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
-import exportFromJSON from "export-from-json";
-import { FiCheck, FiRefreshCw, FiShoppingCart, FiTruck, FiXCircle, FiList, FiChevronDown, FiSearch, FiCreditCard, FiCalendar, FiAlignLeft, FiZap, FiUsers } from "react-icons/fi";
+import { FiCheck, FiRefreshCw, FiShoppingCart, FiTruck, FiXCircle, FiList, FiChevronDown, FiSearch, FiCreditCard, FiCalendar, FiAlignLeft, FiZap, FiUsers, FiTrash2 } from "react-icons/fi";
 
 //internal import
 import { notifyError } from "@/utils/toast";
@@ -32,6 +31,9 @@ import spinnerLoadingImage from "@/assets/img/spinner.gif";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 import AnimatedContent from "@/components/common/AnimatedContent";
 import CardItem from "@/components/dashboard/CardItem";
+import CheckBox from "@/components/form/others/CheckBox";
+import DeleteModal from "@/components/modal/DeleteModal";
+import useToggleDrawer from "@/hooks/useToggleDrawer";
 
 const Orders = () => {
   const {
@@ -59,10 +61,34 @@ const Orders = () => {
 
   const { t } = useTranslation();
 
+  const {
+    title,
+    allId,
+    serviceId,
+    handleModalOpen,
+    handleDeleteMany,
+  } = useToggleDrawer();
+
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheck, setIsCheck] = useState([]);
+
   const [orderType, setOrderType] = useState("");
   const [loadingExport, setLoadingExport] = useState(false);
   const [showColumnToggle, setShowColumnToggle] = useState(false);
   const columnToggleRef = useRef(null);
+
+  useEffect(() => {
+    setIsCheck([]);
+    setIsCheckAll(false);
+  }, [currentPage]);
+
+  const handleSelectAll = () => {
+    setIsCheckAll(!isCheckAll);
+    setIsCheck(dataTable?.map((li) => li._id) || []);
+    if (isCheckAll) {
+      setIsCheck([]);
+    }
+  };
 
   const [visibleColumns, setVisibleColumns] = useState({
     invoice: true,
@@ -75,6 +101,7 @@ const Orders = () => {
     discount: false,
     method: true,
     amount: true,
+    shippingId: true,
     status: true,
     action: true,
     actions: true,
@@ -188,6 +215,8 @@ const Orders = () => {
     setEndDate("");
     setStartDate("");
     setSearchText("");
+    setIsCheck([]);
+    setIsCheckAll(false);
     searchRef.current.value = "";
   };
   // console.log("data in orders page", data);
@@ -195,6 +224,7 @@ const Orders = () => {
   return (
     <>
       <PageTitle>{t("Orders")}</PageTitle>
+      <DeleteModal id={serviceId} ids={allId} setIsCheck={setIsCheck} title={title} />
 
       <AnimatedContent>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 items-stretch mb-5 bg-white border border-gray-100 rounded-3xl dark:bg-gray-800 shadow-sm p-5 md:p-7">
@@ -387,6 +417,7 @@ const Orders = () => {
                               {col === "discount" && "Discount"}
                               {col === "method" && t("MethodTbl")}
                               {col === "amount" && t("AmountTbl")}
+                              {col === "shippingId" && "Shipping ID"}
                               {col === "status" && t("OderStatusTbl")}
                               {col === "action" && "Action"}
                               {col === "actions" && "Actions"}
@@ -417,7 +448,17 @@ const Orders = () => {
                     />
                   </div>
 
-                  <div className="flex gap-2 ml-auto mt-auto">
+                  <div className="flex flex-wrap gap-2 ml-auto mt-auto">
+                    {isCheck?.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMany(isCheck)}
+                        className="h-11 px-5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold shadow-sm shadow-red-600/30 active:scale-[0.98] transition-all flex items-center gap-2"
+                      >
+                        <FiTrash2 className="text-base shrink-0" />
+                        <span>Delete ({isCheck.length})</span>
+                      </button>
+                    )}
                     <button
                       type="submit"
                       className="h-11 px-7 bg-teal-500 hover:bg-teal-600 text-white rounded-xl text-sm font-semibold shadow-sm shadow-teal-500/30 active:scale-[0.98] transition-all"
@@ -466,89 +507,109 @@ const Orders = () => {
         ) : error ? (
           <span className="text-center mx-auto text-red-500">{error}</span>
         ) : serviceData?.length !== 0 ? (
-          <div className="mb-8 overflow-x-auto w-full">
-            <TableContainer className="dark:bg-gray-900 min-w-full">
-              <Table className="w-full min-w-max">
+          <div className="mb-8 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xs">
+            <div className="w-full overflow-x-auto">
+              <Table className="w-full" style={{ minWidth: "1280px" }}>
                 <TableHeader>
                   <tr>
+                    <TableCell className="w-10 text-center">
+                      <CheckBox
+                        type="checkbox"
+                        name="selectAll"
+                        id="selectAllOrders"
+                        isChecked={isCheckAll}
+                        handleClick={handleSelectAll}
+                      />
+                    </TableCell>
                     {visibleColumns.invoice && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         {t("InvoiceNo")}
                       </TableCell>
                     )}
                     {visibleColumns.time && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[160px]">
                         {t("TimeTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.orderType && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[110px]">
                         Order Type
                       </TableCell>
                     )}
                     {visibleColumns.customerName && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[140px]">
                         {t("CustomerName")}
                       </TableCell>
                     )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[200px]">
                         Product Name
                       </TableCell>
                     )}
                     {visibleColumns.contact && (
-                      <TableCell className="whitespace-nowrap">Contact</TableCell>
+                      <TableCell className="whitespace-nowrap min-w-[130px]">Contact</TableCell>
                     )}
                     {visibleColumns.shippingCost && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         Shipping
                       </TableCell>
                     )}
                     {visibleColumns.discount && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[90px]">
                         Discount
                       </TableCell>
                     )}
                     {visibleColumns.method && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         {t("MethodTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.amount && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[100px]">
                         {t("AmountTbl")}
                       </TableCell>
                     )}
+                    {visibleColumns.shippingId && (
+                      <TableCell className="whitespace-nowrap min-w-[140px]">
+                        Shipping ID
+                      </TableCell>
+                    )}
                     {visibleColumns.status && (
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap min-w-[110px]">
                         {t("OderStatusTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.action && (
-                      <TableCell className="text-center whitespace-nowrap">
+                      <TableCell className="text-center whitespace-nowrap min-w-[140px]">
                         Action
                       </TableCell>
                     )}
                     {visibleColumns.actions && (
-                      <TableCell className="text-right whitespace-nowrap">
+                      <TableCell className="text-center whitespace-nowrap min-w-[80px]">
                         Actions
                       </TableCell>
                     )}
                   </tr>
                 </TableHeader>
 
-                <OrderTable orders={dataTable} visibleColumns={visibleColumns} />
-              </Table>
-
-              <TableFooter>
-                <Pagination
-                  totalResults={data?.totalDoc}
-                  resultsPerPage={resultsPerPage}
-                  onChange={handleChangePage}
-                  label="Table navigation"
+                <OrderTable
+                  orders={dataTable}
+                  visibleColumns={visibleColumns}
+                  isCheck={isCheck}
+                  setIsCheck={setIsCheck}
+                  handleModalOpen={handleModalOpen}
                 />
-              </TableFooter>
-            </TableContainer>
+              </Table>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <Pagination
+                totalResults={data?.totalDoc}
+                resultsPerPage={resultsPerPage}
+                onChange={handleChangePage}
+                label="Table navigation"
+              />
+            </div>
           </div>
         ) : (
           <NotFound title="Sorry, There are no orders right now." />

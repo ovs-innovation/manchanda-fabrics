@@ -1930,10 +1930,10 @@ const ProductDrawer = ({ id }) => {
                   </div>
                 </div>
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">
-                  <LabelArea label="Product Type *" />
+                  <LabelArea label="Product Type" />
                   <div className="col-span-8 sm:col-span-4">
                     <select
-                      {...register("productType", { required: "Product Type is required!" })}
+                      {...register("productType")}
                       className="block w-full rounded-md border border-gray-200 focus:border-store-500 focus:ring-0 text-sm h-12 dark:bg-gray-700 dark:text-gray-200"
                     >
                       <option value="">Choose Type</option>
@@ -1941,7 +1941,6 @@ const ProductDrawer = ({ id }) => {
                       <option value="Fabrics">Unstitched Dress Material</option>
                       <option value="Dupattas">Dupattas</option>
                     </select>
-                    <Error errorName={errors.productType} />
                   </div>
                 </div>
                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6">

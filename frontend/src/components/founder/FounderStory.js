@@ -17,15 +17,18 @@ const FounderStory = ({ founder: founderProp }) => {
   const { t } = useTranslation("common");
   const founder = { ...DEFAULT_HOMEPAGE.founder, ...(founderProp || {}) };
 
-  // Filter out default Unsplash saree placeholders
-  const isPlaceholderOrSaree = (url) => {
-    if (!url || typeof url !== "string") return true;
-    return url.includes("images.unsplash.com") || url.includes("saree");
+  // Dynamic image resolution: prioritize user-uploaded photo from admin, fallback to local family photos
+  const isCustomImage = (url) => {
+    if (!url || typeof url !== "string") return false;
+    return !url.includes("images.unsplash.com") && !url.includes("placehold");
   };
 
-  // Use dynamic images from setting if available (and not Unsplash saree images), otherwise fall back to local premium suit images
-  const mainImageSrc = "/Family/family_2.jpeg";
-  const secondaryImageSrc = "/Family/Family_1.jpg";
+  const mainImageSrc = isCustomImage(founder?.mainImage)
+    ? founder.mainImage
+    : "/Family/family_2.jpeg";
+  const secondaryImageSrc = isCustomImage(founder?.secondaryImage)
+    ? founder.secondaryImage
+    : "/Family/Family_1.jpg";
 
   return (
     <section className="py-24 sm:py-32 bg-[#F9F6F1]">
@@ -46,6 +49,7 @@ const FounderStory = ({ founder: founderProp }) => {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-center transition-transform duration-700 hover:scale-105"
                 priority
+                unoptimized={typeof mainImageSrc === "string" && mainImageSrc.startsWith("http")}
               />
               <div className="absolute inset-0 border border-[#C8A45D]/20 pointer-events-none" />
             </div>
@@ -58,6 +62,7 @@ const FounderStory = ({ founder: founderProp }) => {
                   fill
                   sizes="(max-width: 1024px) 40vw, 20vw"
                   className="object-cover object-center"
+                  unoptimized={typeof secondaryImageSrc === "string" && secondaryImageSrc.startsWith("http")}
                 />
               </div>
             ) : null}

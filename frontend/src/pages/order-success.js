@@ -3,10 +3,13 @@ import Link from "next/link";
 import Layout from "@layout/Layout";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import useTranslation from "next-translate/useTranslation";
+import useCartDB from "@hooks/useCartDB";
+import Cookies from "js-cookie";
 
 const OrderSuccess = () => {
   const { t } = useTranslation("common");
   const [order, setOrder] = useState(null);
+  const { clearCartWithDB } = useCartDB();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -18,8 +21,12 @@ const OrderSuccess = () => {
           console.error(e);
         }
       }
+      clearCartWithDB();
+      Cookies.remove("couponInfo");
+      sessionStorage.removeItem("checkout_form_draft");
+      sessionStorage.removeItem("checkout_pending_order_id");
     }
-  }, []);
+  }, [clearCartWithDB]);
 
   return (
     <Layout title={t("Order Confirmed")} description={t("Thank you for your order")}>

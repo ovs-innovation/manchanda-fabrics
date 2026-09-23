@@ -8,7 +8,6 @@ import ParentCategory from "@/components/category/ParentCategory";
 import Error from "@/components/form/others/Error";
 import ProductPlacementFlags from "@/components/product/ProductPlacementFlags";
 import ColorVariantManager from "@/components/product/ColorVariantManager";
-import ProductTypePicker from "@/components/product/ProductTypePicker";
 import ProductPreviewCard from "@/components/product/ProductPreviewCard";
 import Loading from "@/components/preloader/Loading";
 
@@ -37,9 +36,6 @@ const AddProduct = () => {
     setSelectedCategory,
     setDefaultCategory,
     defaultCategory,
-    brandOptions,
-    brand,
-    setBrand,
     watch,
     slug,
     handleProductSlug,
@@ -51,7 +47,6 @@ const AddProduct = () => {
 
   useEffect(() => {
     register("gender", { value: "Women" });
-    register("productType", { required: "Product type is required" });
     register("defaultColorName");
     register("defaultColorCode");
     register("slug");
@@ -60,7 +55,6 @@ const AddProduct = () => {
   const watchTitle = watch("title");
   const watchOriginalPrice = watch("originalPrice");
   const watchPrice = watch("price");
-  const watchProductType = watch("productType");
 
   if (isEdit && !resData?._id) {
     return <Loading loading />;
@@ -93,16 +87,7 @@ const AddProduct = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
-              {/* 1. Product Type */}
-              <ProductTypePicker
-                value={watchProductType || ""}
-                onChange={(val) =>
-                  setValue("productType", val, { shouldValidate: true })
-                }
-                error={errors.productType}
-              />
-
-              {/* 2. Basic Details (Simplified: Name, Fabric, Occasion, Description) */}
+              {/* 1. Basic Details (Simplified: Name, Fabric, Occasion, Description) */}
               <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
                 <div className="border-b pb-3 flex items-center justify-between">
                   <h2 className="text-base font-bold text-gray-800 dark:text-white">
@@ -160,6 +145,36 @@ const AddProduct = () => {
                   />
                   <Error errorName={errors.description} />
                 </div>
+
+                {/* Category & Badge */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
+                      Category *
+                    </label>
+                    <ParentCategory
+                      lang="en"
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
+                      setDefaultCategory={setDefaultCategory}
+                      defaultCategory={defaultCategory}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
+                      Badge
+                    </label>
+                    <Select value={badge} onChange={(e) => setBadge(e.target.value)}>
+                      <option value="">No badge</option>
+                      <option value="New">New</option>
+                      <option value="Trending">Trending</option>
+                      <option value="Best Seller">Best Seller</option>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Homepage Placement */}
+                <ProductPlacementFlags tag={tag} setTag={setTag} />
               </section>
 
               {/* 3. Unified Suit Photos & Color Variants (Upload all suits at once, auto-detect colors) */}
@@ -255,61 +270,6 @@ const AddProduct = () => {
                 </div>
               </section>
 
-              {/* 5. Organization (Category & Homepage) */}
-              <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
-                <h2 className="text-base font-bold text-gray-800 dark:text-white border-b pb-3">
-                  Category & Homepage
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                      Brand *
-                    </label>
-                    <Select
-                      value={brand?._id || ""}
-                      onChange={(e) => {
-                        const selected = brandOptions?.find((item) => item._id === e.target.value);
-                        setBrand(selected || null);
-                      }}
-                    >
-                      <option value="">Select brand</option>
-                      {brandOptions?.map((item) => (
-                        <option key={item._id} value={item._id}>
-                          {item.name?.en || item.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                      Badge
-                    </label>
-                    <Select value={badge} onChange={(e) => setBadge(e.target.value)}>
-                      <option value="">No badge</option>
-                      <option value="New">New</option>
-                      <option value="Trending">Trending</option>
-                      <option value="Best Seller">Best Seller</option>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-gray-500 mb-2">
-                    Category *
-                  </label>
-                  <ParentCategory
-                    lang="en"
-                    selectedCategory={selectedCategory}
-                    setSelectedCategory={setSelectedCategory}
-                    setDefaultCategory={setDefaultCategory}
-                    defaultCategory={defaultCategory}
-                  />
-                </div>
-
-                <ProductPlacementFlags tag={tag} setTag={setTag} />
-              </section>
-
               {/* Submit Button */}
               <div className="flex justify-end pt-2">
                 <Button
@@ -327,7 +287,7 @@ const AddProduct = () => {
             <div className="lg:col-span-1 lg:sticky lg:top-8">
               <ProductPreviewCard
                 title={watchTitle}
-                brandName={brand ? brand.name?.en || brand.name : ""}
+                brandName="Manchanda Fabrics"
                 originalPrice={watchOriginalPrice}
                 discount={Number(watchOriginalPrice || 0) - Number(watchPrice || watchOriginalPrice || 0)}
                 discountType="flat"

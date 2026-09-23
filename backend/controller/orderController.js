@@ -481,18 +481,36 @@ const updateOrder = async (req, res) => {
   }
 };
 
-const deleteOrder = (req, res) => {
-  Order.deleteOne({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: err.message,
-      });
-    } else {
-      res.status(200).send({
-        message: "Order Deleted Successfully!",
+const deleteOrder = async (req, res) => {
+  try {
+    await Order.deleteOne({ _id: req.params.id });
+    res.status(200).send({
+      message: "Order Deleted Successfully!",
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
+};
+
+const deleteManyOrders = async (req, res) => {
+  try {
+    const ids = req.body.ids;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).send({
+        message: "No order IDs provided!",
       });
     }
-  });
+    await Order.deleteMany({ _id: { $in: ids } });
+    res.status(200).send({
+      message: "Selected Orders Deleted Successfully!",
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
 };
 
 // get dashboard recent order
@@ -1002,12 +1020,38 @@ const getDashboardOrders = async (req, res) => {
   }
 };
 
+/**
+ * PATCH /orders/:id/shipping-id
+ * Admin sets or clears a shipping/tracking ID for an order.
+ */
+const updateShippingId = async (req, res) => {
+  try {
+    const { shippingTrackingId } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    order.shippingTrackingId = shippingTrackingId ?? null;
+    await order.save();
+    return res.status(200).json({
+      message: "Shipping tracking ID updated successfully",
+      shippingTrackingId: order.shippingTrackingId,
+      _id: order._id,
+    });
+  } catch (err) {
+    console.error("updateShippingId error:", err);
+    return res.status(500).json({ message: err.message || "Server error" });
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
   getOrderCustomer,
   updateOrder,
+  updateShippingId,
   deleteOrder,
+  deleteManyOrders,
   getBestSellerProductChart,
   getDashboardOrders,
   getDashboardRecentOrder,

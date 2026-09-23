@@ -37,6 +37,7 @@ const useCheckoutSubmit = (storeSetting) => {
   const [showCard, setShowCard] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
   const [isShippingCalculated, setIsShippingCalculated] = useState(false);
+  const [isFastShipping, setIsFastShipping] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [taxSummary, setTaxSummary] = useState({
@@ -229,7 +230,10 @@ const useCheckoutSubmit = (storeSetting) => {
           address: watchAddress,
         };
 
-    const calculatedShipping = calculateShipping(totalQuantity, destination, true);
+    const baseShipping = calculateShipping(totalQuantity, destination, true);
+    const calculatedShipping = baseShipping !== null
+      ? (isFastShipping ? baseShipping * 2 : baseShipping)
+      : null;
 
     if (calculatedShipping !== null) {
       setShippingCost(calculatedShipping);
@@ -264,6 +268,7 @@ const useCheckoutSubmit = (storeSetting) => {
     cartTotal,
     discountPercentage,
     orderType,
+    isFastShipping,
     watchState,
     watchCity,
     watchZipCode,
@@ -320,7 +325,7 @@ const useCheckoutSubmit = (storeSetting) => {
       const userDetails = {
         name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "A customer",
         contact: data.contact,
-        email: data.email,
+        email: data.email ? String(data.email).trim() : "",
         address: data.address,
         address2: data.address2 || "",
         country: data.country,
@@ -414,7 +419,7 @@ const useCheckoutSubmit = (storeSetting) => {
         ? {
             name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "Reseller",
             contact: data.contact || userInfo?.phone || "",
-            email: data.email || "",
+            email: data.email ? String(data.email).trim() : "",
             address: data.address2 ? `${data.address}, ${data.address2}` : (data.address || ""),
             city: data.city || "",
             state: data.state || "",
@@ -442,7 +447,7 @@ const useCheckoutSubmit = (storeSetting) => {
         reseller_info: resellerDetails,
         final_customer_info: finalCustomerDetails,
         user_info: userDetails,
-        shippingOption: data.shippingOption,
+        shippingOption: isFastShipping ? "FAST" : "STANDARD",
         paymentMethod: data.paymentMethod,
         status: "Pending",
         cart: items.map((item) => normalizeCartItemPricing(item)),
@@ -624,7 +629,7 @@ const useCheckoutSubmit = (storeSetting) => {
       billing_pincode: zipCode || "000000",
       billing_state: state || city,
       billing_country: country || "India",
-      billing_email: email || orderResponse.user_info?.email || "",
+      billing_email: email || orderResponse.user_info?.email || process.env.NEXT_PUBLIC_STORE_EMAIL || "orders@manchandafabric.in",
       billing_phone: contact,
       billing_alternate_phone: alternatePhone || "",
       shipping_is_billing: true,
@@ -636,7 +641,7 @@ const useCheckoutSubmit = (storeSetting) => {
       shipping_pincode: zipCode || "000000",
       shipping_country: country || "India",
       shipping_state: state || city,
-      shipping_email: email || orderResponse.user_info?.email || "",
+      shipping_email: email || orderResponse.user_info?.email || process.env.NEXT_PUBLIC_STORE_EMAIL || "orders@manchandafabric.in",
       shipping_phone: contact,
       order_items: orderItems,
       payment_method: orderResponse.paymentMethod === "Cash" ? "COD" : "Prepaid",
@@ -683,8 +688,13 @@ const useCheckoutSubmit = (storeSetting) => {
       const res = await OrderServices.createPhonePePayment(orderInfo);
 
       if (res?.success && res?.url) {
-        emptyCart();
         if (typeof window !== "undefined") {
+          try {
+            sessionStorage.setItem("checkout_pending_order_id", res.orderId || "");
+            sessionStorage.setItem("lastOrder", JSON.stringify(orderInfo));
+          } catch (e) {
+            console.warn("Could not save pending order session:", e);
+          }
           window.location.href = res.url;
           return;
         }
@@ -974,6 +984,7 @@ const useCheckoutSubmit = (storeSetting) => {
     shippingCost,
     isShippingCalculated,
     isCheckoutSubmit,
+    setIsCheckoutSubmit,
     isCouponApplied,
     useExistingAddress,
     hasShippingAddress,
@@ -990,6 +1001,8 @@ const useCheckoutSubmit = (storeSetting) => {
     setPhonePeModalData,
     orderType,
     setOrderType,
+    isFastShipping,
+    setIsFastShipping,
   };
 };
 

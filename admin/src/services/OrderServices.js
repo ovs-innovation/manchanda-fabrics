@@ -62,8 +62,16 @@ const OrderServices = {
     return requests.put(`/orders/${id}`, body, headers);
   },
 
+  updateShippingId: async (id, shippingTrackingId) => {
+    return requests.patch(`/orders/${id}/shipping-id`, { shippingTrackingId });
+  },
+
   deleteOrder: async (id) => {
     return requests.delete(`/orders/${id}`);
+  },
+
+  deleteManyOrders: async (body) => {
+    return requests.patch("/orders/delete/many", body);
   },
 
   getDashboardOrdersData: async ({

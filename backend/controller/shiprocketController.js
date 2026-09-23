@@ -152,6 +152,11 @@ async function buildShiprocketPayload(rawPayload = {}, orderId = null) {
 }
 
 function enrichPayloadWithShipping(payload = {}) {
+  const fallbackEmail =
+    process.env.EMAIL_USER ||
+    process.env.EMAIL_REPLY_TO ||
+    "orders@manchandafabric.in";
+
   const billing = {
     customer_name: payload.billing_customer_name,
     last_name: payload.billing_last_name || "",
@@ -160,7 +165,7 @@ function enrichPayloadWithShipping(payload = {}) {
     pincode: payload.billing_pincode ? String(payload.billing_pincode) : "",
     state: payload.billing_state,
     country: payload.billing_country,
-    email: payload.billing_email,
+    email: payload.billing_email || payload.shipping_email || fallbackEmail,
     phone: payload.billing_phone,
   };
 
@@ -175,7 +180,7 @@ function enrichPayloadWithShipping(payload = {}) {
       : billing.pincode,
     state: payload.shipping_state || payload.billing_state,
     country: payload.shipping_country || payload.billing_country,
-    email: payload.shipping_email || payload.billing_email,
+    email: payload.shipping_email || payload.billing_email || fallbackEmail,
     phone: payload.shipping_phone || payload.billing_phone,
   };
 

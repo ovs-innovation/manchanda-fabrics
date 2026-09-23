@@ -25,7 +25,7 @@ const TABS = [
   { path: "/store/homepage/overview", key: "overview", label: "Overview", icon: FiGrid },
   { path: "/store/homepage/hero", key: "hero", label: "Hero Banner", icon: FiImage },
   { path: "/store/homepage/products", key: "products", label: "Home Products", icon: FiStar },
-  { path: "/store/homepage/founder", key: "founder", label: "Our Story", icon: FiUsers },
+  { path: "/store/homepage/founder", key: "founder", label: "Our Story & About Us", icon: FiUsers },
   { path: "/store/homepage/stores", key: "stores", label: "Stores", icon: FiMapPin },
   { path: "/store/homepage/contact", key: "contact", label: "WhatsApp & Video", icon: FiMessageCircle },
   { path: "/store/homepage/footer", key: "footer", label: "Footer", icon: FiLink },
@@ -184,27 +184,132 @@ const ManchandaHomepage = () => {
   const renderFounder = () => {
     const f = homepage.founder || {};
     return (
-      <div className="space-y-2">
-        <Input label="Small label" value={f.eyebrow} onChange={(v) => updateFounder({ eyebrow: v })} />
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Title line 1" value={f.titleLine1} onChange={(v) => updateFounder({ titleLine1: v })} />
-          <Input label="Title highlight" value={f.titleHighlight} onChange={(v) => updateFounder({ titleHighlight: v })} />
-        </div>
-        <TextArea label="Paragraph 1" value={f.paragraph1} onChange={(v) => updateFounder({ paragraph1: v })} />
-        <TextArea label="Paragraph 2" value={f.paragraph2} onChange={(v) => updateFounder({ paragraph2: v })} />
-        <TextArea label="Paragraph 3" value={f.paragraph3} onChange={(v) => updateFounder({ paragraph3: v })} />
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium mb-2">Main photo</p>
-            <Uploader imageUrl={f.mainImage} setImageUrl={(url) => updateFounder({ mainImage: url })} folder="homepage" />
+      <div className="space-y-6">
+        {/* Informative Guidance Banner */}
+        <div className="rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-900/50 p-5">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 shrink-0">
+              <FiUsers size={22} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100">
+                About Us Page & Brand Story Management
+              </h4>
+              <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                Upload your family/boutique photos and update your heritage story here. Any changes saved here will immediately appear live on your{" "}
+                <strong className="text-amber-800 dark:text-amber-300">About Us Page (/about-us)</strong> as well as the{" "}
+                <strong className="text-amber-800 dark:text-amber-300">Homepage "Our Story" section</strong>.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium mb-2">Secondary photo</p>
-            <Uploader imageUrl={f.secondaryImage} setImageUrl={(url) => updateFounder({ secondaryImage: url })} folder="homepage" />
+        </div>
+
+        {/* Photo Upload Section for About Page & Story */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 space-y-4">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-gray-700 pb-3 flex items-center gap-2">
+            <FiImage className="text-emerald-600" /> About Page & Story Photos
+          </h4>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">
+                  Main Photo (About Page & Desktop)
+                </span>
+                <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md">
+                  Desktop Portrait
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                Displayed as the primary large framed family portrait on the About Us page and homepage story.
+              </p>
+              <Uploader
+                imageUrl={f.mainImage}
+                setImageUrl={(url) => updateFounder({ mainImage: url })}
+                folder="homepage"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-200">
+                  Secondary / Mobile Photo
+                </span>
+                <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md">
+                  Mobile & Accent
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                Displayed on mobile view of the About Us page and as the floating accent photo on homepage story.
+              </p>
+              <Uploader
+                imageUrl={f.secondaryImage}
+                setImageUrl={(url) => updateFounder({ secondaryImage: url })}
+                folder="homepage"
+              />
+            </div>
           </div>
         </div>
-        <Input label="Signature" value={f.signature} onChange={(v) => updateFounder({ signature: v })} />
-        <Input label="Est. line" value={f.estLine} onChange={(v) => updateFounder({ estLine: v })} />
+
+        {/* Heritage Story Text Fields */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 space-y-4">
+          <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-gray-700 pb-3">
+            Heritage Story Content
+          </h4>
+          <Input
+            label="Section Eyebrow / Small Tag"
+            value={f.eyebrow}
+            onChange={(v) => updateFounder({ eyebrow: v })}
+            placeholder="Our Heritage / About Manchanda Fabrics"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Title Line 1"
+              value={f.titleLine1}
+              onChange={(v) => updateFounder({ titleLine1: v })}
+              placeholder="Our"
+            />
+            <Input
+              label="Title Highlight Word"
+              value={f.titleHighlight}
+              onChange={(v) => updateFounder({ titleHighlight: v })}
+              placeholder="Story"
+            />
+          </div>
+          <TextArea
+            label="Story Paragraph 1 (Origin & Founding)"
+            value={f.paragraph1}
+            onChange={(v) => updateFounder({ paragraph1: v })}
+            rows={3}
+            placeholder="Established in 1990 in Chandni Chowk..."
+          />
+          <TextArea
+            label="Story Paragraph 2 (Artisans & Quality)"
+            value={f.paragraph2}
+            onChange={(v) => updateFounder({ paragraph2: v })}
+            rows={3}
+            placeholder="We specialize in exquisite suit sets..."
+          />
+          <TextArea
+            label="Story Paragraph 3 (Family Legacy Today)"
+            value={f.paragraph3}
+            onChange={(v) => updateFounder({ paragraph3: v })}
+            rows={3}
+            placeholder="Today, our family remains at the heart..."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+            <Input
+              label="Signature / Brand Signoff"
+              value={f.signature}
+              onChange={(v) => updateFounder({ signature: v })}
+              placeholder="Manchanda Fabrics"
+            />
+            <Input
+              label="Established Badge Line"
+              value={f.estLine}
+              onChange={(v) => updateFounder({ estLine: v })}
+              placeholder="Est. 1990 · Premium Indian Ethnic Wear"
+            />
+          </div>
+        </div>
       </div>
     );
   };
@@ -461,7 +566,7 @@ const ManchandaHomepage = () => {
           <li><strong>Business & Contact</strong> — logo, email, phone (Settings menu)</li>
           <li><strong>Hero Banner</strong> — welcome text, brand name, video</li>
           <li><strong>Home Products</strong> — New Arrivals & reel products</li>
-          <li><strong>Our Story</strong> — Manchanda family section</li>
+          <li><strong>Our Story & About Us</strong> — Manchanda family photos & story (shown on /about-us and homepage)</li>
           <li><strong>Stores</strong> — store locations on homepage</li>
           <li><strong>WhatsApp & Video</strong> — order numbers & video shopping banner</li>
           <li><strong>Footer</strong> — contact, links, brand story & copyright</li>
