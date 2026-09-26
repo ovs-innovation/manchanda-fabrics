@@ -8,7 +8,7 @@ async function run() {
   const Setting = require('../models/Setting');
 
   const update = {
-    'setting.seo.favicon': 'https://res.cloudinary.com/tu23xpla/image/upload/v1790414112/brand/manchanda_favicon.png',
+    'setting.seo.favicon': 'https://res.cloudinary.com/tu23xpla/image/upload/v1790414111/brand/manchanda_logo.png',
     'setting.seo.meta_title': "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours",
     'setting.seo.meta_description': "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.",
     'setting.seo.meta_img': 'https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg',

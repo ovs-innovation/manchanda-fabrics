@@ -6,7 +6,7 @@ class MyDocument extends Document {
       "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours";
     const metaDescription =
       "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.";
-    const favicon = "/favicon.png";
+    const favicon = "/logo/logo.png";
     const ogImage =
       "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
     const siteUrl = "https://manchandafabric.in";

@@ -49,7 +49,7 @@ const DefaultSeo = () => {
     globalSetting?.logo
   );
   const metaImage = isKachaBazarLegacyImg ? DEFAULT_OG_IMAGE : rawMetaImg;
-  const favicon = brandLogo || "/favicon.png";
+  const favicon = "/logo/logo.png";
 
   return (
     <NextSeo
