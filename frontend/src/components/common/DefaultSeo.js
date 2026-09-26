@@ -8,9 +8,9 @@ import { pickBrandLogo } from "@utils/brandAssets";
 const DEFAULT_OG_IMAGE =
   "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
 const DEFAULT_TITLE =
-  "Manchanda Fab — Wholesale & Retail Ladies' Suits | Chandni Chowk, Delhi";
+  "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours";
 const DEFAULT_DESC =
-  "Wholesale Ladies' Suits & Unstitched Fabrics — Chosen with care, from our family to yours since 1990. Located at Chandni Chowk, Delhi. Fast PAN-India Delivery.";
+  "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.";
 const DEFAULT_URL = "https://manchandafabric.in";
 
 const DefaultSeo = () => {
