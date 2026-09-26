@@ -870,14 +870,16 @@ export const storeCustomization = {
   },
   seo: {
     favicon:
-      "https://res.cloudinary.com/ahossain/image/upload/v1700903173/undefined/favicon.png",
-    meta_description: "premium ethnic fashion & sarees e-commerce Template",
+      "https://res.cloudinary.com/tu23xpla/image/upload/v1790414112/brand/manchanda_favicon.png",
+    meta_description:
+      "Wholesale Ladies' Suits & Unstitched Fabrics — Chosen with care, from our family to yours since 1990. Located at Chandni Chowk, Delhi. Fast PAN-India Delivery.",
     meta_img:
-      "https://res.cloudinary.com/ahossain/image/upload/v1636729752/facebook-page_j7alju.png",
-    meta_keywords: "e-commerce, online store",
+      "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg",
+    meta_keywords:
+      "wholesale ladies suits, unstitched suit material, salwar suits chandni chowk, cotton suits, pure silk suits, party wear suits, manchanda fabrics, manchanda fab",
     meta_title:
-      "Manchanda Fabrics - premium ethnic fashion & sarees Store",
-    meta_url: "https://Manchanda Fabrics-store-nine.vercel.app/",
+      "Manchanda Fab — Wholesale & Retail Ladies' Suits | Chandni Chowk, Delhi",
+    meta_url: "https://manchandafabric.in/",
   },
   theme: {
     color: "green",

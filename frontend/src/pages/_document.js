@@ -2,10 +2,14 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
   render() {
-    const metaTitle = "Manchanda Fabrics — Premium Sarees, Suits & Fabrics";
+    const metaTitle =
+      "Manchanda Fab — Wholesale & Retail Ladies' Suits | Chandni Chowk, Delhi";
     const metaDescription =
-      "Discover premium ethnic fashion at Manchanda Fabrics. Timeless Banarasi, Silk, and Cotton Sarees, Designer Suits, and curated Fabrics.";
-    const favicon = "/logo/logo.png";
+      "Wholesale Ladies' Suits & Unstitched Fabrics — Chosen with care, from our family to yours since 1990. Located at Chandni Chowk, Delhi. Fast PAN-India Delivery.";
+    const favicon = "/favicon.png";
+    const ogImage =
+      "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
+    const siteUrl = "https://manchandafabric.in";
 
     return (
       <Html lang="en">
@@ -22,10 +26,26 @@ class MyDocument extends Document {
             rel="stylesheet"
           />
           <meta name="referrer" content="strict-origin-when-cross-origin" />
-          <meta property="og:title" content={metaTitle} />
-          <meta property="og:type" content="website" />
-          <meta property="og:description" content={metaDescription} />
           <meta name="description" content={metaDescription} />
+
+          {/* ── Open Graph / WhatsApp / Facebook Preview Tags ── */}
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="Manchanda Fabrics" />
+          <meta property="og:url" content={siteUrl} />
+          <meta property="og:title" content={metaTitle} />
+          <meta property="og:description" content={metaDescription} />
+          <meta property="og:image" content={ogImage} />
+          <meta property="og:image:secure_url" content={ogImage} />
+          <meta property="og:image:type" content="image/jpeg" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content="Manchanda Fab — Wholesale Ladies' Suits" />
+
+          {/* ── Twitter Card Tags ── */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={metaTitle} />
+          <meta name="twitter:description" content={metaDescription} />
+          <meta name="twitter:image" content={ogImage} />
           <style
             dangerouslySetInnerHTML={{
               __html: `

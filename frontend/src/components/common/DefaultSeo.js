@@ -5,20 +5,51 @@ import { DefaultSeo as NextSeo } from "next-seo";
 import useGetSetting from "@hooks/useGetSetting";
 import { pickBrandLogo } from "@utils/brandAssets";
 
+const DEFAULT_OG_IMAGE =
+  "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
+const DEFAULT_TITLE =
+  "Manchanda Fab — Wholesale & Retail Ladies' Suits | Chandni Chowk, Delhi";
+const DEFAULT_DESC =
+  "Wholesale Ladies' Suits & Unstitched Fabrics — Chosen with care, from our family to yours since 1990. Located at Chandni Chowk, Delhi. Fast PAN-India Delivery.";
+const DEFAULT_URL = "https://manchandafabric.in";
+
 const DefaultSeo = () => {
   const { globalSetting, storeCustomizationSetting } = useGetSetting();
 
-  // Get dynamic SEO values from settings
-  const metaTitle = storeCustomizationSetting?.seo?.meta_title || globalSetting?.shop_name || "Manchanda Fabrics";
-  const metaDescription = storeCustomizationSetting?.seo?.meta_description || "Premium ethnic fashion brand focused on sarees, suits, fabrics, and festive collections.";
-  const metaUrl = storeCustomizationSetting?.seo?.meta_url || globalSetting?.website || "";
+  // Guard against legacy template values
+  const rawMetaImg = storeCustomizationSetting?.seo?.meta_img;
+  const isKachaBazarLegacyImg =
+    !rawMetaImg ||
+    rawMetaImg.includes("ahossain") ||
+    rawMetaImg.includes("facebook-page_j7alju.png");
+
+  const rawTitle = storeCustomizationSetting?.seo?.meta_title;
+  const isLegacyTitle =
+    !rawTitle ||
+    rawTitle.toLowerCase().includes("template") ||
+    rawTitle.toLowerCase().includes("kachabazar");
+
+  const rawDesc = storeCustomizationSetting?.seo?.meta_description;
+  const isLegacyDesc =
+    !rawDesc ||
+    rawDesc.toLowerCase().includes("template") ||
+    rawDesc.toLowerCase().includes("kachabazar");
+
+  const rawUrl = storeCustomizationSetting?.seo?.meta_url || globalSetting?.website;
+  const isLegacyUrl =
+    !rawUrl || rawUrl.includes("vercel.app");
+
+  const metaTitle = isLegacyTitle ? DEFAULT_TITLE : rawTitle;
+  const metaDescription = isLegacyDesc ? DEFAULT_DESC : rawDesc;
+  const metaUrl = isLegacyUrl ? DEFAULT_URL : rawUrl;
+
   const brandLogo = pickBrandLogo(
     storeCustomizationSetting?.navbar?.logo,
     storeCustomizationSetting?.seo?.favicon,
     globalSetting?.logo
   );
-  const metaImage = storeCustomizationSetting?.seo?.meta_img || brandLogo;
-  const favicon = brandLogo;
+  const metaImage = isKachaBazarLegacyImg ? DEFAULT_OG_IMAGE : rawMetaImg;
+  const favicon = brandLogo || "/favicon.png";
 
   return (
     <NextSeo
@@ -26,21 +57,22 @@ const DefaultSeo = () => {
       description={metaDescription}
       openGraph={{
         type: "website",
-        locale: "en_IE",
+        locale: "en_IN",
         url: metaUrl,
-        site_name: metaTitle,
+        site_name: "Manchanda Fabrics",
         images: [
           {
             url: metaImage,
             width: 1200,
             height: 630,
             alt: metaTitle,
+            type: "image/jpeg",
           },
         ],
       }}
       twitter={{
-        handle: "@handle",
-        site: "@site",
+        handle: "@manchandafabrics",
+        site: "@manchandafabrics",
         cardType: "summary_large_image",
       }}
       additionalMetaTags={[

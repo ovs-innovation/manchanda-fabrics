@@ -84,7 +84,7 @@ const setting = [
           de: "Kasse",
         },
         phone: "+965 505 631288",
-        logo: "https://res.cloudinary.com/ahossain/image/upload/v1697687802/settings/logo-light_hls14v.svg",
+        logo: "https://res.cloudinary.com/tu23xpla/image/upload/v1790414111/brand/manchanda_logo.png",
       },
       home: {
         coupon_status: true,
@@ -909,15 +909,16 @@ const setting = [
       },
       seo: {
         favicon:
-          "https://res.cloudinary.com/ahossain/image/upload/v1700903173/undefined/favicon.png",
+          "https://res.cloudinary.com/tu23xpla/image/upload/v1790414112/brand/manchanda_favicon.png",
         meta_description:
-          "Manchanda Fabrics - Premium Indian Ethnic Wear & Salwar Suits Boutique",
+          "Wholesale Ladies' Suits & Unstitched Fabrics — Chosen with care, from our family to yours since 1990. Located at Chandni Chowk, Delhi. Fast PAN-India Delivery.",
         meta_img:
-          "https://res.cloudinary.com/ahossain/image/upload/v1636729752/facebook-page_j7alju.png",
-        meta_keywords: "salwar suits, designer suits, unstitched dress material, boutique, ethnic wear",
+          "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg",
+        meta_keywords:
+          "wholesale ladies suits, unstitched suit material, salwar suits chandni chowk, cotton suits, pure silk suits, party wear suits, manchanda fabrics, manchanda fab",
         meta_title:
-          "Manchanda Fabrics - Luxury Indian Ethnic Boutique",
-        meta_url: "https://manchanda-store-nine.vercel.app/",
+          "Manchanda Fab — Wholesale & Retail Ladies' Suits | Chandni Chowk, Delhi",
+        meta_url: "https://manchandafabric.in/",
       },
     },
     name: "storeCustomizationSetting",
