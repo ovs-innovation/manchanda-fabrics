@@ -330,7 +330,23 @@ export const getStaticProps = async () => {
   const attributes = attributesResult.status === "fulfilled" ? attributesResult.value : [];
   const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
   const allProducts = allProductsResult.status === "fulfilled" ? allProductsResult.value : [];
-  const newArrivalsData = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : null;
+  // Strip heavyweight unused fields from catalog to minimize HTML payload and speed up page delivery
+  const trimmedAllProducts = (allProducts || []).map((p) => ({
+    _id: p?._id || "",
+    slug: p?.slug || "",
+    categories: Array.isArray(p?.categories) ? p.categories : [],
+    category: p?.category || null,
+    categorySlug: p?.categorySlug || p?.category?.slug || "",
+    categoryName: p?.categoryName || p?.category?.name || "",
+    featuredImage: p?.featuredImage || p?.image?.[0] || null,
+    image: Array.isArray(p?.image) ? p.image.slice(0, 2) : p?.image || [],
+    title: p?.title || "",
+    prices: p?.prices || { price: p?.price || 0 },
+    price: p?.price || 0,
+    tag: p?.tag || [],
+    tags: p?.tags || [],
+    stock: p?.stock || 0,
+  }));
 
   return {
     props: {
@@ -340,10 +356,10 @@ export const getStaticProps = async () => {
         : (data?.popularProducts || []),
       bestSellingProducts: data?.bestSellingProducts || [],
       categories: categories || [],
-      allProducts: allProducts || [],
+      allProducts: trimmedAllProducts,
       homepage: data?.manchandaHomepage || null,
     },
-    revalidate: 1,
+    revalidate: 60,
   };
 };
 

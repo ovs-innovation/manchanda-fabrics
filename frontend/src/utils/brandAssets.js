@@ -34,21 +34,31 @@ export const pickBrandLogo = (...candidates) => {
   return DEFAULT_BRAND_LOGO;
 };
 
-/** Normalizes image URLs, sanitizes blob: URLs, and matches backend loopback host */
-export const normalizeProductImageUrl = (url) => {
+export const optimizeCloudinaryUrl = (url, width = 600) => {
+  if (!url || typeof url !== "string") return url;
+  if (url.includes("res.cloudinary.com") && url.includes("/image/upload/")) {
+    if (!url.includes("f_auto") && !url.includes("q_auto")) {
+      return url.replace("/image/upload/", `/image/upload/f_auto,q_auto,w_${width},c_limit/`);
+    }
+  }
+  return url;
+};
+
+/** Normalizes image URLs, sanitizes blob: URLs, auto-optimizes Cloudinary images to WebP */
+export const normalizeProductImageUrl = (url, width = 600) => {
   if (!url || typeof url !== "string") return "";
-  const trimmed = url.trim();
+  let trimmed = url.trim();
   if (trimmed.startsWith("blob:")) return "";
   if (typeof window !== "undefined") {
     const is127 = window.location.hostname === "127.0.0.1";
     if (is127 && trimmed.includes("localhost:8092")) {
-      return trimmed.replace("localhost:8092", "127.0.0.1:8092");
+      trimmed = trimmed.replace("localhost:8092", "127.0.0.1:8092");
     }
     const isLocalhost = window.location.hostname === "localhost";
     if (isLocalhost && trimmed.includes("127.0.0.1:8092")) {
-      return trimmed.replace("127.0.0.1:8092", "localhost:8092");
+      trimmed = trimmed.replace("127.0.0.1:8092", "localhost:8092");
     }
   }
-  return trimmed;
+  return optimizeCloudinaryUrl(trimmed, width);
 };
 
