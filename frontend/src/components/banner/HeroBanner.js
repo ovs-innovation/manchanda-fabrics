@@ -24,6 +24,26 @@ const HeroBanner = ({ homepage: homepageProp }) => {
   const desktopVideo = homepage.heroVideo || "/main1.mp4";
   const mobileVideo = homepage.heroMobileVideo || null;
 
+  const [desktopSrc, setDesktopSrc] = React.useState(desktopVideo);
+  const [mobileSrc, setMobileSrc] = React.useState(mobileVideo || desktopVideo);
+
+  React.useEffect(() => {
+    setDesktopSrc(desktopVideo || "/main1.mp4");
+    setMobileSrc(mobileVideo || desktopVideo || "/main1.mp4");
+  }, [desktopVideo, mobileVideo]);
+
+  const handleDesktopError = () => {
+    if (desktopSrc !== "/main1.mp4") {
+      setDesktopSrc("/main1.mp4");
+    }
+  };
+
+  const handleMobileError = () => {
+    if (mobileSrc !== "/main1.mp4") {
+      setMobileSrc("/main1.mp4");
+    }
+  };
+
   const handleDesktopMetadata = () => {
     if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {
       desktopVideoRef.current.currentTime = 2.5;
@@ -73,8 +93,9 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         preload="auto"
         onLoadedMetadata={handleDesktopMetadata}
         onTimeUpdate={handleDesktopTimeUpdate}
+        onError={handleDesktopError}
         className="hidden md:block absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
-        src={desktopVideo}
+        src={desktopSrc}
       />
 
       {/* ── 2. MOBILE HERO VIDEO (Full zoom object-cover — no black empty space) ── */}
@@ -87,8 +108,9 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         preload="auto"
         onLoadedMetadata={handleMobileMetadata}
         onTimeUpdate={handleMobileTimeUpdate}
+        onError={handleMobileError}
         className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
-        src={mobileVideo || desktopVideo}
+        src={mobileSrc}
       />
 
       {/* ── 3. DARK OVERLAY FOR READABILITY ── */}
