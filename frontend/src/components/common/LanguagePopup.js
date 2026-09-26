@@ -26,17 +26,18 @@ const LanguagePopup = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const forceShow = urlParams.get("force_lang") === "true";
-      const shown = localStorage.getItem("languagePopupShown") || sessionStorage.getItem("languagePopupShown");
+      const sessionShown = sessionStorage.getItem("languagePopupShown");
       
-      if (!shown || forceShow) {
+      if (!sessionShown || forceShow) {
         setShow(true);
       }
     } catch (e) {
-      setShow(false);
+      // Fallback if sessionStorage or URLSearchParams fails
+      setShow(true);
     }
   }, []);
 
-  // Avoid aggressive body lock; allow user escape
+  // Lock body scroll while popup is open
   useEffect(() => {
     if (!show) return;
     const prev = document.body.style.overflow;
@@ -80,7 +81,6 @@ const LanguagePopup = () => {
     setSelecting(true);
     try {
       localStorage.setItem("locale", code);
-      localStorage.setItem("languagePopupShown", "true");
       sessionStorage.setItem("languagePopupShown", "true");
       document.cookie = "NEXT_LOCALE=" + code + "; path=/; max-age=31536000";
       document.cookie = "_lang=" + code + "; path=/; max-age=31536000";
@@ -96,23 +96,12 @@ const LanguagePopup = () => {
       aria-modal="true"
       role="dialog"
       aria-label="Choose your language"
-      onClick={() => handleSelect("en")}
       className="fixed inset-0 z-[99999] bg-[#0c0a09]/75 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease_both]"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white rounded-2xl shadow-[0_32px_64px_-12px_rgba(12,10,9,0.2)] border border-neutral-100 p-8 max-w-md w-full text-center transform transition-all duration-300 scale-100 opacity-100 animate-[scaleIn_0.35s_cubic-bezier(0.34,1.56,0.64,1)_both]"
+        className="bg-white rounded-2xl shadow-[0_32px_64px_-12px_rgba(12,10,9,0.2)] border border-neutral-100 p-8 max-w-md w-full text-center transform transition-all duration-300 scale-100 opacity-100 animate-[scaleIn_0.35s_cubic-bezier(0.34,1.56,0.64,1)_both]"
       >
-        {/* Close Button */}
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={() => handleSelect("en")}
-          className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 w-8 h-8 rounded-full flex items-center justify-center transition-colors text-lg"
-        >
-          ✕
-        </button>
-
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img

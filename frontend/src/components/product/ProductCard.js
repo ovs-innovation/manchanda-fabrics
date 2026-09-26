@@ -253,8 +253,6 @@ const ProductCard = ({
               <img
                 src={primaryImg}
                 alt={title}
-                loading="lazy"
-                decoding="async"
                 className="h-full w-full object-cover object-top transition duration-700 ease-in-out group-hover:scale-105"
                 onError={(e) => {
                   e.currentTarget.onerror = null;

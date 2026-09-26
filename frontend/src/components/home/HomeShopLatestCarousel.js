@@ -268,7 +268,8 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                           muted
                           loop
                           playsInline
-                          preload="none"
+                          autoPlay
+                          preload="metadata"
                           poster={image || undefined}
                           ref={(el) => {
                             if (el) videoEls.current.set(key, el);

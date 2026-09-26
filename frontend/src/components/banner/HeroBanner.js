@@ -21,50 +21,59 @@ const HeroBanner = ({ homepage: homepageProp }) => {
       : rawWelcomeStr;
   const brandText = homepage.heroBrandName || t("hero_brand_text");
 
-  const rawDesktopVideo = homepage.heroVideo || "/main1.mp4";
-  const rawMobileVideo = homepage.heroMobileVideo || null;
+  const desktopVideo = homepage.heroVideo || "/main1.mp4";
+  const mobileVideo = homepage.heroMobileVideo || null;
 
-  const optimizeVideoUrl = (url, width = 1080) => {
-    if (!url || typeof url !== "string") return url;
-    if (url.includes("res.cloudinary.com") && url.includes("/video/upload/")) {
-      if (!url.includes("q_auto")) {
-        return url.replace("/video/upload/", `/video/upload/q_auto:eco,w_${width},vc_auto/`);
-      }
-    }
-    return url;
-  };
-
-  const desktopVideo = optimizeVideoUrl(rawDesktopVideo, 1280);
-  const mobileVideo = rawMobileVideo ? optimizeVideoUrl(rawMobileVideo, 720) : null;
-
-  const [videoSrc, setVideoSrc] = React.useState(desktopVideo);
-  const videoRef = React.useRef(null);
+  const [desktopSrc, setDesktopSrc] = React.useState(desktopVideo);
+  const [mobileSrc, setMobileSrc] = React.useState(mobileVideo || desktopVideo);
 
   React.useEffect(() => {
-    const isSmall = window.innerWidth < 768;
-    const targetSrc = (isSmall && mobileVideo) ? mobileVideo : desktopVideo;
-    setVideoSrc(targetSrc || "/main1.mp4");
+    setDesktopSrc(desktopVideo || "/main1.mp4");
+    setMobileSrc(mobileVideo || desktopVideo || "/main1.mp4");
   }, [desktopVideo, mobileVideo]);
 
-  const handleVideoError = () => {
-    if (videoSrc !== "/main1.mp4") {
-      setVideoSrc("/main1.mp4");
+  const handleDesktopError = () => {
+    if (desktopSrc !== "/main1.mp4") {
+      setDesktopSrc("/main1.mp4");
     }
   };
 
-  const handleMetadata = () => {
-    if (videoRef.current && videoRef.current.duration > 3) {
-      videoRef.current.currentTime = 2.5;
+  const handleMobileError = () => {
+    if (mobileSrc !== "/main1.mp4") {
+      setMobileSrc("/main1.mp4");
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (videoRef.current && videoRef.current.duration > 3) {
+  const handleDesktopMetadata = () => {
+    if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {
+      desktopVideoRef.current.currentTime = 2.5;
+    }
+  };
+
+  const handleDesktopTimeUpdate = () => {
+    if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {
       if (
-        videoRef.current.currentTime >=
-        videoRef.current.duration - 0.4
+        desktopVideoRef.current.currentTime >=
+        desktopVideoRef.current.duration - 0.4
       ) {
-        videoRef.current.currentTime = 2.5;
+        desktopVideoRef.current.currentTime = 2.5;
+      }
+    }
+  };
+
+  const handleMobileMetadata = () => {
+    if (mobileVideoRef.current && mobileVideoRef.current.duration > 3) {
+      mobileVideoRef.current.currentTime = 2.5;
+    }
+  };
+
+  const handleMobileTimeUpdate = () => {
+    if (mobileVideoRef.current && mobileVideoRef.current.duration > 3) {
+      if (
+        mobileVideoRef.current.currentTime >=
+        mobileVideoRef.current.duration - 0.4
+      ) {
+        mobileVideoRef.current.currentTime = 2.5;
       }
     }
   };
@@ -74,19 +83,34 @@ const HeroBanner = ({ homepage: homepageProp }) => {
       id="hero-section"
       className="relative w-full h-[50vh] min-h-[350px] max-h-[440px] sm:h-[58vh] sm:min-h-[420px] sm:max-h-[520px] md:h-[75vh] md:min-h-[520px] md:max-h-[700px] lg:h-[80vh] lg:max-h-[760px] bg-[#111111] overflow-hidden flex items-center justify-center"
     >
-      {/* ── SINGLE OPTIMIZED HERO VIDEO ── */}
+      {/* ── 1. DESKTOP VIDEO (Hidden on mobile, block on md+) ── */}
       <video
-        ref={videoRef}
+        ref={desktopVideoRef}
         autoPlay
         loop
         muted
         playsInline
-        preload="metadata"
-        onLoadedMetadata={handleMetadata}
-        onTimeUpdate={handleTimeUpdate}
-        onError={handleVideoError}
-        className="absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
-        src={videoSrc}
+        preload="auto"
+        onLoadedMetadata={handleDesktopMetadata}
+        onTimeUpdate={handleDesktopTimeUpdate}
+        onError={handleDesktopError}
+        className="hidden md:block absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
+        src={desktopSrc}
+      />
+
+      {/* ── 2. MOBILE HERO VIDEO (Full zoom object-cover — no black empty space) ── */}
+      <video
+        ref={mobileVideoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        onLoadedMetadata={handleMobileMetadata}
+        onTimeUpdate={handleMobileTimeUpdate}
+        onError={handleMobileError}
+        className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
+        src={mobileSrc}
       />
 
       {/* ── 3. DARK OVERLAY FOR READABILITY ── */}
