@@ -26,7 +26,7 @@ const Home = ({
   popularProducts: popularProp,
   bestSellingProducts: bestSellingProp,
   attributes,
-  categories,
+  categories: categoriesProp,
   allProducts: allProductsProp,
   homepage: homepageProp,
 }) => {
@@ -39,8 +39,18 @@ const Home = ({
     bestSellingProducts: bestSellingProp || [],
     allProducts: allProductsProp || [],
   });
+  const [categoriesState, setCategoriesState] = React.useState(categoriesProp || []);
 
   React.useEffect(() => {
+    // Fetch latest showing categories so admin changes reflect immediately
+    CategoryServices.getShowingCategory()
+      .then((liveCats) => {
+        if (Array.isArray(liveCats) && liveCats.length > 0) {
+          setCategoriesState(liveCats);
+        }
+      })
+      .catch(() => {});
+
     // If SSG returned empty products (e.g. backend was down during build/revalidate), fetch client-side
     if (!productsState.allProducts?.length && !productsState.popularProducts?.length) {
       Promise.allSettled([
@@ -87,24 +97,58 @@ const Home = ({
     });
   })();
 
-  // Per-category product counts (matched by category id), keyed by slug
-  const productsOfCategory = (c) =>
-    catalog.filter((p) => {
+  const getCatTitle = (c) => {
+    if (!c) return "";
+    if (typeof c.name === "string") return c.name;
+    return (
+      c.name?.en ||
+      c.name?.default ||
+      (typeof c.name === "object" ? Object.values(c.name)[0] : "") ||
+      c.title ||
+      ""
+    );
+  };
+
+  const getCatSlug = (c) => {
+    if (c?.slug) return String(c.slug).toLowerCase().trim();
+    const title = getCatTitle(c);
+    return String(title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  };
+
+  // Per-category product counts (matched by category id or slug/name), keyed by slug
+  const productsOfCategory = (c) => {
+    const cSlug = getCatSlug(c);
+    const cTitle = getCatTitle(c).toLowerCase().trim();
+    return catalog.filter((p) => {
       const ids = Array.isArray(p?.categories)
         ? p.categories.map((x) => (typeof x === "string" ? x : x?._id))
         : [];
       const single = p?.category?._id || p?.category;
-      return ids.includes(c._id) || single === c._id;
+      if (c?._id && (ids.includes(c._id) || single === c._id)) return true;
+
+      const pCatSlug = (p?.categorySlug || p?.category?.slug || "").toLowerCase().trim();
+      if (cSlug && pCatSlug && pCatSlug === cSlug) return true;
+
+      const pCatName = (p?.categoryName || p?.category?.name?.en || p?.category?.name || "").toLowerCase().trim();
+      if (cTitle && pCatName && pCatName === cTitle) return true;
+
+      return false;
     });
+  };
 
   const categoryCounts = {};
-  (categories || []).forEach((c) => {
-    if (!c?.slug) return;
-    categoryCounts[c.slug] = productsOfCategory(c).length;
+  (categoriesState || []).forEach((c) => {
+    const slug = getCatSlug(c);
+    if (!slug) return;
+    categoryCounts[slug] = productsOfCategory(c).length;
   });
 
   // Real store categories for the circles — prioritize uploaded category icon/banner, then product image
-  const circleCategories = (categories || [])
+  const circleCategories = (categoriesState || [])
     .map((c) => {
       const catProducts = productsOfCategory(c);
       const firstValidProductImage =
@@ -121,17 +165,18 @@ const Home = ({
         null;
 
       const finalImage = normalizeProductImageUrl(rawCatImg);
+      const title = getCatTitle(c);
+      const slug = getCatSlug(c);
 
       return {
-        slug: c?.slug,
-        title: c?.name?.en || c?.name || "",
+        _id: c?._id,
+        slug,
+        title,
         image: finalImage,
         count: catProducts.length,
       };
     })
-    .filter((c) => c.slug && c.title)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
+    .filter((c) => c.slug && c.title);
 
   return (
     <Layout>

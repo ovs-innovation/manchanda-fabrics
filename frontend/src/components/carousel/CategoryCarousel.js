@@ -47,6 +47,14 @@ const CategoryCarousel = () => {
     setIsLoading(!isLoading);
   };
 
+  const categoriesList = React.useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+    if (data[0]?.children && data[0]?.children?.length > 0) {
+      return data[0].children;
+    }
+    return data;
+  }, [data]);
+
   return (
     <>
       <div className="relative category-carousel-wrapper my-10 px-8 md:px-12">
@@ -64,7 +72,7 @@ const CategoryCarousel = () => {
           spaceBetween={24}
           navigation={true}
           allowTouchMove={true}
-          loop={data?.[0]?.children?.length >= 12}
+          loop={categoriesList?.length >= 12}
           breakpoints={{
             320: {
               slidesPerView: 2,
@@ -101,7 +109,7 @@ const CategoryCarousel = () => {
               {error?.response?.data?.message || error?.message}
             </p>
           ) : (
-            data[0]?.children?.map((category, i) => (
+            categoriesList?.map((category, i) => (
               <SwiperSlide key={i + 1} className="group">
                 <div
                   onClick={() =>

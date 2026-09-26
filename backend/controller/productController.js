@@ -741,6 +741,9 @@ const updateProduct = async (req, res) => {
       product.featuredImage = req.body.featuredImage;
       product.hoverImage = req.body.hoverImage;
       product.badge = req.body.badge;
+      if (req.body.video !== undefined) {
+        product.video = req.body.video;
+      }
 
       const { hsnCode, taxRate, isPriceInclusive } = normalizeTaxPayload(
         req.body
@@ -917,7 +920,11 @@ const getShowingStoreProducts = async (req, res) => {
             [`name.${lang}`]: { $regex: decoded.replace(/[-]+/g, " "), $options: "i" },
           }));
           const matchingCategories = await Category.find({
-            $or: categoryNameQueries,
+            $or: [
+              { slug: decoded.toLowerCase().trim() },
+              { slug: decoded.trim() },
+              ...categoryNameQueries,
+            ],
             status: "show",
           }).select("_id");
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiMaximize2, FiX } from "react-icons/fi";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
@@ -22,6 +22,9 @@ const ProductImageGallery = ({
   const swiperRef = useRef(null);
   const thumbRefs = useRef([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [modalVideoUrl, setModalVideoUrl] = useState("");
+  const prevColorRef = useRef(selectedColorVar);
 
   // Helper media checkers
   const isVideoUrl = (url = "") => {
@@ -30,7 +33,12 @@ const ProductImageGallery = ({
     return (
       lowered.includes(".mp4") ||
       lowered.includes(".mov") ||
-      lowered.includes(".webm")
+      lowered.includes(".webm") ||
+      lowered.includes(".m4v") ||
+      lowered.includes(".ogv") ||
+      lowered.includes(".mkv") ||
+      lowered.includes("/video/upload") ||
+      lowered.includes("/video/")
     );
   };
 
@@ -93,23 +101,24 @@ const ProductImageGallery = ({
     ];
   }, [rawSlides, images]);
 
-  const isLoop = displaySlides.length > 1;
+  const isLoop = displaySlides.length > 2;
 
-  // Sync active slide index when selectedColorVar changes from outside (e.g. user clicked a color circle)
+  // Sync active slide index ONLY when selectedColorVar genuinely changes from outside (e.g. user clicked a color circle)
   useEffect(() => {
-    if (!selectedColorVar || !swiperRef.current || displaySlides.length <= 1) return;
-    const currentSlide = displaySlides[activeIndex];
-    const isMatching =
-      currentSlide?.colorVar &&
-      ((selectedColorVar._id &&
-        currentSlide.colorVar._id &&
-        String(selectedColorVar._id) === String(currentSlide.colorVar._id)) ||
-        (selectedColorVar.colorName &&
-          currentSlide.colorVar.colorName &&
-          selectedColorVar.colorName.toLowerCase() ===
-            currentSlide.colorVar.colorName.toLowerCase()));
+    const prevColor = prevColorRef.current;
+    prevColorRef.current = selectedColorVar;
 
-    if (isMatching) return;
+    if (!selectedColorVar || !swiperRef.current || displaySlides.length <= 1) return;
+
+    // Only proceed if selectedColorVar has actually changed from outside
+    const isSameColor =
+      prevColor &&
+      ((selectedColorVar._id && prevColor._id && String(selectedColorVar._id) === String(prevColor._id)) ||
+        (selectedColorVar.colorName &&
+          prevColor.colorName &&
+          selectedColorVar.colorName.toLowerCase() === prevColor.colorName.toLowerCase()));
+
+    if (isSameColor) return;
 
     const targetIdx = displaySlides.findIndex((s) => {
       if (!s.colorVar) return false;
@@ -124,15 +133,15 @@ const ProductImageGallery = ({
       );
     });
 
-    if (targetIdx !== -1 && targetIdx !== activeIndex) {
-      if (isLoop) {
+    if (targetIdx !== -1) {
+      if (isLoop && typeof swiperRef.current.slideToLoop === "function") {
         swiperRef.current.slideToLoop(targetIdx, 400);
-      } else {
+      } else if (typeof swiperRef.current.slideTo === "function") {
         swiperRef.current.slideTo(targetIdx, 400);
       }
       setActiveIndex(targetIdx);
     }
-  }, [selectedColorVar, displaySlides, isLoop, activeIndex]);
+  }, [selectedColorVar, displaySlides, isLoop]);
 
   // Scroll active thumbnail into view
   useEffect(() => {
@@ -147,11 +156,23 @@ const ProductImageGallery = ({
     }
   }, [activeIndex]);
 
+  // Pause autoplay while video slide is active
+  useEffect(() => {
+    if (!swiperRef.current?.autoplay) return;
+    const currentSlide = displaySlides[activeIndex];
+    if (isVideoUrl(currentSlide?.url) || isYoutubeUrl(currentSlide?.url)) {
+      swiperRef.current.autoplay.stop();
+    } else if (displaySlides.length > 1) {
+      swiperRef.current.autoplay.start();
+    }
+  }, [activeIndex, displaySlides]);
+
   const handleSlideChange = (swiper) => {
     const idx = isLoop ? swiper.realIndex : swiper.activeIndex;
     setActiveIndex(idx);
     const activeSlide = displaySlides[idx];
     if (activeSlide?.colorVar && onColorVarChange) {
+      prevColorRef.current = activeSlide.colorVar;
       onColorVarChange(activeSlide.colorVar);
     }
   };
@@ -159,15 +180,16 @@ const ProductImageGallery = ({
   const handleThumbnailClick = (index) => {
     if (index >= 0 && index < displaySlides.length) {
       if (swiperRef.current) {
-        if (isLoop) {
+        if (isLoop && typeof swiperRef.current.slideToLoop === "function") {
           swiperRef.current.slideToLoop(index, 400);
-        } else {
+        } else if (typeof swiperRef.current.slideTo === "function") {
           swiperRef.current.slideTo(index, 400);
         }
       }
       setActiveIndex(index);
       const activeSlide = displaySlides[index];
       if (activeSlide?.colorVar && onColorVarChange) {
+        prevColorRef.current = activeSlide.colorVar;
         onColorVarChange(activeSlide.colorVar);
       }
     }
@@ -217,12 +239,19 @@ const ProductImageGallery = ({
                 title={slide.colorName ? `${productTitle} - ${slide.colorName}` : `${productTitle} - ${index + 1}`}
               >
                 {isVideoUrl(mediaUrl) ? (
-                  <video
-                    src={mediaUrl}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                  />
+                  <div className="relative w-full h-full bg-neutral-900 flex items-center justify-center">
+                    <video
+                      src={mediaUrl}
+                      className="w-full h-full object-cover"
+                      muted
+                      playsInline
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                      <span className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow-md">
+                        <span className="ml-0.5 border-l-[6px] border-y-[3.5px] border-l-[#111111] border-y-transparent" />
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <img
@@ -355,11 +384,31 @@ const ProductImageGallery = ({
                   className="w-full h-full flex items-center justify-center bg-white"
                 >
                   {isVideoUrl(mediaUrl) ? (
-                    <video
-                      src={mediaUrl}
-                      className="w-full h-full object-contain"
-                      controls
-                    />
+                    <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+                      <video
+                        src={mediaUrl}
+                        className="w-full h-full object-contain swiper-no-swiping"
+                        controls
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModalVideoUrl(mediaUrl);
+                          setVideoModalOpen(true);
+                        }}
+                        className="absolute bottom-4 right-4 z-20 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/85 text-white text-xs font-medium flex items-center gap-1.5 backdrop-blur-md shadow-md border border-white/20 transition-all cursor-pointer hover:scale-105"
+                        title="Watch in popup"
+                      >
+                        <FiMaximize2 size={13} />
+                        <span>Expand</span>
+                      </button>
+                    </div>
                   ) : isYoutubeUrl(mediaUrl) ? (
                     <iframe
                       src={getYoutubeEmbedUrl(mediaUrl) || ""}
@@ -410,6 +459,48 @@ const ProductImageGallery = ({
           )}
         </div>
       </div>
+
+      {/* Video Modal Popup */}
+      {videoModalOpen && modalVideoUrl && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 sm:p-6"
+          onClick={() => setVideoModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-center border border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setVideoModalOpen(false)}
+              className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer"
+              aria-label="Close video"
+            >
+              <FiX size={22} />
+            </button>
+            <div className="w-full aspect-video flex items-center justify-center bg-black">
+              {isYoutubeUrl(modalVideoUrl) ? (
+                <iframe
+                  src={getYoutubeEmbedUrl(modalVideoUrl) || ""}
+                  title={productTitle}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={modalVideoUrl}
+                  className="w-full h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

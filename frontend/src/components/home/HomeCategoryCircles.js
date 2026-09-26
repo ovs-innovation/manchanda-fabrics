@@ -13,7 +13,24 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
   const { t } = useTranslation("common");
   const { showingTranslateValue } = useUtilsFunction();
 
-  const list = categories.filter((c) => c?.slug && c?.title);
+  const list = (categories || [])
+    .map((c) => {
+      const title =
+        typeof c?.title === "string"
+          ? c.title
+          : c?.title?.en || c?.title?.default || (typeof c?.title === "object" ? Object.values(c.title)[0] : "") || "";
+      const slug =
+        c?.slug ||
+        (title
+          ? String(title)
+              .toLowerCase()
+              .trim()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "")
+          : "");
+      return { ...c, title, slug };
+    })
+    .filter((c) => c?.slug && c?.title);
 
   if (!list.length) return null;
 

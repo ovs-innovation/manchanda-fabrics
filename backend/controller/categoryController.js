@@ -4,6 +4,22 @@ const {
   ensureHindiDescription,
 } = require("../utils/fashionTranslator");
 
+const slugify = (text) => {
+  if (!text) return "";
+  return String(text)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+const getCategoryRawName = (nameObj) => {
+  if (!nameObj) return "";
+  if (typeof nameObj === "string") return nameObj;
+  return nameObj.en || nameObj.default || Object.values(nameObj)[0] || "";
+};
+
 const addCategory = async (req, res) => {
   try {
     if (req.body.name) {
@@ -11,6 +27,18 @@ const addCategory = async (req, res) => {
     }
     if (req.body.description) {
       req.body.description = ensureHindiDescription(req.body.description);
+    }
+    const rawName = getCategoryRawName(req.body.name);
+    if (!req.body.slug && rawName) {
+      req.body.slug = slugify(rawName);
+    } else if (req.body.slug) {
+      req.body.slug = slugify(req.body.slug);
+    }
+    if (!req.body.parentId) {
+      req.body.parentId = "Root";
+    }
+    if (!req.body.parentName) {
+      req.body.parentName = "Home";
     }
     const newCategory = new Category(req.body);
     await newCategory.save();
@@ -28,11 +56,17 @@ const addCategory = async (req, res) => {
 const addAllCategory = async (req, res) => {
   try {
     await Category.deleteMany();
-    const sanitizedDocs = (req.body || []).map((cat) => ({
-      ...cat,
-      name: ensureHindiName(cat.name),
-      description: ensureHindiDescription(cat.description),
-    }));
+    const sanitizedDocs = (req.body || []).map((cat) => {
+      const rawName = getCategoryRawName(cat.name);
+      return {
+        ...cat,
+        slug: cat.slug ? slugify(cat.slug) : slugify(rawName),
+        parentId: cat.parentId || "Root",
+        parentName: cat.parentName || "Home",
+        name: ensureHindiName(cat.name),
+        description: ensureHindiDescription(cat.description),
+      };
+    });
     await Category.insertMany(sanitizedDocs);
     res.status(200).send({
       message: "Category Added Successfully!",
@@ -123,11 +157,16 @@ const updateCategory = async (req, res) => {
       category.status = req.body.status;
       category.parentId = req.body.parentId
         ? req.body.parentId
-        : category.parentId;
-      category.parentName = req.body.parentName;
+        : (category.parentId || "Root");
+      category.parentName = req.body.parentName || category.parentName || "Home";
       category.featured = req.body.featured !== undefined ? req.body.featured : category.featured;
       category.priority = req.body.priority || category.priority;
       category.banner = req.body.banner;
+      if (req.body.slug) {
+        category.slug = slugify(req.body.slug);
+      } else if (!category.slug) {
+        category.slug = slugify(getCategoryRawName(category.name));
+      }
 
       await category.save();
       res.send({ message: "Category Updated Successfully!" });
@@ -270,21 +309,24 @@ const readyToParentAndChildrenCategory = (categories, parentId = null) => {
     );
   };
 
-  return categories.filter(matchesParent).map((item) => ({
-    _id: item._id,
-    name: item.name,
-    slug: item.slug,
-    parentId: item.parentId,
-    parentName: item.parentName,
-    description: item.description,
-    icon: item.icon,
-    images: item.images || [],
-    banner: item.banner || "",
-    status: item.status,
-    featured: item.featured,
-    priority: item.priority,
-    children: readyToParentAndChildrenCategory(categories, item._id),
-  }));
+  return categories.filter(matchesParent).map((item) => {
+    const rawName = getCategoryRawName(item.name);
+    return {
+      _id: item._id,
+      name: item.name,
+      slug: item.slug || slugify(rawName),
+      parentId: item.parentId || "Root",
+      parentName: item.parentName || "Home",
+      description: item.description,
+      icon: item.icon,
+      images: item.images || [],
+      banner: item.banner || "",
+      status: item.status,
+      featured: item.featured,
+      priority: item.priority,
+      children: readyToParentAndChildrenCategory(categories, item._id),
+    };
+  });
 };
 
 

@@ -135,12 +135,19 @@ const ChildCategory = () => {
 
     try {
       const parentName = getAllCategories?.find(cat => cat._id === parentId)?.name?.[lang] || "Main Category";
+      const rawName = (name.en || name.default || "").trim();
+      const slug = rawName
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
 
       const categoryData = {
         name: { 
           default: name.default || name.en,
           en: name.en || name.default
         },
+        slug,
         parentId,
         parentName,
         priority,

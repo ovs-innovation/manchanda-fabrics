@@ -17,7 +17,7 @@ import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { useQuery } from "@tanstack/react-query";
 
-const Categories = () => {
+const Categories = ({ initialCategories = [], initialBestSelling = [] }) => {
   const { setIsLoading } = useContext(SidebarContext);
   const [parentCategories, setParentCategories] = useState([]);
 
@@ -34,6 +34,7 @@ const Categories = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["category"],
     queryFn: async () => await CategoryServices.getShowingCategory(),
+    initialData: initialCategories,
   });
 
   const getLevel1Categories = (categories) => {
@@ -86,8 +87,10 @@ const Categories = () => {
           <SliderCarousel />
         </div>
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-10 pb-10">
-          {parentCategories.length === 0 ? (
+          {isLoading ? (
             <p className="text-gray-500 text-center py-8">Loading categories...</p>
+          ) : getLevel1Categories(data || []).length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No categories available.</p>
           ) : (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-0">
               <FeatureCategory categories={getLevel1Categories(data || [])} />
@@ -157,6 +160,22 @@ const Categories = () => {
       </div>
     </Layout>
   );
+};
+
+export const getServerSideProps = async () => {
+  const [categoriesResult, bestSellingResult] = await Promise.allSettled([
+    CategoryServices.getShowingCategory(),
+    ProductServices.getShowingStoreProducts({}),
+  ]);
+  const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
+  const bestSelling = bestSellingResult.status === "fulfilled" ? bestSellingResult.value : null;
+
+  return {
+    props: {
+      initialCategories: categories || [],
+      initialBestSelling: (bestSelling && (bestSelling.bestSellingProducts || bestSelling.products)) || [],
+    },
+  };
 };
 
 export default Categories;

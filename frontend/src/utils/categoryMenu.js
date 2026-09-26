@@ -35,27 +35,12 @@ export const buildMobileCategoryMenu = (categories, showingTranslateValue) => {
   const flat = flattenCategories(categories);
   if (!flat.length) return [];
 
-  const allowedSlugs = [
-    "gaji-silk",
-    "cotton-suits",
-    "party-wear",
-    "batik",
-    "bangalori-silk-pure",
-    "glace-cotton"
-  ];
-
-  // Filter categories whose slug is allowed
+  // Filter out system Root or Home categories, keep all active store categories
   const filtered = flat.filter((cat) => {
     const slug = getCategorySlug(cat, showingTranslateValue);
-    return allowedSlugs.includes(slug);
+    const name = String(cat?.name?.en || cat?.name?.default || (typeof cat?.name === "string" ? cat.name : "")).toLowerCase().trim();
+    return slug && slug !== "home" && slug !== "root" && name !== "home" && cat?.id !== "Root";
   });
 
-  // Map children properly
-  return filtered.map((parent) => {
-    const children = (parent.children || []).filter((child) => {
-      const childSlug = getCategorySlug(child, showingTranslateValue);
-      return allowedSlugs.includes(childSlug);
-    });
-    return { ...parent, children };
-  });
+  return filtered;
 };

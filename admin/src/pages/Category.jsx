@@ -86,7 +86,14 @@ const Category = () => {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
-    if (!name.default && !name.en) return showAlert("Category name is required!", "error");
+    const primaryName = (name.en || name.default || "").trim();
+    if (!primaryName) return showAlert("Category name is required!", "error");
+
+    const slug = primaryName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
     try {
       const categoryData = {
@@ -95,6 +102,9 @@ const Category = () => {
           en: name.en || name.default,
           ar: name.ar 
         },
+        slug,
+        parentId: "Root",
+        parentName: "Home",
         priority,
         icon: image?.length > 0 ? image[0] : "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png",
         images: image || [],

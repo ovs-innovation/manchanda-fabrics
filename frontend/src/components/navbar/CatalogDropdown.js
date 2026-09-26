@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import useTranslation from "next-translate/useTranslation";
 import { translateProductTitle } from "@utils/fashionTranslations";
+import { useQuery } from "@tanstack/react-query";
+import CategoryServices from "@services/CategoryServices";
 
 const CATALOG_CATEGORIES = [
   {
@@ -59,6 +61,43 @@ const CatalogDropdown = ({ isTransparent }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation("common");
+
+  const { data: serverCategories } = useQuery({
+    queryKey: ["catalogShowingCategories"],
+    queryFn: async () => await CategoryServices.getShowingCategory(),
+    staleTime: 60 * 1000,
+  });
+
+  const categoriesList =
+    serverCategories && serverCategories.length > 0
+      ? serverCategories
+          .map((c) => {
+            const title =
+              typeof c.name === "string"
+                ? c.name
+                : c.name?.en ||
+                  c.name?.default ||
+                  (typeof c.name === "object" ? Object.values(c.name)[0] : "") ||
+                  "";
+            const slug =
+              c.slug ||
+              String(title)
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-|-$/g, "");
+            const desc =
+              typeof c.description === "string"
+                ? c.description
+                : c.description?.en || "Explore collection";
+            return {
+              label: title,
+              slug,
+              desc,
+            };
+          })
+          .filter((c) => c.slug && c.label)
+      : CATALOG_CATEGORIES;
 
   const getLabel = (text) => {
     const tr = t(text);
@@ -117,7 +156,7 @@ const CatalogDropdown = ({ isTransparent }) => {
                 {t("Browse Collections")}
               </p>
               <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-                {CATALOG_CATEGORIES.map((cat) => (
+                {categoriesList.map((cat) => (
                   <Link
                     key={cat.slug}
                     href={`/collections/${cat.slug}`}

@@ -21,16 +21,29 @@ const FeatureCategory = ({ categories = [] }) => {
   const { showingTranslateValue } = useUtilsFunction();
 
   const collections = (categories || [])
-    .filter((cat) => cat?.slug)
-    .slice(0, 4)
-    .map((cat, idx) => ({
-      id: cat._id || cat.id || cat.slug,
-      title: showingTranslateValue(cat.name) || cat.title || cat.slug,
-      subtitle: cat.description || "Explore the collection",
-      img: getCategoryImage(cat) || "/manchandalogo.png",
-      slug: cat.slug,
-      gridClass: GRID_CLASSES[idx % GRID_CLASSES.length],
-    }));
+    .map((cat, idx) => {
+      const rawTitle =
+        showingTranslateValue(cat.name) ||
+        cat.title ||
+        (typeof cat.name === "string" ? cat.name : cat.name?.en || cat.name?.default || "");
+      const slug =
+        cat?.slug ||
+        String(rawTitle)
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+
+      return {
+        id: cat._id || cat.id || slug,
+        title: rawTitle || slug,
+        subtitle: (typeof cat.description === "string" ? cat.description : cat.description?.en) || "Explore the collection",
+        img: getCategoryImage(cat) || "/manchandalogo.png",
+        slug,
+        gridClass: GRID_CLASSES[idx % GRID_CLASSES.length],
+      };
+    })
+    .filter((col) => col.slug && col.title);
 
   if (!collections.length) {
     return (

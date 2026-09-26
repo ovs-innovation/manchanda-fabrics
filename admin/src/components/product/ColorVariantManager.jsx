@@ -348,10 +348,10 @@ const ColorVariantManager = ({
                 prev.map((r) =>
                   r._localId === rowItem._localId
                     ? {
-                        ...r,
-                        colorName: detectedColor.colorName,
-                        colorCode: detectedColor.colorCode || resolveHex("", detectedColor.colorName) || r.colorCode,
-                      }
+                      ...r,
+                      colorName: detectedColor.colorName,
+                      colorCode: detectedColor.colorCode || resolveHex("", detectedColor.colorName) || r.colorCode,
+                    }
                     : r
                 )
               );
@@ -635,11 +635,10 @@ const ColorVariantManager = ({
           if (bulkFileInputRef.current) bulkFileInputRef.current.value = "";
           bulkFileInputRef.current?.click();
         }}
-        className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${
-          isDragging
+        className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 ${isDragging
             ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/20 scale-[1.01]"
             : "border-emerald-300/80 hover:border-emerald-500 bg-emerald-50/30 hover:bg-emerald-50/60 dark:bg-gray-800/40 dark:border-emerald-700/50"
-        }`}
+          }`}
       >
         <div className="py-2 space-y-2">
           {rows.length > 0 ? (
@@ -735,21 +734,19 @@ const ColorVariantManager = ({
             return (
               <div
                 key={row._localId || index}
-                className={`p-5 sm:p-6 border-2 rounded-2xl bg-white dark:bg-gray-800 transition-all duration-200 ${
-                  isMain
+                className={`p-5 sm:p-6 border-2 rounded-2xl bg-white dark:bg-gray-800 transition-all duration-200 ${isMain
                     ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-md"
                     : "border-gray-200 dark:border-gray-700 shadow-xs hover:border-gray-300"
-                }`}
+                  }`}
               >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                   {/* Left Column: Suit Photo Preview & Main Badge */}
                   <div className="md:col-span-4 lg:col-span-3 space-y-2.5">
                     <div
-                      className={`relative group w-full aspect-square max-w-[140px] mx-auto md:mx-0 rounded-2xl overflow-hidden border bg-gray-50 dark:bg-gray-900 shadow-inner flex items-center justify-center transition-all ${
-                        pickingColorForIndex === index
+                      className={`relative group w-full aspect-square max-w-[140px] mx-auto md:mx-0 rounded-2xl overflow-hidden border bg-gray-50 dark:bg-gray-900 shadow-inner flex items-center justify-center transition-all ${pickingColorForIndex === index
                           ? "ring-4 ring-emerald-500 shadow-lg border-emerald-500 cursor-crosshair scale-105"
                           : "border-gray-200 dark:border-gray-700"
-                      }`}
+                        }`}
                       onClick={(e) => {
                         if (pickingColorForIndex === index) {
                           handleImageClickToPickColor(index, e);
@@ -771,11 +768,10 @@ const ColorVariantManager = ({
                                 e.target.src = row._localUrl;
                               }
                             }}
-                            className={`w-full h-full object-cover transition-transform duration-300 ${
-                              pickingColorForIndex === index
+                            className={`w-full h-full object-cover transition-transform duration-300 ${pickingColorForIndex === index
                                 ? "cursor-crosshair"
                                 : "group-hover:scale-105"
-                            }`}
+                              }`}
                           />
 
                           {/* Picking color indicator overlay */}

@@ -1,5 +1,4 @@
 import axios from "axios";
-import heic2any from "heic2any";
 import requests from "@/services/httpService";
 import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
 
@@ -51,6 +50,11 @@ export const ensureBrowserCompatibleFile = async (file) => {
   try {
     const isHeic = await checkIsHeic(file);
     if (isHeic) {
+      const heic2anyModule = await import("heic2any");
+      const heic2any =
+        heic2anyModule?.default?.default ||
+        heic2anyModule?.default ||
+        heic2anyModule;
       const result = await heic2any({
         blob: file,
         toType: "image/jpeg",

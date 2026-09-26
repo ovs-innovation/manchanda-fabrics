@@ -87,9 +87,10 @@ const AishaProductHero = ({
 
   // Build unified slide deck across all color variants and media for buttery-smooth swiping
   const allSlides = useMemo(() => {
+    let list = [];
+
     // 1. If product has colorVariants, gather every image from all variants in order
     if (product?.colorVariants && product.colorVariants.length > 0) {
-      const list = [];
       product.colorVariants.forEach((cv, cvIdx) => {
         const cvImages =
           Array.isArray(cv.images) && cv.images.length > 0 ? cv.images : [];
@@ -113,16 +114,15 @@ const AishaProductHero = ({
           });
         }
       });
-      if (list.length > 0) return list;
     }
 
-    // 2. If explicit currentImages array is provided and not empty
-    if (currentImages && currentImages.length > 0) {
+    // 2. If list is empty and explicit currentImages array is provided
+    if (list.length === 0 && currentImages && currentImages.length > 0) {
       const valid = currentImages.filter(
         (u) => u && typeof u === "string" && u.trim() !== ""
       );
       if (valid.length > 0) {
-        return valid.map((url, i) => ({
+        list = valid.map((url, i) => ({
           url: url.trim(),
           colorVar: null,
           colorName: null,
@@ -132,26 +132,49 @@ const AishaProductHero = ({
     }
 
     // 3. Fallback to productImages or product.image array
-    const rawImages =
-      productImages && productImages.length > 0
-        ? productImages
-        : Array.isArray(product?.image)
-        ? product.image
-        : product?.image
-        ? [product.image]
-        : [];
+    if (list.length === 0) {
+      const rawImages =
+        productImages && productImages.length > 0
+          ? productImages
+          : Array.isArray(product?.image)
+          ? product.image
+          : product?.image
+          ? [product.image]
+          : [];
 
-    const validImages = rawImages.filter(
-      (u) => u && typeof u === "string" && u.trim() !== ""
-    );
+      const validImages = rawImages.filter(
+        (u) => u && typeof u === "string" && u.trim() !== ""
+      );
 
-    if (validImages.length > 0) {
-      return validImages.map((url, i) => ({
-        url: url.trim(),
-        colorVar: null,
-        colorName: null,
-        id: `img-${i}-${url}`,
-      }));
+      if (validImages.length > 0) {
+        list = validImages.map((url, i) => ({
+          url: url.trim(),
+          colorVar: null,
+          colorName: null,
+          id: `img-${i}-${url}`,
+        }));
+      }
+    }
+
+    // 4. ALWAYS append product video if provided by admin
+    if (
+      product?.video &&
+      typeof product.video === "string" &&
+      product.video.trim() !== ""
+    ) {
+      const vid = product.video.trim();
+      if (!list.some((slide) => slide.url === vid)) {
+        list.push({
+          url: vid,
+          colorVar: null,
+          colorName: "Video",
+          id: `prod-video-${vid}`,
+        });
+      }
+    }
+
+    if (list.length > 0) {
+      return list;
     }
 
     return [
@@ -166,6 +189,7 @@ const AishaProductHero = ({
     currentImages,
     product?.colorVariants,
     product?.featuredImage,
+    product?.video,
     productImages,
     product?.image,
   ]);

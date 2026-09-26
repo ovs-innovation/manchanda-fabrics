@@ -320,17 +320,17 @@ const useProductSubmit = (id) => {
       const apiVariantSource = isApiVariantFormat(variants)
         ? variants
         : groupSimpleVariantsForApi(variants, baseSkuValue);
-      
+
       const updatedVariants = apiVariantSource.map((cv, idx) => {
         const cvOriginal = getNumberTwo(cv.originalPrice || data.originalPrice || 0);
         const cvDiscount = getNumberTwo(cv.discount || data.discount || 0);
-        const cvBaseDiscountedPrice = data.discountType === "percentage" 
+        const cvBaseDiscountedPrice = data.discountType === "percentage"
           ? cvOriginal - (cvOriginal * cvDiscount / 100)
           : cvOriginal - cvDiscount;
         const cvPrice = cvBaseDiscountedPrice * (1 + Number(data.taxRate || 0) / 100);
 
         const colorSku = cv.sku || `${baseSkuValue}-${(cv.color || "").toUpperCase().replace(/\s+/g, "")}`;
-        
+
         const sizes = Array.isArray(cv.sizes) ? cv.sizes : [];
         const updatedSizes = sizes.map((sv, sIdx) => {
           const svOriginal = getNumberTwo(sv.originalPrice || cvOriginal);
@@ -360,10 +360,10 @@ const useProductSubmit = (id) => {
       });
 
       setIsBasicComplete(true);
-      const basePriceAfterDiscount = data.discountType === "percentage" 
+      const basePriceAfterDiscount = data.discountType === "percentage"
         ? getNumberTwo(data.originalPrice) - (getNumberTwo(data.originalPrice) * getNumber(data.discount) / 100)
         : getNumberTwo(data.originalPrice) - getNumber(data.discount);
-      
+
       const taxRateValue = Number(data.taxRate || 0);
       const calculatedPrice = basePriceAfterDiscount * (1 + taxRateValue / 100);
 
@@ -665,7 +665,7 @@ const useProductSubmit = (id) => {
         dynamicSections: sanitizeDynamicSections(dynamicSections),
         mediaSections: sanitizeMediaSections(mediaSections),
         faqs: faqSection,
-        
+
         // New Sections
         productDescription,
         additionalInformation,
@@ -922,7 +922,7 @@ const useProductSubmit = (id) => {
       setIsSubmitting(false);
       setAttributes([]);
       setBrand(null);
-      
+
       // Reset New Sections
       setProductDescription({ enabled: true, icon: "", title: "Product Description", description: "" });
       setAdditionalInformation({ enabled: true, icon: "", title: "Additional Information", subsections: [] });
@@ -967,8 +967,8 @@ const useProductSubmit = (id) => {
               Number(res.stock) > 0
                 ? Number(res.stock)
                 : loadedCvStock > 0
-                ? loadedCvStock
-                : (Number(res.stock) || 0);
+                  ? loadedCvStock
+                  : (Number(res.stock) || 0);
 
             setValue("stock", resolvedLoadedStock);
             setValue("productId", res.productId);
@@ -1166,17 +1166,17 @@ const useProductSubmit = (id) => {
   // Helper to check if a variant already exists (by comparing attribute values)
   const isVariantDuplicate = (newVariant, existingVariants) => {
     if (!existingVariants || existingVariants.length === 0) return false;
-    
+
     // Extract only attribute keys (excluding price, quantity, etc.)
     const getAttributeKeys = (v) => {
-      const { 
-        originalPrice, discount, price, quantity, barcode, sku, productId, 
-        image, images, video, title, description, slug, dynamicSections, 
-        mediaSections, ...rest 
+      const {
+        originalPrice, discount, price, quantity, barcode, sku, productId,
+        image, images, video, title, description, slug, dynamicSections,
+        mediaSections, ...rest
       } = v;
       return rest;
     };
-    
+
     const newAttrs = getAttributeKeys(newVariant);
     // Sort keys for consistent comparison
     const sortedNewAttrs = Object.keys(newAttrs)
@@ -1186,7 +1186,7 @@ const useProductSubmit = (id) => {
         return acc;
       }, {});
     const newAttrStr = JSON.stringify(sortedNewAttrs);
-    
+
     return existingVariants.some((existing) => {
       const existingAttrs = getAttributeKeys(existing);
       const sortedExistingAttrs = Object.keys(existingAttrs)
@@ -1209,7 +1209,7 @@ const useProductSubmit = (id) => {
     const result = variants.filter(
       (v) => {
         const {
-          originalPrice, discount, price, quantity, barcode, sku, productId, image, 
+          originalPrice, discount, price, quantity, barcode, sku, productId, image,
           title, description, slug, dynamicSections, mediaSections, ...rest
         } = v;
         return Object.keys(rest).length > 0;
@@ -1218,7 +1218,7 @@ const useProductSubmit = (id) => {
 
     const combo = combinate(values);
     const baseSkuCode = sku || productId || "SKU";
-    
+
     const finalVariants = combo.map((com, i) => {
       const existing = result.find(v => {
         const {
@@ -1253,7 +1253,7 @@ const useProductSubmit = (id) => {
   };
   // Helper to generate UUID (simple version)
   const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       const r = Math.random() * 16 | 0;
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
@@ -1276,7 +1276,7 @@ const useProductSubmit = (id) => {
       // If no combination, use main product slug
       return baseSlug;
     }
-    
+
     // Extract UUID from existing slug if it exists, otherwise generate new one
     let uuid = "";
     if (existingSlug && existingSlug.includes("-")) {
@@ -1287,12 +1287,12 @@ const useProductSubmit = (id) => {
         uuid = lastPart;
       }
     }
-    
+
     // If no existing UUID found, generate new one
     if (!uuid) {
       uuid = generateUUID().substring(0, 8);
     }
-    
+
     const combinationSlug = generateSlug(combinationLabel);
     return `${baseSlug}-${combinationSlug}-${uuid}`;
   };
@@ -1389,7 +1389,7 @@ const useProductSubmit = (id) => {
 
     // Add selected variants to existing variants
     setVariants((prev) => [...prev, ...variantsToAdd]);
-    
+
     // Also add to variant array for tracking
     variantsToAdd.forEach((newCom) => {
       const { originalPrice, discount, price, quantity, barcode, sku, productId, image, title, description, slug, ...rest } = newCom;
@@ -1477,8 +1477,8 @@ const useProductSubmit = (id) => {
       if (updatedData.images) {
         merged.images = Array.isArray(updatedData.images) ? [...updatedData.images] : [];
         // Update image field (first image) for display
-        merged.image = Array.isArray(updatedData.images) && updatedData.images.length > 0 
-          ? updatedData.images[0] 
+        merged.image = Array.isArray(updatedData.images) && updatedData.images.length > 0
+          ? updatedData.images[0]
           : variant.image || "";
       }
 
@@ -1487,14 +1487,14 @@ const useProductSubmit = (id) => {
       }
 
       if (updatedData.dynamicSections) {
-        merged.dynamicSections = Array.isArray(updatedData.dynamicSections) 
-          ? [...updatedData.dynamicSections] 
+        merged.dynamicSections = Array.isArray(updatedData.dynamicSections)
+          ? [...updatedData.dynamicSections]
           : variant.dynamicSections || [];
       }
 
       if (updatedData.mediaSections) {
-        merged.mediaSections = Array.isArray(updatedData.mediaSections) 
-          ? [...updatedData.mediaSections] 
+        merged.mediaSections = Array.isArray(updatedData.mediaSections)
+          ? [...updatedData.mediaSections]
           : variant.mediaSections || [];
       }
 
@@ -1669,8 +1669,8 @@ const useProductSubmit = (id) => {
             answerType === "custom"
               ? customAnswer
               : answerType === "yes"
-              ? "Yes"
-              : "No";
+                ? "Yes"
+                : "No";
 
           if (answerType === "custom" && !answer) {
             return null;
@@ -1737,9 +1737,8 @@ const useProductSubmit = (id) => {
     // console.log("handleRemoveVariant", vari, ext);
     swal({
       title: `Are you sure to delete this ${ext ? "Extra" : "combination"}!`,
-      text: `(If Okay, It will be delete this ${
-        ext ? "Extra" : "combination"
-      })`,
+      text: `(If Okay, It will be delete this ${ext ? "Extra" : "combination"
+        })`,
       icon: "warning",
       buttons: true,
       dangerMode: true,
@@ -1747,14 +1746,14 @@ const useProductSubmit = (id) => {
       if (willDelete) {
         const result = variants.filter((v) => v !== vari);
         setVariants(result);
-        
+
         // Update total stock after removing variant
         const newTotalStock = result.reduce(
           (pre, acc) => Number(pre) + Number(acc.quantity || 0),
           0
         );
         setTotalStock(Number(newTotalStock));
-        
+
         // console.log("result", result);
         const {
           originalPrice,
@@ -1838,9 +1837,9 @@ const useProductSubmit = (id) => {
       prev.map((variant, idx) =>
         idx === id
           ? {
-              ...variant,
-              [name]: value,
-            }
+            ...variant,
+            [name]: value,
+          }
           : variant
       )
     );
@@ -1926,14 +1925,14 @@ const useProductSubmit = (id) => {
     const newSlug = value.toLowerCase().replace(/[^A-Z0-9]+/gi, "-");
     setValue("slug", newSlug);
     setSlug(newSlug);
-    
+
     // Update all variant slugs when product slug changes
     if (variants.length > 0 && isCombination) {
       setVariants((prevVariants) =>
         prevVariants.map((variant) => {
           // Extract combination label from variant
           const combinationLabel = buildCombinationLabel(variant);
-          
+
           // If variant has no combination, use main product slug
           if (!combinationLabel || combinationLabel.trim() === "") {
             return {
@@ -1941,11 +1940,11 @@ const useProductSubmit = (id) => {
               slug: newSlug,
             };
           }
-          
+
           // Regenerate variant slug with new product slug but keep existing UUID
           const existingSlug = variant.slug || "";
           const variantSlug = generateVariantSlug(newSlug, combinationLabel, existingSlug);
-          
+
           return {
             ...variant,
             slug: variantSlug,
@@ -2021,7 +2020,7 @@ const useProductSubmit = (id) => {
     handleCreateSelectedVariants,
     handleTogglePreviewVariant,
     handleSelectAllPreviewVariants,
-    
+
     // New Sections Exports
     productDescription, setProductDescription,
     additionalInformation, setAdditionalInformation,

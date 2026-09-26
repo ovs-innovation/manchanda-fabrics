@@ -25,6 +25,8 @@ import { notifySuccess } from "@utils/toast";
 import useTranslation from "next-translate/useTranslation";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 import { translateProductTitle } from "@utils/fashionTranslations";
+import { useQuery } from "@tanstack/react-query";
+import CategoryServices from "@services/CategoryServices";
 
 const MOBILE_CATEGORIES = [
   { label: "Gaji Silk", slug: "gaji-silk" },
@@ -47,6 +49,38 @@ const MobileMenu = ({ isOpen, onClose }) => {
   const { t } = useTranslation("common");
   const { state: userState, dispatch } = useContext(UserContext);
   const userInfo = userState?.userInfo;
+
+  const { data: serverCategories } = useQuery({
+    queryKey: ["mobileShowingCategories"],
+    queryFn: async () => await CategoryServices.getShowingCategory(),
+    staleTime: 60 * 1000,
+  });
+
+  const categoriesList =
+    serverCategories && serverCategories.length > 0
+      ? [
+          ...serverCategories
+            .map((c) => {
+              const title =
+                typeof c.name === "string"
+                  ? c.name
+                  : c.name?.en ||
+                    c.name?.default ||
+                    (typeof c.name === "object" ? Object.values(c.name)[0] : "") ||
+                    "";
+              const slug =
+                c.slug ||
+                String(title)
+                  .toLowerCase()
+                  .trim()
+                  .replace(/[^a-z0-9]+/g, "-")
+                  .replace(/^-|-$/g, "");
+              return { label: title, slug };
+            })
+            .filter((c) => c.slug && c.label),
+          { label: "New Arrivals", slug: "new-arrivals" },
+        ]
+      : MOBILE_CATEGORIES;
 
   const handleLogout = async () => {
     onClose();
@@ -195,7 +229,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden pl-4 flex flex-col gap-3.5 mt-3 border-l border-neutral-100"
                       >
-                        {MOBILE_CATEGORIES.map((cat) => (
+                        {categoriesList.map((cat) => (
                           <Link
                             key={cat.slug}
                             href={

@@ -51,6 +51,12 @@ const useCategorySubmit = (id, data) => {
         resData?.description
       );
 
+      const categorySlug = (name || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
       const categoryData = {
         name: {
           ...nameTranslates,
@@ -60,7 +66,8 @@ const useCategorySubmit = (id, data) => {
           ...descriptionTranslates,
           [language]: description ? description : "",
         },
-        parentId: checked ? checked : undefined,
+        slug: resData?.slug || categorySlug,
+        parentId: checked ? checked : "Root",
         parentName: selectCategoryName ? selectCategoryName : "Home",
 
         icon: imageUrl?.length > 0 ? imageUrl[0] : "",

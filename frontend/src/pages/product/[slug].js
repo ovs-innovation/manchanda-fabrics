@@ -121,7 +121,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     enabled: !!userInfo?.id,
   });
 
-  // Get product media (images + optional video) - supports up to 5 items
+  // Get product media (images + optional video)
   const productImages = useMemo(() => {
     const media = [];
 
@@ -136,16 +136,19 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       media.push(product.image);
     }
 
-    // If legacy 'video' field exists, also push it into media array
+    // If 'video' field exists, ensure it is added to media array
     if (
       product?.video &&
       typeof product.video === "string" &&
       product.video.trim() !== ""
     ) {
-      media.push(product.video);
+      const vid = product.video.trim();
+      if (!media.includes(vid)) {
+        media.push(vid);
+      }
     }
 
-    return media.slice(0, 5);
+    return media;
   }, [product?.image, product?.video]);
 
   // Combine Default Color and Color Variants
@@ -1012,210 +1015,210 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
               />
 
               <div className="mt-16 max-w-4xl">
-                          {/* Product Highlights Section */}
-                          {product?.productHighlights?.enabled !== false && product?.productHighlights?.items?.length > 0 && (
-                            <div className="mt-8 border border-neutral-200/60 rounded-lg p-6 bg-white">
-                              <div className="flex items-center gap-3 mb-4">
-                                {product.productHighlights.icon && (
-                                  <img src={product.productHighlights.icon} alt="" className="w-10 h-10" />
-                                )}
-                                <h2 className="text-xl font-semibold text-gray-800">
-                                  {product.productHighlights.title || "Product Highlights"}
-                                </h2>
-                              </div>
-                              <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
-                                {product.productHighlights.items.map((item, idx) => (
-                                  <li key={idx} className="leading-relaxed">
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+                {/* Product Highlights Section */}
+                {product?.productHighlights?.enabled !== false && product?.productHighlights?.items?.length > 0 && (
+                  <div className="mt-8 border border-neutral-200/60 rounded-lg p-6 bg-white">
+                    <div className="flex items-center gap-3 mb-4">
+                      {product.productHighlights.icon && (
+                        <img src={product.productHighlights.icon} alt="" className="w-10 h-10" />
+                      )}
+                      <h2 className="text-xl font-semibold text-gray-800">
+                        {product.productHighlights.title || "Product Highlights"}
+                      </h2>
+                    </div>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
+                      {product.productHighlights.items.map((item, idx) => (
+                        <li key={idx} className="leading-relaxed">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-                          {/* Premium Tab Navigation */}
-                          {(product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) || productFaqs.length > 0) && (
-                            <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-neutral-200/50 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
-                              <div className="max-w-screen-2xl mx-auto px-4 lg:px-12">
-                                <div className="flex gap-6 overflow-x-auto tab-navigation-container">
-                                  {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
-                                    <button
-                                      data-tab="specification"
-                                      onClick={() => handleTabClick("specification")}
-                                      className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "specification"
-                                          ? "text-[#111111]"
-                                          : "text-gray-400 hover:text-gray-600"
-                                        }`}
-                                    >
-                                      Specification
-                                      {activeTab === "specification" && (
-                                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
-                                      )}
-                                    </button>
-                                  )}
-                                  {productFaqs.length > 0 && (
-                                    <button
-                                      data-tab="faq"
-                                      onClick={() => handleTabClick("faq")}
-                                      className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "faq"
-                                          ? "text-[#111111]"
-                                          : "text-gray-400 hover:text-gray-600"
-                                        }`}
-                                    >
-                                      FAQs
-                                      {activeTab === "faq" && (
-                                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
-                                      )}
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                {/* Premium Tab Navigation */}
+                {(product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) || productFaqs.length > 0) && (
+                  <div className="sticky top-16 lg:top-[80px] z-40 bg-white/80 backdrop-blur-md mt-12 mb-8 py-1 border-b border-neutral-200/50 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.05)]">
+                    <div className="max-w-screen-2xl mx-auto px-4 lg:px-12">
+                      <div className="flex gap-6 overflow-x-auto tab-navigation-container">
+                        {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
+                          <button
+                            data-tab="specification"
+                            onClick={() => handleTabClick("specification")}
+                            className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "specification"
+                              ? "text-[#111111]"
+                              : "text-gray-400 hover:text-gray-600"
+                              }`}
+                          >
+                            Specification
+                            {activeTab === "specification" && (
+                              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
+                            )}
+                          </button>
+                        )}
+                        {productFaqs.length > 0 && (
+                          <button
+                            data-tab="faq"
+                            onClick={() => handleTabClick("faq")}
+                            className={`relative py-4 text-sm font-bold transition-all whitespace-nowrap ${activeTab === "faq"
+                              ? "text-[#111111]"
+                              : "text-gray-400 hover:text-gray-600"
+                              }`}
+                          >
+                            FAQs
+                            {activeTab === "faq" && (
+                              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#111111]" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                          {/* Specification Section */}
-                          {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
-                            <div id="specification" className="mt-8 py-6 bg-transparent">
-                              {product.dynamicSections
-                                .filter(s => s?.name?.toLowerCase().includes("specification"))
-                                .map((section, idx) => (
-                                  <div key={idx} className="mb-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                      <h2 className="text-xl font-semibold text-gray-800">
-                                        {section.name} of {dynamicTitle || showingTranslateValue(product?.title)}
-                                      </h2>
-                                    </div>
-                                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
-                                      {section.subsections
-                                        ?.filter(sub => sub?.type !== "paragraph" && (sub?.key || sub?.value))
-                                        .map((sub, subIdx) => (
-                                          <li key={subIdx}>
-                                            <strong>{sub.key || sub.title}:</strong> {sub.value || sub.content}
-                                          </li>
-                                        ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                            </div>
-                          )}
+                {/* Specification Section */}
+                {product?.dynamicSections?.some(s => s?.name?.toLowerCase().includes("specification")) && (
+                  <div id="specification" className="mt-8 py-6 bg-transparent">
+                    {product.dynamicSections
+                      .filter(s => s?.name?.toLowerCase().includes("specification"))
+                      .map((section, idx) => (
+                        <div key={idx} className="mb-6">
+                          <div className="flex items-center gap-3 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-800">
+                              {section.name} of {dynamicTitle || showingTranslateValue(product?.title)}
+                            </h2>
+                          </div>
+                          <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
+                            {section.subsections
+                              ?.filter(sub => sub?.type !== "paragraph" && (sub?.key || sub?.value))
+                              .map((sub, subIdx) => (
+                                <li key={subIdx}>
+                                  <strong>{sub.key || sub.title}:</strong> {sub.value || sub.content}
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
+                      ))}
+                  </div>
+                )}
 
-                          {/* Additional Information Section */}
-                          {product?.additionalInformation?.enabled !== false && product?.additionalInformation?.subsections?.length > 0 && (
-                            <div id="additional-information" className="mt-8 py-6 bg-transparent">
-                              <div className="flex items-center gap-3 mb-4">
-                                {product.additionalInformation.icon && (
-                                  <img src={product.additionalInformation.icon} alt="" className="w-10 h-10" />
-                                )}
-                                <h2 className="text-xl font-semibold text-gray-800">
-                                  {product.additionalInformation.title || "Additional Information"}
-                                </h2>
-                              </div>
-                              <div className="space-y-6">
-                                {product.additionalInformation.subsections.map((subsection, idx) => (
-                                  <div key={idx} className="bg-transparent py-4 border-b border-neutral-200/60 last:border-none">
-                                    <h3 className="inline-block px-3 py-1 mb-3 text-sm font-semibold text-[#111111] bg-neutral-100 rounded-full">
-                                      {subsection.label}
-                                    </h3>
-                                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
-                                      {subsection.items.map((item, itemIdx) => (
-                                        <li key={itemIdx} className="leading-relaxed">
-                                          {item}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                {/* Additional Information Section */}
+                {product?.additionalInformation?.enabled !== false && product?.additionalInformation?.subsections?.length > 0 && (
+                  <div id="additional-information" className="mt-8 py-6 bg-transparent">
+                    <div className="flex items-center gap-3 mb-4">
+                      {product.additionalInformation.icon && (
+                        <img src={product.additionalInformation.icon} alt="" className="w-10 h-10" />
+                      )}
+                      <h2 className="text-xl font-semibold text-gray-800">
+                        {product.additionalInformation.title || "Additional Information"}
+                      </h2>
+                    </div>
+                    <div className="space-y-6">
+                      {product.additionalInformation.subsections.map((subsection, idx) => (
+                        <div key={idx} className="bg-transparent py-4 border-b border-neutral-200/60 last:border-none">
+                          <h3 className="inline-block px-3 py-1 mb-3 text-sm font-semibold text-[#111111] bg-neutral-100 rounded-full">
+                            {subsection.label}
+                          </h3>
+                          <ul className="list-disc list-inside space-y-2 text-sm text-gray-600 text-justify">
+                            {subsection.items.map((item, itemIdx) => (
+                              <li key={itemIdx} className="leading-relaxed">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                          {/* Product Details Section (Dynamic & Media) */}
-                          <ProductDetailsSection
-                            dynamicSections={variantDynamicSections || product?.dynamicSections}
-                            mediaSections={variantMediaSections || product?.mediaSections}
-                            selectedAttributes={selectVa || selectVariant || {}}
-                            isVariantSpecific={!!variantDynamicSections}
-                          />
+                {/* Product Details Section (Dynamic & Media) */}
+                <ProductDetailsSection
+                  dynamicSections={variantDynamicSections || product?.dynamicSections}
+                  mediaSections={variantMediaSections || product?.mediaSections}
+                  selectedAttributes={selectVa || selectVariant || {}}
+                  isVariantSpecific={!!variantDynamicSections}
+                />
 
 
-                          {/* Modern FAQ Section */}
-                          {productFaqs.length > 0 && (
-                            <div id="faq" className="mt-12 py-8 bg-transparent">
-                              <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                                <span className="w-2 h-8 bg-[#111111] rounded-full" />
-                                {product?.faqs?.title || (product?.faqTitle && product.faqTitle.trim().length
-                                  ? product.faqTitle
-                                  : t("frequentlyAskedQuestions") ||
-                                  "Common Questions")}
-                              </h3>
-                              <div className="space-y-4">
-                                {productFaqs.map((faq, index) => {
-                                  const isOpen = activeFaqIndex === index;
-                                  return (
-                                    <div key={`${faq.question}-${index}`} className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-neutral-300 bg-neutral-50' : 'border-gray-100 bg-gray-50/50 hover:bg-gray-100/50'}`}>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setActiveFaqIndex(isOpen ? null : index)
-                                        }
-                                        className="w-full flex items-center justify-between text-left px-6 py-5 focus:outline-none"
-                                      >
-                                        <span className="text-base font-bold text-gray-800 pr-4">
-                                          {faq.question}
-                                        </span>
-                                        <span className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#111111]' : 'text-gray-400'}`}>
-                                          <FiChevronDown className="w-5 h-5" />
-                                        </span>
-                                      </button>
-                                      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className="px-6 pb-6 text-sm text-gray-600 leading-relaxed border-t border-store-100/50 pt-4">
-                                          {faq.answerType === "yes" || faq.answerType === "no"
-                                            ? faq.answer
-                                            : faq.answer || faq.customAnswer || ""}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                {/* Modern FAQ Section */}
+                {productFaqs.length > 0 && (
+                  <div id="faq" className="mt-12 py-8 bg-transparent">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                      <span className="w-2 h-8 bg-[#111111] rounded-full" />
+                      {product?.faqs?.title || (product?.faqTitle && product.faqTitle.trim().length
+                        ? product.faqTitle
+                        : t("frequentlyAskedQuestions") ||
+                        "Common Questions")}
+                    </h3>
+                    <div className="space-y-4">
+                      {productFaqs.map((faq, index) => {
+                        const isOpen = activeFaqIndex === index;
+                        return (
+                          <div key={`${faq.question}-${index}`} className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-neutral-300 bg-neutral-50' : 'border-gray-100 bg-gray-50/50 hover:bg-gray-100/50'}`}>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveFaqIndex(isOpen ? null : index)
+                              }
+                              className="w-full flex items-center justify-between text-left px-6 py-5 focus:outline-none"
+                            >
+                              <span className="text-base font-bold text-gray-800 pr-4">
+                                {faq.question}
+                              </span>
+                              <span className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#111111]' : 'text-gray-400'}`}>
+                                <FiChevronDown className="w-5 h-5" />
+                              </span>
+                            </button>
+                            <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                              <div className="px-6 pb-6 text-sm text-gray-600 leading-relaxed border-t border-store-100/50 pt-4">
+                                {faq.answerType === "yes" || faq.answerType === "no"
+                                  ? faq.answer
+                                  : faq.answer || faq.customAnswer || ""}
                               </div>
                             </div>
-                          )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
 
-                          {/* Manufacturer Details Section */}
-                          {product?.manufacturerDetails?.enabled !== false && product?.manufacturerDetails?.items?.length > 0 && (
-                            <div className="mt-8 py-6 bg-transparent">
-                              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                                {product?.manufacturerDetails?.title || "Manufacturer details"}
-                              </h3>
-                              <div className="space-y-2 text-sm text-gray-600 text-justify">
-                                {product.manufacturerDetails.items.map((item, idx) => (
-                                  <p key={idx} className="leading-relaxed">
-                                    {item}
-                                  </p>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                {/* Manufacturer Details Section */}
+                {product?.manufacturerDetails?.enabled !== false && product?.manufacturerDetails?.items?.length > 0 && (
+                  <div className="mt-8 py-6 bg-transparent">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      {product?.manufacturerDetails?.title || "Manufacturer details"}
+                    </h3>
+                    <div className="space-y-2 text-sm text-gray-600 text-justify">
+                      {product.manufacturerDetails.items.map((item, idx) => (
+                        <p key={idx} className="leading-relaxed">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                          {/* Disclaimer Section */}
-                          {product?.disclaimer?.enabled !== false && product?.disclaimer?.description && (
-                            <div className="mt-2 py-6 bg-transparent">
-                              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                                {product?.disclaimer?.title || "Disclaimer"}
-                              </h3>
-                              <div className="text-sm text-gray-600 leading-relaxed text-justify">
-                                <p className="leading-relaxed">
-                                  {typeof product.disclaimer.description === 'object' && product.disclaimer.description !== null
-                                    ? showingTranslateValue(product.disclaimer.description)
-                                    : product.disclaimer.description}
-                                </p>
-                              </div>
-                            </div>
-                          )}
+                {/* Disclaimer Section */}
+                {product?.disclaimer?.enabled !== false && product?.disclaimer?.description && (
+                  <div className="mt-2 py-6 bg-transparent">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      {product?.disclaimer?.title || "Disclaimer"}
+                    </h3>
+                    <div className="text-sm text-gray-600 leading-relaxed text-justify">
+                      <p className="leading-relaxed">
+                        {typeof product.disclaimer.description === 'object' && product.disclaimer.description !== null
+                          ? showingTranslateValue(product.disclaimer.description)
+                          : product.disclaimer.description}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-                          {/* Contact Section */}
-                          {/* <div className="mt-4 p-6 bg-white">
+                {/* Contact Section */}
+                {/* <div className="mt-4 p-6 bg-white">
                             <h3 className="text-lg font-bold text-gray-900 mb-4">
                               In case of any issues, contact us:
                             </h3>
@@ -1268,40 +1271,40 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
                             </div>
                           </div> */}
 
-                          {/* Enhanced Sticky Bottom Bar (Mobile only) */}
-                          {showStickyBottomBar && (
-                            <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-md border-t border-neutral-200/50 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] lg:hidden transition-all duration-300 slide-up">
-                              <div className="max-w-screen-2xl mx-auto px-5 py-4">
-                                <div className="flex items-center justify-between gap-6">
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="text-xs font-bold text-gray-500 truncate mb-1.5 uppercase tracking-wider">
-                                      {dynamicTitle || showingTranslateValue(product?.title)}
-                                    </h3>
-                                    <div className="flex items-baseline gap-2">
-                                      <span className="text-xl font-black text-gray-900 tracking-tight">
-                                        {currency}
-                                        {formatPrice(
-                                          price > 0 ? price : getNumber((product?.variants?.[0]?.price ?? product?.prices?.price) || 0)
-                                        )}
-                                      </span>
-                                      {discount > 0 && (
-                                        <span className="text-xs font-bold text-green-600">
-                                          ({discount}% OFF)
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() => handleAddToCart(product)}
-                                    type="button"
-                                    className="flex-shrink-0 h-12 px-8 text-sm font-semibold uppercase tracking-[0.14em] flex items-center justify-center bg-[#111111] text-white active:scale-95 transition-all"
-                                  >
-                                    Add To Cart
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                {/* Enhanced Sticky Bottom Bar (Mobile only) */}
+                {showStickyBottomBar && (
+                  <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-md border-t border-neutral-200/50 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] lg:hidden transition-all duration-300 slide-up">
+                    <div className="max-w-screen-2xl mx-auto px-5 py-4">
+                      <div className="flex items-center justify-between gap-6">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xs font-bold text-gray-500 truncate mb-1.5 uppercase tracking-wider">
+                            {dynamicTitle || showingTranslateValue(product?.title)}
+                          </h3>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black text-gray-900 tracking-tight">
+                              {currency}
+                              {formatPrice(
+                                price > 0 ? price : getNumber((product?.variants?.[0]?.price ?? product?.prices?.price) || 0)
+                              )}
+                            </span>
+                            {discount > 0 && (
+                              <span className="text-xs font-bold text-green-600">
+                                ({discount}% OFF)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          type="button"
+                          className="flex-shrink-0 h-12 px-8 text-sm font-semibold uppercase tracking-[0.14em] flex items-center justify-center bg-[#111111] text-white active:scale-95 transition-all"
+                        >
+                          Add To Cart
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </div>
 
