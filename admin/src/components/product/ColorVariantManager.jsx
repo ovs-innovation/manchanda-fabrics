@@ -308,7 +308,7 @@ const ColorVariantManager = ({
       if (!featuredImage && typeof setFeaturedImage === "function") {
         setFeaturedImage(firstImg);
       }
-      if (initialNewRows[0].colorName && typeof setDefaultColor === "function") {
+      if (initialNewRows[0].colorName && initialNewRows[0].colorName !== "Suit Color" && typeof setDefaultColor === "function") {
         setDefaultColor({
           colorName: initialNewRows[0].colorName,
           colorCode: initialNewRows[0].colorCode,
@@ -355,6 +355,13 @@ const ColorVariantManager = ({
                     : r
                 )
               );
+              // Also update default color if it was the first row
+              if (i === 0 && typeof setDefaultColor === "function") {
+                setDefaultColor({
+                  colorName: detectedColor.colorName,
+                  colorCode: detectedColor.colorCode || resolveHex("", detectedColor.colorName),
+                });
+              }
             }
           } catch (e) {
             console.warn("Background color extraction:", e);

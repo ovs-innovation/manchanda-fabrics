@@ -155,9 +155,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   const combinedColorVariants = useMemo(() => {
     const list = [];
     const seenColors = new Set();
+    const hasColorVariants =
+      product?.colorVariants &&
+      Array.isArray(product.colorVariants) &&
+      product.colorVariants.length > 0;
 
-    // 1. If colorVariants array has items, use them
-    if (product?.colorVariants && Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+    // 1. If colorVariants array has items, use them exclusively
+    if (hasColorVariants) {
       product.colorVariants.forEach((cv) => {
         const norm = (cv.colorName || "").trim().toLowerCase();
         if (norm && !seenColors.has(norm)) {
@@ -172,14 +176,16 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
           });
         }
       });
-    }
 
-    // 2. If defaultColorName is set and was not already present in colorVariants
-    if (product?.defaultColorName) {
+      // Ensure at least one variant is marked as default
+      if (list.length > 0 && !list.some((cv) => cv.isDefault)) {
+        list[0].isDefault = true;
+      }
+    } else if (product?.defaultColorName) {
+      // 2. ONLY use defaultColorName if the product has NO colorVariants defined
       const normDef = product.defaultColorName.trim().toLowerCase();
-      if (normDef && !seenColors.has(normDef)) {
-        seenColors.add(normDef);
-        list.unshift({
+      if (normDef && normDef !== "suit color") {
+        list.push({
           colorName: product.defaultColorName.trim(),
           colorCode: product.defaultColorCode || "#000000",
           images: productImages || [],
