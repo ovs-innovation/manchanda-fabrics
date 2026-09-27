@@ -21,10 +21,13 @@ const ProductImageGallery = ({
   const isAisha = variant === "aisha";
   const swiperRef = useRef(null);
   const thumbRefs = useRef([]);
+  const thumbContainerRef = useRef(null);
+  const galleryRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [modalVideoUrl, setModalVideoUrl] = useState("");
   const prevColorRef = useRef(selectedColorVar);
+  const isUserInteractingRef = useRef(false);
 
   // Helper media checkers
   const isVideoUrl = (url = "") => {
@@ -143,16 +146,43 @@ const ProductImageGallery = ({
     }
   }, [selectedColorVar, displaySlides, isLoop]);
 
-  // Scroll active thumbnail into view
+  // Scroll active thumbnail smoothly within its container ONLY (never scrolls window/page)
   useEffect(() => {
-    if (thumbRefs.current[activeIndex]) {
-      try {
-        thumbRefs.current[activeIndex].scrollIntoView({
+    const container = thumbContainerRef.current;
+    const thumb = thumbRefs.current[activeIndex];
+    if (!container || !thumb) return;
+
+    // Check if horizontal scroll (mobile / tablet strip)
+    if (container.scrollWidth > container.clientWidth) {
+      const containerRect = container.getBoundingClientRect();
+      const thumbRect = thumb.getBoundingClientRect();
+      const offsetLeft = thumbRect.left - containerRect.left;
+
+      if (offsetLeft < 0 || offsetLeft + thumbRect.width > containerRect.width) {
+        container.scrollTo({
+          left:
+            container.scrollLeft +
+            offsetLeft -
+            (container.clientWidth / 2 - thumbRect.width / 2),
           behavior: "smooth",
-          block: "nearest",
-          inline: "nearest",
         });
-      } catch (err) {}
+      }
+    }
+    // Check if vertical scroll (desktop vertical column)
+    else if (container.scrollHeight > container.clientHeight) {
+      const containerRect = container.getBoundingClientRect();
+      const thumbRect = thumb.getBoundingClientRect();
+      const offsetTop = thumbRect.top - containerRect.top;
+
+      if (offsetTop < 0 || offsetTop + thumbRect.height > containerRect.height) {
+        container.scrollTo({
+          top:
+            container.scrollTop +
+            offsetTop -
+            (container.clientHeight / 2 - thumbRect.height / 2),
+          behavior: "smooth",
+        });
+      }
     }
   }, [activeIndex]);
 
@@ -167,11 +197,45 @@ const ProductImageGallery = ({
     }
   }, [activeIndex, displaySlides]);
 
+  // Stop autoplay when user scrolls down away from gallery
+  useEffect(() => {
+    const el = galleryRef.current;
+    if (!el || typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!swiperRef.current?.autoplay) return;
+        if (entry.isIntersecting) {
+          const currentSlide = displaySlides[activeIndex];
+          if (
+            !isVideoUrl(currentSlide?.url) &&
+            !isYoutubeUrl(currentSlide?.url) &&
+            displaySlides.length > 1
+          ) {
+            try {
+              swiperRef.current.autoplay.start();
+            } catch (e) {}
+          }
+        } else {
+          // Immediately pause autoplay when gallery is scrolled out of viewport
+          try {
+            swiperRef.current.autoplay.stop();
+          } catch (e) {}
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [activeIndex, displaySlides]);
+
   const handleSlideChange = (swiper) => {
     const idx = isLoop ? swiper.realIndex : swiper.activeIndex;
     setActiveIndex(idx);
     const activeSlide = displaySlides[idx];
-    if (activeSlide?.colorVar && onColorVarChange) {
+    // Only synchronize variant if the user manually swiped/clicked, NOT on automatic autoplay
+    if (isUserInteractingRef.current && activeSlide?.colorVar && onColorVarChange) {
       prevColorRef.current = activeSlide.colorVar;
       onColorVarChange(activeSlide.colorVar);
     }
@@ -179,6 +243,7 @@ const ProductImageGallery = ({
 
   const handleThumbnailClick = (index) => {
     if (index >= 0 && index < displaySlides.length) {
+      isUserInteractingRef.current = true;
       if (swiperRef.current) {
         if (isLoop && typeof swiperRef.current.slideToLoop === "function") {
           swiperRef.current.slideToLoop(index, 400);
@@ -192,20 +257,31 @@ const ProductImageGallery = ({
         prevColorRef.current = activeSlide.colorVar;
         onColorVarChange(activeSlide.colorVar);
       }
+      setTimeout(() => {
+        isUserInteractingRef.current = false;
+      }, 450);
     }
   };
 
   const handlePrev = (e) => {
     e?.stopPropagation?.();
     if (swiperRef.current) {
+      isUserInteractingRef.current = true;
       swiperRef.current.slidePrev(400);
+      setTimeout(() => {
+        isUserInteractingRef.current = false;
+      }, 450);
     }
   };
 
   const handleNext = (e) => {
     e?.stopPropagation?.();
     if (swiperRef.current) {
+      isUserInteractingRef.current = true;
       swiperRef.current.slideNext(400);
+      setTimeout(() => {
+        isUserInteractingRef.current = false;
+      }, 450);
     }
   };
 
@@ -216,10 +292,16 @@ const ProductImageGallery = ({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start bg-transparent">
+    <div
+      ref={galleryRef}
+      className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:items-start bg-transparent"
+    >
       {/* Thumbnail Strip: Left Vertical on Desktop, Horizontal Scroll on Mobile */}
       {displaySlides.length > 1 && (
-        <div className="flex lg:flex-col flex-row gap-2.5 order-2 lg:order-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto max-h-[560px] pb-2 lg:pb-0 scrollbar-thin select-none">
+        <div
+          ref={thumbContainerRef}
+          className="flex lg:flex-col flex-row gap-2.5 order-2 lg:order-1 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto max-h-[560px] pb-2 lg:pb-0 scrollbar-thin select-none"
+        >
           {displaySlides.map((slide, index) => {
             const isSlideActive = index === activeIndex;
             const mediaUrl = slide.url;
@@ -363,12 +445,20 @@ const ProductImageGallery = ({
             autoplay={
               displaySlides.length > 1
                 ? {
-                    delay: 3500,
+                    delay: 4500,
                     disableOnInteraction: false,
                     pauseOnMouseEnter: true,
                   }
                 : false
             }
+            onTouchStart={() => {
+              isUserInteractingRef.current = true;
+            }}
+            onTouchEnd={() => {
+              setTimeout(() => {
+                isUserInteractingRef.current = false;
+              }, 450);
+            }}
             onSwiper={(swiper) => {
               swiperRef.current = swiper;
             }}
