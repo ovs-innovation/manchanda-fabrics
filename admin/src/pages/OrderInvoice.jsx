@@ -33,7 +33,12 @@ const labelPrintPageStyle = `
       size: 4in 6in !important;
       margin: 0 !important;
     }
+    *, *:before, *:after {
+      box-sizing: border-box !important;
+    }
     html, body {
+      width: 4in !important;
+      height: 6in !important;
       margin: 0 !important;
       padding: 0 !important;
       background: #ffffff !important;
@@ -43,6 +48,7 @@ const labelPrintPageStyle = `
     .shipping-label-wrapper {
       width: 4in !important;
       height: 6in !important;
+      min-height: 6in !important;
       max-height: 6in !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
@@ -159,39 +165,33 @@ const OrderInvoice = () => {
     }
   };
 
-  const handleDownloadShippingLabel = async () => {
-    const el =
-      labelPrintRef.current || document.getElementById("shipping-label-to-print");
-    if (!el) {
-      notifyError("Shipping label element not found");
-      return;
-    }
+  const handleDownloadShippingLabel = () => {
+    handlePrintShippingLabel();
+  };
+
+  const handleBack = () => {
     try {
-      setLabelPdfDownloading(true);
-      await downloadShippingLabelPdf(
-        el,
-        `Shipping-Label-${data?.invoice || id}.pdf`
-      );
-      notifySuccess("Shipping label downloaded successfully!");
-    } catch (err) {
-      console.error("PDF download error:", err);
-      notifyError(err?.message || "Could not download shipping label");
-    } finally {
-      setLabelPdfDownloading(false);
+      if (window.history.length > 1 && history.action === "PUSH") {
+        history.goBack();
+      } else {
+        history.push("/orders");
+      }
+    } catch (e) {
+      history.push("/orders");
     }
   };
 
   return (
     <>
       <div className="flex items-center gap-2 mb-4 mt-2">
-        <Button
-          layout="link"
-          onClick={() => history.goBack()}
-          className="p-0 text-store-500 hover:text-store-600 h-auto"
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:text-store-600 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xs text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
         >
-          <FiArrowLeft className="w-5 h-5 mr-1" />
-          <span className="text-sm font-bold uppercase tracking-wider">{t("Back")}</span>
-        </Button>
+          <FiArrowLeft className="w-4 h-4 mr-0.5" />
+          <span>{t("Back") || "Back"}</span>
+        </button>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -249,13 +249,14 @@ const OrderInvoice = () => {
               ) : (
                 <button
                   type="button"
-                  disabled={labelPdfDownloading}
-                  onClick={handleDownloadShippingLabel}
-                  className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-amber-600 border border-transparent active:bg-amber-700 hover:bg-amber-700 cursor-pointer disabled:opacity-60 shadow-sm"
+                  onClick={handlePrintShippingLabel}
+                  className="flex items-center gap-2 text-sm leading-5 transition-all duration-150 font-semibold focus:outline-none px-5 py-2.5 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 border border-transparent shadow-sm cursor-pointer active:scale-95"
+                  title="Save crisp 4x6 vector PDF or print directly to thermal printer"
                 >
-                  {labelPdfDownloading ? "Preparing Label..." : "Download 4x6 Label PDF"}
-                  <span className="ml-2 text-base">
-                    <IoCloudDownloadOutline />
+                  <FiPrinter className="w-4 h-4" />
+                  <span>Print / Save 4x6 Label (PDF)</span>
+                  <span className="bg-emerald-800/60 text-emerald-100 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    4"×6"
                   </span>
                 </button>
               )}
@@ -292,25 +293,14 @@ const OrderInvoice = () => {
                 </div>
               )}
 
-              {/* DIRECT PRINT BUTTON VIA HOOK */}
-              {activeTab === "invoice" ? (
+              {/* DIRECT PRINT BUTTON FOR INVOICE */}
+              {activeTab === "invoice" && (
                 <button
                   type="button"
                   onClick={handlePrintInvoice}
                   className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-indigo-500 border border-transparent active:bg-indigo-600 hover:bg-indigo-600 h-10 justify-center cursor-pointer"
                 >
                   Print Invoice
-                  <span className="ml-2">
-                    <FiPrinter />
-                  </span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handlePrintShippingLabel}
-                  className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-emerald-600 border border-transparent active:bg-emerald-700 hover:bg-emerald-700 h-10 justify-center shadow-sm cursor-pointer"
-                >
-                  Print Shipping Label (4"×6")
                   <span className="ml-2">
                     <FiPrinter />
                   </span>

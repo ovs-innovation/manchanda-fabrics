@@ -4,6 +4,7 @@ import React from "react";
 import InvoiceOrderTable from "@/components/invoice/InvoiceOrderTable";
 import { getStoreAddress, getStoreCompanyName } from "@/utils/storeBrand";
 import { calculateInvoiceTotals } from "@/utils/invoicePricing";
+import { ADMIN_BRAND_LOGO, resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const InvoiceLayout = ({
   data,
@@ -14,7 +15,10 @@ const InvoiceLayout = ({
   storeCustomizationSetting,
   showingTranslateValue,
 }) => {
-  const isReseller = data?.orderType === "RESELLER";
+  const isReseller =
+    data?.orderType === "RESELLER" ||
+    String(data?.orderType).toUpperCase() === "RESELLER" ||
+    Boolean(data?.reseller_info?.name);
 
   const { mrpTotal, totalDiscount, totalGst } = calculateInvoiceTotals(
     data?.cart,
@@ -33,6 +37,9 @@ const InvoiceLayout = ({
       : dayjs().format("YYYY");
     return isReseller ? `PKG/${year}/${invStr}` : `MF/${year}/${invStr}`;
   };
+
+  const brandLogo =
+    resolveCloudinaryUrl(globalSetting?.logo) || ADMIN_BRAND_LOGO;
 
   const defaultCompanyName = getStoreCompanyName();
   const defaultCompanyAddress = getStoreAddress({
@@ -118,6 +125,14 @@ const InvoiceLayout = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 border-b border-[#222] text-sm">
           <div className="p-4 border-b md:border-b-0 md:border-r border-[#222]">
+            {!isReseller && brandLogo && (
+              <img
+                src={brandLogo}
+                alt={sellerName}
+                crossOrigin="anonymous"
+                className="h-10 w-auto max-w-[120px] object-contain mb-2"
+              />
+            )}
             <p className="text-xs font-semibold text-[#333] mb-1">
               {isReseller ? "Dispatched / Sold By" : "Sold By"}
             </p>

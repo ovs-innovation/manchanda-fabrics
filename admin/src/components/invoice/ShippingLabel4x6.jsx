@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { FiPhone, FiAlertTriangle } from "react-icons/fi";
 
 import { getStoreAddress, getStoreCompanyName } from "@/utils/storeBrand";
+import { ADMIN_BRAND_LOGO, resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
 const ShippingLabel4x6 = ({
   data,
@@ -17,7 +18,13 @@ const ShippingLabel4x6 = ({
   const barcodeRef = useRef(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
-  const isReseller = data?.orderType === "RESELLER";
+  const brandLogo =
+    resolveCloudinaryUrl(globalSetting?.logo) || ADMIN_BRAND_LOGO;
+
+  const isReseller =
+    data?.orderType === "RESELLER" ||
+    String(data?.orderType).toUpperCase() === "RESELLER" ||
+    Boolean(data?.reseller_info?.name);
 
   const isCod =
     !isReseller &&
@@ -43,7 +50,7 @@ const ShippingLabel4x6 = ({
         data?.reseller_info?.zipCode,
       ].filter(Boolean).join(", ") +
       (data?.reseller_info?.contact ? ` • Phone: ${data?.reseller_info?.contact}` : "")
-    : `Chandni Chowk, Delhi - 110006 • ${globalSetting?.contact || "Luxury Indian Fabrics"}`;
+    : "Chandni Chowk, Delhi - 110006";
 
   const senderFullAddress = isReseller
     ? [
@@ -196,30 +203,40 @@ const ShippingLabel4x6 = ({
         }}
       >
         {/* 1. HEADER: SENDER & ROUTING BADGE */}
-        <div className="border-b-2 border-black p-2 flex items-center justify-between bg-white">
-          <div className="flex-1 pr-2">
-            <h1 className="text-[13px] font-black tracking-wider uppercase leading-none text-black truncate">
-              {senderName}
-            </h1>
-            <p className="text-[8.5px] font-semibold text-gray-700 leading-tight mt-0.5 truncate">
-              {senderSubtext}
-            </p>
-            <div className="inline-block mt-1 bg-black text-white text-[7.5px] font-black tracking-widest px-1.5 py-0.5 rounded-sm uppercase">
-              STANDARD EXPRESS DELIVERY SLIP
+        <div className="border-b-2 border-black p-1.5 flex items-center justify-between bg-white gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {!isReseller && brandLogo && (
+              <img
+                src={brandLogo}
+                alt={senderName}
+                crossOrigin="anonymous"
+                className="h-9 w-auto max-w-[52px] object-contain shrink-0"
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-[11px] font-black uppercase tracking-wide leading-none text-black whitespace-nowrap">
+                {senderName}
+              </h1>
+              <p className="text-[7.5px] font-semibold text-gray-700 leading-tight mt-0.5 whitespace-nowrap">
+                {senderSubtext}
+              </p>
+              <div className="inline-block mt-0.5 bg-black text-white text-[6.5px] font-black tracking-wider px-1.5 py-0.5 rounded-xs uppercase leading-none">
+                STANDARD EXPRESS DELIVERY SLIP
+              </div>
             </div>
           </div>
 
           <div
-            className={`px-2 py-1.5 text-center border-2 border-black flex flex-col justify-center ${
+            className={`px-2 py-1 text-center border-2 border-black flex flex-col justify-center shrink-0 ${
               isCod ? "bg-black text-white" : "bg-white text-black"
             }`}
-            style={{ minWidth: "1.3in" }}
+            style={{ width: "1.1in" }}
           >
-            <div className="text-[12px] font-black uppercase tracking-wider leading-tight">
+            <div className="text-[11.5px] font-black uppercase tracking-wider leading-tight">
               {isCod ? "COD" : "PREPAID"}
             </div>
             <div
-              className={`text-[8.5px] font-extrabold mt-0.5 leading-none ${
+              className={`text-[8px] font-extrabold mt-0.5 leading-none ${
                 isCod ? "text-white" : "text-gray-900"
               }`}
             >
@@ -291,56 +308,71 @@ const ShippingLabel4x6 = ({
         </div>
 
         {/* 4. RETURN TO & PACKAGE DETAILS */}
-        <div className="border-b border-black grid grid-cols-2 text-[8.5px] leading-tight bg-white">
-          <div className="p-1.5 border-r border-black">
-            <span className="font-extrabold uppercase text-gray-600 block text-[7.5px]">
-              If undelivered, return to:
-            </span>
-            <div className="font-black text-[9px] text-black mt-0.5">{senderName}</div>
-            <div className="text-gray-800 leading-tight mt-0.5 text-[8px] break-words">
-              {senderFullAddress}
+        {!isReseller ? (
+          <div className="border-b border-black grid grid-cols-2 text-[8.5px] leading-tight bg-white">
+            <div className="p-1.5 border-r border-black">
+              <span className="font-extrabold uppercase text-gray-600 block text-[7.5px]">
+                If undelivered, return to:
+              </span>
+              <div className="font-black text-[9px] text-black mt-0.5">{senderName}</div>
+              <div className="text-gray-800 leading-tight mt-0.5 text-[8px] break-words">
+                {senderFullAddress}
+              </div>
+              {globalSetting?.gstin && (
+                <div className="font-bold text-gray-900 mt-0.5 text-[8px]">
+                  GSTIN: {globalSetting.gstin}
+                </div>
+              )}
             </div>
-            {!isReseller && globalSetting?.gstin && (
-              <div className="font-bold text-gray-900 mt-0.5 text-[8px]">
-                GSTIN: {globalSetting.gstin}
-              </div>
-            )}
-          </div>
 
-          <div className="p-1.5 flex flex-col justify-between">
-            <div className="space-y-0.5">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Items:</span>
-                <span className="font-bold text-black">{totalItemsCount} Unit(s)</span>
+            <div className="p-1.5 flex flex-col justify-between">
+              <div className="space-y-0.5">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Items:</span>
+                  <span className="font-bold text-black">{totalItemsCount} Unit(s)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Shipping:</span>
+                  <span className="font-bold text-black">
+                    {data?.shippingCost > 0
+                      ? `${currency}${data.shippingCost}`
+                      : "FREE"}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Shipping:</span>
-                <span className="font-bold text-black">
-                  {isReseller
-                    ? "EXPRESS"
-                    : data?.shippingCost > 0
-                    ? `${currency}${data.shippingCost}`
-                    : "FREE"}
+              <div className="border-t border-dotted border-gray-400 pt-0.5 flex justify-between font-bold text-[8.5px]">
+                <span>Payment Mode:</span>
+                <span className="uppercase text-black">
+                  {data?.paymentMethod || (isCod ? "COD" : "PREPAID")}
                 </span>
               </div>
             </div>
-            <div className="border-t border-dotted border-gray-400 pt-0.5 flex justify-between font-bold text-[8.5px]">
-              <span>Payment Mode:</span>
-              <span className="uppercase text-black">
-                {isReseller ? "PREPAID" : (data?.paymentMethod || (isCod ? "COD" : "PREPAID"))}
-              </span>
+          </div>
+        ) : (
+          <div className="border-b border-black px-3 py-1.5 bg-white flex justify-between items-center text-[8.5px]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-gray-600 font-semibold">Total Items:</span>
+              <span className="font-black text-black">{totalItemsCount} Unit(s)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-gray-600 font-semibold">Shipping:</span>
+              <span className="font-black text-black">EXPRESS</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-gray-600 font-semibold">Payment Mode:</span>
+              <span className="font-black uppercase text-black">PREPAID</span>
             </div>
           </div>
-        </div>
+        )}
 
         {/* 5. ITEM CONTENTS SUMMARY */}
         <div className="border-b-2 border-black bg-white">
           {/* Header */}
           <div className="bg-gray-100 border-b border-black text-[8px] uppercase font-black text-gray-800 flex items-stretch">
-            <div className="w-7 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">#</div>
+            <div className="w-6 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">#</div>
             <div className="flex-1 py-1 px-2 border-r border-gray-300">Product Description</div>
-            <div className="w-10 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">Qty</div>
-            <div className="w-20 py-1 pr-2 text-right flex-shrink-0">
+            <div className="w-8 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">Qty</div>
+            <div className="w-24 py-1 pr-2.5 text-right flex-shrink-0">
               {isReseller ? "Status" : "Amount"}
             </div>
           </div>
@@ -351,25 +383,29 @@ const ShippingLabel4x6 = ({
               typeof item?.title === "object"
                 ? showingTranslateValue(item?.title)
                 : item?.title || "Fabric Suit Set";
+            const itemTotal = (item?.price || 0) * (item?.quantity || 1);
             return (
               <div
                 key={idx}
                 className="flex items-stretch border-b border-gray-200 text-[8.5px] bg-white"
                 style={{ minHeight: "22px" }}
               >
-                <div className="w-7 py-1 px-1 text-center font-mono font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
+                <div className="w-6 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
                   {idx + 1}
                 </div>
-                <div className="flex-1 py-1 px-2 border-r border-gray-200 font-semibold text-gray-900 leading-snug flex items-center">
+                <div className="flex-1 py-1 px-2 border-r border-gray-200 font-semibold text-gray-900 leading-snug flex items-center min-w-0">
                   <span className="block truncate">{title}</span>
                 </div>
-                <div className="w-10 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
                   {item?.quantity || 1}
                 </div>
-                <div className="w-20 py-1 pr-2 text-right font-mono font-bold text-black flex items-center justify-end flex-shrink-0">
+                <div className="w-24 py-1 pr-2.5 text-right font-bold text-black flex items-center justify-end flex-shrink-0">
                   {isReseller
                     ? "PREPAID"
-                    : `${currency}${((item?.price || 0) * (item?.quantity || 1)).toFixed(2)}`}
+                    : `${currency}${itemTotal.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`}
                 </div>
               </div>
             );

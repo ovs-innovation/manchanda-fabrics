@@ -77,17 +77,29 @@ const ProductDetails = () => {
 
   console.log("product", data);
 
+  const handleBack = () => {
+    try {
+      if (window.history.length > 1 && history.action === "PUSH") {
+        history.goBack();
+      } else {
+        history.push("/products");
+      }
+    } catch (e) {
+      history.push("/products");
+    }
+  };
+
   return (
     <>
       <div className="flex items-center gap-2 mb-4 mt-2">
-        <Button
-          layout="link"
-          onClick={() => history.goBack()}
-          className="p-0 text-store-500 hover:text-store-600 h-auto"
+        <button
+          type="button"
+          onClick={handleBack}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:text-store-600 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xs text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
         >
-          <FiArrowLeft className="w-5 h-5 mr-1" />
-          <span className="text-sm font-bold uppercase tracking-wider">{t("Back")}</span>
-        </Button>
+          <FiArrowLeft className="w-4 h-4 mr-0.5" />
+          <span>{t("Back") || "Back"}</span>
+        </button>
       </div>
 
       <PageTitle>{t("ProductDetails")}</PageTitle>

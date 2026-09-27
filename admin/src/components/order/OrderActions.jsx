@@ -1,12 +1,46 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@windmill/react-ui";
-import { FiMoreVertical, FiTrash2 } from "react-icons/fi";
+import {
+  FiMoreVertical,
+  FiTrash2,
+  FiDownload,
+  FiEye,
+  FiTag,
+  FiXCircle,
+} from "react-icons/fi";
 import { Link } from "react-router-dom";
 
 import { notifyError, notifySuccess } from "@/utils/toast";
 import ShiprocketServices from "@/services/ShiprocketServices";
 import OrderServices from "@/services/OrderServices";
+
+const getDropdownPlacement = (btnEl) => {
+  if (!btnEl) return { top: 0, left: 0 };
+  const rect = btnEl.getBoundingClientRect();
+  const menuWidth = 192; // w-48 = 192px
+  const menuHeight = 215; // approximate total height of 5 items + divider
+
+  // Right-align with the 3-dots button
+  let left = rect.right - menuWidth;
+  if (left < 10) left = 10;
+  if (left + menuWidth > window.innerWidth - 10) {
+    left = window.innerWidth - menuWidth - 10;
+  }
+
+  // Open below button by default; only flip above if bottom space is genuinely insufficient
+  const spaceBelow = window.innerHeight - rect.bottom;
+  let top;
+
+  if (spaceBelow >= menuHeight + 10) {
+    top = rect.bottom + 4;
+  } else if (rect.top >= menuHeight + 10) {
+    top = rect.top - menuHeight - 4;
+  } else {
+    top = Math.max(10, window.innerHeight - menuHeight - 10);
+  }
+
+  return { top, left };
+};
 
 const OrderActions = ({ order, handleModalOpen }) => {
   const [open, setOpen] = useState(false);
@@ -16,19 +50,23 @@ const OrderActions = ({ order, handleModalOpen }) => {
 
   const toggleMenu = (e) => {
     e.stopPropagation();
-    if (!open && btnRef.current) {
-      const rect = btnRef.current.getBoundingClientRect();
-      setDropdownPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.right + window.scrollX - 176, // approx w-44 width
-      });
+    if (open) {
+      setOpen(false);
+    } else if (btnRef.current) {
+      const pos = getDropdownPlacement(btnRef.current);
+      setDropdownPos(pos);
+      setOpen(true);
     }
-    setOpen((prev) => !prev);
   };
 
-  // Close on click outside
+  // Close immediately on scroll, click outside, or Escape
   useEffect(() => {
     if (!open) return;
+
+    // Immediately close when user scrolls anywhere (main container, table, or window)
+    const handleScroll = () => {
+      setOpen(false);
+    };
 
     const handleClickOutside = (event) => {
       if (
@@ -41,42 +79,27 @@ const OrderActions = ({ order, handleModalOpen }) => {
       }
     };
 
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    // capture: true intercepts scroll on <main> and horizontal table scrollbars
+    window.addEventListener("scroll", handleScroll, { capture: true, passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      window.removeEventListener("scroll", handleScroll, { capture: true });
+      window.removeEventListener("resize", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
-
-  const handleDownloadShiprocketInvoice = async () => {
-    try {
-      const srOrderId = order?.shiprocket?.order_id;
-      if (!srOrderId) {
-        return notifyError("Shiprocket order ID not found for this order.");
-      }
-      const res = await ShiprocketServices.downloadInvoice({
-        srOrderId,
-        orderId: order._id,
-      });
-      const url =
-        res?.data?.invoice_url ||
-        res?.data?.url ||
-        res?.invoice_url ||
-        res?.pdf_url;
-
-      if (!url) {
-        return notifyError("No invoice URL returned from Shiprocket.");
-      }
-      window.open(url, "_blank");
-      notifySuccess("Invoice downloaded successfully.");
-    } catch (err) {
-      notifyError(err?.response?.data?.error || err.message);
-    } finally {
-      setOpen(false);
-    }
-  };
 
   const handleCancelOrder = async () => {
     try {
@@ -107,67 +130,90 @@ const OrderActions = ({ order, handleModalOpen }) => {
         type="button"
         ref={btnRef}
         onClick={toggleMenu}
-        className="p-2 text-gray-500 hover:text-store-600 focus:outline-none"
+        className={`p-2 rounded-lg transition-colors focus:outline-none ${
+          open
+            ? "text-teal-600 bg-teal-50 dark:bg-teal-900/30"
+            : "text-gray-500 hover:text-teal-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+        }`}
+        title="More Actions"
       >
-        <FiMoreVertical />
+        <FiMoreVertical size={16} />
       </button>
 
-      {open && createPortal(
-        <div
-          ref={menuRef}
-          className="absolute z-[9999] mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md shadow-lg text-sm"
-          style={{ top: `${dropdownPos.top}px`, left: `${dropdownPos.left}px` }}
-        >
-          <Link
-            to={`/order/${order._id}`}
-            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between text-gray-700 dark:text-gray-300 no-underline"
-            style={{ textDecoration: "none" }}
-            onClick={() => setOpen(false)}
-          >
-            <span>Download Invoice</span>
-          </Link>
-          <Link
-            to={`/order/${order._id}?view=label`}
-            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between text-gray-700 dark:text-gray-300 no-underline"
-            style={{ textDecoration: "none" }}
-            onClick={() => setOpen(false)}
-          >
-            <span>Box Label (4x6)</span>
-            <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">
-              Thermal
-            </span>
-          </Link>
-          <Link
-            to={`/order/${order._id}`}
-            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 block text-gray-700 dark:text-gray-300"
-            onClick={() => setOpen(false)}
-          >
-            View Invoice
-          </Link>
-          <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
-          <button
-            type="button"
-            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-amber-600 font-medium"
-            onClick={handleCancelOrder}
-          >
-            Cancel Order
-          </button>
-          <button
-            type="button"
-            className="w-full text-left px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 font-medium flex items-center gap-1.5"
-            onClick={() => {
-              setOpen(false);
-              if (handleModalOpen) {
-                handleModalOpen(order._id, `Order #${order.invoice}`);
-              }
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{
+              position: "fixed",
+              top: `${dropdownPos.top}px`,
+              left: `${dropdownPos.left}px`,
+              zIndex: 9999,
             }}
+            className="w-48 bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 rounded-xl shadow-2xl py-1 text-xs font-medium text-gray-700 dark:text-gray-200 ring-1 ring-black/5 animate-in fade-in duration-100 select-none overflow-hidden"
           >
-            <FiTrash2 className="text-sm shrink-0" />
-            <span>Delete Order</span>
-          </button>
-        </div>,
-        document.body
-      )}
+            <Link
+              to={`/order/${order._id}`}
+              className="w-full text-left px-3.5 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2.5 text-gray-700 dark:text-gray-200 transition-colors no-underline"
+              style={{ textDecoration: "none" }}
+              onClick={() => setOpen(false)}
+            >
+              <FiDownload className="text-sm text-gray-400 dark:text-gray-400 shrink-0" />
+              <span>Download Invoice</span>
+            </Link>
+
+            <Link
+              to={`/order/${order._id}?view=label`}
+              className="w-full text-left px-3.5 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-colors no-underline"
+              style={{ textDecoration: "none" }}
+              onClick={() => setOpen(false)}
+            >
+              <div className="flex items-center gap-2.5 text-gray-700 dark:text-gray-200">
+                <FiTag className="text-sm text-gray-400 dark:text-gray-400 shrink-0" />
+                <span>Box Label (4x6)</span>
+              </div>
+              <span className="text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded">
+                Thermal
+              </span>
+            </Link>
+
+            <Link
+              to={`/order/${order._id}`}
+              className="w-full text-left px-3.5 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2.5 text-gray-700 dark:text-gray-200 transition-colors no-underline"
+              style={{ textDecoration: "none" }}
+              onClick={() => setOpen(false)}
+            >
+              <FiEye className="text-sm text-gray-400 dark:text-gray-400 shrink-0" />
+              <span>View Invoice</span>
+            </Link>
+
+            <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+
+            <button
+              type="button"
+              className="w-full text-left px-3.5 py-2.5 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center gap-2.5 font-medium transition-colors"
+              onClick={handleCancelOrder}
+            >
+              <FiXCircle className="text-sm shrink-0" />
+              <span>Cancel Order</span>
+            </button>
+
+            <button
+              type="button"
+              className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center gap-2.5 font-medium transition-colors"
+              onClick={() => {
+                setOpen(false);
+                if (handleModalOpen) {
+                  handleModalOpen(order._id, `Order #${order.invoice}`);
+                }
+              }}
+            >
+              <FiTrash2 className="text-sm shrink-0" />
+              <span>Delete Order</span>
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

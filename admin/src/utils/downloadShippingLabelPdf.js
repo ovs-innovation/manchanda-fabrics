@@ -9,8 +9,13 @@ const downloadShippingLabelPdf = async (
     throw new Error("Shipping label element not found");
   }
 
+  // Exact 4" × 6" dimensions in millimeters
+  const pdfWidth = 101.6;
+  const pdfHeight = 152.4;
+
+  // Ultra-high 4x density render (~384 DPI) for razor-sharp barcodes and text
   const canvas = await html2canvas(element, {
-    scale: 2,
+    scale: 4,
     useCORS: true,
     logging: false,
     backgroundColor: "#ffffff",
@@ -18,11 +23,8 @@ const downloadShippingLabelPdf = async (
     scrollY: 0,
   });
 
-  const imgData = canvas.toDataURL("image/jpeg", 0.98);
-
-  // Exact 4" × 6" dimensions in millimeters
-  const pdfWidth = 101.6;
-  const pdfHeight = 152.4;
+  // Lossless PNG: Zero compression artifacts, perfect crisp borders and typography
+  const imgData = canvas.toDataURL("image/png");
 
   const pdf = new jsPDF({
     orientation: "portrait",
@@ -31,24 +33,16 @@ const downloadShippingLabelPdf = async (
     compress: true,
   });
 
-  // Calculate strict aspect-ratio preserving dimensions
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
-  const ratio = Math.min((pdfWidth - 2) / imgWidth, (pdfHeight - 2) / imgHeight);
-  const renderWidth = imgWidth * ratio;
-  const renderHeight = imgHeight * ratio;
-  const x = (pdfWidth - renderWidth) / 2;
-  const y = (pdfHeight - renderHeight) / 2;
-
+  // Exact full-bleed 4" x 6" fit with zero shrinking margins
   pdf.addImage(
     imgData,
-    "JPEG",
-    x,
-    y,
-    renderWidth,
-    renderHeight,
+    "PNG",
+    0,
+    0,
+    pdfWidth,
+    pdfHeight,
     undefined,
-    "FAST"
+    "SLOW"
   );
 
   pdf.save(filename);
