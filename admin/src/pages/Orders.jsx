@@ -411,7 +411,7 @@ const Orders = () => {
                               {col === "time" && t("TimeTbl")}
                               {col === "orderType" && "Order Type"}
                               {col === "customerName" && t("CustomerName")}
-                              {col === "productName" && "Product Name"}
+                              {col === "productName" && "Products (with Image)"}
                               {col === "contact" && "Contact"}
                               {col === "shippingCost" && "Shipping Cost"}
                               {col === "discount" && "Discount"}
@@ -542,8 +542,8 @@ const Orders = () => {
                       </TableCell>
                     )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap min-w-[200px]">
-                        Product Name
+                      <TableCell className="whitespace-nowrap min-w-[280px]">
+                        Products & Items
                       </TableCell>
                     )}
                     {visibleColumns.contact && (

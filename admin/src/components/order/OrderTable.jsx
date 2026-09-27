@@ -1,9 +1,10 @@
 import { TableBody, TableCell, TableRow } from "@windmill/react-ui";
 
 import { useTranslation } from "react-i18next";
-import { FiZoomIn, FiEdit2, FiCheck, FiX } from "react-icons/fi";
+import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 //internal import
 
@@ -16,6 +17,23 @@ import OrderActions from "@/components/order/OrderActions";
 import CheckBox from "@/components/form/others/CheckBox";
 import OrderServices from "@/services/OrderServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
+
+// Helper to reliably extract the exact product/variant image from a cart item
+const getItemImage = (item) => {
+  if (typeof item?.image === "string" && item.image.trim()) return item.image.trim();
+  if (Array.isArray(item?.image) && item.image[0]) return item.image[0];
+  if (typeof item?.img === "string" && item.img.trim()) return item.img.trim();
+  if (typeof item?.featuredImage === "string" && item.featuredImage.trim()) return item.featuredImage.trim();
+  if (Array.isArray(item?.images) && item.images[0]) return item.images[0];
+  if (Array.isArray(item?.colorVariants)) {
+    const match = item.colorVariants.find(
+      (cv) => cv?.colorName?.toLowerCase() === item?.color?.toLowerCase()
+    );
+    if (match?.images?.[0]) return match.images[0];
+    if (item.colorVariants[0]?.images?.[0]) return item.colorVariants[0].images[0];
+  }
+  return "";
+};
 
 // Inline editable shipping ID cell
 const ShippingIdCell = ({ orderId, initialValue }) => {
@@ -112,6 +130,8 @@ const OrderTable = ({
     showingTranslateValue,
   } = useUtilsFunction();
 
+  const [previewItem, setPreviewItem] = useState(null);
+
   const handleClick = (e) => {
     const { id, checked } = e.target;
     if (checked) {
@@ -131,7 +151,7 @@ const OrderTable = ({
           orderType: true,
           customerName: true,
           customerId: false,
-          productName: false,
+          productName: true,
           productId: false,
           contact: true,
           shippingCost: true,
@@ -212,19 +232,92 @@ const OrderTable = ({
             )}
 
             {columns.productName && (
-              <TableCell className="whitespace-normal min-w-[200px] max-w-[280px]">
-                <div className="flex flex-col gap-1 min-w-[180px]">
-                  {order?.cart?.map((item, index) => (
-                    <span
-                      key={index}
-                      className="text-xs text-gray-600 font-semibold dark:text-gray-400 leading-tight"
-                    >
-                      •{" "}
-                      {typeof item.title === "object"
+              <TableCell className="whitespace-normal min-w-[280px] max-w-[380px] py-3">
+                <div className="flex flex-col gap-2 min-w-[260px]">
+                  {order?.cart?.map((item, index) => {
+                    const itemImg = getItemImage(item);
+                    const itemTitle =
+                      typeof item.title === "object"
                         ? showingTranslateValue(item.title)
-                        : item.title}
-                    </span>
-                  ))}
+                        : item.title;
+                    const itemColor =
+                      item.color ||
+                      item.variant?.color ||
+                      item.variantTitle ||
+                      item.defaultColorName;
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start gap-2.5 p-1.5 rounded-lg bg-gray-50/80 hover:bg-gray-100/90 dark:bg-gray-800/50 dark:hover:bg-gray-800/90 transition-colors border border-gray-100 dark:border-gray-700/60"
+                      >
+                        {/* Product Thumbnail with Click to Zoom */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (itemImg) {
+                              setPreviewItem({
+                                src: itemImg,
+                                title: itemTitle,
+                                color: itemColor,
+                                invoice: order?.invoice,
+                                price: item.price,
+                                quantity: item.quantity || 1,
+                                slug: item.slug,
+                              });
+                            }
+                          }}
+                          className={`relative flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-xs group/thumb focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                            itemImg ? "cursor-pointer" : "cursor-default"
+                          }`}
+                          title={itemImg ? "Click to enlarge product image" : "No image available"}
+                        >
+                          {itemImg ? (
+                            <>
+                              <img
+                                src={itemImg}
+                                alt={itemTitle || "Product"}
+                                className="w-full h-full object-cover transition-transform duration-200 group-hover/thumb:scale-110"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-black/35 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity text-white">
+                                <FiZoomIn size={16} />
+                              </div>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100 dark:bg-gray-800">
+                              <FiImage size={18} />
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className="text-xs font-semibold text-gray-900 dark:text-gray-100 leading-snug line-clamp-2"
+                            title={itemTitle}
+                          >
+                            {itemTitle || "Product"}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            {itemColor && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800/40">
+                                {itemColor}
+                              </span>
+                            )}
+                            <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                              Qty:{" "}
+                              <strong className="text-gray-800 dark:text-gray-200 font-bold">
+                                {item.quantity || 1}
+                              </strong>
+                              {item.price ? ` × ${currency}${getNumberTwo(item.price)}` : ""}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </TableCell>
             )}
@@ -314,6 +407,87 @@ const OrderTable = ({
           </TableRow>
         ))}
       </TableBody>
+
+      {/* Lightbox Image Preview Modal */}
+      {previewItem &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+            onClick={() => setPreviewItem(null)}
+          >
+            <div
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-150 flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 dark:border-gray-700">
+                <div className="min-w-0 pr-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 dark:bg-teal-900/30 dark:text-teal-300 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800/40">
+                    Invoice #{previewItem.invoice}
+                  </span>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate mt-1">
+                    {previewItem.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewItem(null)}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  title="Close"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+              {/* High-res Image preview */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-900/60 flex items-center justify-center min-h-[300px] max-h-[500px] overflow-hidden">
+                <img
+                  src={previewItem.src}
+                  alt={previewItem.title}
+                  className="max-h-[460px] w-auto max-w-full object-contain rounded-lg shadow-md"
+                />
+              </div>
+
+              {/* Modal Footer Info */}
+              <div className="p-4 flex items-center justify-between flex-wrap gap-2 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="flex items-center gap-2">
+                  {previewItem.color && (
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200">
+                      Color: {previewItem.color}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold">
+                    Qty: {previewItem.quantity} {previewItem.price ? `• ₹${getNumberTwo(previewItem.price)}` : ""}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={previewItem.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+                  >
+                    <FiExternalLink size={13} />
+                    <span>Full Image</span>
+                  </a>
+                  {previewItem.slug && (
+                    <a
+                      href={`https://manchandafabric.in/product/${previewItem.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-700 text-white transition-colors"
+                    >
+                      <FiExternalLink size={13} />
+                      <span>View on Store</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 };

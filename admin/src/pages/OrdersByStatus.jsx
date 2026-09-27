@@ -144,7 +144,7 @@ const OrdersByStatus = () => {
     time: true,
     customerName: true,
     customerId: false,
-    productName: false,
+    productName: true,
     productId: false,
     contact: true,
     shippingCost: false,
@@ -422,7 +422,7 @@ const OrdersByStatus = () => {
                               {col === "time" && t("TimeTbl")}
                               {col === "customerName" && t("CustomerName")}
                               {col === "customerId" && "Customer ID"}
-                              {col === "productName" && "Product Name"}
+                              {col === "productName" && "Products (with Image)"}
                               {col === "productId" && "Product ID"}
                               {col === "contact" && "Contact"}
                               {col === "shippingCost" && "Shipping Cost"}
@@ -560,8 +560,8 @@ const OrdersByStatus = () => {
                       </TableCell>
                     )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap min-w-[200px]">
-                        Product Name
+                      <TableCell className="whitespace-nowrap min-w-[280px]">
+                        Products & Items
                       </TableCell>
                     )}
                     {visibleColumns.productId && (
