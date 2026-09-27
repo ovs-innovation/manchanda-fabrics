@@ -6,7 +6,7 @@ import useGetSetting from "@hooks/useGetSetting";
 import { pickBrandLogo } from "@utils/brandAssets";
 
 const DEFAULT_OG_IMAGE =
-  "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
+  "https://res.cloudinary.com/tu23xpla/image/upload/v1790472300/seo/manchanda_fabrics_og_preview.jpg";
 const DEFAULT_TITLE =
   "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours";
 const DEFAULT_DESC =

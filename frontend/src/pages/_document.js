@@ -8,7 +8,7 @@ class MyDocument extends Document {
       "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.";
     const favicon = "/logo/logo.png";
     const ogImage =
-      "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg";
+      "https://res.cloudinary.com/tu23xpla/image/upload/v1790472300/seo/manchanda_fabrics_og_preview.jpg";
     const siteUrl = "https://manchandafabric.in";
 
     return (
@@ -39,7 +39,7 @@ class MyDocument extends Document {
           <meta property="og:image:type" content="image/jpeg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
-          <meta property="og:image:alt" content="Manchanda Fab — Wholesale Ladies' Suits" />
+          <meta property="og:image:alt" content="Manchanda Fabrics — Wholesale Ladies' Suits" />
 
           {/* ── Twitter Card Tags ── */}
           <meta name="twitter:card" content="summary_large_image" />

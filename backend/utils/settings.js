@@ -913,7 +913,7 @@ const setting = [
         meta_description:
           "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.",
         meta_img:
-          "https://res.cloudinary.com/tu23xpla/image/upload/v1790413952/seo/manchanda_og_preview.jpg",
+          "https://res.cloudinary.com/tu23xpla/image/upload/v1790472300/seo/manchanda_fabrics_og_preview.jpg",
         meta_keywords:
           "wholesale ladies suits, unstitched suit material, salwar suits chandni chowk, cotton suits, pure silk suits, party wear suits, manchanda fabrics",
         meta_title:
