@@ -68,6 +68,10 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
                 src={previewImage.url}
                 alt={previewImage.title || "Product"}
                 className="max-h-[65vh] w-auto max-w-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/manchandalogo.png";
+                }}
               />
             </div>
             <p className="text-center text-xs text-gray-400 mt-2">
@@ -93,14 +97,17 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
             <TableCell className="min-w-[190px] sm:min-w-[230px]">
               <div className="flex items-center">
                 {(() => {
-                  const itemImg = Array.isArray(product?.image)
-                    ? product?.image[0]
-                    : product?.image;
-                  const fallbackImg =
-                    "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png";
-                  const fullImg = itemImg || fallbackImg;
+                  const itemImg =
+                    product?.featuredImage ||
+                    (Array.isArray(product?.image) ? product?.image[0] : product?.image) ||
+                    (Array.isArray(product?.images) ? product?.images[0] : product?.images) ||
+                    null;
+                  const fallbackImg = "/manchandalogo.png";
                   const thumbImg =
-                    getOptimizedThumbnailUrl(itemImg, 140, 160) || fallbackImg;
+                    (itemImg ? getOptimizedThumbnailUrl(itemImg, 140, 160) : null) ||
+                    itemImg ||
+                    fallbackImg;
+                  const fullImg = itemImg || fallbackImg;
                   const prodTitle = showingTranslateValue(product?.title);
 
                   return (
@@ -121,6 +128,10 @@ const ProductTable = ({ products, isCheck, setIsCheck }) => {
                         className="w-full h-full object-cover object-top transition-transform duration-200 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = fallbackImg;
+                        }}
                       />
                       <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <FiZoomIn className="text-white drop-shadow-md text-sm" />
