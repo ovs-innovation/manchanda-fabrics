@@ -13,8 +13,8 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { FiEdit, FiTrash2, FiSearch, FiChevronRight, FiPlus, FiCheck } from "react-icons/fi";
-import { Link, useParams } from "react-router-dom";
+import { FiEdit, FiTrash2, FiSearch, FiChevronRight, FiPlus, FiCheck, FiArrowLeft } from "react-icons/fi";
+import { Link, useParams, useHistory } from "react-router-dom";
 
 //internal import
 import CategoryTable from "@/components/category/CategoryTable";
@@ -34,6 +34,7 @@ import { notifySuccess, notifyError } from "@/utils/toast";
 
 const ChildCategory = () => {
   const { id } = useParams();
+  const history = useHistory();
   const [childCategory, setChildCategory] = useState([]);
   const [selectedObj, setSelectObj] = useState([]);
 
@@ -166,6 +167,23 @@ const ChildCategory = () => {
   return (
     <>
       <AnimatedContent>
+        <div className="flex items-center gap-2 mb-4 mt-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                history.goBack();
+              } else {
+                history.push("/categories");
+              }
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:text-store-600 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xs text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+          >
+            <FiArrowLeft className="w-4 h-4 mr-0.5" />
+            <span>Back</span>
+          </button>
+        </div>
+
         <div className="flex items-center gap-2 mb-8">
           <FiEdit size={20} className="text-gray-700 dark:text-gray-300" />
           <h1 className="text-xl font-extrabold text-gray-800 dark:text-gray-100">Add New Sub Category</h1>

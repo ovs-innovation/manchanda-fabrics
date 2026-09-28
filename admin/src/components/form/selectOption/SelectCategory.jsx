@@ -4,14 +4,18 @@ import { useTranslation } from "react-i18next";
 
 //internal import
 
-import useAsync from "@/hooks/useAsync";
+import { useQuery } from "@tanstack/react-query";
 import CategoryServices from "@/services/CategoryServices";
 import useUtilsFunction from "@/hooks/useUtilsFunction";
 
 const SelectCategory = ({ setCategory }) => {
   // console.log('data category',data)
   const { t } = useTranslation();
-  const { data } = useAsync(CategoryServices.getAllCategories);
+  const { data } = useQuery({
+    queryKey: ["adminAllCategories"],
+    queryFn: async () => await CategoryServices.getAllCategories(),
+    staleTime: 15 * 60 * 1000,
+  });
   const { showingTranslateValue } = useUtilsFunction();
 
   return (

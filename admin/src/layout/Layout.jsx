@@ -58,7 +58,7 @@ const Layout = () => {
           <Header />
           <Main>
             <Suspense fallback={<ThemeSuspense />}>
-              <Switch>
+              <Switch location={location}>
                 {routes.map((route, i) => {
                   return route.component ? (
                     <Route

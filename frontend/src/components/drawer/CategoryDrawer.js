@@ -17,7 +17,7 @@ const CategoryDrawer = () => {
       level={null}
       placement={"left"}
     >
-      <Category />
+      {categoryDrawerOpen && <Category />}
     </Drawer>
   );
 };

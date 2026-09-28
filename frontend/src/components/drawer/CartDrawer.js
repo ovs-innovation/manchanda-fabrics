@@ -17,7 +17,7 @@ const CartDrawer = () => {
       level={null}
       placement={"right"}
     >
-      <Cart />
+      {cartDrawerOpen && <Cart />}
     </Drawer>
   );
 };

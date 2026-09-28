@@ -51,3 +51,21 @@ export function resolveCloudinaryUrl(url) {
 export function isLegacyCloudinaryUrl(url) {
   return resolveCloudinaryUrl(url) === null && !!url;
 }
+
+/**
+ * Transforms Cloudinary URLs to small, fast WebP thumbnails
+ * Example: /upload/ -> /upload/c_fill,w_140,h_160,q_auto,f_auto/
+ */
+export function getOptimizedThumbnailUrl(url, width = 140, height = 160) {
+  const resolved = resolveCloudinaryUrl(url);
+  if (!resolved) return null;
+  if (resolved.includes("res.cloudinary.com") && resolved.includes("/upload/")) {
+    if (!resolved.includes("/upload/c_fill,")) {
+      return resolved.replace(
+        "/upload/",
+        `/upload/c_fill,w_${width},h_${height},q_auto,f_auto/`
+      );
+    }
+  }
+  return resolved;
+}

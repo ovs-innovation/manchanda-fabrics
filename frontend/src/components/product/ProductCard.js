@@ -13,7 +13,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import ProductModal from "@components/modal/ProductModal";
 import { handleLogEvent } from "src/lib/analytics";
 import { addToWishlist, removeFromWishlist, isInWishlist } from "@lib/wishlist";
-import { PRODUCT_PLACEHOLDER, normalizeProductImageUrl } from "@utils/brandAssets";
+import { PRODUCT_PLACEHOLDER, normalizeProductImageUrl, getOptimizedImageUrl } from "@utils/brandAssets";
 import { translateLabel } from "@utils/locale";
 import { resolveColorHex } from "@utils/resolveColorHex";
 
@@ -251,8 +251,10 @@ const ProductCard = ({
           {primaryImg ? (
             <div className="w-full h-full relative">
               <img
-                src={primaryImg}
+                src={getOptimizedImageUrl(primaryImg, 460, 613)}
                 alt={title}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover object-top transition duration-700 ease-in-out group-hover:scale-105"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
@@ -341,4 +343,5 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+import React from "react";
+export default React.memo(ProductCard);

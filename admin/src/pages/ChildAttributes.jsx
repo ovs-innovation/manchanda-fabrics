@@ -10,8 +10,8 @@ import {
   TableHeader,
 } from "@windmill/react-ui";
 import React, { useContext, useEffect, useState } from "react";
-import { FiChevronRight, FiEdit, FiPlus, FiTrash2 } from "react-icons/fi";
-import { Link, useParams } from "react-router-dom";
+import { FiChevronRight, FiEdit, FiPlus, FiTrash2, FiArrowLeft } from "react-icons/fi";
+import { Link, useParams, useHistory } from "react-router-dom";
 
 //internal import
 import ChildAttributeTable from "@/components/attribute/ChildAttributeTable";
@@ -33,6 +33,7 @@ import AnimatedContent from "@/components/common/AnimatedContent";
 
 const ChildAttributes = () => {
   let { id } = useParams();
+  const history = useHistory();
 
   const { handleDeleteMany, allId, serviceId, handleUpdateMany } =
     useToggleDrawer();
@@ -80,6 +81,23 @@ const ChildAttributes = () => {
 
   return (
     <>
+      <div className="flex items-center gap-2 mb-4 mt-2">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) {
+              history.goBack();
+            } else {
+              history.push("/attributes");
+            }
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:text-store-600 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xs text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+        >
+          <FiArrowLeft className="w-4 h-4 mr-0.5" />
+          <span>Back</span>
+        </button>
+      </div>
+
       <PageTitle>Attributes Values</PageTitle>
 
       <DeleteModal

@@ -79,7 +79,7 @@ const ProductDetails = () => {
 
   const handleBack = () => {
     try {
-      if (window.history.length > 1 && history.action === "PUSH") {
+      if (window.history.length > 1) {
         history.goBack();
       } else {
         history.push("/products");

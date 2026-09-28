@@ -71,12 +71,13 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   useEffect(() => {
+    let unlisten = null;
     const fetchStoreSettings = async () => {
       try {
         const settings = await queryClient.fetchQuery({
           queryKey: ["storeSetting"],
           queryFn: async () => await SettingServices.getStoreSetting(),
-          staleTime: 4 * 60 * 1000, // Cache data for 4 minutes
+          staleTime: 15 * 60 * 1000, // Cache data for 15 minutes
         });
 
         setStoreSetting(settings);
@@ -86,12 +87,12 @@ function MyApp({ Component, pageProps }) {
           ReactGA.initialize(settings?.google_analytic_key || "");
           handlePageView();
 
-          const handleRouteChange = () => {
-            handlePageView(`/${router.pathname}`, "Manchanda Fabrics");
+          const handleRouteChange = (url) => {
+            handlePageView(url || `/${router.pathname}`, "Manchanda Fabrics");
           };
 
           router.events.on("routeChangeComplete", handleRouteChange);
-          return () => {
+          unlisten = () => {
             router.events.off("routeChangeComplete", handleRouteChange);
           };
         }
@@ -101,7 +102,10 @@ function MyApp({ Component, pageProps }) {
     };
 
     fetchStoreSettings();
-  }, [router]);
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
 
   return (
     <>

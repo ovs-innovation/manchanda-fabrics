@@ -519,7 +519,7 @@ const addAllProducts = async (req, res) => {
 
 const getShowingProducts = async (req, res) => {
   try {
-    const products = await Product.find({ status: "show" }).sort({ createdAt: -1 });
+    const products = await Product.find({ status: "show" }).sort({ createdAt: -1 }).lean();
     const flattened = products.map(p => flattenProductVariants(p));
     res.send(flattened);
   } catch (err) {
@@ -595,15 +595,17 @@ const getAllProducts = async (req, res) => {
   const skip = (pages - 1) * limits;
 
   try {
-    const totalDoc = await Product.countDocuments(queryObject);
-
-    const products = await Product.find(queryObject)
-      .populate({ path: "category", select: "_id name slug" })
-      .populate({ path: "categories", select: "_id name slug" })
-      .populate({ path: "brand", select: "_id name slug logo" })
-      .sort(sortObject)
-      .skip(skip)
-      .limit(limits);
+    const [totalDoc, products] = await Promise.all([
+      Product.countDocuments(queryObject),
+      Product.find(queryObject)
+        .populate({ path: "category", select: "_id name slug" })
+        .populate({ path: "categories", select: "_id name slug" })
+        .populate({ path: "brand", select: "_id name slug logo" })
+        .sort(sortObject)
+        .skip(skip)
+        .limit(limits)
+        .lean(),
+    ]);
 
     res.send({
       products,
@@ -883,9 +885,9 @@ const fetchProductsByIds = async (ids = []) => {
   const validIds = ids.filter((id) => mongoose.Types.ObjectId.isValid(id));
   if (validIds.length === 0) return [];
 
-  const docs = await Product.find({ _id: { $in: validIds }, status: "show" }).populate(
-    PRODUCT_POPULATE
-  );
+  const docs = await Product.find({ _id: { $in: validIds }, status: "show" })
+    .populate(PRODUCT_POPULATE)
+    .lean();
   const byId = new Map(docs.map((doc) => [String(doc._id), doc]));
   return validIds.map((id) => byId.get(String(id))).filter(Boolean);
 };
@@ -894,7 +896,8 @@ const fetchProductsByPlacementTag = async (flag, sort, limit = 20) =>
   Product.find({ status: "show", tag: flag })
     .populate(PRODUCT_POPULATE)
     .sort(sort)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
 const getShowingStoreProducts = async (req, res) => {
   // console.log("req.body", req);
@@ -1031,7 +1034,8 @@ const getShowingStoreProducts = async (req, res) => {
         .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
-        .limit(500);
+        .limit(500)
+        .lean();
       relatedProducts = await Product.find({
         category: products[0]?.category?._id || products[0]?.category,
         status: "show",
@@ -1041,14 +1045,16 @@ const getShowingStoreProducts = async (req, res) => {
         .populate({ path: "categories", select: "_id name slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ sales: -1, createdAt: -1 })
-        .limit(12);
+        .limit(12)
+        .lean();
     } else if (title || category || brand || tag) {
       products = await Product.find(queryObject)
         .populate({ path: "category", select: "name _id slug" })
         .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
-        .limit(500);
+        .limit(500)
+        .lean();
       if (tag === "new-arrival") {
         popularProducts = products;
       } else if (tag === "trending") {
@@ -1061,7 +1067,8 @@ const getShowingStoreProducts = async (req, res) => {
         .populate({ path: "categories", select: "name _id slug" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
-        .limit(500);
+        .limit(500)
+        .lean();
 
       const settingDoc = await Setting.findOne({
         name: "storeCustomizationSetting",
@@ -1081,7 +1088,8 @@ const getShowingStoreProducts = async (req, res) => {
         popularProducts = await Product.find({ status: "show" })
           .populate(PRODUCT_POPULATE)
           .sort({ createdAt: -1 })
-          .limit(20);
+          .limit(20)
+          .lean();
       }
 
       // Trending — admin picks → tag fallback → best sellers
@@ -1097,7 +1105,8 @@ const getShowingStoreProducts = async (req, res) => {
         bestSellingProducts = await Product.find({ status: "show" })
           .populate(PRODUCT_POPULATE)
           .sort({ sales: -1 })
-          .limit(20);
+          .limit(20)
+          .lean();
       }
 
       manchandaHomepagePayload = {
@@ -1152,7 +1161,8 @@ const getShowingStoreProducts = async (req, res) => {
         .populate({ path: "category", select: "name _id" })
         .populate({ path: "brand", select: "_id name slug logo" })
         .sort({ createdAt: -1 })
-        .limit(20);
+        .limit(20)
+        .lean();
     }
 
     res.send({

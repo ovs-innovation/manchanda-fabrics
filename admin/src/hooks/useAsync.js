@@ -55,7 +55,9 @@ const useAsync = (asyncFunction) => {
       }
     })();
 
-    setIsUpdate(false);
+    if (isUpdate) {
+      setIsUpdate(false);
+    }
 
     return () => {
       unmounted = true;

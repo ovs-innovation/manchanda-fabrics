@@ -20,6 +20,7 @@ import { useHistory } from "react-router-dom";
 //internal import
 
 import useAsync from "@/hooks/useAsync";
+import { useQuery } from "@tanstack/react-query";
 import useToggleDrawer from "@/hooks/useToggleDrawer";
 import UploadMany from "@/components/common/UploadMany";
 import NotFound from "@/components/table/NotFound";
@@ -73,7 +74,11 @@ const Products = () => {
     })
   );
 
-  const { data: brandList } = useAsync(BrandServices.getAllBrands);
+  const { data: brandList } = useQuery({
+    queryKey: ["adminBrands"],
+    queryFn: async () => await BrandServices.getAllBrands(),
+    staleTime: 15 * 60 * 1000,
+  });
 
   // console.log("product page", data);
 
@@ -280,18 +285,18 @@ const Products = () => {
                     handleClick={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell>{t("ProductNameTbl")}</TableCell>
-                <TableCell>{t("CategoryTbl")}</TableCell>
-                <TableCell>MRP Price</TableCell>
-                <TableCell>Sale Price</TableCell>
-                <TableCell>Shipping</TableCell>
-                <TableCell>{t("StockTbl")}</TableCell>
-                <TableCell>{t("StatusTbl")}</TableCell>
-                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
-                <TableCell className="text-center">
+                <TableCell className="min-w-[190px] sm:min-w-[230px]">{t("ProductNameTbl")}</TableCell>
+                <TableCell className="whitespace-nowrap">{t("CategoryTbl")}</TableCell>
+                <TableCell className="whitespace-nowrap text-center">MRP Price</TableCell>
+                <TableCell className="whitespace-nowrap text-center">Sale Price</TableCell>
+                <TableCell className="whitespace-nowrap text-center">Shipping</TableCell>
+                <TableCell className="whitespace-nowrap text-center min-w-[80px]">{t("StockTbl")}</TableCell>
+                <TableCell className="whitespace-nowrap text-center min-w-[120px]">{t("StatusTbl")}</TableCell>
+                <TableCell className="text-center whitespace-nowrap">{t("DetailsTbl")}</TableCell>
+                <TableCell className="text-center whitespace-nowrap">
                   {t("PublishedTbl")}
                 </TableCell>
-                <TableCell className="text-right">{t("ActionsTbl")}</TableCell>
+                <TableCell className="text-right whitespace-nowrap">{t("ActionsTbl")}</TableCell>
               </tr>
             </TableHeader>
             <ProductTable

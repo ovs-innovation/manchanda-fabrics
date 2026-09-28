@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -10,6 +10,7 @@ import {
 } from "@windmill/react-ui";
 import { useTranslation } from "react-i18next";
 import { IoBagHandle } from "react-icons/io5";
+import { FiArrowLeft } from "react-icons/fi";
 
 import OrderServices from "@/services/OrderServices";
 import PageTitle from "@/components/Typography/PageTitle";
@@ -21,6 +22,7 @@ const RESULTS_PER_PAGE = 20;
 
 const CustomerOrder = () => {
   const { id } = useParams();
+  const history = useHistory();
   const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +65,23 @@ const CustomerOrder = () => {
 
   return (
     <>
+      <div className="flex items-center gap-2 mb-4 mt-2">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) {
+              history.goBack();
+            } else {
+              history.push("/customers");
+            }
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:text-store-600 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-xs text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+        >
+          <FiArrowLeft className="w-4 h-4 mr-0.5" />
+          <span>{t("Back") || "Back"}</span>
+        </button>
+      </div>
+
       <PageTitle>{t("CustomerOrderList")}</PageTitle>
 
       {loading && <Loading loading={loading} />}

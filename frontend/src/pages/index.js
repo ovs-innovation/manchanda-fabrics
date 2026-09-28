@@ -140,43 +140,45 @@ const Home = ({
     });
   };
 
-  const categoryCounts = {};
-  (categoriesState || []).forEach((c) => {
-    const slug = getCatSlug(c);
-    if (!slug) return;
-    categoryCounts[slug] = productsOfCategory(c).length;
-  });
+  // Memoized per-category products, counts and circle category data
+  const { categoryCounts, circleCategories } = React.useMemo(() => {
+    const counts = {};
+    const circles = (categoriesState || [])
+      .map((c) => {
+        const catProducts = productsOfCategory(c);
+        const slug = getCatSlug(c);
+        if (slug) {
+          counts[slug] = catProducts.length;
+        }
 
-  // Real store categories for the circles — prioritize uploaded category icon/banner, then product image
-  const circleCategories = (categoriesState || [])
-    .map((c) => {
-      const catProducts = productsOfCategory(c);
-      const firstValidProductImage =
-        catProducts
-          .map((p) => p?.featuredImage || p?.image?.[0] || p?.images?.[0])
-          .find((img) => img && typeof img === "string" && !img.startsWith("blob:")) || null;
+        const firstValidProductImage =
+          catProducts
+            .map((p) => p?.featuredImage || p?.image?.[0] || p?.images?.[0])
+            .find((img) => img && typeof img === "string" && !img.startsWith("blob:")) || null;
 
-      const rawCatImg =
-        c?.icon ||
-        c?.banner ||
-        c?.image ||
-        (Array.isArray(c?.images) && c.images[0]) ||
-        firstValidProductImage ||
-        null;
+        const rawCatImg =
+          c?.icon ||
+          c?.banner ||
+          c?.image ||
+          (Array.isArray(c?.images) && c.images[0]) ||
+          firstValidProductImage ||
+          null;
 
-      const finalImage = normalizeProductImageUrl(rawCatImg);
-      const title = getCatTitle(c);
-      const slug = getCatSlug(c);
+        const finalImage = normalizeProductImageUrl(rawCatImg);
+        const title = getCatTitle(c);
 
-      return {
-        _id: c?._id,
-        slug,
-        title,
-        image: finalImage,
-        count: catProducts.length,
-      };
-    })
-    .filter((c) => c.slug && c.title);
+        return {
+          _id: c?._id,
+          slug,
+          title,
+          image: finalImage,
+          count: catProducts.length,
+        };
+      })
+      .filter((c) => c.slug && c.title);
+
+    return { categoryCounts: counts, circleCategories: circles };
+  }, [categoriesState, catalog]);
 
   return (
     <Layout>

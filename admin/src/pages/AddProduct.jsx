@@ -68,8 +68,15 @@ const AddProduct = () => {
           <div className="flex items-center space-x-4">
             <button
               type="button"
-              onClick={() => history.push("/products")}
-              className="p-2.5 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 flex items-center justify-center text-gray-600 transition-colors"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  history.goBack();
+                } else {
+                  history.push("/products");
+                }
+              }}
+              className="p-2.5 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-all cursor-pointer active:scale-95"
+              title="Back"
             >
               <FiChevronLeft size={20} />
             </button>

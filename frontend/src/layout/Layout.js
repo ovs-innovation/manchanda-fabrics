@@ -25,27 +25,6 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const router = useRouter();
   const isHome = router.pathname === "/";
-  const [scrolled, setScrolled] = React.useState(false);
-  const [visible, setVisible] = React.useState(true);
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      const currentScroll = window.scrollY;
-      setScrolled(currentScroll > 80);
-
-      // Hide on scroll down, show on scroll up
-      if (currentScroll > lastScrollY && currentScroll > 82) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-      setLastScrollY(currentScroll);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   useCartSync();
 

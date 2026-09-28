@@ -9,6 +9,7 @@ import "swiper/css/autoplay";
 import ReelModal from "@components/home/ReelModal";
 import ProductServices from "@services/ProductServices";
 import { FiShoppingBag } from "react-icons/fi";
+import { getOptimizedImageUrl } from "@utils/brandAssets";
 
 const resolveReelVideo = (src) => {
   if (!src || typeof src !== "string") return "";
@@ -279,10 +280,11 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       ) : (
                         image && (
                           <img
-                            src={image}
+                            src={getOptimizedImageUrl(image, 450, 800)}
                             alt={title}
                             className="absolute inset-0 w-full h-full object-cover object-top"
                             loading="lazy"
+                            decoding="async"
                           />
                         )
                       )}
@@ -293,10 +295,11 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       {image && (
                         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-neutral-50 flex-shrink-0 border border-neutral-200 shadow-xs flex items-center justify-center p-0.5">
                           <img
-                            src={image}
+                            src={getOptimizedImageUrl(image, 120, 120)}
                             alt={title}
                             className="w-full h-full object-contain"
                             loading="lazy"
+                            decoding="async"
                           />
                         </div>
                       )}

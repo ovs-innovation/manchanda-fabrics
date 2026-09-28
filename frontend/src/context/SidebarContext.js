@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createContext } from "react";
+import React, { useState, useMemo, useCallback, createContext } from "react";
 
 // create context
 export const SidebarContext = createContext();
@@ -12,24 +12,24 @@ export const SidebarProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const toggleCartDrawer = () => setCartDrawerOpen(!cartDrawerOpen);
-  const closeCartDrawer = () => setCartDrawerOpen(false);
+  const toggleCartDrawer = useCallback(() => setCartDrawerOpen((prev) => !prev), []);
+  const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
 
-  const toggleCategoryDrawer = () => setCategoryDrawerOpen(!categoryDrawerOpen);
-  const closeCategoryDrawer = () => setCategoryDrawerOpen(false);
+  const toggleCategoryDrawer = useCallback(() => setCategoryDrawerOpen((prev) => !prev), []);
+  const closeCategoryDrawer = useCallback(() => setCategoryDrawerOpen(false), []);
 
-  const toggleFilterDrawer = () => setFilterDrawerOpen(!filterDrawerOpen);
-  const closeFilterDrawer = () => setFilterDrawerOpen(false);
+  const toggleFilterDrawer = useCallback(() => setFilterDrawerOpen((prev) => !prev), []);
+  const closeFilterDrawer = useCallback(() => setFilterDrawerOpen(false), []);
 
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
-  const closeModal = () => setIsModalOpen(false);
+  const toggleModal = useCallback(() => setIsModalOpen((prev) => !prev), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
   
-  const toggleSearch = () => setShowSearch(!showSearch);
-  const closeSearch = () => setShowSearch(false);
+  const toggleSearch = useCallback(() => setShowSearch((prev) => !prev), []);
+  const closeSearch = useCallback(() => setShowSearch(false), []);
 
-  const handleChangePage = (p) => {
+  const handleChangePage = useCallback((p) => {
     setCurrentPage(p);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
