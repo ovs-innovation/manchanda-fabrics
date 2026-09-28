@@ -1015,6 +1015,15 @@ const handlePhonePeCallback = async (req, res) => {
           completedAt: new Date(),
         };
         await targetOrder.save();
+
+        // Decrement product inventory stock and send order notifications
+        try {
+          await handleProductQuantity(targetOrder.cart);
+        } catch (stockErr) {
+          console.error("[PhonePe Stock Error]", stockErr);
+        }
+        sendOrderNotifications(targetOrder);
+
         return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
       } else {
         targetOrder.status = "Cancel";
@@ -1066,6 +1075,11 @@ const handlePhonePeWebhook = async (req, res) => {
       const order = await Order.findOne({ "paymentDetails.merchantTransactionId": merchantTransactionId });
       if (order) {
         if (code === "PAYMENT_SUCCESS") {
+          const wasAlreadyProcessed =
+            order.status === "Processing" ||
+            order.status === "Delivered" ||
+            order.paymentDetails?.paymentStatus === "COMPLETED";
+
           order.status = "Processing";
           order.paymentDetails = {
             ...order.paymentDetails,
@@ -1075,6 +1089,15 @@ const handlePhonePeWebhook = async (req, res) => {
             completedAt: new Date(),
           };
           await order.save();
+
+          if (!wasAlreadyProcessed) {
+            try {
+              await handleProductQuantity(order.cart);
+            } catch (stockErr) {
+              console.error("[PhonePe Webhook Stock Error]", stockErr);
+            }
+            sendOrderNotifications(order);
+          }
         } else if (code === "PAYMENT_ERROR" || code === "PAYMENT_DECLINED") {
           order.status = "Cancel";
           order.paymentDetails = {

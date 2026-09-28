@@ -237,10 +237,15 @@ const AishaProductHero = ({
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <p
-                className="text-sm font-medium text-[#111111]"
+                className="text-sm font-medium text-[#111111] flex items-center"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                Color: <span className="font-semibold text-neutral-800">{selectedColorVar?.colorName}</span>
+                Color: <span className="font-semibold text-neutral-800 ml-1">{selectedColorVar?.colorName}</span>
+                {Number(selectedColorVar?.stock || 0) <= 0 && (
+                  <span className="text-red-600 font-semibold text-[11px] ml-2 uppercase tracking-wider bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+                    Sold Out
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -248,22 +253,31 @@ const AishaProductHero = ({
                 const isSelected = (selectedColorVar?._id && colorVar?._id)
                   ? String(selectedColorVar._id) === String(colorVar._id)
                   : (selectedColorVar?.colorName && colorVar?.colorName && selectedColorVar.colorName.toLowerCase() === colorVar.colorName.toLowerCase());
+                const isSoldOut = Number(colorVar.stock || 0) <= 0;
                 return (
                   <button
                     key={colorVar._id || colorVar.colorName || idx}
                     type="button"
                     onClick={() => setSelectedColorVar(colorVar)}
-                    className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
+                    className={`relative w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
                       isSelected
                         ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"
                         : "border-neutral-300 hover:border-neutral-800 opacity-80 hover:opacity-100"
-                    }`}
-                    title={colorVar.colorName}
+                    } ${isSoldOut ? "opacity-60 hover:opacity-90" : ""}`}
+                    title={`${colorVar.colorName}${isSoldOut ? " (Sold Out)" : ""}`}
                   >
                     <span
                       className="w-7 h-7 rounded-full block border border-neutral-200/50 shadow-xs"
                       style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
                     />
+                    {isSoldOut && (
+                      <span
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                        aria-hidden="true"
+                      >
+                        <span className="w-8 h-[1.5px] bg-red-600 -rotate-45 block shadow-xs" />
+                      </span>
+                    )}
                   </button>
                 );
               })}

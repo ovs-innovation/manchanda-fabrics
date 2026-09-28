@@ -7,6 +7,12 @@ import { FiPhone, FiAlertTriangle } from "react-icons/fi";
 import { getStoreAddress, getStoreCompanyName } from "@/utils/storeBrand";
 import { ADMIN_BRAND_LOGO, resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
 
+/**
+ * 4" x 6" Thermal Courier Delivery Label Component
+ * Dimensions: exactly 4in x 6in (288 pt x 432 pt / 101.6 mm x 152.4 mm)
+ * Uses flexible auto-height content sections and a single flexible spacer to eliminate
+ * vertical text clipping and unnecessary middle gaps.
+ */
 const ShippingLabel4x6 = ({
   data,
   printRef,
@@ -126,6 +132,13 @@ const ShippingLabel4x6 = ({
       0
     ) || 1;
 
+  const itemsSubtotal =
+    data?.cart?.reduce(
+      (sum, item) =>
+        sum + (Number(item?.price) || 0) * (Number(item?.quantity) || 1),
+      0
+    ) || 0;
+
   // Generate Barcode on Canvas
   useEffect(() => {
     if (barcodeRef.current && barcodeValue) {
@@ -133,7 +146,7 @@ const ShippingLabel4x6 = ({
         JsBarcode(barcodeRef.current, barcodeValue, {
           format: "CODE128",
           width: 1.8,
-          height: 38,
+          height: 36,
           displayValue: false,
           margin: 0,
           background: "#ffffff",
@@ -155,7 +168,6 @@ const ShippingLabel4x6 = ({
       ? "http://localhost:3000"
       : "https://manchandafabrics.com";
 
-  // For Reseller: encode generic package code without revealing Manchanda domain
   const orderTrackingUrl = isReseller
     ? `PACKAGE-TRACK-${data?._id || orderIdShort}`
     : `${storeDomain}/order/${data?._id || orderIdShort}`;
@@ -164,8 +176,8 @@ const ShippingLabel4x6 = ({
     if (!orderTrackingUrl) return;
 
     QRCode.toDataURL(orderTrackingUrl, {
-      width: 140,
-      margin: 1,
+      width: 120,
+      margin: 0,
       errorCorrectionLevel: "M",
       color: {
         dark: "#000000",
@@ -184,79 +196,220 @@ const ShippingLabel4x6 = ({
       style={{
         width: "4in",
         height: "6in",
+        minWidth: "4in",
+        maxWidth: "4in",
         minHeight: "6in",
         maxHeight: "6in",
         boxSizing: "border-box",
-        fontFamily: "'Arial', 'Helvetica Neue', sans-serif",
+        fontFamily: "'Arial', 'Helvetica Neue', Helvetica, sans-serif",
         color: "#000000",
         backgroundColor: "#ffffff",
         margin: "0 auto",
-        padding: "0.06in",
+        padding: "6px",
         overflow: "hidden",
+        position: "relative",
       }}
     >
       <div
-        className="h-full flex flex-col justify-between border-2 border-black bg-white"
         style={{
-          boxSizing: "border-box",
+          width: "100%",
           height: "100%",
+          boxSizing: "border-box",
+          border: "2px solid #000000",
+          backgroundColor: "#ffffff",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        {/* 1. HEADER: SENDER & ROUTING BADGE */}
-        <div className="border-b-2 border-black p-1.5 flex items-center justify-between bg-white gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* 1. HEADER (flex: 0 0 auto) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            borderBottom: "2px solid #000000",
+            display: "flex",
+            alignItems: "stretch",
+            justifyContent: "space-between",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          {/* Left: Brand info */}
+          <div
+            style={{
+              padding: "5px 6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             {!isReseller && brandLogo && (
               <img
                 src={brandLogo}
                 alt={senderName}
                 crossOrigin="anonymous"
-                className="h-9 w-auto max-w-[52px] object-contain shrink-0"
+                style={{
+                  height: "36px",
+                  width: "auto",
+                  maxWidth: "48px",
+                  objectFit: "contain",
+                  flexShrink: 0,
+                }}
               />
             )}
-            <div className="min-w-0 flex-1">
-              <h1 className="text-[11px] font-black uppercase tracking-wide leading-none text-black whitespace-nowrap">
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h1
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1.25,
+                  color: "#000000",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  margin: 0,
+                }}
+              >
                 {senderName}
               </h1>
-              <p className="text-[7.5px] font-semibold text-gray-700 leading-tight mt-0.5 whitespace-nowrap">
+              <p
+                style={{
+                  fontSize: "8px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  lineHeight: 1.25,
+                  marginTop: "2px",
+                  marginBottom: 0,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {senderSubtext}
               </p>
-              <div className="inline-block mt-0.5 bg-black text-white text-[6.5px] font-black tracking-wider px-1.5 py-0.5 rounded-xs uppercase leading-none">
+              <div
+                style={{
+                  display: "inline-block",
+                  marginTop: "3px",
+                  backgroundColor: "#000000",
+                  color: "#ffffff",
+                  fontSize: "6.5px",
+                  fontWeight: 900,
+                  letterSpacing: "0.05em",
+                  padding: "1.5px 5px",
+                  borderRadius: "2px",
+                  textTransform: "uppercase",
+                  lineHeight: 1.2,
+                }}
+              >
                 STANDARD EXPRESS DELIVERY SLIP
               </div>
             </div>
           </div>
 
+          {/* Right: PREPAID / COD Box */}
           <div
-            className={`px-2 py-1 text-center border-2 border-black flex flex-col justify-center shrink-0 ${
-              isCod ? "bg-black text-white" : "bg-white text-black"
-            }`}
-            style={{ width: "1.1in" }}
+            style={{
+              width: "115px",
+              borderLeft: "2px solid #000000",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "4px",
+              flexShrink: 0,
+              backgroundColor: isCod ? "#000000" : "#ffffff",
+              color: isCod ? "#ffffff" : "#000000",
+            }}
           >
-            <div className="text-[11.5px] font-black uppercase tracking-wider leading-tight">
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                lineHeight: 1.2,
+              }}
+            >
               {isCod ? "COD" : "PREPAID"}
             </div>
             <div
-              className={`text-[8px] font-extrabold mt-0.5 leading-none ${
-                isCod ? "text-white" : "text-gray-900"
-              }`}
+              style={{
+                fontSize: "8px",
+                fontWeight: 800,
+                marginTop: "2px",
+                lineHeight: 1.2,
+                color: isCod ? "#ffffff" : "#111827",
+                whiteSpace: "nowrap",
+              }}
             >
               {isCod ? `COLLECT: ${currency}${payableAmount}` : "DO NOT COLLECT CASH"}
             </div>
           </div>
         </div>
 
-        {/* 2. BARCODE SECTION */}
-        <div className="border-b-2 border-black py-1 px-2 flex flex-col items-center justify-center bg-white">
-          <canvas
-            ref={barcodeRef}
+        {/* 2. BARCODE & ORDER META (flex: 0 0 auto) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            borderBottom: "2px solid #000000",
+            backgroundColor: "#ffffff",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div
             style={{
-              display: "block",
-              maxWidth: "100%",
-              height: "36px",
-              margin: "0 auto",
+              padding: "5px 8px 3px 8px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          />
-          <div className="flex justify-between w-full text-[9px] font-mono font-bold mt-1 tracking-wider px-1 text-black border-t border-dotted border-gray-400 pt-0.5">
+          >
+            <canvas
+              ref={barcodeRef}
+              style={{
+                display: "block",
+                maxWidth: "100%",
+                height: "34px",
+                margin: "0 auto",
+              }}
+            />
+            <div
+              style={{
+                fontSize: "8.5px",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                color: "#000000",
+                marginTop: "2px",
+                textAlign: "center",
+              }}
+            >
+              {barcodeValue}
+            </div>
+          </div>
+
+          <div
+            style={{
+              borderTop: "1px dotted #9ca3af",
+              padding: "3px 8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "8.5px",
+              fontFamily: "'Courier New', Courier, monospace",
+              fontWeight: 700,
+              color: "#000000",
+              letterSpacing: "0.02em",
+              lineHeight: 1.25,
+            }}
+          >
             <span>
               <strong>{isReseller ? "REF:" : "INV:"}</strong> {invoiceNo}
             </span>
@@ -269,116 +422,346 @@ const ShippingLabel4x6 = ({
           </div>
         </div>
 
-        {/* 3. DELIVER TO (MAIN COURIER ROUTING SECTION) */}
-        <div className="border-b-2 border-black p-2 bg-white">
-          <div className="flex justify-between items-stretch gap-2">
-            {/* Left: Customer Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[8px] font-black uppercase tracking-widest bg-black text-white px-1.5 py-0.5 rounded-sm">
-                  SHIP TO:
-                </span>
-                <span className="text-[14px] font-black uppercase text-black leading-none">
-                  {recipientName}
-                </span>
-              </div>
-              <div className="text-[9.5px] font-semibold leading-snug text-gray-900 mt-0.5 break-words">
-                {recipientAddress}
-              </div>
-              <div className="text-[9.5px] font-black mt-1 text-black flex items-center gap-1.5">
-                <FiPhone className="w-3 h-3 text-black inline-block flex-shrink-0" />
-                <span className="font-extrabold">Mobile:</span>
-                <span className="tracking-wide">{recipientPhone}</span>
-              </div>
+        {/* 3. SHIP TO & DESTINATION PIN (flex: 0 0 auto) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            borderBottom: "2px solid #000000",
+            display: "flex",
+            alignItems: "stretch",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          {/* Left: Customer Info */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              padding: "6px 8px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span
+                style={{
+                  fontSize: "8px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  backgroundColor: "#000000",
+                  color: "#ffffff",
+                  padding: "2px 4px",
+                  borderRadius: "2px",
+                  lineHeight: 1.2,
+                  flexShrink: 0,
+                }}
+              >
+                SHIP TO:
+              </span>
+              <span
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  color: "#000000",
+                  lineHeight: 1.25,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {recipientName}
+              </span>
             </div>
 
-            {/* Right: Huge Destination PIN Box */}
-            <div className="border-2 border-black p-1 text-center bg-gray-50 flex flex-col justify-center items-center min-w-[1.15in]">
-              <span className="text-[8px] font-black uppercase tracking-widest text-gray-700 leading-none">
-                DESTINATION PIN
+            <div
+              style={{
+                fontSize: "9px",
+                fontWeight: 600,
+                lineHeight: 1.3,
+                color: "#111827",
+                marginTop: "3px",
+                wordBreak: "break-word",
+              }}
+            >
+              {recipientAddress}
+            </div>
+
+            <div
+              style={{
+                fontSize: "9.5px",
+                fontWeight: 900,
+                color: "#000000",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                marginTop: "3px",
+                lineHeight: 1.2,
+              }}
+            >
+              <FiPhone style={{ width: "11px", height: "11px", color: "#000000", flexShrink: 0 }} />
+              <span style={{ fontWeight: 800 }}>Mobile:</span>
+              <span style={{ letterSpacing: "0.03em" }}>{recipientPhone}</span>
+            </div>
+          </div>
+
+          {/* Right: Destination PIN Box */}
+          <div
+            style={{
+              width: "115px",
+              borderLeft: "2px solid #000000",
+              backgroundColor: "#f9fafb",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "6px 4px",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "8px",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "#4b5563",
+                lineHeight: 1.2,
+              }}
+            >
+              DESTINATION PIN
+            </span>
+            <span
+              style={{
+                fontSize: "22px",
+                fontWeight: 900,
+                letterSpacing: "0.08em",
+                lineHeight: 1.1,
+                margin: "2px 0",
+                color: "#000000",
+              }}
+            >
+              {recipientZip}
+            </span>
+            <span
+              style={{
+                fontSize: "8px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                color: "#4b5563",
+                lineHeight: 1.2,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "105px",
+              }}
+            >
+              {recipientCityState || "EXPRESS HUB"}
+            </span>
+            <span
+              style={{
+                display: "inline-block",
+                marginTop: "3px",
+                backgroundColor: "#000000",
+                color: "#ffffff",
+                fontSize: "6.5px",
+                fontWeight: 900,
+                letterSpacing: "0.05em",
+                padding: "1px 5px",
+                borderRadius: "2px",
+                textTransform: "uppercase",
+              }}
+            >
+              SURFACE EXP
+            </span>
+          </div>
+        </div>
+
+        {/* 4. RETURN ADDRESS & PACKAGE DETAILS (flex: 0 0 auto) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            borderBottom: "2px solid #000000",
+            display: "flex",
+            alignItems: "stretch",
+            backgroundColor: "#ffffff",
+          }}
+        >
+          {/* Left: Sender Return Details */}
+          <div
+            style={{
+              width: "50%",
+              borderRight: "1px solid #000000",
+              padding: "5px 6px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "7.5px",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                color: "#4b5563",
+                display: "block",
+                lineHeight: 1.2,
+              }}
+            >
+              If undelivered, return to:
+            </span>
+            <div
+              style={{
+                fontSize: "9px",
+                fontWeight: 900,
+                color: "#000000",
+                marginTop: "2px",
+                lineHeight: 1.2,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {senderName}
+            </div>
+            <div
+              style={{
+                fontSize: "8px",
+                color: "#374151",
+                lineHeight: 1.25,
+                marginTop: "2px",
+              }}
+            >
+              {senderFullAddress}
+            </div>
+            {globalSetting?.gstin && !isReseller && (
+              <div
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 700,
+                  color: "#111827",
+                  lineHeight: 1.2,
+                  marginTop: "2px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                GSTIN: {globalSetting.gstin}
+              </div>
+            )}
+          </div>
+
+          {/* Right: Package specifics */}
+          <div
+            style={{
+              width: "50%",
+              padding: "5px 6px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              fontSize: "8px",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25 }}>
+              <span style={{ color: "#4b5563" }}>Total Items:</span>
+              <span style={{ fontWeight: 700, color: "#000000" }}>{totalItemsCount} Unit(s)</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25, marginTop: "2px" }}>
+              <span style={{ color: "#4b5563" }}>Shipping:</span>
+              <span style={{ fontWeight: 700, color: "#000000" }}>
+                {data?.shippingCost > 0 ? `${currency}${data.shippingCost}` : "FREE"}
               </span>
-              <span className="text-[20px] font-black tracking-widest leading-none my-1 text-black">
-                {recipientZip}
-              </span>
-              <span className="text-[8px] font-extrabold text-gray-700 uppercase tracking-wider text-center leading-tight">
-                {recipientCityState || "EXPRESS HUB"}
+            </div>
+            <div
+              style={{
+                borderTop: "1px dotted #9ca3af",
+                marginTop: "3px",
+                paddingTop: "3px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                lineHeight: 1.25,
+              }}
+            >
+              <span style={{ fontWeight: 700 }}>Payment Mode:</span>
+              <span style={{ textTransform: "uppercase", color: "#000000", fontWeight: 900 }}>
+                {data?.paymentMethod || (isCod ? "COD" : "PREPAID")}
               </span>
             </div>
           </div>
         </div>
 
-        {/* 4. RETURN TO & PACKAGE DETAILS */}
-        {!isReseller ? (
-          <div className="border-b border-black grid grid-cols-2 text-[8.5px] leading-tight bg-white">
-            <div className="p-1.5 border-r border-black">
-              <span className="font-extrabold uppercase text-gray-600 block text-[7.5px]">
-                If undelivered, return to:
-              </span>
-              <div className="font-black text-[9px] text-black mt-0.5">{senderName}</div>
-              <div className="text-gray-800 leading-tight mt-0.5 text-[8px] break-words">
-                {senderFullAddress}
-              </div>
-              {globalSetting?.gstin && (
-                <div className="font-bold text-gray-900 mt-0.5 text-[8px]">
-                  GSTIN: {globalSetting.gstin}
-                </div>
-              )}
+        {/* 5. PRODUCT CONTENTS TABLE (flex: 0 0 auto) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            backgroundColor: "#ffffff",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Table Header */}
+          <div
+            style={{
+              backgroundColor: "#f3f4f6",
+              borderBottom: "1px solid #000000",
+              fontSize: "8px",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              color: "#1f2937",
+              display: "flex",
+              alignItems: "center",
+              padding: "4px 0",
+            }}
+          >
+            <div
+              style={{
+                width: "24px",
+                textAlign: "center",
+                borderRight: "1px solid #d1d5db",
+                flexShrink: 0,
+                padding: "0 2px",
+              }}
+            >
+              #
             </div>
-
-            <div className="p-1.5 flex flex-col justify-between">
-              <div className="space-y-0.5">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Items:</span>
-                  <span className="font-bold text-black">{totalItemsCount} Unit(s)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping:</span>
-                  <span className="font-bold text-black">
-                    {data?.shippingCost > 0
-                      ? `${currency}${data.shippingCost}`
-                      : "FREE"}
-                  </span>
-                </div>
-              </div>
-              <div className="border-t border-dotted border-gray-400 pt-0.5 flex justify-between font-bold text-[8.5px]">
-                <span>Payment Mode:</span>
-                <span className="uppercase text-black">
-                  {data?.paymentMethod || (isCod ? "COD" : "PREPAID")}
-                </span>
-              </div>
+            <div
+              style={{
+                flex: 1,
+                padding: "0 6px",
+                borderRight: "1px solid #d1d5db",
+                minWidth: 0,
+              }}
+            >
+              Product Description
             </div>
-          </div>
-        ) : (
-          <div className="border-b border-black px-3 py-1.5 bg-white flex justify-between items-center text-[8.5px]">
-            <div className="flex items-center gap-1.5">
-              <span className="text-gray-600 font-semibold">Total Items:</span>
-              <span className="font-black text-black">{totalItemsCount} Unit(s)</span>
+            <div
+              style={{
+                width: "36px",
+                textAlign: "center",
+                borderRight: "1px solid #d1d5db",
+                flexShrink: 0,
+              }}
+            >
+              Qty
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-gray-600 font-semibold">Shipping:</span>
-              <span className="font-black text-black">EXPRESS</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-gray-600 font-semibold">Payment Mode:</span>
-              <span className="font-black uppercase text-black">PREPAID</span>
-            </div>
-          </div>
-        )}
-
-        {/* 5. ITEM CONTENTS SUMMARY */}
-        <div className="border-b-2 border-black bg-white">
-          {/* Header */}
-          <div className="bg-gray-100 border-b border-black text-[8px] uppercase font-black text-gray-800 flex items-stretch">
-            <div className="w-6 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">#</div>
-            <div className="flex-1 py-1 px-2 border-r border-gray-300">Product Description</div>
-            <div className="w-8 py-1 px-1 text-center border-r border-gray-300 flex-shrink-0">Qty</div>
-            <div className="w-24 py-1 pr-2.5 text-right flex-shrink-0">
+            <div
+              style={{
+                width: "85px",
+                textAlign: "right",
+                paddingRight: "8px",
+                flexShrink: 0,
+              }}
+            >
               {isReseller ? "Status" : "Amount"}
             </div>
           </div>
 
-          {/* Rows */}
-          {data?.cart?.slice(0, 3)?.map((item, idx) => {
+          {/* Table Rows (Natural height, no vertical clipping) */}
+          {data?.cart?.slice(0, 4)?.map((item, idx) => {
             const title =
               typeof item?.title === "object"
                 ? showingTranslateValue(item?.title)
@@ -387,19 +770,63 @@ const ShippingLabel4x6 = ({
             return (
               <div
                 key={idx}
-                className="flex items-stretch border-b border-gray-200 text-[8.5px] bg-white"
-                style={{ minHeight: "22px" }}
+                style={{
+                  borderBottom: "1px solid #e5e7eb",
+                  fontSize: "8.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "#ffffff",
+                  padding: "4px 0",
+                }}
               >
-                <div className="w-6 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
+                <div
+                  style={{
+                    width: "24px",
+                    textAlign: "center",
+                    fontWeight: 700,
+                    borderRight: "1px solid #e5e7eb",
+                    flexShrink: 0,
+                    padding: "0 2px",
+                  }}
+                >
                   {idx + 1}
                 </div>
-                <div className="flex-1 py-1 px-2 border-r border-gray-200 font-semibold text-gray-900 leading-snug flex items-center min-w-0">
-                  <span className="block truncate">{title}</span>
+                <div
+                  style={{
+                    flex: 1,
+                    padding: "0 6px",
+                    borderRight: "1px solid #e5e7eb",
+                    fontWeight: 600,
+                    color: "#111827",
+                    minWidth: 0,
+                    whiteSpace: "normal",
+                    lineHeight: 1.25,
+                  }}
+                  title={title}
+                >
+                  {title}
                 </div>
-                <div className="w-8 py-1 px-1 text-center font-bold border-r border-gray-200 flex items-center justify-center flex-shrink-0">
+                <div
+                  style={{
+                    width: "36px",
+                    textAlign: "center",
+                    fontWeight: 700,
+                    borderRight: "1px solid #e5e7eb",
+                    flexShrink: 0,
+                  }}
+                >
                   {item?.quantity || 1}
                 </div>
-                <div className="w-24 py-1 pr-2.5 text-right font-bold text-black flex items-center justify-end flex-shrink-0">
+                <div
+                  style={{
+                    width: "85px",
+                    textAlign: "right",
+                    paddingRight: "8px",
+                    fontWeight: 700,
+                    color: "#000000",
+                    flexShrink: 0,
+                  }}
+                >
                   {isReseller
                     ? "PREPAID"
                     : `${currency}${itemTotal.toLocaleString("en-IN", {
@@ -411,81 +838,288 @@ const ShippingLabel4x6 = ({
             );
           })}
 
-          {data?.cart?.length > 3 && (
-            <div className="py-1 px-2 text-center italic text-gray-600 bg-gray-50 text-[7.5px]">
-              + {data.cart.length - 3} more item(s) packed in this parcel
+          {data?.cart?.length > 4 && (
+            <div
+              style={{
+                padding: "3px 8px",
+                textAlign: "center",
+                fontStyle: "italic",
+                color: "#4b5563",
+                backgroundColor: "#f9fafb",
+                fontSize: "7.5px",
+                borderBottom: "1px solid #e5e7eb",
+                lineHeight: 1.2,
+              }}
+            >
+              + {data.cart.length - 4} more item(s) packed in this parcel
             </div>
           )}
+
+          {/* Order Summary Strip */}
+          <div
+            style={{
+              backgroundColor: "#f9fafb",
+              borderBottom: "1px solid #d1d5db",
+              padding: "3px 8px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: "7.5px",
+              color: "#4b5563",
+            }}
+          >
+            <span>
+              {isReseller
+                ? "Direct Fulfillment Package"
+                : `Subtotal: ${currency}${itemsSubtotal.toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })} • Shipping: ${
+                    data?.shippingCost > 0
+                      ? `${currency}${data.shippingCost}`
+                      : "FREE"
+                  }`}
+            </span>
+            <span style={{ fontWeight: 800, color: "#111827" }}>
+              Net Value: {currency}{payableAmount}
+            </span>
+          </div>
+
+          {/* Logistics Handling & Transit Declaration Box */}
+          <div
+            style={{
+              backgroundColor: "#ffffff",
+              borderBottom: "1px solid #000000",
+              padding: "4px 8px",
+              fontSize: "6.8px",
+              color: "#374151",
+              lineHeight: 1.35,
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 900,
+                color: "#4b5563",
+                fontSize: "7px",
+                textTransform: "uppercase",
+                marginBottom: "2px",
+                letterSpacing: "0.03em",
+              }}
+            >
+              LOGISTICS HANDLING &amp; TRANSIT DECLARATION
+            </div>
+            <div>• Handle with Care: Packed with premium ethnic apparel &amp; textiles.</div>
+            <div>• Security Note: Tamper-evident packaging. Do not accept if seal is damaged.</div>
+            <div>• Statutory: Goods are for direct retail customer use. No commercial resale in transit.</div>
+          </div>
         </div>
 
-        {/* 6. FOOTER: QR CODE, TAMPER SEAL & TOTAL */}
-        <div className="p-1.5 flex items-center justify-between bg-white text-[8px]">
-          <div className="flex items-center gap-2">
-            {qrCodeUrl ? (
-              <div className="flex flex-col items-center flex-shrink-0">
+        {/* 6. FLEXIBLE SPACER (Absorbs remaining vertical space cleanly) */}
+        <div
+          style={{
+            flex: "1 1 auto",
+            minHeight: "0px",
+            backgroundColor: "#ffffff",
+          }}
+        />
+
+        {/* 7. FOOTER (flex: 0 0 auto, border-top: 2px solid #000) */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            borderTop: "2px solid #000000",
+            backgroundColor: "#ffffff",
+            display: "flex",
+            alignItems: "stretch",
+          }}
+        >
+          {/* Left: QR Code & Tamper Seal */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 0,
+              padding: "6px 8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <div
+              style={{
+                width: "52px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              {qrCodeUrl ? (
                 <img
                   src={qrCodeUrl}
-                  alt="Package Tracking QR"
-                  className="w-[50px] h-[50px] border-2 border-black p-0.5 bg-white"
+                  alt="Package QR"
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    border: "1.5px solid #000000",
+                    padding: "1px",
+                    backgroundColor: "#ffffff",
+                    display: "block",
+                  }}
                 />
-                <span className="text-[6.5px] font-black uppercase tracking-wider text-black mt-0.5 leading-none">
-                  PACKAGE QR
-                </span>
-              </div>
-            ) : (
-              <div className="w-[50px] h-[50px] border-2 border-black bg-gray-100 flex items-center justify-center text-[8px] font-bold flex-shrink-0">
-                QR
-              </div>
-            )}
-            <div className="flex flex-col justify-center leading-tight">
-              <span className="font-black text-[7.5px] uppercase tracking-wider text-red-700 flex items-center gap-1">
-                <FiAlertTriangle className="w-2.5 h-2.5 inline-block text-red-700 flex-shrink-0" />
+              ) : (
+                <div
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    border: "1.5px solid #000000",
+                    backgroundColor: "#f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "8px",
+                    fontWeight: 700,
+                  }}
+                >
+                  QR
+                </div>
+              )}
+              <span
+                style={{
+                  fontSize: "6.5px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  color: "#000000",
+                  marginTop: "2px",
+                  lineHeight: 1.2,
+                }}
+              >
+                PACKAGE QR
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                minWidth: 0,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  color: "#b91c1c",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  lineHeight: 1.2,
+                }}
+              >
+                <FiAlertTriangle style={{ width: "10px", height: "10px", color: "#b91c1c", flexShrink: 0 }} />
                 TAMPER-EVIDENT BOX SEAL:
               </span>
-              <span className="text-[7.5px] text-gray-800 leading-snug mt-0.5 max-w-[1.4in] font-medium">
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  color: "#1f2937",
+                  fontWeight: 500,
+                  lineHeight: 1.3,
+                  marginTop: "2px",
+                  maxWidth: "140px",
+                }}
+              >
                 Do not accept if outer package seal is broken or tampered with.
               </span>
-              <span className="text-[7px] text-gray-600 font-mono mt-0.5">
+              <span
+                style={{
+                  fontSize: "7px",
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#374151",
+                  fontWeight: 700,
+                  marginTop: "3px",
+                  lineHeight: 1.2,
+                }}
+              >
                 {isReseller
                   ? (data?.reseller_info?.contact ? `Help: ${data?.reseller_info?.contact}` : "Standard Express Delivery")
                   : `Support: ${globalSetting?.email || "manchandafabrics@gmail.com"}`}
               </span>
+              <span
+                style={{
+                  fontSize: "6.5px",
+                  color: "#6b7280",
+                  marginTop: "1px",
+                  lineHeight: 1.2,
+                }}
+              >
+                Helpline: +91 88824 00949
+              </span>
             </div>
           </div>
 
-          <div className="text-right border-l-2 border-black pl-2 min-w-[1.15in] flex flex-col justify-center">
-            {isReseller ? (
-              <>
-                <span className="text-[8px] uppercase font-bold text-gray-600 block">
-                  Package Status
-                </span>
-                <div className="text-[12px] font-black text-emerald-800 leading-none my-0.5">
-                  PREPAID
-                </div>
-                <span className="text-[7px] font-bold uppercase text-gray-700 block">
-                  Do Not Collect Cash
-                </span>
-                <span className="text-[6.5px] font-semibold uppercase text-gray-400 block mt-0.5">
-                  Authorized Dispatch
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="text-[8px] uppercase font-bold text-gray-600 block">
-                  Total Amount
-                </span>
-                <div className="text-[14px] font-black text-black leading-none my-0.5">
-                  {currency}
-                  {payableAmount}
-                </div>
-                <span className="text-[7px] font-bold uppercase text-gray-700 block">
-                  {isCod ? "Cash Due on Delivery" : "Prepaid (₹0 to Pay)"}
-                </span>
-                <span className="text-[6.5px] font-semibold uppercase text-gray-400 block mt-0.5">
-                  Authorized Signatory
-                </span>
-              </>
-            )}
+          {/* Right: Total Amount box */}
+          <div
+            style={{
+              width: "115px",
+              borderLeft: "2px solid #000000",
+              backgroundColor: "#ffffff",
+              padding: "6px 8px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              textAlign: "right",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                fontSize: "7.5px",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                color: "#4b5563",
+                lineHeight: 1.2,
+              }}
+            >
+              TOTAL AMOUNT
+            </span>
+            <div
+              style={{
+                fontSize: "15px",
+                fontWeight: 900,
+                color: "#000000",
+                lineHeight: 1.1,
+                margin: "2px 0",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {currency}{payableAmount}
+            </div>
+            <span
+              style={{
+                fontSize: "7px",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                color: "#111827",
+                lineHeight: 1.2,
+              }}
+            >
+              {isCod ? "Cash Due on Delivery" : "Prepaid (₹0 to Pay)"}
+            </span>
+            <span
+              style={{
+                fontSize: "6.5px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                color: "#9ca3af",
+                marginTop: "3px",
+                lineHeight: 1.2,
+              }}
+            >
+              Authorized Signatory
+            </span>
           </div>
         </div>
       </div>

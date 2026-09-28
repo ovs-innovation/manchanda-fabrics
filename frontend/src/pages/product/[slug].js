@@ -202,7 +202,10 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   // Initialize color variant selection
   useEffect(() => {
     if (combinedColorVariants && combinedColorVariants.length > 0) {
+      // Prioritize in-stock color variant so user does not land on a sold out color by default
       const defaultVar =
+        combinedColorVariants.find((cv) => cv.isDefault && Number(cv.stock || 0) > 0) ||
+        combinedColorVariants.find((cv) => Number(cv.stock || 0) > 0) ||
         combinedColorVariants.find((cv) => cv.isDefault) ||
         combinedColorVariants[0];
       setSelectedColorVar(defaultVar);
@@ -829,7 +832,13 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
   }, [activeTab]);
 
   const handleAddToCart = (p) => {
-    if (stock <= 0) return notifyError("Insufficient stock");
+    if (stock <= 0) {
+      return notifyError(
+        selectedColorVar
+          ? `${selectedColorVar.colorName} is currently sold out!`
+          : "This item is currently sold out!"
+      );
+    }
 
     const hasVariants = product?.variants && product.variants.length > 0;
     if (

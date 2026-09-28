@@ -165,8 +165,28 @@ const OrderInvoice = () => {
     }
   };
 
-  const handleDownloadShippingLabel = () => {
-    handlePrintShippingLabel();
+  const handleDownloadShippingLabel = async () => {
+    try {
+      setLabelPdfDownloading(true);
+      const rawInvoice = String(data?.invoice || data?._id?.slice(-8) || id);
+      const cleanInvoice = rawInvoice.includes("/")
+        ? rawInvoice.split("/").pop()
+        : rawInvoice.replace(/[\/\\?%*:|"<>]/g, "-");
+
+      await downloadShippingLabelPdf({
+        data,
+        globalSetting,
+        storeCustomizationSetting,
+        showingTranslateValue,
+        filename: `Shipping-Label-${cleanInvoice}.pdf`,
+      });
+      notifySuccess("4x6 Shipping Label PDF downloaded!");
+    } catch (err) {
+      console.error("Shipping label download error:", err);
+      notifyError(err?.message || "Could not download shipping label PDF");
+    } finally {
+      setLabelPdfDownloading(false);
+    }
   };
 
   const handleBack = () => {
@@ -247,18 +267,37 @@ const OrderInvoice = () => {
                   </span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={handlePrintShippingLabel}
-                  className="flex items-center gap-2 text-sm leading-5 transition-all duration-150 font-semibold focus:outline-none px-5 py-2.5 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 border border-transparent shadow-sm cursor-pointer active:scale-95"
-                  title="Save crisp 4x6 vector PDF or print directly to thermal printer"
-                >
-                  <FiPrinter className="w-4 h-4" />
-                  <span>Print / Save 4x6 Label (PDF)</span>
-                  <span className="bg-emerald-800/60 text-emerald-100 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                    4"×6"
-                  </span>
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* DIRECT DOWNLOAD 4X6 PDF BUTTON */}
+                  <button
+                    type="button"
+                    disabled={labelPdfDownloading}
+                    onClick={handleDownloadShippingLabel}
+                    className="flex items-center gap-2 text-sm leading-5 transition-all duration-150 font-semibold focus:outline-none px-5 py-2.5 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 border border-transparent shadow-sm cursor-pointer active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                    title="Directly generate and download exact 4x6 inch thermal shipping label as PDF"
+                  >
+                    <IoCloudDownloadOutline className="w-4 h-4 text-base" />
+                    <span>
+                      {labelPdfDownloading
+                        ? "Generating 4x6 PDF..."
+                        : "Print / Save 4x6 Label (PDF)"}
+                    </span>
+                    <span className="bg-emerald-800/60 text-emerald-100 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                      4"×6"
+                    </span>
+                  </button>
+
+                  {/* PRINT 4X6 LABEL BUTTON */}
+                  <button
+                    type="button"
+                    onClick={handlePrintShippingLabel}
+                    className="flex items-center gap-2 text-sm leading-5 transition-all duration-150 font-semibold focus:outline-none px-5 py-2.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 border border-transparent shadow-sm cursor-pointer active:scale-95"
+                    title="Open print dialog configured for 4x6 thermal printer"
+                  >
+                    <FiPrinter className="w-4 h-4" />
+                    <span>Direct Thermal Print</span>
+                  </button>
+                </div>
               )}
             </div>
 
@@ -440,6 +479,28 @@ const OrderInvoice = () => {
                   <span>
                     📱 <strong>Live Scannable:</strong> High-Density Code128 Barcode &amp; QR Code
                   </span>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    disabled={labelPdfDownloading}
+                    onClick={handleDownloadShippingLabel}
+                    className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm cursor-pointer active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <IoCloudDownloadOutline className="w-4 h-4" />
+                    <span>
+                      {labelPdfDownloading ? "Downloading PDF..." : "Download 4x6 Label (PDF)"}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePrintShippingLabel}
+                    className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm cursor-pointer active:scale-95"
+                  >
+                    <FiPrinter className="w-4 h-4" />
+                    <span>Print 4x6 Label</span>
+                  </button>
                 </div>
               </div>
             </div>
