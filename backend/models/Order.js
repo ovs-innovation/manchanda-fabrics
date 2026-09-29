@@ -104,6 +104,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    courierName: {
+      type: String,
+      default: null,
+    },
     paymentMethod: {
       type: String,
       required: true,

@@ -176,10 +176,10 @@ const Order = ({ params }) => {
                 )}
                 content={() => printRef.current}
               />
-               {data.trackingNumber && (
+               {(data.trackingNumber || data.shippingTrackingId) && (
                  <>
                    <button 
-                     onClick={() => handleCopyTracking(data.trackingNumber)}
+                     onClick={() => handleCopyTracking(data.trackingNumber || data.shippingTrackingId)}
                      className="flex items-center justify-center bg-gray-100 text-gray-700 transition-all font-serif text-sm font-semibold h-10 py-2 px-5 rounded-md hover:bg-gray-200 shadow-sm"
                    >
                      Copy AWB <IoCopyOutline className="ml-2" />
@@ -209,7 +209,7 @@ const Order = ({ params }) => {
             </div>
 
             {/* Live Tracking Section */}
-            {(data.trackingNumber || data.status === "Shipped" || data.status === "OutForDelivery") && (
+            {(data.trackingNumber || data.shippingTrackingId || data.courierName || data.status === "Shipped" || data.status === "OutForDelivery") && (
                <div className="mb-10">
                   <OrderTracking order={data} />
                </div>

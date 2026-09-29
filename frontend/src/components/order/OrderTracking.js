@@ -66,14 +66,14 @@ const OrderTracking = ({ order }) => {
                 </div>
               </div>
             )}
-            {order.trackingNumber && (
+            {(order.trackingNumber || order.shippingTrackingId) && (
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-store-200 transition-all">
-                <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-widest">AWB Number</p>
+                <p className="text-[10px] text-gray-400 uppercase font-black mb-1.5 tracking-widest">AWB / Tracking Number</p>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
                     <FiPackage className="text-store-500" />
                   </div>
-                  <p className="text-sm font-mono font-bold text-gray-800">{order.trackingNumber}</p>
+                  <p className="text-sm font-mono font-bold text-gray-800">{order.trackingNumber || order.shippingTrackingId}</p>
                 </div>
               </div>
             )}

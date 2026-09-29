@@ -156,8 +156,13 @@ const downloadShippingLabelPdf = async (params) => {
 
   const orderIdShort = data?._id?.slice(-8)?.toUpperCase() || "ORD";
 
+  const trackingAwb =
+    data?.shippingTrackingId ||
+    data?.trackingNumber ||
+    data?.shiprocket?.awb_code;
+
   const barcodeValue = String(
-    data?.invoice || data?._id?.slice(-8) || "ORD10066"
+    trackingAwb || data?.invoice || data?._id?.slice(-8) || "ORD10066"
   )
     .replace(/[^a-zA-Z0-9-]/g, "-")
     .toUpperCase();
@@ -310,7 +315,7 @@ const downloadShippingLabelPdf = async (params) => {
   doc.setFont("courier", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(0, 0, 0);
-  doc.text(barcodeValue, 144, 103, { align: "center" });
+  doc.text(trackingAwb ? `AWB: ${barcodeValue}` : barcodeValue, 144, 103, { align: "center" });
 
   // ==========================================
   // SECTION 3: ORDER META STRIP (y = 108 to y = 126, h = 18 pt)
@@ -359,12 +364,17 @@ const downloadShippingLabelPdf = async (params) => {
     align: "center",
   });
 
+  const carrierName = (
+    data?.courierName ||
+    data?.shiprocket?.courier_name ||
+    "SURFACE EXP"
+  ).toUpperCase();
   doc.setFillColor(0, 0, 0);
   doc.rect(206, 183, 64, 9, "F");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6);
   doc.setTextColor(255, 255, 255);
-  doc.text("SURFACE EXP", 238, 189.5, { align: "center" });
+  doc.text(truncateToWidth(doc, carrierName, 60), 238, 189.5, { align: "center" });
 
   // Left: Customer Details (x = 6 to 194)
   doc.setFillColor(0, 0, 0);

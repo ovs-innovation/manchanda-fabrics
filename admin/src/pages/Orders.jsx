@@ -417,7 +417,7 @@ const Orders = () => {
                               {col === "discount" && "Discount"}
                               {col === "method" && t("MethodTbl")}
                               {col === "amount" && t("AmountTbl")}
-                              {col === "shippingId" && "Shipping ID"}
+                              {col === "shippingId" && "Courier & Tracking"}
                               {col === "status" && t("OderStatusTbl")}
                               {col === "action" && "Action"}
                               {col === "actions" && "Actions"}
@@ -570,8 +570,8 @@ const Orders = () => {
                       </TableCell>
                     )}
                     {visibleColumns.shippingId && (
-                      <TableCell className="whitespace-nowrap min-w-[140px]">
-                        Shipping ID
+                      <TableCell className="whitespace-nowrap min-w-[180px]">
+                        Courier / Tracking
                       </TableCell>
                     )}
                     {visibleColumns.status && (

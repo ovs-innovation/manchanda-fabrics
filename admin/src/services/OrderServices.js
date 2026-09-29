@@ -62,8 +62,12 @@ const OrderServices = {
     return requests.put(`/orders/${id}`, body, headers);
   },
 
-  updateShippingId: async (id, shippingTrackingId) => {
-    return requests.patch(`/orders/${id}/shipping-id`, { shippingTrackingId });
+  updateShippingId: async (id, payload) => {
+    const body =
+      typeof payload === "object" && payload !== null
+        ? payload
+        : { shippingTrackingId: payload };
+    return requests.patch(`/orders/${id}/shipping-id`, body);
   },
 
   deleteOrder: async (id) => {

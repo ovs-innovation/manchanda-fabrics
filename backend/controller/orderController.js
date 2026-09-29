@@ -115,7 +115,7 @@ const getAllOrders = async (req, res) => {
     const totalDoc = await Order.countDocuments(queryObject);
     const orders = await Order.find(queryObject)
       .select(
-        "_id invoice paymentMethod subTotal total user_info user cart discount shippingCost status createdAt updatedAt shiprocket orderType reseller_info final_customer_info"
+        "_id invoice paymentMethod subTotal total user_info user cart discount shippingCost status createdAt updatedAt shiprocket orderType reseller_info final_customer_info shippingTrackingId courierName trackingNumber"
       )
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -1026,16 +1026,25 @@ const getDashboardOrders = async (req, res) => {
  */
 const updateShippingId = async (req, res) => {
   try {
-    const { shippingTrackingId } = req.body;
+    const { shippingTrackingId, courierName } = req.body;
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-    order.shippingTrackingId = shippingTrackingId ?? null;
+    const cleanTrackingId = shippingTrackingId ? String(shippingTrackingId).trim() : null;
+    order.shippingTrackingId = cleanTrackingId;
+    if (cleanTrackingId) {
+      order.trackingNumber = cleanTrackingId;
+    }
+    if (courierName !== undefined) {
+      order.courierName = courierName ? String(courierName).trim() : null;
+    }
     await order.save();
     return res.status(200).json({
-      message: "Shipping tracking ID updated successfully",
+      message: "Shipping tracking details updated successfully",
       shippingTrackingId: order.shippingTrackingId,
+      courierName: order.courierName,
+      trackingNumber: order.trackingNumber,
       _id: order._id,
     });
   } catch (err) {
