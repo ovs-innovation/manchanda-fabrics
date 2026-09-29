@@ -51,26 +51,24 @@ const ProductImageGallery = ({
     return lowered.includes("youtube.com/") || lowered.includes("youtu.be/");
   };
 
-  const getYoutubeThumbnail = (url = "") => {
+  const getYoutubeVideoId = (url = "") => {
     if (!isYoutubeUrl(url)) return null;
-    const ytMatch =
-      url.match(/[?&]v=([^&#]+)/i) ||
-      url.match(/youtu\.be\/([^&#?/]+)/i) ||
-      url.match(/\/embed\/([^&#?/]+)/i);
-    const videoId = ytMatch?.[1];
+    const match = url.match(
+      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([^&\n?#]+)/i
+    );
+    return match?.[1] || null;
+  };
+
+  const getYoutubeThumbnail = (url = "") => {
+    const videoId = getYoutubeVideoId(url);
     if (!videoId) return null;
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   };
 
   const getYoutubeEmbedUrl = (url = "") => {
-    if (!isYoutubeUrl(url)) return null;
-    const ytMatch =
-      url.match(/[?&]v=([^&#]+)/i) ||
-      url.match(/youtu\.be\/([^&#?/]+)/i) ||
-      url.match(/\/embed\/([^&#?/]+)/i);
-    const videoId = ytMatch?.[1];
+    const videoId = getYoutubeVideoId(url);
     if (!videoId) return null;
-    return `https://www.youtube.com/embed/${videoId}`;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&rel=0`;
   };
 
   // Build clean slides list from slides prop or fallback images

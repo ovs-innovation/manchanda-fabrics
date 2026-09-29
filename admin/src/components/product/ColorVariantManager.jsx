@@ -994,7 +994,7 @@ const ColorVariantManager = ({
           title="Upload product video"
         />
         <p className="text-xs text-gray-400">
-          Upload MP4 video for reels and storefront product view.
+          Upload MP4 video or paste a YouTube / Shorts link for reels and storefront product view.
         </p>
       </div>
     </div>

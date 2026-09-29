@@ -444,7 +444,7 @@ const ProductPhotoManager = ({
           title="Upload product video"
         />
         <p className="text-xs text-gray-400 mt-2">
-          Upload MP4 video for reels and product view. No external link required.
+          Upload MP4 video or paste a YouTube / Shorts link for reels and storefront product view.
         </p>
       </div>
     </section>
