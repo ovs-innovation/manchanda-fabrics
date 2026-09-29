@@ -121,7 +121,9 @@ const downloadShippingLabelPdf = async (params) => {
         .join(", ")
     : [
         data?.user_info?.address,
+        data?.user_info?.address2,
         data?.user_info?.city,
+        data?.user_info?.state,
         data?.user_info?.country,
       ]
         .filter(Boolean)
@@ -136,7 +138,7 @@ const downloadShippingLabelPdf = async (params) => {
         .filter(Boolean)
         .join(", ")
         .toUpperCase()
-    : [data?.user_info?.city, data?.user_info?.country]
+    : [data?.user_info?.city, data?.user_info?.state || data?.user_info?.country]
         .filter(Boolean)
         .join(", ")
         .toUpperCase();
@@ -366,29 +368,37 @@ const downloadShippingLabelPdf = async (params) => {
 
   // Left: Customer Details (x = 6 to 194)
   doc.setFillColor(0, 0, 0);
-  doc.rect(10, 132, 40, 11, "F");
+  doc.rect(10, 131, 40, 11, "F");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7);
   doc.setTextColor(255, 255, 255);
-  doc.text("SHIP TO:", 30, 140, { align: "center" });
+  doc.text("SHIP TO:", 30, 139, { align: "center" });
 
-  doc.setFontSize(11.5);
+  doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  doc.text(truncateToWidth(doc, String(recipientName).toUpperCase(), 136), 54, 141.5);
+  doc.text(truncateToWidth(doc, String(recipientName).toUpperCase(), 134), 54, 140.5);
 
-  // Address lines (up to 3 lines)
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(17, 24, 39);
-  const addrLines = doc.splitTextToSize(recipientAddress || "-", 178).slice(0, 3);
-  if (addrLines[0]) doc.text(addrLines[0], 10, 155);
-  if (addrLines[1]) doc.text(addrLines[1], 10, 166);
-  if (addrLines[2]) doc.text(addrLines[2], 10, 176);
+  // Prominent bold customer address (requested by client: "Address ka size jo customer ka h woh thoda prominent kro")
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  const addrLines = doc.splitTextToSize(recipientAddress || "-", 176).slice(0, 3);
+  let startAddrY = 153;
+  let lineStep = 11;
+  if (addrLines.length === 1) {
+    startAddrY = 157;
+  } else if (addrLines.length === 2) {
+    startAddrY = 155;
+    lineStep = 13;
+  }
+  addrLines.forEach((line, idx) => {
+    doc.text(line, 10, startAddrY + idx * lineStep);
+  });
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
+  doc.setFontSize(10.5);
   doc.setTextColor(0, 0, 0);
-  doc.text(`Mobile: ${recipientPhone}`, 10, 188);
+  doc.text(`Mobile: ${recipientPhone}`, 10, 189);
 
   // ==========================================
   // SECTION 5: RETURN ADDRESS & SPECS (y = 196 to y = 254, h = 58 pt)

@@ -101,7 +101,9 @@ const ShippingLabel4x6 = ({
         .join(", ")
     : [
         data?.user_info?.address,
+        data?.user_info?.address2,
         data?.user_info?.city,
+        data?.user_info?.state,
         data?.user_info?.country,
       ]
         .filter(Boolean)
@@ -116,7 +118,7 @@ const ShippingLabel4x6 = ({
         .filter(Boolean)
         .join(", ")
         .toUpperCase()
-    : [data?.user_info?.city, data?.user_info?.country]
+    : [data?.user_info?.city, data?.user_info?.state || data?.user_info?.country]
         .filter(Boolean)
         .join(", ")
         .toUpperCase();
@@ -478,11 +480,11 @@ const ShippingLabel4x6 = ({
 
             <div
               style={{
-                fontSize: "9px",
-                fontWeight: 600,
-                lineHeight: 1.3,
-                color: "#111827",
-                marginTop: "3px",
+                fontSize: "11px",
+                fontWeight: 700,
+                lineHeight: 1.35,
+                color: "#000000",
+                marginTop: "4px",
                 wordBreak: "break-word",
               }}
             >
@@ -491,19 +493,19 @@ const ShippingLabel4x6 = ({
 
             <div
               style={{
-                fontSize: "9.5px",
+                fontSize: "11px",
                 fontWeight: 900,
                 color: "#000000",
                 display: "flex",
                 alignItems: "center",
                 gap: "4px",
-                marginTop: "3px",
+                marginTop: "4px",
                 lineHeight: 1.2,
               }}
             >
-              <FiPhone style={{ width: "11px", height: "11px", color: "#000000", flexShrink: 0 }} />
-              <span style={{ fontWeight: 800 }}>Mobile:</span>
-              <span style={{ letterSpacing: "0.03em" }}>{recipientPhone}</span>
+              <FiPhone style={{ width: "12px", height: "12px", color: "#000000", flexShrink: 0 }} />
+              <span style={{ fontWeight: 900 }}>Mobile:</span>
+              <span style={{ letterSpacing: "0.03em", fontWeight: 900 }}>{recipientPhone}</span>
             </div>
           </div>
 

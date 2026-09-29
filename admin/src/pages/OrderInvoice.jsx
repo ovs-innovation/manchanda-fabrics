@@ -279,8 +279,8 @@ const OrderInvoice = () => {
                     <IoCloudDownloadOutline className="w-4 h-4 text-base" />
                     <span>
                       {labelPdfDownloading
-                        ? "Generating 4x6 PDF..."
-                        : "Print / Save 4x6 Label (PDF)"}
+                        ? "Downloading 4x6 PDF..."
+                        : "Download 4x6 Label (PDF)"}
                     </span>
                     <span className="bg-emerald-800/60 text-emerald-100 text-[10px] font-bold px-1.5 py-0.5 rounded">
                       4"×6"
