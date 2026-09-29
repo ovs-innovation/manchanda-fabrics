@@ -144,9 +144,9 @@ const OrdersByStatus = () => {
     time: true,
     customerName: true,
     customerId: false,
+    contact: true,
     productName: true,
     productId: false,
-    contact: true,
     shippingCost: false,
     discount: false,
     method: true,
@@ -530,10 +530,10 @@ const OrdersByStatus = () => {
               className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <Table className="w-full table-fixed" style={{ minWidth: "1400px" }}>
+              <Table className="w-full" style={{ minWidth: "1650px" }}>
                 <TableHeader>
                   <tr>
-                    <TableCell className="w-10 text-center">
+                    <TableCell className="w-10 text-center px-2 py-3.5">
                       <CheckBox
                         type="checkbox"
                         name="selectAll"
@@ -543,77 +543,77 @@ const OrdersByStatus = () => {
                       />
                     </TableCell>
                     {visibleColumns.invoice && (
-                      <TableCell className="whitespace-nowrap w-24">
+                      <TableCell className="whitespace-nowrap min-w-[90px] px-3 py-3.5">
                         {t("InvoiceNo")}
                       </TableCell>
                     )}
                     {visibleColumns.time && (
-                      <TableCell className="whitespace-nowrap w-40">
+                      <TableCell className="whitespace-nowrap min-w-[150px] px-3 py-3.5">
                         {t("TimeTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.customerName && (
-                      <TableCell className="whitespace-nowrap w-36">
+                      <TableCell className="whitespace-nowrap min-w-[140px] px-3 py-3.5">
                         {t("CustomerName")}
                       </TableCell>
                     )}
                     {visibleColumns.customerId && (
-                      <TableCell className="whitespace-nowrap w-28">
+                      <TableCell className="whitespace-nowrap min-w-[100px] px-3 py-3.5">
                         Customer ID
                       </TableCell>
                     )}
+                    {visibleColumns.contact && (
+                      <TableCell className="whitespace-nowrap min-w-[150px] px-3 py-3.5">
+                        Phone / Contact
+                      </TableCell>
+                    )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap w-80">
+                      <TableCell className="whitespace-nowrap min-w-[340px] px-4 py-3.5">
                         Products & Items
                       </TableCell>
                     )}
                     {visibleColumns.productId && (
-                      <TableCell className="whitespace-nowrap w-28">
+                      <TableCell className="whitespace-nowrap min-w-[100px] px-3 py-3.5">
                         Product ID
                       </TableCell>
                     )}
-                    {visibleColumns.contact && (
-                      <TableCell className="whitespace-nowrap w-32">
-                        Contact
-                      </TableCell>
-                    )}
                     {visibleColumns.shippingCost && (
-                      <TableCell className="whitespace-nowrap w-24">
+                      <TableCell className="whitespace-nowrap min-w-[90px] px-3 py-3.5">
                         Shipping
                       </TableCell>
                     )}
                     {visibleColumns.discount && (
-                      <TableCell className="whitespace-nowrap w-24">
+                      <TableCell className="whitespace-nowrap min-w-[90px] px-3 py-3.5">
                         Discount
                       </TableCell>
                     )}
                     {visibleColumns.method && (
-                      <TableCell className="whitespace-nowrap w-28">
+                      <TableCell className="whitespace-nowrap min-w-[110px] px-3 py-3.5">
                         {t("MethodTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.amount && (
-                      <TableCell className="whitespace-nowrap w-28">
+                      <TableCell className="whitespace-nowrap min-w-[100px] px-3 py-3.5">
                         {t("AmountTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.shippingId && (
-                      <TableCell className="whitespace-nowrap w-44">
+                      <TableCell className="whitespace-nowrap min-w-[170px] px-3 py-3.5">
                         Courier / Tracking
                       </TableCell>
                     )}
                     {visibleColumns.status && (
-                      <TableCell className="whitespace-nowrap w-28">
+                      <TableCell className="whitespace-nowrap min-w-[110px] px-3 py-3.5">
                         {t("OderStatusTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.action && (
-                      <TableCell className="text-center whitespace-nowrap w-36">
+                      <TableCell className="text-center whitespace-nowrap min-w-[140px] px-3 py-3.5">
                         Action
                       </TableCell>
                     )}
                     {visibleColumns.actions && (
-                      <TableCell className="text-center whitespace-nowrap w-20">
+                      <TableCell className="text-center whitespace-nowrap min-w-[70px] px-2 py-3.5">
                         Actions
                       </TableCell>
                     )}

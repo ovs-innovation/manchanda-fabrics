@@ -1,7 +1,7 @@
 import { TableBody, TableCell, TableRow } from "@windmill/react-ui";
 
 import { useTranslation } from "react-i18next";
-import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage, FiPlus, FiTruck } from "react-icons/fi";
+import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage, FiPlus, FiTruck, FiPhoneCall } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useState, memo } from "react";
 import { createPortal } from "react-dom";
@@ -316,23 +316,23 @@ const OrderTable = ({
     Object.keys(visibleColumns).length > 0
       ? visibleColumns
       : {
-          invoice: true,
-          time: true,
-          orderType: true,
-          customerName: true,
-          customerId: false,
-          productName: true,
-          productId: false,
-          contact: true,
-          shippingCost: true,
-          discount: true,
-          method: true,
-          amount: true,
-          shippingId: true,
-          status: true,
-          action: true,
-          actions: true,
-        };
+        invoice: true,
+        time: true,
+        orderType: true,
+        customerName: true,
+        customerId: false,
+        productName: true,
+        productId: false,
+        contact: true,
+        shippingCost: true,
+        discount: true,
+        method: true,
+        amount: true,
+        shippingId: true,
+        status: true,
+        action: true,
+        actions: true,
+      };
 
   return (
     <>
@@ -340,7 +340,7 @@ const OrderTable = ({
         {orders?.map((order, i) => (
           <TableRow key={order?._id || i}>
             {isCheck !== undefined && (
-              <TableCell className="w-10 text-center">
+              <TableCell className="align-top py-4 px-2 w-10 text-center">
                 <CheckBox
                   type="checkbox"
                   name={order?.invoice?.toString()}
@@ -352,23 +352,23 @@ const OrderTable = ({
             )}
 
             {columns.invoice && (
-              <TableCell className="whitespace-nowrap min-w-[90px]">
-                <span className="font-semibold uppercase text-xs">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[90px]">
+                <span className="font-semibold uppercase text-xs font-mono text-gray-800 dark:text-gray-200">
                   {order?.invoice}
                 </span>
               </TableCell>
             )}
 
             {columns.time && (
-              <TableCell className="whitespace-nowrap min-w-[160px]">
-                <span className="text-sm">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[160px]">
+                <span className="text-xs text-gray-600 dark:text-gray-400">
                   {showDateTimeFormat(order?.updatedDate)}
                 </span>
               </TableCell>
             )}
 
             {columns.orderType && (
-              <TableCell className="whitespace-nowrap min-w-[110px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[110px]">
                 {order?.orderType === "RESELLER" ? (
                   <div className="flex flex-col gap-0.5">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 w-max">
@@ -390,20 +390,39 @@ const OrderTable = ({
             )}
 
             {columns.customerName && (
-              <TableCell className="text-xs whitespace-nowrap min-w-[140px]">
-                <span className="text-sm">{order?.user_info?.name}</span>{" "}
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[140px]">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  {order?.user_info?.name || "Customer"}
+                </span>
               </TableCell>
             )}
 
             {columns.customerId && (
-              <TableCell className="whitespace-nowrap min-w-[100px]">
-                <span className="text-xs text-gray-500">{order?.user}</span>
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[100px]">
+                <span className="text-xs text-gray-500 font-mono">{order?.user}</span>
+              </TableCell>
+            )}
+
+            {columns.contact && (
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[150px]">
+                {order?.user_info?.contact ? (
+                  <a
+                    href={`tel:${order?.user_info?.contact}`}
+                    title="Click to call customer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 hover:bg-teal-50 dark:bg-gray-800/80 dark:hover:bg-teal-900/30 border border-gray-200/80 hover:border-teal-300 dark:border-gray-700/80 text-xs font-mono font-medium text-gray-800 hover:text-teal-700 dark:text-gray-200 dark:hover:text-teal-300 transition-colors cursor-pointer"
+                  >
+                    <FiPhoneCall size={12} className="text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span className="select-all">{order?.user_info?.contact}</span>
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-400 italic">No phone</span>
+                )}
               </TableCell>
             )}
 
             {columns.productName && (
-              <TableCell className="whitespace-normal min-w-[280px] max-w-[380px] py-3">
-                <div className="flex flex-col gap-2 min-w-[260px]">
+              <TableCell className="align-top py-4 px-4 whitespace-normal min-w-[340px] max-w-[440px]">
+                <div className="flex flex-col gap-2 min-w-[300px]">
                   {order?.cart?.map((item, index) => {
                     const itemImg = getItemImage(item);
                     const itemTitle =
@@ -419,7 +438,7 @@ const OrderTable = ({
                     return (
                       <div
                         key={index}
-                        className="flex items-start gap-2.5 p-1.5 rounded-lg bg-gray-50/80 hover:bg-gray-100/90 dark:bg-gray-800/50 dark:hover:bg-gray-800/90 transition-colors border border-gray-100 dark:border-gray-700/60"
+                        className="flex items-center gap-3 p-2 rounded-xl bg-gray-50/90 hover:bg-gray-100 dark:bg-gray-800/80 dark:hover:bg-gray-800 border border-gray-200/70 dark:border-gray-700/70 shadow-2xs transition-colors"
                       >
                         {/* Product Thumbnail with Click to Zoom */}
                         <button
@@ -437,9 +456,8 @@ const OrderTable = ({
                               });
                             }
                           }}
-                          className={`relative flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-xs group/thumb focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                            itemImg ? "cursor-pointer" : "cursor-default"
-                          }`}
+                          className={`relative flex-shrink-0 w-12 h-12 rounded-md overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-xs group/thumb focus:outline-none focus:ring-2 focus:ring-teal-500 ${itemImg ? "cursor-pointer" : "cursor-default"
+                            }`}
                           title={itemImg ? "Click to enlarge product image" : "No image available"}
                         >
                           {itemImg ? (
@@ -510,14 +528,8 @@ const OrderTable = ({
               </TableCell>
             )}
 
-            {columns.contact && (
-              <TableCell className="whitespace-nowrap min-w-[130px]">
-                <span className="text-sm">{order?.user_info?.contact}</span>
-              </TableCell>
-            )}
-
             {columns.shippingCost && (
-              <TableCell className="whitespace-nowrap min-w-[90px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[90px]">
                 <span className="text-sm font-semibold">
                   {currency}
                   {getNumberTwo(order?.shippingCost)}
@@ -526,7 +538,7 @@ const OrderTable = ({
             )}
 
             {columns.discount && (
-              <TableCell className="whitespace-nowrap min-w-[90px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[90px]">
                 <span className="text-sm font-semibold">
                   {currency}
                   {getNumberTwo(order?.discount)}
@@ -535,16 +547,16 @@ const OrderTable = ({
             )}
 
             {columns.method && (
-              <TableCell className="whitespace-nowrap min-w-[100px]">
-                <span className="text-sm font-semibold">
-                  {order?.paymentMethod}
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[110px]">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100/90 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200/80 dark:border-gray-700">
+                  {order?.paymentMethod || "COD"}
                 </span>
               </TableCell>
             )}
 
             {columns.amount && (
-              <TableCell className="whitespace-nowrap min-w-[100px]">
-                <span className="text-sm font-semibold">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[100px]">
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                   {currency}
                   {getNumberTwo(order?.total)}
                 </span>
@@ -552,7 +564,7 @@ const OrderTable = ({
             )}
 
             {columns.shippingId && (
-              <TableCell className="whitespace-nowrap min-w-[150px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[170px]">
                 <ShippingIdCell
                   order={order}
                   onOpenModal={setShippingModalOrder}
@@ -561,19 +573,19 @@ const OrderTable = ({
             )}
 
             {columns.status && (
-              <TableCell className="text-xs whitespace-nowrap min-w-[110px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[110px]">
                 <Status status={order?.status} />
               </TableCell>
             )}
 
             {columns.action && (
-              <TableCell className="text-center whitespace-nowrap min-w-[140px]">
+              <TableCell className="align-top py-4 px-3 whitespace-nowrap min-w-[140px] text-center">
                 <SelectStatus id={order._id} order={order} />
               </TableCell>
             )}
 
             {columns.actions && (
-              <TableCell className="text-center relative whitespace-nowrap min-w-[80px]">
+              <TableCell className="align-top py-4 px-2 whitespace-nowrap min-w-[80px] text-center">
                 <OrderActions order={order} handleModalOpen={handleModalOpen} />
               </TableCell>
             )}
