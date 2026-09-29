@@ -68,7 +68,7 @@ const downloadShippingLabelPdf = async (params) => {
     (data?.paymentMethod?.toLowerCase()?.includes("cod") ||
       data?.paymentMethod?.toLowerCase()?.includes("cash"));
 
-  const defaultCompanyName = getStoreCompanyName();
+  const defaultCompanyName = getStoreCompanyName(globalSetting);
   const defaultCompanyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
@@ -78,7 +78,7 @@ const downloadShippingLabelPdf = async (params) => {
   // Sender Details
   const senderName = isReseller
     ? data?.reseller_info?.name || "Authorized Merchant"
-    : defaultCompanyName || "Manchanda Fabrics";
+    : defaultCompanyName || "MANCHANDA FAB";
 
   const senderSubtext = isReseller
     ? [
@@ -423,11 +423,12 @@ const downloadShippingLabelPdf = async (params) => {
   if (returnLines[0]) doc.text(returnLines[0], 10, 227);
   if (returnLines[1]) doc.text(returnLines[1], 10, 236);
 
-  if (globalSetting?.gstin && !isReseller) {
+  const effectiveGstin = globalSetting?.gstin || "07ADKPM4552G1ZG";
+  if (effectiveGstin && !isReseller) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
     doc.setTextColor(17, 24, 39);
-    doc.text(`GSTIN: ${globalSetting.gstin}`, 10, 247);
+    doc.text(`GSTIN: ${effectiveGstin}`, 10, 247);
   }
 
   // Right: Package Specs & Payment Mode (x = 144 to 282)

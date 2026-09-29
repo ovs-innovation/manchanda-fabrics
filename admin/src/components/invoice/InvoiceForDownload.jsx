@@ -324,7 +324,7 @@ const InvoiceForDownload = ({
   // Ensure total GST is always positive
   const totalGst = Math.abs(totalGstRaw);
 
-  const companyName = getStoreCompanyName();
+  const companyName = getStoreCompanyName(globalSetting);
   const companyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
@@ -360,14 +360,14 @@ const InvoiceForDownload = ({
                 <Text style={{ fontSize: 8, color: "#444", lineHeight: 1.35, marginBottom: 4 }}>
                   {companyAddress}
                 </Text>
-                {globalSetting?.gstin ? (
-                  <Text style={{ fontSize: 8, color: "#444" }}>GSTIN: {globalSetting.gstin}</Text>
+                {(globalSetting?.gstin || "07ADKPM4552G1ZG") ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>GSTIN: {globalSetting?.gstin || "07ADKPM4552G1ZG"}</Text>
                 ) : null}
-                {globalSetting?.contact ? (
-                  <Text style={{ fontSize: 8, color: "#444" }}>Phone: {globalSetting.contact}</Text>
+                {(globalSetting?.contact || "9654582246, 9650544554") ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Phone: {globalSetting?.contact || "9654582246, 9650544554"}</Text>
                 ) : null}
-                {globalSetting?.email ? (
-                  <Text style={{ fontSize: 8, color: "#444" }}>Email: {globalSetting.email}</Text>
+                {(globalSetting?.email || "manchandafabrics@gmail.com") ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Email: {globalSetting?.email || "manchandafabrics@gmail.com"}</Text>
                 ) : null}
               </View>
               <View style={{ width: "48%", padding: 8 }}>

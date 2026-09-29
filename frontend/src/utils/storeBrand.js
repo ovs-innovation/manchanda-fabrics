@@ -123,5 +123,8 @@ export const getStoreAddress = ({
   return lang === "hi" ? translateStoreAddress(sanitized, "hi") : sanitized;
 };
 
-export const getStoreCompanyName = () => STORE_BRAND_NAME;
+export const STORE_FIRM_NAME = "MANCHANDA FAB";
+
+export const getStoreCompanyName = (globalSetting) =>
+  globalSetting?.company_name || STORE_FIRM_NAME;
 

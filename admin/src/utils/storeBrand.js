@@ -1,4 +1,5 @@
 export const STORE_BRAND_NAME = "Manchanda Fabrics";
+export const STORE_FIRM_NAME = "MANCHANDA FAB";
 
 export const STORE_DEFAULT_ADDRESS =
   "12-A, Krishna Cloth Market, Chandni Chowk - 110006";
@@ -41,4 +42,6 @@ export const getStoreAddress = ({
   return fromContact || globalSetting?.address || STORE_DEFAULT_ADDRESS;
 };
 
-export const getStoreCompanyName = () => STORE_BRAND_NAME;
+export const getStoreCompanyName = (globalSetting) =>
+  globalSetting?.company_name || STORE_FIRM_NAME;
+

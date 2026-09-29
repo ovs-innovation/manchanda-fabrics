@@ -24,9 +24,13 @@ const getContactUsAddressFromDb = async () => {
   return parts.join(", ") || STORE_DEFAULT_ADDRESS;
 };
 
+const STORE_FIRM_NAME = "MANCHANDA FAB";
+
 module.exports = {
   STORE_BRAND_NAME,
+  STORE_FIRM_NAME,
   STORE_DEFAULT_ADDRESS,
   getContactUsAddressFromDb,
-  getStoreCompanyName: () => STORE_BRAND_NAME,
+  getStoreCompanyName: (globalSetting) =>
+    globalSetting?.company_name || STORE_FIRM_NAME,
 };

@@ -37,7 +37,7 @@ const ShippingLabel4x6 = ({
     (data?.paymentMethod?.toLowerCase()?.includes("cod") ||
       data?.paymentMethod?.toLowerCase()?.includes("cash"));
 
-  const defaultCompanyName = getStoreCompanyName();
+  const defaultCompanyName = getStoreCompanyName(globalSetting);
   const defaultCompanyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
@@ -640,7 +640,7 @@ const ShippingLabel4x6 = ({
             >
               {senderFullAddress}
             </div>
-            {globalSetting?.gstin && !isReseller && (
+            {(globalSetting?.gstin || "07ADKPM4552G1ZG") && !isReseller && (
               <div
                 style={{
                   fontSize: "7.5px",
@@ -651,7 +651,7 @@ const ShippingLabel4x6 = ({
                   whiteSpace: "nowrap",
                 }}
               >
-                GSTIN: {globalSetting.gstin}
+                GSTIN: {globalSetting?.gstin || "07ADKPM4552G1ZG"}
               </div>
             )}
           </div>

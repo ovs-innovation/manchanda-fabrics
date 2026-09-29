@@ -73,13 +73,13 @@ const resolveCompanyInfo = async (order) => {
   const contactAddress = await getContactUsAddressFromDb();
 
   return {
-    company: getStoreCompanyName(),
+    company: gs.company_name || getStoreCompanyName(gs),
     address: fromOrder.address || contactAddress,
-    phone: fromOrder.phone || gs.contact || "",
+    phone: fromOrder.phone || gs.contact || "9654582246, 9650544554",
     email: fromOrder.email || gs.email || "manchandafabrics@gmail.com",
-    website: fromOrder.website || gs.website || "",
+    website: fromOrder.website || gs.website || "manchandafabric.in",
     currency: fromOrder.currency || gs.default_currency || "₹",
-    gstin: fromOrder.vat_number || gs.gstin || gs.vat_number || "",
+    gstin: fromOrder.vat_number || gs.gstin || gs.vat_number || "07ADKPM4552G1ZG",
   };
 };
 

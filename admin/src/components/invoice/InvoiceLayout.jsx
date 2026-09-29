@@ -41,7 +41,7 @@ const InvoiceLayout = ({
   const brandLogo =
     resolveCloudinaryUrl(globalSetting?.logo) || ADMIN_BRAND_LOGO;
 
-  const defaultCompanyName = getStoreCompanyName();
+  const defaultCompanyName = getStoreCompanyName(globalSetting);
   const defaultCompanyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
@@ -69,13 +69,13 @@ const InvoiceLayout = ({
 
   const sellerPhone = isReseller
     ? (data?.reseller_info?.contact || data?.user_info?.contact)
-    : globalSetting?.contact;
+    : globalSetting?.contact || "9654582246, 9650544554";
 
   const sellerEmail = isReseller
     ? (data?.reseller_info?.email || data?.user_info?.email)
-    : globalSetting?.email;
+    : globalSetting?.email || "manchandafabrics@gmail.com";
 
-  const sellerGstin = isReseller ? null : globalSetting?.gstin;
+  const sellerGstin = isReseller ? null : (globalSetting?.gstin || "07ADKPM4552G1ZG");
 
   // Recipient Details (Bill To / Ship To)
   const recipientName = isReseller

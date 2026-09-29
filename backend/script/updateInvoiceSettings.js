@@ -6,24 +6,26 @@ const Setting = require("../models/Setting");
 const run = async () => {
   await connectDB();
 
-  console.log("Updating global settings with GSTIN and Signature...");
+  console.log("Updating global settings with MANCHANDA FAB, GSTIN and Phone numbers...");
   let globalSet = await Setting.findOne({ name: "globalSetting" });
   if (globalSet) {
     globalSet.setting = {
       ...globalSet.setting,
-      company_name: "Manchanda Fabrics Pvt Ltd",
-      address: "Plot No. 12, Sector 4, Ghaziabad, Uttar Pradesh, 201012",
+      company_name: "MANCHANDA FAB",
+      gstin: "07ADKPM4552G1ZG",
+      vat_number: "07ADKPM4552G1ZG",
+      contact: "9654582246, 9650544554",
+      authorized_signatory: "For MANCHANDA FAB",
       email: "manchandafabrics@gmail.com",
-      website: "manchandafabrics.com",
-      contact: "+91 98765 43210",
-      gstin: "09AAZCA5886C1ZV",
-      authorized_signatory: "For Manchanda Fabrics Pvt Ltd",
-      cin: "U74999UP2026PTC123456",
-      dl_number: "UP14200002337"
+      website: "manchandafabric.in",
     };
     globalSet.markModified("setting");
     await globalSet.save();
-    console.log("✅ Updated globalSetting with GST and Signature.");
+    console.log("✅ Successfully updated globalSetting in MongoDB Atlas:");
+    console.log("   Company Name:", globalSet.setting.company_name);
+    console.log("   GSTIN:", globalSet.setting.gstin);
+    console.log("   Contact:", globalSet.setting.contact);
+    console.log("   Address:", globalSet.setting.address);
   } else {
     console.warn("globalSetting document not found.");
   }
