@@ -1,9 +1,9 @@
 import { TableBody, TableCell, TableRow } from "@windmill/react-ui";
 
 import { useTranslation } from "react-i18next";
-import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage, FiPlus } from "react-icons/fi";
+import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage, FiPlus, FiTruck } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { createPortal } from "react-dom";
 
 //internal import
@@ -17,6 +17,7 @@ import OrderActions from "@/components/order/OrderActions";
 import CheckBox from "@/components/form/others/CheckBox";
 import OrderServices from "@/services/OrderServices";
 import { notifyError, notifySuccess } from "@/utils/toast";
+import { getOptimizedThumbnailUrl } from "@/utils/cloudinaryUrl";
 
 // Helper to reliably extract the exact product/variant image from a cart item
 const getItemImage = (item) => {
@@ -48,150 +49,38 @@ const POPULAR_COURIERS = [
   "Xpressbees",
 ];
 
-// Inline editable shipping ID and courier cell
-const ShippingIdCell = ({ orderId, initialValue = "", initialCourier = "" }) => {
-  const [editing, setEditing] = useState(false);
-  const [trackingId, setTrackingId] = useState(initialValue || "");
-  const [courier, setCourier] = useState(initialCourier || "");
-
-  // Edit mode local state
-  const isInitialPredefined = POPULAR_COURIERS.includes(initialCourier);
-  const [courierSelect, setCourierSelect] = useState(
-    initialCourier ? (isInitialPredefined ? initialCourier : "CUSTOM") : ""
-  );
-  const [customCourier, setCustomCourier] = useState(
-    initialCourier && !isInitialPredefined ? initialCourier : ""
-  );
-  const [inputTracking, setInputTracking] = useState(initialValue || "");
-  const [saving, setSaving] = useState(false);
-
-  const startEdit = () => {
-    const isPredefined = POPULAR_COURIERS.includes(courier);
-    setCourierSelect(courier ? (isPredefined ? courier : "CUSTOM") : "");
-    setCustomCourier(courier && !isPredefined ? courier : "");
-    setInputTracking(trackingId || "");
-    setEditing(true);
-  };
-
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      const chosenCourier =
-        courierSelect === "CUSTOM"
-          ? customCourier.trim()
-          : courierSelect.trim();
-      const chosenTracking = inputTracking.trim();
-
-      await OrderServices.updateShippingId(orderId, {
-        shippingTrackingId: chosenTracking || null,
-        courierName: chosenCourier || null,
-      });
-
-      setTrackingId(chosenTracking);
-      setCourier(chosenCourier);
-      notifySuccess("Courier & Tracking details saved!");
-      setEditing(false);
-    } catch (err) {
-      notifyError(err?.response?.data?.message || "Failed to save Shipping details");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditing(false);
-  };
-
-  if (editing) {
-    return (
-      <div className="flex flex-col gap-1.5 p-2 bg-white dark:bg-gray-800 border-2 border-teal-500 rounded-xl shadow-lg min-w-[210px]">
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          <span>Courier Partner</span>
-          {saving && <span className="text-teal-600 font-semibold">Saving...</span>}
-        </div>
-
-        <select
-          value={courierSelect}
-          onChange={(e) => setCourierSelect(e.target.value)}
-          disabled={saving}
-          className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer"
-        >
-          <option value="">-- Select Courier --</option>
-          {POPULAR_COURIERS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-          <option value="CUSTOM">Other (Custom Courier)...</option>
-        </select>
-
-        {courierSelect === "CUSTOM" && (
-          <input
-            type="text"
-            value={customCourier}
-            onChange={(e) => setCustomCourier(e.target.value)}
-            placeholder="Type courier name (e.g. Porter)"
-            disabled={saving}
-            className="text-xs border border-teal-400 rounded-lg px-2 py-1 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 outline-none focus:ring-1 focus:ring-teal-500"
-          />
-        )}
-
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <input
-            autoFocus
-            type="text"
-            value={inputTracking}
-            onChange={(e) => setInputTracking(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSave();
-              if (e.key === "Escape") handleCancel();
-            }}
-            placeholder="Tracking / AWB No."
-            disabled={saving}
-            className="flex-1 text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-          />
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            type="button"
-            title="Save"
-            className="px-2.5 py-1 text-xs font-semibold rounded-lg text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-1"
-          >
-            <FiCheck size={13} />
-            <span>Save</span>
-          </button>
-          <button
-            onClick={handleCancel}
-            disabled={saving}
-            type="button"
-            title="Cancel"
-            className="p-1 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-          >
-            <FiX size={14} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const hasData = Boolean(trackingId || courier);
+// Lightweight Shipping ID & Courier Badge in Table (zero heavy state, zero row expansion!)
+const ShippingIdCell = ({ order, onOpenModal }) => {
+  const courier = order?.courierName || order?.shiprocket?.courier_name || "";
+  const trackingId =
+    order?.shippingTrackingId ||
+    order?.trackingNumber ||
+    order?.shiprocket?.awb_code ||
+    "";
+  const hasData = Boolean(courier || trackingId);
 
   return (
-    <div className="flex items-center gap-1.5 min-w-[120px]">
+    <div className="flex items-center min-w-[130px]">
       {hasData ? (
-        <div className="inline-flex items-center gap-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 shadow-2xs">
+        <div className="inline-flex items-center gap-2 bg-gray-50/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 shadow-2xs hover:border-teal-400 dark:hover:border-teal-600 transition-colors">
           <div className="flex flex-col text-left leading-tight">
             {courier && (
-              <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide">
+              <span
+                className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide truncate max-w-[110px]"
+                title={courier}
+              >
                 {courier}
               </span>
             )}
-            <span className="text-xs font-mono font-semibold text-gray-800 dark:text-gray-200 select-all">
+            <span
+              className="text-xs font-mono font-semibold text-gray-800 dark:text-gray-200 select-all truncate max-w-[120px]"
+              title={trackingId}
+            >
               {trackingId || <span className="text-gray-400 font-normal italic">No AWB</span>}
             </span>
           </div>
           <button
-            onClick={startEdit}
+            onClick={() => onOpenModal(order)}
             type="button"
             title="Edit Courier & Tracking ID"
             className="p-1 rounded text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors cursor-pointer"
@@ -201,16 +90,195 @@ const ShippingIdCell = ({ orderId, initialValue = "", initialCourier = "" }) => 
         </div>
       ) : (
         <button
-          onClick={startEdit}
+          onClick={() => onOpenModal(order)}
           type="button"
           title="Add Courier & Tracking ID"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 border border-emerald-300/80 dark:border-emerald-800 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-95"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 border border-emerald-300/80 dark:border-emerald-800 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-95 whitespace-nowrap"
         >
           <FiPlus size={13} className="stroke-[2.5]" />
           <span>Add Courier / ID</span>
         </button>
       )}
     </div>
+  );
+};
+
+// Modal Dialog for Editing Shipping / Courier Details (renders in document.body via Portal)
+// Zero table reflow, buttery 60 FPS typing, instant click response!
+const ShippingTrackingModal = ({ order, onClose, onSaveSuccess }) => {
+  const initialValue =
+    order?.shippingTrackingId ||
+    order?.trackingNumber ||
+    order?.shiprocket?.awb_code ||
+    "";
+  const initialCourier =
+    order?.courierName || order?.shiprocket?.courier_name || "";
+  const isInitialPredefined = POPULAR_COURIERS.includes(initialCourier);
+
+  const [courierSelect, setCourierSelect] = useState(
+    initialCourier ? (isInitialPredefined ? initialCourier : "CUSTOM") : ""
+  );
+  const [customCourier, setCustomCourier] = useState(
+    initialCourier && !isInitialPredefined ? initialCourier : ""
+  );
+  const [trackingId, setTrackingId] = useState(initialValue);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (e) => {
+    if (e) e.preventDefault();
+    try {
+      setSaving(true);
+      const chosenCourier =
+        courierSelect === "CUSTOM"
+          ? customCourier.trim()
+          : courierSelect.trim();
+      const chosenTracking = trackingId.trim();
+
+      await OrderServices.updateShippingId(order._id, {
+        shippingTrackingId: chosenTracking || null,
+        courierName: chosenCourier || null,
+      });
+
+      // Update order object in place so the table reflects instantly
+      order.shippingTrackingId = chosenTracking || null;
+      order.courierName = chosenCourier || null;
+      if (chosenTracking) {
+        order.trackingNumber = chosenTracking;
+      }
+
+      notifySuccess("Courier & Tracking details saved!");
+      if (onSaveSuccess) onSaveSuccess(order);
+      onClose();
+    } catch (err) {
+      notifyError(err?.response?.data?.message || "Failed to save shipping details");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-150 flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shadow-xs">
+              <FiTruck size={20} />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
+                Courier & Tracking Details
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Invoice #{order?.invoice} • {order?.user_info?.name || "Customer"}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            title="Close"
+          >
+            <FiX size={18} />
+          </button>
+        </div>
+
+        {/* Modal Form */}
+        <form onSubmit={handleSave} className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Courier / Delivery Partner
+            </label>
+            <select
+              value={courierSelect}
+              onChange={(e) => setCourierSelect(e.target.value)}
+              disabled={saving}
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-xs transition-all"
+            >
+              <option value="">-- Select Courier Company --</option>
+              {POPULAR_COURIERS.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+              <option value="CUSTOM">Other (Type Custom Courier)...</option>
+            </select>
+          </div>
+
+          {courierSelect === "CUSTOM" && (
+            <div className="animate-in fade-in duration-150">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                Custom Courier Name
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={customCourier}
+                onChange={(e) => setCustomCourier(e.target.value)}
+                placeholder="e.g. Porter, Trackon, Private Courier"
+                disabled={saving}
+                className="w-full text-sm border border-teal-400 rounded-xl px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-teal-500 shadow-xs"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Tracking / AWB Number
+            </label>
+            <input
+              type="text"
+              autoFocus={courierSelect !== "CUSTOM"}
+              value={trackingId}
+              onChange={(e) => setTrackingId(e.target.value)}
+              placeholder="e.g. DT123456789IN or AWB Number"
+              disabled={saving}
+              className="w-full text-sm font-mono border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500 shadow-xs"
+            />
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">
+              Visible on the customer tracking timeline and 4x6 shipping label PDF.
+            </p>
+          </div>
+
+          {/* Modal Actions */}
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="px-4 py-2 text-sm font-semibold rounded-xl text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-5 py-2 text-sm font-semibold rounded-xl text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              {saving ? (
+                <>
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <FiCheck size={16} />
+                  <span>Save Details</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
   );
 };
 
@@ -231,6 +299,8 @@ const OrderTable = ({
   } = useUtilsFunction();
 
   const [previewItem, setPreviewItem] = useState(null);
+  const [shippingModalOrder, setShippingModalOrder] = useState(null);
+  const [, setRefreshCount] = useState(0);
 
   const handleClick = (e) => {
     const { id, checked } = e.target;
@@ -268,7 +338,7 @@ const OrderTable = ({
     <>
       <TableBody className="dark:bg-gray-900">
         {orders?.map((order, i) => (
-          <TableRow key={i + 1}>
+          <TableRow key={order?._id || i}>
             {isCheck !== undefined && (
               <TableCell className="w-10 text-center">
                 <CheckBox
@@ -375,10 +445,13 @@ const OrderTable = ({
                           {itemImg ? (
                             <>
                               <img
-                                src={itemImg}
+                                src={getOptimizedThumbnailUrl(itemImg, 96, 96) || itemImg}
                                 alt={itemTitle || "Product"}
-                                className="w-full h-full object-cover transition-transform duration-200 group-hover/thumb:scale-110"
+                                width="48"
+                                height="48"
+                                decoding="async"
                                 loading="lazy"
+                                className="w-full h-full object-cover transition-transform duration-200 group-hover/thumb:scale-110"
                               />
                               <div className="absolute inset-0 bg-black/35 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity text-white">
                                 <FiZoomIn size={16} />
@@ -479,20 +552,10 @@ const OrderTable = ({
             )}
 
             {columns.shippingId && (
-              <TableCell className="whitespace-nowrap min-w-[180px]">
+              <TableCell className="whitespace-nowrap min-w-[150px]">
                 <ShippingIdCell
-                  orderId={order._id}
-                  initialValue={
-                    order?.shippingTrackingId ||
-                    order?.trackingNumber ||
-                    order?.shiprocket?.awb_code ||
-                    ""
-                  }
-                  initialCourier={
-                    order?.courierName ||
-                    order?.shiprocket?.courier_name ||
-                    ""
-                  }
+                  order={order}
+                  onOpenModal={setShippingModalOrder}
                 />
               </TableCell>
             )}
@@ -598,8 +661,17 @@ const OrderTable = ({
           </div>,
           document.body
         )}
+
+      {/* Courier & Tracking Edit Modal */}
+      {shippingModalOrder && (
+        <ShippingTrackingModal
+          order={shippingModalOrder}
+          onClose={() => setShippingModalOrder(null)}
+          onSaveSuccess={() => setRefreshCount((n) => n + 1)}
+        />
+      )}
     </>
   );
 };
 
-export default OrderTable;
+export default memo(OrderTable);

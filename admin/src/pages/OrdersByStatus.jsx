@@ -526,8 +526,11 @@ const OrdersByStatus = () => {
           <span className="text-center mx-auto text-red-500">{error}</span>
         ) : serviceData?.length !== 0 ? (
           <div className="mb-8 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xs">
-            <div className="w-full overflow-x-auto">
-              <Table className="w-full" style={{ minWidth: "1280px" }}>
+            <div
+              className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              <Table className="w-full table-fixed" style={{ minWidth: "1400px" }}>
                 <TableHeader>
                   <tr>
                     <TableCell className="w-10 text-center">
@@ -540,77 +543,77 @@ const OrdersByStatus = () => {
                       />
                     </TableCell>
                     {visibleColumns.invoice && (
-                      <TableCell className="whitespace-nowrap min-w-[90px]">
+                      <TableCell className="whitespace-nowrap w-24">
                         {t("InvoiceNo")}
                       </TableCell>
                     )}
                     {visibleColumns.time && (
-                      <TableCell className="whitespace-nowrap min-w-[160px]">
+                      <TableCell className="whitespace-nowrap w-40">
                         {t("TimeTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.customerName && (
-                      <TableCell className="whitespace-nowrap min-w-[140px]">
+                      <TableCell className="whitespace-nowrap w-36">
                         {t("CustomerName")}
                       </TableCell>
                     )}
                     {visibleColumns.customerId && (
-                      <TableCell className="whitespace-nowrap min-w-[100px]">
+                      <TableCell className="whitespace-nowrap w-28">
                         Customer ID
                       </TableCell>
                     )}
                     {visibleColumns.productName && (
-                      <TableCell className="whitespace-nowrap min-w-[280px]">
+                      <TableCell className="whitespace-nowrap w-80">
                         Products & Items
                       </TableCell>
                     )}
                     {visibleColumns.productId && (
-                      <TableCell className="whitespace-nowrap min-w-[100px]">
+                      <TableCell className="whitespace-nowrap w-28">
                         Product ID
                       </TableCell>
                     )}
                     {visibleColumns.contact && (
-                      <TableCell className="whitespace-nowrap min-w-[130px]">
+                      <TableCell className="whitespace-nowrap w-32">
                         Contact
                       </TableCell>
                     )}
                     {visibleColumns.shippingCost && (
-                      <TableCell className="whitespace-nowrap min-w-[90px]">
+                      <TableCell className="whitespace-nowrap w-24">
                         Shipping
                       </TableCell>
                     )}
                     {visibleColumns.discount && (
-                      <TableCell className="whitespace-nowrap min-w-[90px]">
+                      <TableCell className="whitespace-nowrap w-24">
                         Discount
                       </TableCell>
                     )}
                     {visibleColumns.method && (
-                      <TableCell className="whitespace-nowrap min-w-[100px]">
+                      <TableCell className="whitespace-nowrap w-28">
                         {t("MethodTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.amount && (
-                      <TableCell className="whitespace-nowrap min-w-[100px]">
+                      <TableCell className="whitespace-nowrap w-28">
                         {t("AmountTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.shippingId && (
-                      <TableCell className="whitespace-nowrap min-w-[180px]">
+                      <TableCell className="whitespace-nowrap w-44">
                         Courier / Tracking
                       </TableCell>
                     )}
                     {visibleColumns.status && (
-                      <TableCell className="whitespace-nowrap min-w-[110px]">
+                      <TableCell className="whitespace-nowrap w-28">
                         {t("OderStatusTbl")}
                       </TableCell>
                     )}
                     {visibleColumns.action && (
-                      <TableCell className="text-center whitespace-nowrap min-w-[140px]">
+                      <TableCell className="text-center whitespace-nowrap w-36">
                         Action
                       </TableCell>
                     )}
                     {visibleColumns.actions && (
-                      <TableCell className="text-center whitespace-nowrap min-w-[80px]">
+                      <TableCell className="text-center whitespace-nowrap w-20">
                         Actions
                       </TableCell>
                     )}
