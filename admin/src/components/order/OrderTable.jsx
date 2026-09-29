@@ -1,7 +1,7 @@
 import { TableBody, TableCell, TableRow } from "@windmill/react-ui";
 
 import { useTranslation } from "react-i18next";
-import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage } from "react-icons/fi";
+import { FiZoomIn, FiEdit2, FiCheck, FiX, FiExternalLink, FiImage, FiPlus } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -61,7 +61,7 @@ const ShippingIdCell = ({ orderId, initialValue }) => {
 
   if (editing) {
     return (
-      <div className="flex items-center gap-1 min-w-[160px]">
+      <div className="flex items-center gap-1.5 min-w-[170px]">
         <input
           autoFocus
           value={value}
@@ -70,23 +70,25 @@ const ShippingIdCell = ({ orderId, initialValue }) => {
             if (e.key === "Enter") handleSave();
             if (e.key === "Escape") handleCancel();
           }}
-          className="flex-1 text-xs border border-teal-400 rounded px-2 py-1 outline-none focus:ring-2 focus:ring-teal-400/40 bg-white dark:bg-gray-800 dark:text-white"
+          className="flex-1 text-xs border border-teal-500 rounded-lg px-2.5 py-1 outline-none focus:ring-2 focus:ring-teal-400/40 bg-white dark:bg-gray-800 dark:text-white shadow-inner"
           placeholder="Enter tracking ID"
           disabled={saving}
         />
         <button
           onClick={handleSave}
           disabled={saving}
+          type="button"
           title="Save"
-          className="p-1 rounded text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors"
+          className="p-1.5 rounded-lg text-white bg-teal-600 hover:bg-teal-700 transition-colors cursor-pointer"
         >
           <FiCheck size={14} />
         </button>
         <button
           onClick={handleCancel}
           disabled={saving}
+          type="button"
           title="Cancel"
-          className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
         >
           <FiX size={14} />
         </button>
@@ -95,21 +97,32 @@ const ShippingIdCell = ({ orderId, initialValue }) => {
   }
 
   return (
-    <div className="flex items-center gap-1.5 group min-w-[120px]">
+    <div className="flex items-center gap-1.5 min-w-[120px]">
       {value ? (
-        <span className="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
-          {value}
-        </span>
+        <div className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1 shadow-2xs">
+          <span className="text-xs font-mono font-semibold text-gray-800 dark:text-gray-200 select-all">
+            {value}
+          </span>
+          <button
+            onClick={() => setEditing(true)}
+            type="button"
+            title="Edit Tracking ID"
+            className="p-1 rounded text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors cursor-pointer"
+          >
+            <FiEdit2 size={12} />
+          </button>
+        </div>
       ) : (
-        <span className="text-xs text-gray-400 italic">—</span>
+        <button
+          onClick={() => setEditing(true)}
+          type="button"
+          title="Add Shipping Tracking ID"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60 border border-emerald-300/80 dark:border-emerald-800 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-95"
+        >
+          <FiPlus size={13} className="stroke-[2.5]" />
+          <span>Add ID</span>
+        </button>
       )}
-      <button
-        onClick={() => setEditing(true)}
-        title="Edit Shipping ID"
-        className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-all"
-      >
-        <FiEdit2 size={12} />
-      </button>
     </div>
   );
 };
