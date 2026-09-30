@@ -194,11 +194,14 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
         const id = router.query._id;
 
         if (catSlug) {
-          const matched = findCategoryBySlugOrId(categories, catSlug);
+          const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all-collections"].includes(
+            String(catSlug).toLowerCase().trim()
+          );
+          const matched = !isGeneric ? findCategoryBySlugOrId(categories, catSlug) : null;
           if (matched?._id) {
             setSelectedCategories([String(matched._id)]);
           } else {
-            setSelectedCategories([String(catSlug)]);
+            setSelectedCategories([]);
           }
         } else if (id) {
           setSelectedCategories([String(id)]);
@@ -217,6 +220,13 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
   useEffect(() => {
     const catSlug = router.query.category;
     if (categories && categories.length > 0 && catSlug && !isSidebarAction.current && !router.query._id) {
+      const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all-collections"].includes(
+        String(catSlug).toLowerCase().trim()
+      );
+      if (isGeneric) {
+        setSelectedCategories([]);
+        return;
+      }
       const matched = findCategoryBySlugOrId(categories, catSlug);
       if (matched?._id) {
         setSelectedCategories((prev) => {
@@ -226,6 +236,8 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
           }
           return prev;
         });
+      } else {
+        setSelectedCategories([]);
       }
     }
   }, [categories, router.query.category, router.query._id]);
@@ -447,7 +459,16 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
                   />
                 </div>
                 <h1 className="text-lg font-semibold text-gray-800 capitalize truncate max-w-[120px]">
-                  {query || "Search"}
+                  {query ||
+                    (router.query.category
+                      ? ["fabrics", "suits", "fabric", "suit"].includes(
+                          String(router.query.category).toLowerCase()
+                        )
+                        ? String(router.query.category).toLowerCase().includes("fabric")
+                          ? "Fabrics"
+                          : "Suits"
+                        : router.query.category
+                      : "All Collections")}
                 </h1>
               </div>
             </div>
