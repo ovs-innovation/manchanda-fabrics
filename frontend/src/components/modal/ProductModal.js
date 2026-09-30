@@ -228,6 +228,7 @@ const ProductModal = ({
 
       console.log("ProductModal: Adding to cart newItem:", newItem);
       handleAddItem(newItem, item);
+      if (setModalOpen) setModalOpen(false);
     } catch (err) {
       console.error("ProductModal: handleAddToCart failed:", err);
     }

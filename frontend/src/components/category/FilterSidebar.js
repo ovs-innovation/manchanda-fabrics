@@ -82,7 +82,6 @@ const FilterSidebar = ({
   };
 
   const ratings = [4, 3, 2, 1];
-  const discounts = [50, 40, 30, 20, 10];
 
   return (
     <div className="font-sans">
@@ -99,7 +98,6 @@ const FilterSidebar = ({
       {/* Active Filters */}
       {(selectedCategories.length > 0 ||
         selectedRating > 0 ||
-        selectedDiscount > 0 ||
         priceRange.min > 0 ||
         priceRange.max < 100000 ||
         selectedColor) && (
@@ -186,15 +184,7 @@ const FilterSidebar = ({
               />
             </span>
           )}
-          {selectedDiscount > 0 && (
-            <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
-              {selectedDiscount}%+ {t("Discount")}
-              <IoClose
-                className="ml-1.5 cursor-pointer text-[#3B2A25]/60 hover:text-[#3B2A25]"
-                onClick={() => setSelectedDiscount(0)}
-              />
-            </span>
-          )}
+
           {selectedColor && (
             <span className="inline-flex items-center px-2 py-1 bg-[#FAF7F5] border border-[#E6D1CB]/60 text-xs rounded-lg text-[#3B2A25] font-medium">
               {t("Color")}: {t(selectedColor)}
@@ -390,38 +380,7 @@ const FilterSidebar = ({
         )}
       </div>
 
-      {/* Discount */}
-      <div className="border-b border-[#E6D1CB]/50">
-        <button
-          onClick={() => toggleSection("discount")}
-          className="w-full py-4 flex justify-between items-center text-sm font-bold uppercase text-[#3B2A25] hover:text-[#9C6A5A] transition-colors"
-        >
-          {t("Discount")}
-          {openSections.discount ? <FiChevronUp className="text-[#3B2A25]/70" /> : <FiChevronDown className="text-[#3B2A25]/70" />}
-        </button>
-        {openSections.discount && (
-          <div className="pb-4">
-            {discounts.map((discount) => (
-              <div
-                key={discount}
-                className="flex items-center mb-2 cursor-pointer group"
-                onClick={() => setSelectedDiscount(discount)}
-              >
-                <input
-                  type="radio"
-                  name="discount"
-                  checked={selectedDiscount === discount}
-                  onChange={() => setSelectedDiscount(discount)}
-                  className="text-[#9C6A5A] bg-white border-[#E6D1CB]/60 focus:ring-[#9C6A5A] focus:ring-offset-0 focus:outline-none w-4 h-4"
-                />
-                <label className="ml-2 text-sm text-[#3B2A25]/80 font-medium cursor-pointer group-hover:text-[#9C6A5A] transition-colors">
-                  {discount}{t("% or more")}
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+
 
       {/* Color Filter */}
       <div className="border-b border-[#E6D1CB]/50">

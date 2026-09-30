@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { IoArrowBack, IoClose, IoSearchOutline } from "react-icons/io5";
-import { FiHeart, FiShoppingCart, FiUser, FiFilter, FiList } from "react-icons/fi";
+import { FiHeart, FiShoppingCart, FiUser, FiFilter, FiList, FiChevronDown } from "react-icons/fi";
 import { useCart } from "react-use-cart";
 import LocationButton from "@components/location/LocationButton";
 import SearchSuggestions from "@components/search/SearchSuggestions";
@@ -72,7 +72,7 @@ const CollectionsSlug = ({
   const router = useRouter();
   const { slug } = router.query;
 
-  const { isLoading, setIsLoading, toggleFilterDrawer } =
+  const { isLoading, setIsLoading, toggleFilterDrawer, toggleCartDrawer } =
     useContext(SidebarContext);
   const [visibleProduct, setVisibleProduct] = useState(18);
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
@@ -447,7 +447,7 @@ const CollectionsSlug = ({
                   </span>
                 )}
               </button>
-              <button onClick={() => router.push("/cart")} className="relative">
+              <button onClick={toggleCartDrawer} className="relative">
                 <FiShoppingCart size={22} />
                 {mounted && totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
@@ -577,12 +577,19 @@ const CollectionsSlug = ({
                   </div>
 
                   {productData?.length > visibleProduct && (
-                    <button
-                      onClick={() => setVisibleProduct((pre) => pre + 10)}
-                      className="w-auto mx-auto md:text-sm leading-5 flex items-center transition ease-in-out duration-300 font-medium text-center justify-center border-0 border-transparent rounded-md focus-visible:outline-none focus:outline-none bg-[#FAF7F5] text-gray-700 px-5 md:px-6 lg:px-8 py-2 md:py-3 lg:py-3 hover:text-[#3B2A25] hover:bg-[#9C6A5A] h-12 mt-2 mb-10 text-sm lg:text-sm"
-                    >
-                      {t("loadMoreBtn")}
-                    </button>
+                    <div className="flex flex-col items-center justify-center my-12 space-y-3">
+                      <p className="text-xs sm:text-sm text-neutral-500 font-medium tracking-wide">
+                        {t("Showing") || "Showing"} <span className="font-bold text-neutral-900">{Math.min(visibleProduct, productData.length)}</span> {t("of") || "of"} <span className="font-bold text-neutral-900">{productData.length}</span> {t("itemsFound") || "designs"}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setVisibleProduct((pre) => pre + 12)}
+                        className="group flex items-center justify-center gap-2.5 bg-[#111111] hover:bg-black text-white font-bold text-xs sm:text-sm uppercase tracking-[0.16em] px-10 py-3.5 sm:px-14 sm:py-4 rounded-full shadow-[0_6px_20px_rgba(0,0,0,0.18)] hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+                      >
+                        <span>{t("loadMoreBtn") || "See More"}</span>
+                        <FiChevronDown className="w-4 h-4 text-white/90 group-hover:translate-y-0.5 transition-transform" />
+                      </button>
+                    </div>
                   )}
                 </>
               )}

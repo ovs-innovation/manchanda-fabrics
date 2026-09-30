@@ -172,6 +172,7 @@ const ReelModal = ({ open, onClose, product, video, image, title: propTitle }) =
 
       console.log("ReelModal: Adding item to cart:", cartItem);
       handleAddItem(cartItem, 1);
+      if (onClose) onClose();
     } catch (error) {
       console.error("ReelModal: Error adding to cart:", error);
     }

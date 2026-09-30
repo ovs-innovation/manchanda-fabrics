@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
 import Image from "next/image";
 import { IoAdd, IoRemove } from "react-icons/io5";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
@@ -8,6 +8,8 @@ import useTranslation from "next-translate/useTranslation";
 
 import { notifyError, notifySuccess } from "@utils/toast";
 import useAddToCart from "@hooks/useAddToCart";
+import useCartDB from "@hooks/useCartDB";
+import { SidebarContext } from "@context/SidebarContext";
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import ProductModal from "@components/modal/ProductModal";
@@ -58,6 +60,8 @@ const ProductCard = ({
 
   const { addItem, updateItemQuantity, inCart, getItem } = useCart();
   const { handleIncreaseQuantity } = useAddToCart();
+  const { addItemWithDB } = useCartDB();
+  const { setCartDrawerOpen } = useContext(SidebarContext) || {};
   const { globalSetting } = useGetSetting();
   const { showingTranslateValue, currency } = useUtilsFunction();
   const router = useRouter();
@@ -73,24 +77,24 @@ const ProductCard = ({
   const activeItemId = product._id;
   const isItemInCart = inCart(activeItemId);
 
-  const handleAddItem = (p) => {
+  const handleAddItem = async (p) => {
     if (p.stock < 1) return notifyError("Insufficient stock!");
 
     const { slug, variants, categories, description, ...updatedProduct } = product;
-    addItem(
+    await addItemWithDB(
       {
         ...updatedProduct,
         id: product._id,
         title: showingTranslateValue(product.title),
         price: product.prices?.price || 0,
         originalPrice: product.prices?.originalPrice || product.prices?.price || 0,
-        image: product.image?.[0] || product.images?.[0],
+        image: previewColorImg || product.image?.[0] || product.images?.[0],
         shippingCost: product.shippingCost !== undefined ? Number(product.shippingCost) : 0,
         isShippingFree: Boolean(product.isShippingFree),
       },
       1
     );
-    notifySuccess("Added to bag!");
+    if (setCartDrawerOpen) setCartDrawerOpen(true);
   };
 
   const handleAddClick = (e) => {

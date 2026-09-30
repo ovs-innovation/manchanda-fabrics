@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,10 +13,12 @@ import AttributeServices from "@services/AttributeServices";
 import { notifySuccess, notifyError } from "@utils/toast";
 import Price from "@components/common/Price";
 import Stock from "@components/common/Stock";
+import { SidebarContext } from "@context/SidebarContext";
 
 const Compare = () => {
   const router = useRouter();
   const { addItem } = useCart();
+  const { setCartDrawerOpen } = useContext(SidebarContext) || {};
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const { showingTranslateValue, currency } = useUtilsFunction();
   const [compareItems, setCompareItems] = useState([]);
@@ -90,6 +92,7 @@ const Compare = () => {
 
     addItem(newItem, 1);
     notifySuccess("Product added to cart");
+    if (setCartDrawerOpen) setCartDrawerOpen(true);
   };
 
   if (loading) {

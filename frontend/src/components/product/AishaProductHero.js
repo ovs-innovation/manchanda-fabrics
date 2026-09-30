@@ -7,6 +7,7 @@ import VariantList from "@components/variants/VariantList";
 import { resolveColorHex } from "@utils/resolveColorHex";
 import { isInWishlist, addToWishlist, removeFromWishlist } from "@lib/wishlist";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 
 const AishaProductHero = ({
   product,

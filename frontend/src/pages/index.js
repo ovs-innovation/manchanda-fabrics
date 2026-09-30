@@ -13,6 +13,7 @@ import HomeCategoryCircles from "@components/home/HomeCategoryCircles";
 import HomeShopLatestCarousel from "@components/home/HomeShopLatestCarousel";
 
 import HomeMarqueeStrip from "@components/home/HomeMarqueeStrip";
+import HomeBrandStats from "@components/home/HomeBrandStats";
 import HomeTrustBadges from "@components/home/HomeTrustBadges";
 import CategoryServices from "@services/CategoryServices";
 import { mergeHomepage } from "@utils/homepageDefaults";
@@ -307,6 +308,10 @@ const Home = ({
         {/* 7 ── Scrolling marquee strip like ref */}
         <HomeMarqueeStrip phrases={homepage.marqueePhrases} />
 
+        {/* 8 ── Brand Statistics & CTA from About section */}
+        <HomeBrandStats />
+
+        {/* 9 ── 4 Trust Badges */}
         <HomeTrustBadges />
 
 

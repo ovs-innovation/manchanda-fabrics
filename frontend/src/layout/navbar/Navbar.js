@@ -20,7 +20,6 @@ import {
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
 
-import CartDrawer from "@components/drawer/CartDrawer";
 import { SidebarContext } from "@context/SidebarContext";
 import { UserContext } from "@context/UserContext";
 import { setToken } from "@services/httpServices";
@@ -85,8 +84,6 @@ const Navbar = () => {
 
   return (
     <>
-      <CartDrawer />
-
       <div className="w-full bg-white h-[110px] px-8 lg:px-14 flex items-center justify-between relative">
 
         {/* ── LEFT: Logo ── */}

@@ -10,6 +10,7 @@ import ProductCard from "@components/product/ProductCard";
 import ProductServices from "@services/ProductServices";
 import AttributeServices from "@services/AttributeServices";
 import SettingServices from "@services/SettingServices";
+import { CountUp } from "@components/home/HomeBrandStats";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -378,7 +379,9 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                     <Users size={20} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>10,000+</div>
+                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      <CountUp end={10000} duration={1800} suffix="+" />
+                    </div>
                     <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Happy Patrons")}</div>
                   </div>
                 </div>
@@ -389,7 +392,9 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                     <Package size={20} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>15,000+</div>
+                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      <CountUp end={15000} duration={2000} suffix="+" />
+                    </div>
                     <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Orders Shipped")}</div>
                   </div>
                 </div>
@@ -400,7 +405,9 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                     <Award size={20} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>150+</div>
+                    <div className="text-2xl font-bold text-[#111111] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                      <CountUp end={150} duration={1500} suffix="+" />
+                    </div>
                     <div className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>{t("Artisan Partners")}</div>
                   </div>
                 </div>

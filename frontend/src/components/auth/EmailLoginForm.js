@@ -66,29 +66,29 @@ const AuthAlert = ({ children, action }) => (
 );
 
 const StepIndicator = ({ step }) => (
-  <div className="mb-6 flex items-center justify-between rounded-xl bg-white px-4 py-3 ring-1 ring-[#E6D1CB]/60">
-    <div className="flex items-center gap-2.5">
+  <div className="mb-4 sm:mb-6 flex items-center justify-between rounded-xl bg-white px-3.5 py-2 sm:px-4 sm:py-3 ring-1 ring-[#E6D1CB]/60">
+    <div className="flex items-center gap-2 sm:gap-2.5">
       <span
-        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
+        className={`flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
           step === "email" ? "bg-[#9C6A5A] text-white" : "bg-[#FAF7F5] text-[#3B2A25]/60 ring-1 ring-[#E6D1CB]/60"
         }`}
       >
         1
       </span>
-      <span className={`text-xs uppercase tracking-wider font-bold ${step === "email" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
+      <span className={`text-[11px] sm:text-xs uppercase tracking-wider font-bold ${step === "email" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
         Email
       </span>
     </div>
-    <div className="h-px flex-1 mx-4 bg-[#E6D1CB]/60" />
-    <div className="flex items-center gap-2.5">
+    <div className="h-px flex-1 mx-3 sm:mx-4 bg-[#E6D1CB]/60" />
+    <div className="flex items-center gap-2 sm:gap-2.5">
       <span
-        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
+        className={`flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-xs font-black transition-all ${
           step === "otp" ? "bg-[#9C6A5A] text-white" : "bg-[#FAF7F5] text-[#3B2A25]/60 ring-1 ring-[#E6D1CB]/60"
         }`}
       >
         2
       </span>
-      <span className={`text-xs uppercase tracking-wider font-bold ${step === "otp" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
+      <span className={`text-[11px] sm:text-xs uppercase tracking-wider font-bold ${step === "otp" ? "text-[#3B2A25]" : "text-[#3B2A25]/60"}`}>
         OTP
       </span>
     </div>
@@ -254,25 +254,25 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
     ) : null;
 
   const primaryBtnClass =
-    "flex w-full items-center justify-center gap-2 rounded-xl bg-[#9C6A5A] py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_30px_rgba(212,175,55,0.2)] transition hover:bg-[#c29e2e] active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-55 duration-200";
+    "flex w-full items-center justify-center gap-2 rounded-xl bg-[#9C6A5A] py-3 sm:py-3.5 text-xs font-black uppercase tracking-wider text-black shadow-[0_8px_30px_rgba(212,175,55,0.2)] transition hover:bg-[#c29e2e] active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-55 duration-200";
 
   return (
     <div className="w-full">
       <StepIndicator step={step} />
 
       {step === "email" ? (
-        <form onSubmit={handleSendOTP} className="space-y-5">
+        <form onSubmit={handleSendOTP} className="space-y-3.5 sm:space-y-5">
           {/* Avatar Selector Grid for Signups */}
           {isSignup && (
-            <div className="space-y-4 rounded-xl border border-[#E6D1CB]/60 bg-[#FAF7F5] p-4 shadow-sm">
-              <label className="block text-xs font-black uppercase tracking-widest text-[#3B2A25]/70">
+            <div className="space-y-2.5 sm:space-y-4 rounded-xl border border-[#E6D1CB]/60 bg-[#FAF7F5] p-3 sm:p-4 shadow-sm">
+              <label className="block text-[11px] sm:text-xs font-black uppercase tracking-widest text-[#3B2A25]/70">
                 Choose Your Emoticon Profile
               </label>
               
               {/* Boys group */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Boys</div>
-                <div className="grid grid-cols-6 gap-2">
+              <div className="space-y-1.5 sm:space-y-2">
+                <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Boys</div>
+                <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                   {STREETWEAR_AVATARS.boys.map((avatar) => {
                     const isSelected = selectedAvatar === avatar.url;
                     return (
@@ -299,9 +299,9 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
               </div>
 
               {/* Girls group */}
-              <div className="space-y-2">
-                <div className="text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Girls</div>
-                <div className="grid grid-cols-6 gap-2">
+              <div className="space-y-1.5 sm:space-y-2">
+                <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#9C6A5A]/80">Girls</div>
+                <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                   {STREETWEAR_AVATARS.girls.map((avatar) => {
                     const isSelected = selectedAvatar === avatar.url;
                     return (
@@ -332,12 +332,12 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
           <div>
             <label
               htmlFor="auth-email"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#3B2A25]/70"
+              className="mb-1.5 sm:mb-2 block text-xs font-bold uppercase tracking-wider text-[#3B2A25]/70"
             >
               Email Address
             </label>
-            <div className="flex overflow-hidden rounded-xl border border-[#E6D1CB]/60 bg-[#FAF7F5] shadow-md transition focus-within:border-[#9C6A5A] focus-within:ring-2 focus-within:ring-[#9C6A5A]/20">
-              <span className="flex items-center gap-1.5 bg-white/60 px-4 border-r border-[#E6D1CB]/60 text-[#3B2A25]/70">
+            <div className="relative flex items-center rounded-xl border border-[#E6D1CB] bg-[#FAF7F5] transition focus-within:border-[#9C6A5A] focus-within:ring-2 focus-within:ring-[#9C6A5A]/20 focus-within:bg-white shadow-sm">
+              <span className="pointer-events-none absolute left-3.5 flex items-center text-[#9C6A5A]/80">
                 <FiMail className="h-4 w-4" />
               </span>
               <input
@@ -346,19 +346,19 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
                 autoComplete="email"
                 value={emailAddress}
                 onChange={(e) => setEmailAddress(e.target.value)}
-                className="min-w-0 flex-1 px-4 py-3.5 text-sm font-semibold text-[#3B2A25] outline-none placeholder:text-[#3B2A25]/50 bg-transparent"
+                className="w-full rounded-xl border-0 bg-transparent py-3 pl-10 pr-4 text-sm font-medium text-[#3B2A25] placeholder:text-[#3B2A25]/45 focus:border-0 focus:outline-none focus:ring-0"
                 placeholder="name@example.com"
                 required
               />
             </div>
-            <p className="mt-2 text-[10px] text-[#3B2A25]/60 font-medium">
+            <p className="mt-1.5 text-[10px] text-[#3B2A25]/60 font-medium">
               We’ll send a verification code to your email.
             </p>
           </div>
 
-          <div className="flex items-start gap-2 rounded-xl bg-[#FAF7F5] px-4 py-3 ring-1 ring-[#E6D1CB]/60">
-            <FiLock className="mt-0.5 h-4 w-4 text-[#9C6A5A] shrink-0" />
-            <p className="text-[11px] leading-relaxed text-[#3B2A25]/70">
+          <div className="flex items-start gap-2 rounded-xl bg-[#FAF7F5] px-3.5 py-2 sm:px-4 sm:py-3 ring-1 ring-[#E6D1CB]/60">
+            <FiLock className="mt-0.5 h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#9C6A5A] shrink-0" />
+            <p className="text-[10.5px] sm:text-[11px] leading-relaxed text-[#3B2A25]/70">
               By continuing, you agree to our Terms of Use and Privacy Policy.
             </p>
           </div>

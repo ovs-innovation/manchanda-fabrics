@@ -16,6 +16,10 @@ const MobileNavbar = dynamic(() => import("@layout/navbar/MobileNavbar"), {
   ssr: false,
 });
 
+const CartDrawer = dynamic(() => import("@components/drawer/CartDrawer"), {
+  ssr: false,
+});
+
 const FloatingWhatsApp = dynamic(
   () => import("@components/common/FloatingWhatsApp"),
   { ssr: false }
@@ -75,6 +79,7 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
       </Head>
 
       <div className="font-sans text-[#3B2A25] bg-[#FAF7F5]">
+        <CartDrawer />
         {!hideMobileHeader && <MobileNavbar />}
 
         <div

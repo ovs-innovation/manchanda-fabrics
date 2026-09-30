@@ -18,6 +18,7 @@ import DefaultSeo from "@components/common/DefaultSeo";
 import { SidebarProvider } from "@context/SidebarContext";
 import SettingServices from "@services/SettingServices";
 import { AnnouncementsProvider } from "@context/AnnouncementsContext";
+import Loading from "@components/preloader/Loading";
 import dynamic from "next/dynamic";
 
 const LanguagePopup = dynamic(() => import("@components/common/LanguagePopup"), {
@@ -38,6 +39,33 @@ const queryClient = new QueryClient({
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [storeSetting, setStoreSetting] = useState(null);
+  const [routeLoading, setRouteLoading] = useState(false);
+
+  // Show branded loading screen when page is opening late / loading slowly (>250ms)
+  useEffect(() => {
+    let timer = null;
+    const handleStart = () => {
+      timer = setTimeout(() => {
+        setRouteLoading(true);
+      }, 250);
+    };
+
+    const handleEnd = () => {
+      if (timer) clearTimeout(timer);
+      setRouteLoading(false);
+    };
+
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleEnd);
+    router.events.on("routeChangeError", handleEnd);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleEnd);
+      router.events.off("routeChangeError", handleEnd);
+    };
+  }, [router]);
 
   // Restore saved language preference (default en)
   useEffect(() => {
@@ -126,6 +154,8 @@ function MyApp({ Component, pageProps }) {
           </UserProvider>
         </SessionProvider>
       </QueryClientProvider>
+      {/* Global slow/late route transition loading screen */}
+      <Loading loading={routeLoading} fullScreen={true} />
       {/* Render TawkMessengerReact only if tawk_chat_status is enabled */}
       {storeSetting?.tawk_chat_status && (
         <TawkMessengerReact

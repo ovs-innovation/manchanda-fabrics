@@ -7,14 +7,17 @@ const AppBootShell = () => (
   >
     <img
       src="/logo/logo.png"
-      alt=""
+      alt="Manchanda Fabrics"
       width={120}
       height={48}
       className="h-10 w-auto object-contain opacity-90 animate-pulse"
     />
-    <div className="mt-6 h-0.5 w-24 overflow-hidden rounded-full bg-neutral-800">
+    <div className="mt-4 h-0.5 w-24 overflow-hidden rounded-full bg-neutral-800">
       <div className="h-full w-1/2 animate-[shimmer_1.2s_ease-in-out_infinite] rounded-full bg-[#9C6A5A]" />
     </div>
+    <span className="mt-3 text-[11px] font-semibold tracking-[0.28em] text-[#9C6A5A] uppercase animate-pulse select-none">
+      LOADING...
+    </span>
     <style jsx global>{`
       @keyframes shimmer {
         0% { transform: translateX(-100%); }

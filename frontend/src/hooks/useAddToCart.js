@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useCart } from "react-use-cart";
 import { notifyError, notifySuccess } from "@utils/toast";
 import useCartDB from "@hooks/useCartDB";
+import { SidebarContext } from "@context/SidebarContext";
 
 const useAddToCart = () => {
   const [item, setItem] = useState(1);
   const { items } = useCart();
   const { addItemWithDB, updateQuantityWithDB } = useCartDB();
+  const sidebar = useContext(SidebarContext);
+  const setCartDrawerOpen = sidebar?.setCartDrawerOpen;
 
   // Helper: return available stock number
   const getAvailableStock = (product) => {
@@ -39,7 +42,7 @@ const useAddToCart = () => {
    */
   const handleAddItem = async (product, qty) => {
     const quantityToAdd = typeof qty === "number" ? qty : item;
-    const result = items.find((i) => i.id === product.id);
+    const result = items.find((i) => i.id === product.id || i.id === product._id);
 
     const { variants, categories, description, ...updatedProduct } = product;
 
@@ -66,14 +69,14 @@ const useAddToCart = () => {
     if (result !== undefined) {
       if (result?.quantity + quantityToAdd <= available) {
         await addItemWithDB(updatedProduct, quantityToAdd);
-        notifySuccess(`${quantityToAdd} ${product.title} added to cart!`);
+        if (setCartDrawerOpen) setCartDrawerOpen(true);
       } else {
         notifyError("Insufficient stock!");
       }
     } else {
       if (quantityToAdd <= available) {
         await addItemWithDB(updatedProduct, quantityToAdd);
-        notifySuccess(`${quantityToAdd} ${product.title} added to cart!`);
+        if (setCartDrawerOpen) setCartDrawerOpen(true);
       } else {
         notifyError("Insufficient stock!");
       }

@@ -59,9 +59,9 @@ const CartItem = ({ item, currency: propCurrency }) => {
   };
 
   return (
-    <div className="flex gap-4 p-4 border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+    <div className="flex gap-3.5 p-3.5 border-b border-neutral-100 hover:bg-neutral-50/40 transition-colors">
       {/* Product Image */}
-      <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+      <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-md overflow-hidden bg-neutral-100 border border-black/5">
         <Image
           src={
             (Array.isArray(item.image) ? item.image[0] : item.image) ||
@@ -76,86 +76,81 @@ const CartItem = ({ item, currency: propCurrency }) => {
       </div>
 
       {/* Product Details */}
-      <div className="flex flex-col flex-grow min-w-0">
-        {/* Title */}
-        <Link
-          href={`/product/${item.slug || item.id}`}
-          onClick={closeCartDrawer}
-          className="text-sm font-medium text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1 mb-1"
-        >
-          {showingTranslateValue(item.title) || t(item.title)}
-        </Link>
+      <div className="flex flex-col flex-grow min-w-0 justify-between">
+        <div>
+          {/* Title */}
+          <Link
+            href={`/product/${item.slug || item.id}`}
+            onClick={closeCartDrawer}
+            className="text-xs sm:text-[13px] font-medium text-[#111111] hover:text-neutral-600 transition-colors line-clamp-1 block leading-snug"
+          >
+            {showingTranslateValue(item.title) || t(item.title)}
+          </Link>
 
-        {/* Variant Info */}
-        {item.variant && (
-          <p className="text-xs text-gray-500 mb-1">
-            {typeof item.variant === "object"
-              ? Object.values(item.variant).filter(Boolean).map(v => t(v)).join(", ")
-              : t(item.variant)}
-          </p>
-        )}
+          {/* Variant Info */}
+          {item.variant && (
+            <p className="text-[11px] text-neutral-400 mt-0.5 line-clamp-1">
+              {typeof item.variant === "object"
+                ? Object.values(item.variant).filter(Boolean).map(v => t(v)).join(", ")
+                : t(item.variant)}
+            </p>
+          )}
 
-        {/* MRP and Discount Badge */}
-        {originalPrice > currentPrice && (
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs text-gray-500 line-through font-medium">
-              {t("MRP")}: {currency}{formatPrice(originalPrice)}
+          {/* Price */}
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <span className="text-xs sm:text-[13px] font-bold text-[#111111]">
+              {currency}{formatPrice(currentPrice)}
             </span>
-            <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
-              {discountPercentage}% OFF
-            </span>
-          </div>
-        )}
-
-        {/* Item Price */}
-        <span className="text-xs text-gray-500 mb-2 font-medium">
-            {t("Unit Price")}:{" "}
-            <span className="text-emerald-600 font-semibold">
-            {currency}{formatPrice(item.price)}
-          </span>
-        </span>
-
-        {/* Bottom Section: Price, Quantity, Delete */}
-        <div className="flex items-center justify-between mt-auto pt-2">
-          {/* Total Price */}
-          <div className="flex flex-col">
-            <span className="text-xs text-gray-500 font-medium">{t("Total")}</span>
-            <span className="font-bold text-base md:text-lg text-gray-900 leading-tight">
-              {currency}{formatPrice(item.price * item.quantity)}
-            </span>
-          </div>
-
-          {/* Quantity Controls */}
-          <div className="flex items-center gap-2">
-            <div className="h-9 flex items-center justify-center p-1 border-2 border-emerald-300 bg-white hover:border-emerald-300 text-gray-700 rounded-lg transition-all duration-200 shadow-sm">
-              <button
-                onClick={handleDecrease}
-                className="h-full px-2 hover:bg-gray-100 rounded-md transition-colors duration-150 active:scale-95"
-              >
-                <FiMinus className="text-gray-600" />
-              </button>
-
-              <span className="text-sm font-bold text-gray-800 px-3 min-w-[2rem] text-center">
-                {item.quantity}
+            {item.quantity > 1 && (
+              <span className="text-[11px] text-neutral-400">
+                × {item.quantity} = {currency}{formatPrice(currentPrice * item.quantity)}
               </span>
+            )}
+            {originalPrice > currentPrice && item.quantity === 1 && (
+              <span className="text-[10px] text-neutral-400 line-through">
+                {currency}{formatPrice(originalPrice)}
+              </span>
+            )}
+          </div>
+        </div>
 
-              <button
-                onClick={() => handleIncreaseQuantity(item)}
-                className="h-full px-2 hover:bg-emerald-50 rounded-md transition-colors duration-150 active:scale-95"
-              >
-                <FiPlus className="text-emerald-600" />
-              </button>
-            </div>
-
-            {/* Delete Button */}
+        {/* Stepper + Remove Row */}
+        <div className="flex items-center justify-between mt-2 pt-1">
+          {/* Minimalist sleek stepper */}
+          <div className="inline-flex items-center border border-neutral-200 rounded bg-white overflow-hidden shadow-2xs">
             <button
-              onClick={handleRemove}
-              className="h-9 w-9 flex items-center justify-center hover:bg-red-50 text-red-400 hover:text-red-600 rounded-lg cursor-pointer transition-all duration-200 active:scale-95"
-              aria-label="Remove item"
+              type="button"
+              onClick={handleDecrease}
+              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors active:scale-95"
+              aria-label="Decrease quantity"
             >
-              <FiTrash2 className="text-lg" />
+              <FiMinus size={11} />
+            </button>
+
+            <span className="text-xs font-semibold text-[#111111] px-2 min-w-[1.4rem] text-center select-none">
+              {item.quantity}
+            </span>
+
+            <button
+              type="button"
+              onClick={handleIncrease}
+              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors active:scale-95"
+              aria-label="Increase quantity"
+            >
+              <FiPlus size={11} />
             </button>
           </div>
+
+          {/* Clean Remove text button in red */}
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="text-[11px] font-medium text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 cursor-pointer py-1 px-1.5 active:scale-95"
+            aria-label="Remove item"
+          >
+            <FiTrash2 size={12} className="text-red-500" />
+            <span>{t("Remove") || "Remove"}</span>
+          </button>
         </div>
       </div>
     </div>
