@@ -24,15 +24,21 @@ export const getYoutubeVideoId = (url = "") => {
   if (!url || typeof url !== "string") return null;
   const trimmed = url.trim();
   const match = trimmed.match(
-    /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([^&\n?#]+)/i
+    /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([^&\n?#]+)/i
   );
   return match?.[1] || null;
+};
+
+export const getYoutubeThumbnail = (url = "") => {
+  const videoId = getYoutubeVideoId(url);
+  if (!videoId) return null;
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 };
 
 export const getYoutubeEmbedUrl = (url = "") => {
   const videoId = getYoutubeVideoId(url);
   if (!videoId) return null;
-  return `https://www.youtube.com/embed/${videoId}`;
+  return `https://www.youtube-nocookie.com/embed/${videoId}`;
 };
 
 const fileToDataUrl = (file) =>
@@ -384,8 +390,20 @@ const VideoUploader = ({
                 type="url"
                 value={linkInput}
                 onChange={(e) => {
-                  setLinkInput(e.target.value);
+                  const val = e.target.value;
+                  setLinkInput(val);
                   setLinkError("");
+                  if (isYoutubeUrl(val)) {
+                    const vidId = getYoutubeVideoId(val);
+                    if (vidId) {
+                      onChange(val.trim());
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (linkInput && isYoutubeUrl(linkInput)) {
+                    handleApplyLink();
+                  }
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

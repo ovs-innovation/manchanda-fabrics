@@ -4,7 +4,11 @@ import { FiPlus, FiTrash2, FiVideo, FiEdit, FiX, FiCheck } from "react-icons/fi"
 
 import ReelServices from "@/services/ReelServices";
 import ProductServices from "@/services/ProductServices";
-import VideoUploader from "@/components/image-uploader/VideoUploader";
+import VideoUploader, {
+  isYoutubeUrl,
+  getYoutubeVideoId,
+  getYoutubeThumbnail,
+} from "@/components/image-uploader/VideoUploader";
 import Uploader from "@/components/image-uploader/Uploader";
 import { notifySuccess, notifyError } from "@/utils/toast";
 import TableLoading from "@/components/preloader/TableLoading";
@@ -86,11 +90,12 @@ const Reels = () => {
 
     try {
       setSaving(true);
+      const ytThumb = isYoutubeUrl(videoUrl) ? getYoutubeThumbnail(videoUrl) : "";
       const payload = {
         video: videoUrl,
         product: selectedProductId || null,
-        title,
-        thumbnail: thumbnailUrl || "",
+        title: title || (isYoutubeUrl(videoUrl) ? "YouTube Reel" : ""),
+        thumbnail: thumbnailUrl || ytThumb || "",
         status: "published",
       };
 
@@ -271,31 +276,49 @@ const Reels = () => {
                           
                           {/* Video Preview */}
                           <TableCell className="w-44 py-3">
-                            <div className="w-28 aspect-[9/16] rounded-xl overflow-hidden bg-black shadow-sm relative">
-                              <video
-                                src={reel.video}
-                                muted
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
-                                <span className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center shadow">
-                                  <span className="ml-0.5 border-l-6 border-y-3.5 border-l-emerald-600 border-y-transparent" />
-                                </span>
+                            {isYoutubeUrl(reel.video) ? (
+                              <div className="w-28 aspect-[9/16] rounded-xl overflow-hidden bg-black shadow-sm relative group">
+                                <iframe
+                                  src={`https://www.youtube-nocookie.com/embed/${getYoutubeVideoId(reel.video)}?autoplay=0&controls=1&rel=0&playsinline=1`}
+                                  title="YouTube Reel"
+                                  className="w-full h-full object-cover"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                                <div className="absolute top-1.5 left-1.5 pointer-events-none">
+                                  <span className="bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                                    YouTube
+                                  </span>
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="w-28 aspect-[9/16] rounded-xl overflow-hidden bg-black shadow-sm relative">
+                                <video
+                                  src={reel.video}
+                                  muted
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+                                  <span className="w-8 h-8 rounded-full bg-white/80 flex items-center justify-center shadow">
+                                    <span className="ml-0.5 border-l-6 border-y-3.5 border-l-emerald-600 border-y-transparent" />
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </TableCell>
 
                           {/* Thumbnail / Title */}
                           <TableCell className="min-w-[180px]">
                             <div className="flex gap-2.5 items-start">
                               {(() => {
-                                const rawThumb = reel.thumbnail || (reel.product ? (Array.isArray(reel.product.image) ? reel.product.image[0] : reel.product.image) : null);
+                                const ytThumb = isYoutubeUrl(reel.video) ? getYoutubeThumbnail(reel.video) : null;
+                                const rawThumb = reel.thumbnail || ytThumb || (reel.product ? (Array.isArray(reel.product.image) ? reel.product.image[0] : reel.product.image) : null);
                                 const displayImage = rawThumb && rawThumb.includes("/uploads/")
                                   ? `${rawThumb}${rawThumb.includes("?") ? "&" : "?"}v=${new Date(reel.updatedAt || Date.now()).getTime()}_clean`
                                   : rawThumb;
                                 return displayImage ? (
                                   <div className="w-11 h-14 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0 shadow-xs flex items-center justify-center">
-                                    <img src={displayImage} alt="thumb" className="w-full h-full object-contain p-0.5" />
+                                    <img src={displayImage} alt="thumb" className="w-full h-full object-cover" />
                                   </div>
                                 ) : (
                                   <div className="w-10 h-12 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center shrink-0 text-gray-400 text-[9px] uppercase">
@@ -305,7 +328,7 @@ const Reels = () => {
                               })()}
                               <div>
                                 <p className="font-bold text-gray-800 dark:text-gray-200 text-xs line-clamp-2">
-                                  {reel.title || <span className="text-gray-400 font-normal italic">No caption</span>}
+                                  {reel.title || (isYoutubeUrl(reel.video) ? "YouTube Reel" : <span className="text-gray-400 font-normal italic">No caption</span>)}
                                 </p>
                                 <span className="text-[10px] text-gray-400 mt-1 block">ID: #{reel._id?.substring(18, 24)}</span>
                               </div>

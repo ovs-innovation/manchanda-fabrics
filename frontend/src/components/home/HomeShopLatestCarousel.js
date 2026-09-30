@@ -9,7 +9,14 @@ import "swiper/css/autoplay";
 import ReelModal from "@components/home/ReelModal";
 import ProductServices from "@services/ProductServices";
 import { FiShoppingBag } from "react-icons/fi";
+import { FaYoutube } from "react-icons/fa";
 import { getOptimizedImageUrl } from "@utils/brandAssets";
+import {
+  isYoutubeUrl,
+  getYoutubeVideoId,
+  getYoutubeEmbedUrl,
+  getYoutubeThumbnail,
+} from "@utils/youtube";
 
 const resolveReelVideo = (src) => {
   if (!src || typeof src !== "string") return "";
@@ -101,33 +108,51 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
   }, [reelsData]);
 
   const carouselItems = useMemo(() => {
+    // 1. If database reels exist, map them
+    const dbReels =
+      reelsData.reels && reelsData.reels.length > 0
+        ? reelsData.reels.map((reel, index) => {
+            const product = reel.product || null;
+            const video = reel.video;
+            const title =
+              reel.title ||
+              (product ? product.title?.en || product.title || product.name : "Featured Reel");
+            let rawImage = reel.thumbnail || (product ? pickImage(product) : null);
+            if (!rawImage && isYoutubeUrl(video)) {
+              rawImage = getYoutubeThumbnail(video);
+            }
+            if (typeof rawImage === "string") {
+              if (rawImage.includes("2stydj") || rawImage.includes("thumb_red"))
+                rawImage = "/reels/thumb_red_suit.jpg";
+              else if (rawImage.includes("bpq6y6") || rawImage.includes("thumb_pink"))
+                rawImage = "/reels/thumb_pink_suit.jpg";
+              else if (rawImage.includes("6zlca") || rawImage.includes("thumb_yellow"))
+                rawImage = "/reels/thumb_yellow_suit.jpg";
+              else if (rawImage.includes("localhost:8092"))
+                rawImage = rawImage.replace(/http:\/\/localhost:8092/g, "");
+            }
+            const image =
+              rawImage && rawImage.includes("/uploads/")
+                ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(
+                    reel.updatedAt || Date.now()
+                  ).getTime()}_clean`
+                : rawImage;
+            const price = product ? (product.prices?.price ?? product.price) : null;
+
+            return {
+              id: reel._id || `reel-${index}`,
+              video,
+              product,
+              title,
+              image,
+              price,
+            };
+          })
+        : [];
+
     // 1. If database reels exist, render ONLY those uploaded reels!
-    if (reelsData.reels && reelsData.reels.length > 0) {
-      return reelsData.reels.map((reel, index) => {
-        const product = reel.product || null;
-        const video = reel.video;
-        const title = reel.title || (product ? product.title?.en || product.title || product.name : "Reel");
-        let rawImage = reel.thumbnail || (product ? pickImage(product) : null);
-        if (typeof rawImage === "string") {
-          if (rawImage.includes("2stydj") || rawImage.includes("thumb_red")) rawImage = "/reels/thumb_red_suit.jpg";
-          else if (rawImage.includes("bpq6y6") || rawImage.includes("thumb_pink")) rawImage = "/reels/thumb_pink_suit.jpg";
-          else if (rawImage.includes("6zlca") || rawImage.includes("thumb_yellow")) rawImage = "/reels/thumb_yellow_suit.jpg";
-          else if (rawImage.includes("localhost:8092")) rawImage = rawImage.replace(/http:\/\/localhost:8092/g, "");
-        }
-        const image = rawImage && rawImage.includes("/uploads/")
-          ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(reel.updatedAt || Date.now()).getTime()}_clean`
-          : rawImage;
-        const price = product ? (product.prices?.price ?? product.price) : null;
-        
-        return {
-          id: reel._id || `reel-${index}`,
-          video,
-          product,
-          title,
-          image,
-          price,
-        };
-      });
+    if (dbReels.length > 0) {
+      return dbReels;
     }
 
     // 2. Fallback: If no database reels exist, render the static collection items
@@ -211,12 +236,16 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
         <div className="mt-10 relative home-reels-swiper">
           <Swiper
             modules={[Navigation, Autoplay]}
-            navigation
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
+            navigation={carouselItems.length > 1}
+            autoplay={
+              carouselItems.length > 1
+                ? {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                  }
+                : false
+            }
             onSwiper={(swiper) => {
               swiperRef.current = swiper;
               if (typeof window !== "undefined") {
@@ -257,12 +286,44 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                 <SwiperSlide key={key}>
                   <button
                     type="button"
-                    onClick={() => item.product && setSelected({ product: item.product, video, image })}
-                    className="block w-full text-left bg-white rounded-[12px] sm:rounded-[14px] shadow-[0_4px_14px_rgba(0,0,0,0.08)] overflow-hidden border border-black/5 cursor-pointer"
+                    onClick={() => setSelected({ product: item.product, video, image, title })}
+                    className="block w-full text-left bg-white rounded-[12px] sm:rounded-[14px] shadow-[0_4px_14px_rgba(0,0,0,0.08)] overflow-hidden border border-black/5 cursor-pointer group"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    <div className="aspect-[9/16] bg-neutral-100 overflow-hidden relative">
-                      {canUseVideo(video) ? (
+                    <div className="aspect-[9/16] bg-black overflow-hidden relative">
+                      {isYoutubeUrl(video) ? (
+                        <div className="absolute inset-0 w-full h-full bg-black overflow-hidden flex items-center justify-center">
+                          {image && (
+                            <img
+                              src={getOptimizedImageUrl(image, 450, 800)}
+                              alt={title}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          )}
+                          <iframe
+                            src={getYoutubeEmbedUrl(video, {
+                              autoplay: true,
+                              mute: true,
+                              loop: true,
+                              controls: false,
+                            })}
+                            title={title || "YouTube Reel"}
+                            className="w-full h-full pointer-events-none border-0"
+                            style={{
+                              transform: "scale(1.35)",
+                              transformOrigin: "center center",
+                            }}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          />
+                          <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
+                            <span className="bg-red-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md flex items-center gap-1 backdrop-blur-xs">
+                              <FaYoutube size={12} /> Reel
+                            </span>
+                          </div>
+                        </div>
+                      ) : canUseVideo(video) ? (
                         <video
                           className="absolute inset-0 w-full h-full object-cover"
                           src={video}
@@ -307,14 +368,18 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
                       <div className="min-w-0 flex-1 flex flex-col justify-center text-left">
                         <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-[#b45309] uppercase tracking-wider leading-none">
                           <FiShoppingBag size={10} className="text-[#b45309] shrink-0" />
-                          <span>Shop Look</span>
+                          <span>{item.product ? "Shop Look" : "Watch Reel"}</span>
                         </div>
                         <p className="text-[11px] sm:text-[13px] font-semibold text-[#111111] truncate leading-tight mt-1">
-                          {t(title ? title.replace(/\bSarees?\b/g, "Suit").replace(/\bsarees?\b/g, "suit") : "")}
+                          {t(title ? title.replace(/\bSarees?\b/g, "Suit").replace(/\bsarees?\b/g, "suit") : "Manchanda Collection")}
                         </p>
-                        {priceText && (
+                        {priceText ? (
                           <p className="text-[10px] sm:text-[12px] font-bold text-emerald-600 leading-none mt-1">
                             {priceText}
+                          </p>
+                        ) : (
+                          <p className="text-[10px] sm:text-[11px] text-neutral-400 leading-none mt-1">
+                            {item.product ? "" : "Featured Reel"}
                           </p>
                         )}
                       </div>
@@ -363,6 +428,7 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
         product={selected?.product}
         video={selected?.video}
         image={selected?.image}
+        title={selected?.title}
       />
     </section>
   );

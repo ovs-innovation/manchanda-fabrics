@@ -21,6 +21,25 @@ const createReel = async (req, res) => {
   }
 };
 
+const getYoutubeVideoId = (url = "") => {
+  if (!url || typeof url !== "string") return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([^&\n?#]+)/i
+  );
+  return match?.[1] || null;
+};
+
+const resolveReelThumbnail = (thumbnail, video) => {
+  if (thumbnail && typeof thumbnail === "string" && thumbnail.trim() !== "") {
+    return thumbnail;
+  }
+  const ytId = getYoutubeVideoId(video);
+  if (ytId) {
+    return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+  }
+  return thumbnail || "";
+};
+
 const resolveReelVideo = (video) => {
   if (!video || typeof video !== "string") return video;
   if (video.includes("detqbiabu")) {
@@ -37,7 +56,11 @@ const getPublicReels = async (req, res) => {
       .populate("product")
       .sort({ createdAt: -1 })
       .lean();
-    const mapped = reels.map((r) => ({ ...r, video: resolveReelVideo(r.video) }));
+    const mapped = reels.map((r) => ({
+      ...r,
+      video: resolveReelVideo(r.video),
+      thumbnail: resolveReelThumbnail(r.thumbnail, r.video),
+    }));
     res.send(mapped);
   } catch (err) {
     res.status(500).send({ message: err.message });
@@ -50,7 +73,11 @@ const getAllReels = async (req, res) => {
       .populate("product")
       .sort({ createdAt: -1 })
       .lean();
-    const mapped = reels.map((r) => ({ ...r, video: resolveReelVideo(r.video) }));
+    const mapped = reels.map((r) => ({
+      ...r,
+      video: resolveReelVideo(r.video),
+      thumbnail: resolveReelThumbnail(r.thumbnail, r.video),
+    }));
     res.send(mapped);
   } catch (err) {
     res.status(500).send({ message: err.message });

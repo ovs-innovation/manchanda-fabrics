@@ -9,6 +9,7 @@ import useAddToCart from "@hooks/useAddToCart";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
 import { notifyError } from "@utils/toast";
+import { isYoutubeUrl, getYoutubeVideoId } from "@utils/youtube";
 
 const formatInr = (value) => {
   const n = Number(value || 0);
@@ -19,14 +20,76 @@ const formatInr = (value) => {
   });
 };
 
-const ReelModal = ({ open, onClose, product, video, image }) => {
+const ReelModal = ({ open, onClose, product, video, image, title: propTitle }) => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const { handleAddItem } = useAddToCart();
   const { showingTranslateValue } = useUtilsFunction();
   const [descOpen, setDescOpen] = useState(true);
 
-  if (!product) return null;
+  if (!open) return null;
+
+  if (!product) {
+    const isYt = isYoutubeUrl(video);
+    const ytId = isYt ? getYoutubeVideoId(video) : null;
+    const modalTitle = propTitle || "Manchanda Fabrics Collection";
+    const thumbImg =
+      image || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : PRODUCT_PLACEHOLDER);
+
+    return (
+      <MainModal modalOpen={open} setModalOpen={onClose}>
+        <div
+          className="inline-block w-full max-w-sm sm:max-w-md my-8 text-left align-middle bg-black shadow-2xl rounded-2xl overflow-hidden border border-neutral-800"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+        >
+          <div className="relative w-full aspect-[9/16] max-h-[75vh] bg-black flex items-center justify-center">
+            {isYt && ytId ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0`}
+                title={modalTitle}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : video ? (
+              <video
+                className="absolute inset-0 w-full h-full object-cover"
+                src={video}
+                poster={thumbImg}
+                controls
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={thumbImg}
+                alt={modalTitle}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          <div className="p-4 bg-[#111111] text-white flex items-center justify-between gap-3 border-t border-neutral-800">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold truncate text-white">
+                {modalTitle}
+              </h3>
+              <p className="text-[11px] text-neutral-400 mt-0.5">Featured Reel</p>
+            </div>
+            <Link
+              href="/all-collections"
+              onClick={onClose}
+              className="shrink-0 px-4 py-2 bg-[#B0322F] hover:bg-[#8e2523] text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow"
+            >
+              <FiShoppingBag size={13} />
+              <span>Explore Suits</span>
+            </Link>
+          </div>
+        </div>
+      </MainModal>
+    );
+  }
 
   const title =
     showingTranslateValue(product?.title) || product?.name || "Product";
@@ -128,8 +191,16 @@ const ReelModal = ({ open, onClose, product, video, image }) => {
         <div className="flex flex-col md:flex-row">
           {/* Left — reel video */}
           <div className="md:w-1/2 bg-black flex items-center justify-center">
-            <div className="w-full aspect-[9/16] max-h-[70vh] relative">
-              {video ? (
+            <div className="w-full aspect-[9/16] max-h-[70vh] relative bg-black flex items-center justify-center">
+              {isYoutubeUrl(video) ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYoutubeVideoId(video)}?autoplay=1&playsinline=1&rel=0`}
+                  title={title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : video ? (
                 <video
                   className="absolute inset-0 w-full h-full object-cover"
                   src={video}

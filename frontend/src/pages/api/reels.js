@@ -34,6 +34,15 @@ export default async function handler(req, res) {
 
     const resolveThumbnailUrl = (thumbUrl, videoUrl) => {
       if (!thumbUrl || typeof thumbUrl !== "string") {
+        const ytMatch =
+          videoUrl && typeof videoUrl === "string"
+            ? videoUrl.match(
+                /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([^&\n?#]+)/i
+              )
+            : null;
+        if (ytMatch && ytMatch[1]) {
+          return `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+        }
         if (videoUrl?.includes("R9")) return "/reels/thumb_red_suit.jpg";
         if (videoUrl?.includes("R7")) return "/reels/thumb_pink_suit.jpg";
         if (videoUrl?.includes("R4")) return "/reels/thumb_yellow_suit.jpg";
