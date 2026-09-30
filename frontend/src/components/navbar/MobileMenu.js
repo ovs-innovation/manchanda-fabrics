@@ -229,6 +229,15 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden pl-4 flex flex-col gap-3.5 mt-3 border-l border-neutral-100"
                       >
+                        <Link
+                          href="/search"
+                          onClick={onClose}
+                          className="text-xs font-bold tracking-[0.12em] uppercase text-[#9C6A5A] hover:text-[#111111] transition-colors flex items-center justify-between pr-2"
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          <span>{t("View All")}</span>
+                          <span className="text-[10px] tracking-wider font-semibold opacity-75">→</span>
+                        </Link>
                         {categoriesList.map((cat) => (
                           <Link
                             key={cat.slug}

@@ -136,79 +136,96 @@ const Category = () => {
                     <p className="text-xs text-red-500 py-1">
                       {error?.response?.data?.message || error?.message}
                     </p>
-                  ) : menuCategories.length === 0 ? (
-                    <p className="text-xs text-[#3B2A25]/60 py-2">{t("No categories found.")}</p>
                   ) : (
-                    menuCategories.map((parentCategory) => {
-                      const hasChildren = parentCategory.children?.length > 0;
-                      const isExpanded = expandedCategories[parentCategory._id];
+                    <>
+                      {/* View All Option */}
+                      <Link
+                        href="/search"
+                        onClick={closeCategoryDrawer}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider text-[#9C6A5A] hover:bg-white hover:text-[#3B2A25] transition-colors group"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <FiGrid className="w-4 h-4 flex-shrink-0 text-[#9C6A5A] group-hover:scale-110 transition-transform" />
+                          <span>{t("View All")}</span>
+                        </div>
+                        <IoChevronForward className="text-xs text-[#9C6A5A]/60 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
 
-                      return (
-                        <div key={parentCategory._id} className="rounded-md">
-                          <div
-                            className="flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold uppercase tracking-wider text-[#3B2A25]/80 hover:bg-white hover:text-[#9C6A5A] transition-colors cursor-pointer"
-                            onClick={() => {
-                              if (hasChildren) {
-                                toggleCategoryExpansion(parentCategory._id);
-                              } else {
-                                navigateToCategory(parentCategory);
-                              }
-                            }}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              {parentCategory?.icon && (
-                                <Image
-                                  src={parentCategory.icon}
-                                  alt={showingTranslateValue(parentCategory?.name)}
-                                  width={16}
-                                  height={16}
-                                  className="object-contain flex-shrink-0"
-                                />
-                              )}
-                              <span>{showingTranslateValue(parentCategory?.name)}</span>
-                            </div>
-                            {hasChildren && (
-                              <IoChevronDown
-                                className={`text-xs text-[#3B2A25]/50 transition-transform duration-200 ${
-                                  isExpanded ? "rotate-180" : ""
-                                }`}
-                              />
-                            )}
-                          </div>
+                      {menuCategories.length === 0 ? (
+                        <p className="text-xs text-[#3B2A25]/60 py-2">{t("No categories found.")}</p>
+                      ) : (
+                        menuCategories.map((parentCategory) => {
+                          const hasChildren = parentCategory.children?.length > 0;
+                          const isExpanded = expandedCategories[parentCategory._id];
 
-                          {hasChildren && isExpanded && (
-                            <div className="ml-4 pl-3 py-1 space-y-1 border-l border-[#E6D1CB]">
-                              <button
-                                type="button"
-                                onClick={() => navigateToCategory(parentCategory)}
-                                className="w-full text-left px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#9C6A5A] hover:underline"
+                          return (
+                            <div key={parentCategory._id} className="rounded-md">
+                              <div
+                                className="flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold uppercase tracking-wider text-[#3B2A25]/80 hover:bg-white hover:text-[#9C6A5A] transition-colors cursor-pointer"
+                                onClick={() => {
+                                  if (hasChildren) {
+                                    toggleCategoryExpansion(parentCategory._id);
+                                  } else {
+                                    navigateToCategory(parentCategory);
+                                  }
+                                }}
                               >
-                                {t("All")} {showingTranslateValue(parentCategory?.name)}
-                              </button>
-                              {parentCategory.children.map((subcategory) => (
-                                <button
-                                  key={subcategory._id}
-                                  type="button"
-                                  onClick={() => navigateToCategory(subcategory)}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium text-[#3B2A25]/70 hover:text-[#9C6A5A] transition-colors text-left"
-                                >
-                                  {subcategory?.icon && (
+                                <div className="flex items-center gap-2.5">
+                                  {parentCategory?.icon && (
                                     <Image
-                                      src={subcategory.icon}
-                                      alt={showingTranslateValue(subcategory?.name)}
-                                      width={14}
-                                      height={14}
+                                      src={parentCategory.icon}
+                                      alt={showingTranslateValue(parentCategory?.name)}
+                                      width={16}
+                                      height={16}
                                       className="object-contain flex-shrink-0"
                                     />
                                   )}
-                                  <span>{showingTranslateValue(subcategory?.name)}</span>
-                                </button>
-                              ))}
+                                  <span>{showingTranslateValue(parentCategory?.name)}</span>
+                                </div>
+                                {hasChildren && (
+                                  <IoChevronDown
+                                    className={`text-xs text-[#3B2A25]/50 transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                  />
+                                )}
+                              </div>
+
+                              {hasChildren && isExpanded && (
+                                <div className="ml-4 pl-3 py-1 space-y-1 border-l border-[#E6D1CB]">
+                                  <button
+                                    type="button"
+                                    onClick={() => navigateToCategory(parentCategory)}
+                                    className="w-full text-left px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#9C6A5A] hover:underline"
+                                  >
+                                    {t("All")} {showingTranslateValue(parentCategory?.name)}
+                                  </button>
+                                  {parentCategory.children.map((subcategory) => (
+                                    <button
+                                      key={subcategory._id}
+                                      type="button"
+                                      onClick={() => navigateToCategory(subcategory)}
+                                      className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium text-[#3B2A25]/70 hover:text-[#9C6A5A] transition-colors text-left"
+                                    >
+                                      {subcategory?.icon && (
+                                        <Image
+                                          src={subcategory.icon}
+                                          alt={showingTranslateValue(subcategory?.name)}
+                                          width={14}
+                                          height={14}
+                                          className="object-contain flex-shrink-0"
+                                        />
+                                      )}
+                                      <span>{showingTranslateValue(subcategory?.name)}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })
+                          );
+                        })
+                      )}
+                    </>
                   )}
                 </div>
               )}
