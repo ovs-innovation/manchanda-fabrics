@@ -139,25 +139,14 @@ const HomeBrandStats = () => {
             </div>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full lg:w-auto sm:justify-end">
+          {/* CTA Button */}
+          <div className="flex w-full lg:w-auto sm:justify-end">
             <Link
-              href="/search?category=fabrics"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 sm:py-4 border border-[#111111] text-[#111111] text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white bg-transparent"
+              href="/search"
+              className="group inline-flex items-center justify-center gap-3 px-10 py-4 bg-[#111111] text-white border border-[#111111] text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:bg-black w-full sm:w-auto shadow-sm"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              <span>{t("Shop Fabrics")}</span>
-              <ChevronRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
-            <Link
-              href="/search?category=suits"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 sm:py-4 bg-[#111111] text-white border border-[#111111] text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:bg-transparent hover:text-[#111111]"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
-              <span>{t("Shop Suits")}</span>
+              <span>{t("Shop Now") || "Shop Now"}</span>
               <ChevronRight
                 size={16}
                 className="transition-transform duration-300 group-hover:translate-x-1"
