@@ -68,7 +68,7 @@ const Cart = ({ isMaximized = false, onToggleMaximize, isMobile = false }) => {
 
   return (
     <>
-      <div className="flex flex-col w-full h-full justify-between bg-white overflow-hidden">
+      <div className={`flex flex-col w-full h-full justify-between bg-white overflow-hidden ${isMaximized ? "" : "rounded-l-2xl"}`}>
         {/* Cart Top Header */}
         <div className="w-full flex justify-between items-center relative px-4 py-3 sm:py-3.5 border-b border-neutral-100 bg-white shrink-0">
           <h2
@@ -89,13 +89,13 @@ const Cart = ({ isMaximized = false, onToggleMaximize, isMobile = false }) => {
                 onClick={onToggleMaximize}
                 className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase text-neutral-700 hover:text-black bg-neutral-100/90 hover:bg-neutral-200 active:scale-95 py-1 px-2.5 rounded-full transition-all cursor-pointer border border-neutral-200/70"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
-                title={isMaximized ? "Restore half screen" : "Maximize cart to full screen"}
-                aria-label={isMaximized ? "Restore half screen" : "Maximize cart"}
+                title={isMaximized ? "Restore normal width" : "Maximize cart to full width"}
+                aria-label={isMaximized ? "Restore normal width" : "Maximize cart"}
               >
                 {isMaximized ? (
                   <>
                     <Minimize2 size={12} className="text-neutral-700" />
-                    <span>{t("Half Screen") || "HALF"}</span>
+                    <span>{t("Restore") || "RESTORE"}</span>
                   </>
                 ) : (
                   <>

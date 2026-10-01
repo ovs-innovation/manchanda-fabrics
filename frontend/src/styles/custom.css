@@ -280,6 +280,16 @@ p:not(:last-of-type) {
   }
 }
 
+.drawer.drawer-maximized .drawer-content-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.drawer .drawer-content-wrapper {
+  transition: width 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86),
+    transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+}
+
 .drawer {
   position: fixed;
   z-index: 9999;
