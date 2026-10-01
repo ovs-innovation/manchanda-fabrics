@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useMemo, useState } from "react";
 import { useCart } from "react-use-cart";
 import { IoBagCheckOutline, IoClose, IoBagHandle } from "react-icons/io5";
+import { Maximize2, Minimize2 } from "lucide-react";
 import useTranslation from "next-translate/useTranslation";
 
 //internal import
@@ -12,7 +13,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import useGetSetting from "@hooks/useGetSetting";
 import { calculateShipping, isDelhiLocation, INDIAN_STATES } from "@utils/shippingRules";
 
-const Cart = () => {
+const Cart = ({ isMaximized = false, onToggleMaximize, isMobile = false }) => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const { isEmpty, items, cartTotal } = useCart();
@@ -67,10 +68,11 @@ const Cart = () => {
 
   return (
     <>
-      <div className="flex flex-col w-full h-full justify-between bg-white rounded-l-2xl overflow-hidden">
-        <div className="w-full flex justify-between items-center relative px-4 py-3.5 border-b border-neutral-100 bg-white">
+      <div className="flex flex-col w-full h-full justify-between bg-white overflow-hidden">
+        {/* Cart Top Header */}
+        <div className="w-full flex justify-between items-center relative px-4 py-3 sm:py-3.5 border-b border-neutral-100 bg-white shrink-0">
           <h2
-            className="font-bold text-sm m-0 flex items-center tracking-[0.16em] uppercase text-[#111111]"
+            className="font-bold text-xs sm:text-sm m-0 flex items-center tracking-[0.16em] uppercase text-[#111111]"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <span className="text-base mr-2 text-[#111111]">
@@ -78,17 +80,48 @@ const Cart = () => {
             </span>
             {isEmpty ? t("Cart") : `${t("Cart")} (${items?.length || 0})`}
           </h2>
-          <button
-            onClick={closeCartDrawer}
-            className="inline-flex text-xs items-center justify-center text-neutral-400 hover:text-black py-1 px-2 transition-colors cursor-pointer"
-          >
-            <IoClose size={18} />
-            <span className="text-[10px] tracking-widest uppercase ml-1">
-              {t("Close")}
-            </span>
-          </button>
+
+          {/* Right Header Actions: Maximize / Restore & Close */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {onToggleMaximize && (
+              <button
+                type="button"
+                onClick={onToggleMaximize}
+                className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase text-neutral-700 hover:text-black bg-neutral-100/90 hover:bg-neutral-200 active:scale-95 py-1 px-2.5 rounded-full transition-all cursor-pointer border border-neutral-200/70"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+                title={isMaximized ? "Restore half screen" : "Maximize cart to full screen"}
+                aria-label={isMaximized ? "Restore half screen" : "Maximize cart"}
+              >
+                {isMaximized ? (
+                  <>
+                    <Minimize2 size={12} className="text-neutral-700" />
+                    <span>{t("Half Screen") || "HALF"}</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 size={12} className="text-neutral-700" />
+                    <span>{t("Maximise") || "MAXIMISE"}</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={closeCartDrawer}
+              className="inline-flex text-xs items-center justify-center text-neutral-400 hover:text-black py-1 px-2 transition-colors cursor-pointer"
+              title="Close cart"
+              aria-label="Close cart"
+            >
+              <IoClose size={18} />
+              <span className="text-[10px] tracking-widest uppercase ml-1 font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                {t("Close")}
+              </span>
+            </button>
+          </div>
         </div>
-        <div className="overflow-y-scroll flex-grow scrollbar-hide w-full max-h-full">
+
+        <div className="overflow-y-auto flex-grow scrollbar-hide w-full max-h-full">
           {isEmpty && (
             <div className="flex flex-col h-full justify-center">
               <div className="flex flex-col items-center">
@@ -114,7 +147,7 @@ const Cart = () => {
           {/* You May Also Like Section (suits in similar price range or bestsellers with + Add button) */}
           <CartRecommendations cartItems={items} />
         </div>
-        <div className="px-5 pt-3 pb-5 border-t border-neutral-100 bg-white">
+        <div className="px-4 sm:px-5 pt-3 pb-6 md:pb-5 border-t border-neutral-100 bg-white shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
           {/* Collapsible Options (Order Note, Coupon, Shipping) - Clean & Minimalist */}
           <div className="border-t border-neutral-100/80 mb-3">
             {/* Order note */}
