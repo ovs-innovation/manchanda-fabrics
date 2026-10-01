@@ -145,7 +145,7 @@ const Navbar = () => {
           {/* Wishlist Link with live heart badge */}
           <Link
             href="/wishlist"
-            className="relative p-1 hover:text-[#B0322F] transition-colors flex items-center group"
+            className="relative p-1 hover:text-[#9C6A5A] transition-colors flex items-center group"
             aria-label={t("Wishlist")}
             title={t("Wishlist")}
           >
@@ -153,12 +153,12 @@ const Navbar = () => {
               size={20}
               strokeWidth={1.75}
               className={`transition-all duration-200 group-hover:scale-110 ${mounted && wishlistCount > 0
-                ? "text-[#B0322F]"
+                ? "text-[#9C6A5A]"
                 : "text-[#111111]"
                 }`}
             />
             {mounted && wishlistCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 min-w-[17px] h-[17px] px-1 text-[9px] font-bold text-white bg-[#B0322F] rounded-full flex items-center justify-center shadow-xs">
+              <span className="absolute -top-1.5 -right-2 min-w-[17px] h-[17px] px-1 text-[9px] font-bold text-white bg-[#9C6A5A] rounded-full flex items-center justify-center shadow-xs">
                 {wishlistCount}
               </span>
             )}

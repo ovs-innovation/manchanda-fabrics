@@ -511,7 +511,7 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               <button onClick={() => router.push("/wishlist")} className="relative">
                 <FiHeart size={22} />
                 {mounted && wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-[#9C6A5A] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
@@ -519,7 +519,7 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               <button onClick={toggleCartDrawer} className="relative">
                 <FiShoppingCart size={22} />
                 {mounted && totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[#FAF7F5] text-[#3B2A25] text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-[#9C6A5A] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}
@@ -551,6 +551,36 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
       </div>
 
       <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-10">
+        {/* Luxury Editorial Header matching About Us style */}
+        <div className="pt-6 sm:pt-10 pb-4 sm:pb-8 text-center max-w-3xl mx-auto">
+          <div className="flex items-center justify-center gap-2.5 sm:gap-3 mb-2.5">
+            <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+            <span
+              className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              {t("PREMIUM SELECTIONS")}
+            </span>
+            <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+          </div>
+          <h1
+            className="text-2xl sm:text-4xl lg:text-5xl font-light text-[#3B2A25] leading-tight"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {query ? (
+              <>
+                {t("Search Results for")}{" "}
+                <em className="not-italic font-normal italic text-[#9C6A5A]">“{query}”</em>
+              </>
+            ) : (
+              <>
+                {t("Explore")}{" "}
+                <em className="not-italic font-normal italic text-[#9C6A5A]">{t("All Collections")}</em>
+              </>
+            )}
+          </h1>
+        </div>
+
         <div className="flex gap-6">
           {/* Sidebar for Desktop */}
           <div className="hidden lg:block w-1/5 shrink-0">

@@ -35,20 +35,27 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
   if (!list.length) return null;
 
   return (
-    <section className="py-20 sm:py-24 bg-white border-b border-black/5">
+    <section className="py-16 sm:py-24 bg-[#FAF7F5] border-b border-[#E6D1CB]/50">
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-16">
-        <div className="mb-12 sm:mb-16">
-          <p className="text-[13px] text-neutral-500">
-            {t("Browse by Style & Need")}
-          </p>
+        <div className="mb-10 sm:mb-14">
+          <div className="flex items-center gap-2.5 sm:gap-3 mb-2.5">
+            <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+            <span
+              className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              {t("CURATED COLLECTIONS")}
+            </span>
+          </div>
           <h2
-            className="text-4xl sm:text-5xl font-semibold text-[#111111]"
+            className="text-3xl sm:text-5xl font-light text-[#3B2A25] leading-tight"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {t("Shop By Categories")}
+            {t("Shop By")}{" "}
+            <em className="not-italic font-normal italic text-[#9C6A5A]">{t("Categories")}</em>
           </h2>
           <p
-            className="mt-4 text-sm text-[#7A7A7A] max-w-2xl font-light"
+            className="mt-2 sm:mt-3 text-xs sm:text-sm text-[#7A7A7A] max-w-2xl font-light"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             {t("Easily find what you’re looking for – all neatly sorted by category.")}
@@ -63,28 +70,30 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
                 className="group flex flex-col items-center text-center"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
-                <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-neutral-100 group-hover:shadow-xl transition-all">
-                  {/* padding-bottom trick forces a perfect square regardless of Tailwind aspect support */}
-                  <div className="pb-[100%]" />
-                  <img
-                    src={getOptimizedImageUrl(cat.image, 250, 250) || FALLBACK_IMAGE}
-                    alt={cat.title}
-                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      if (e.target.src !== window.location.origin + FALLBACK_IMAGE) {
-                        e.target.onerror = null;
-                        e.target.src = FALLBACK_IMAGE;
-                      }
-                    }}
-                  />
+                <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-white border border-[#E6D1CB] p-1.5 shadow-sm group-hover:border-[#9C6A5A] group-hover:shadow-md transition-all duration-300">
+                  <div className="relative w-full rounded-full overflow-hidden bg-neutral-100">
+                    {/* padding-bottom trick forces a perfect square */}
+                    <div className="pb-[100%]" />
+                    <img
+                      src={getOptimizedImageUrl(cat.image, 250, 250) || FALLBACK_IMAGE}
+                      alt={cat.title}
+                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        if (e.target.src !== window.location.origin + FALLBACK_IMAGE) {
+                          e.target.onerror = null;
+                          e.target.src = FALLBACK_IMAGE;
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
-                <p className="mt-6 text-[15px] sm:text-base font-medium text-[#111111] tracking-wide">
+                <p className="mt-5 text-[14px] sm:text-base font-medium text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors tracking-wide">
                   {showingTranslateValue(cat.title) || t(cat.title)}
                 </p>
                 {counts[cat.slug] != null && (
-                  <p className="mt-1 text-[12px] text-neutral-500">
+                  <p className="mt-1 text-[11px] sm:text-xs text-neutral-400 font-light">
                     {counts[cat.slug]} {t(counts[cat.slug] === 1 ? "product" : "products")}
                   </p>
                 )}

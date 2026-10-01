@@ -192,7 +192,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                     <Link
                       href="/wishlist"
                       onClick={onClose}
-                      className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] uppercase text-[#111111] hover:text-[#B0322F] transition-colors"
+                      className="flex items-center gap-3 text-sm font-semibold tracking-[0.14em] uppercase text-[#111111] hover:text-[#9C6A5A] transition-colors"
                     >
                       <Heart size={17} className="text-neutral-500" />
                       <span>{t("Wishlist")}</span>
@@ -288,10 +288,10 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 <Link
                   href="/wishlist"
                   onClick={onClose}
-                  className="flex items-center gap-2 text-sm font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#B0322F] transition-colors"
+                  className="flex items-center gap-2 text-sm font-semibold tracking-[0.16em] uppercase text-[#111111] hover:text-[#9C6A5A] transition-colors"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  <Heart size={17} className="text-[#B0322F]" />
+                  <Heart size={17} className="text-[#9C6A5A]" />
                   <span>{t("My Wishlist")}</span>
                 </Link>
               </nav>

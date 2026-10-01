@@ -221,17 +221,30 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
   if (!carouselItems.length) return null;
 
   return (
-    <section className="py-16 sm:py-20 bg-white">
+    <section className="py-16 sm:py-24 bg-[#FAF7F5] border-b border-[#E6D1CB]/50">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16">
-        <h2
-          className="text-center text-4xl sm:text-5xl font-semibold text-[#111111]"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
-        >
-          {t("Shop Latest Collection")}
-        </h2>
-        <p className="text-center mt-4 text-sm sm:text-base text-neutral-500">
-          {t("Be the first to explore our brand-new arrivals, crafted just for you.")}
-        </p>
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+          <div className="flex items-center justify-center gap-2.5 sm:gap-3 mb-2.5">
+            <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+            <span
+              className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              {t("EXCLUSIVE REELS")}
+            </span>
+            <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+          </div>
+          <h2
+            className="text-3xl sm:text-5xl font-light text-[#3B2A25] leading-tight"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            {t("Shop")}{" "}
+            <em className="not-italic font-normal italic text-[#9C6A5A]">{t("Latest Collection")}</em>
+          </h2>
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-[#7A7A7A] max-w-xl mx-auto font-light" style={{ fontFamily: "'Poppins', sans-serif" }}>
+            {t("Be the first to explore our brand-new arrivals, crafted just for you.")}
+          </p>
+        </div>
 
         <div className="mt-10 relative home-reels-swiper">
           <Swiper

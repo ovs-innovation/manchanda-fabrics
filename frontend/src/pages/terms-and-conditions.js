@@ -24,7 +24,7 @@ const DEFAULT_CONTENT = `<p>Welcome to <strong>Manchanda Fabrics</strong>. By vi
 <p>We partner with reliable courier and logistics services to deliver across India. Dispatch typically takes 1–3 business days from order confirmation. Delivery timelines are estimates and may occasionally be influenced by courier transit conditions, holidays, or weather disruptions.</p>
 
 <h2>5. Strict No Exchange &amp; No Return Policy</h2>
-<div style="background-color: #fbf2f2; border-left: 4px solid #B0322F; padding: 16px 20px; font-weight: 600; color: #2c2320; border-radius: 6px; font-size: 1.02rem; margin: 1.2rem 0 1.5rem 0; line-height: 1.6;">
+<div style="background-color: #FAF7F5; border-left: 4px solid #9C6A5A; padding: 16px 20px; font-weight: 600; color: #3B2A25; border-radius: 6px; font-size: 1.02rem; margin: 1.2rem 0 1.5rem 0; line-height: 1.6;">
 All sales are final. We strictly do not accept any returns, refunds, or exchanges under any circumstances.
 </div>
 <p>At Manchanda Fabrics, our dedicated team carefully inspects every article for defects, measurements, and fabric integrity before it is packed and dispatched. Because of this thorough quality control process, our policy is as follows:</p>

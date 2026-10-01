@@ -80,7 +80,7 @@ const ReelModal = ({ open, onClose, product, video, image, title: propTitle }) =
             <Link
               href="/all-collections"
               onClick={onClose}
-              className="shrink-0 px-4 py-2 bg-[#B0322F] hover:bg-[#8e2523] text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow"
+              className="shrink-0 px-4 py-2 bg-[#9C6A5A] hover:bg-[#835648] text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow"
             >
               <FiShoppingBag size={13} />
               <span>Explore Suits</span>
@@ -239,7 +239,7 @@ const ReelModal = ({ open, onClose, product, video, image, title: propTitle }) =
                   </h3>
                   {priceText && (
                     <div className="mt-1 flex items-center gap-2">
-                      <span className="text-[15px] font-semibold text-[#B0322F]">
+                      <span className="text-[15px] font-semibold text-[#9C6A5A]">
                         Rs. {priceText}
                       </span>
                       {originalText && (
@@ -271,7 +271,7 @@ const ReelModal = ({ open, onClose, product, video, image, title: propTitle }) =
               <button
                 type="button"
                 onClick={goToProduct}
-                className="mt-3 w-full text-center text-[12px] font-medium uppercase tracking-[0.14em] text-[#B0322F] hover:underline"
+                className="mt-3 w-full text-center text-[12px] font-medium uppercase tracking-[0.14em] text-[#9C6A5A] hover:underline"
               >
                 {t("View full details")}
               </button>

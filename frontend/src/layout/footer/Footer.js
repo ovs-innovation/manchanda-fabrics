@@ -9,7 +9,7 @@ import useUtilsFunction from "@hooks/useUtilsFunction";
 import { getStoreAddress, translateStoreAddress } from "@utils/storeBrand";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
-const SECTION_RED = "#B0322F";
+const FOOTER_ACCENT = "#9C6A5A";
 
 /** Show admin-entered label as-is, else translate the default key */
 const labelText = (title, t) => {
@@ -122,7 +122,7 @@ const Footer = () => {
   const copyrightUrl = footer.copyrightUrl || "https://vastoratech.com/";
 
   const socialIconClass =
-    "inline-flex w-9 h-9 rounded-full border border-neutral-300 bg-white/90 items-center justify-center text-neutral-600 hover:text-[#B0322F] hover:border-[#B0322F] transition-colors";
+    "inline-flex w-9 h-9 rounded-full border border-neutral-300 bg-white/90 items-center justify-center text-neutral-600 hover:text-[#9C6A5A] hover:border-[#9C6A5A] transition-colors";
 
   const socialLinks = [
     instagramUrl && { key: "ig", href: instagramUrl, label: "Instagram", Icon: FaInstagram },
@@ -145,7 +145,7 @@ const Footer = () => {
   const SectionTitle = ({ children }) => (
     <h4
       className="text-[12px] font-bold tracking-[0.22em] uppercase mb-5"
-      style={{ color: SECTION_RED, fontFamily: "'Poppins', sans-serif" }}
+      style={{ color: FOOTER_ACCENT, fontFamily: "'Poppins', sans-serif" }}
     >
       {children}
     </h4>
@@ -173,7 +173,7 @@ const Footer = () => {
         <div className="pt-12 pb-2 text-center border-b border-[#00000010] pb-8">
           <h2
             className="text-2xl sm:text-3xl font-semibold tracking-[0.14em] uppercase"
-            style={{ color: SECTION_RED, fontFamily: "'Poppins', sans-serif" }}
+            style={{ color: FOOTER_ACCENT, fontFamily: "'Poppins', sans-serif" }}
           >
             {t("Manchanda Fabrics")}
           </h2>
@@ -186,28 +186,28 @@ const Footer = () => {
             <div className="space-y-2">
               {phoneList.map((phone) => (
                 <p key={phone} className={`${linkClass} flex items-center gap-2`}>
-                  <span style={{ color: SECTION_RED }}>✆</span>
+                  <span style={{ color: FOOTER_ACCENT }}>✆</span>
                   <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>
                 </p>
               ))}
               <p className={`${linkClass} flex items-center gap-2`}>
-                <span style={{ color: SECTION_RED }}>✉</span>
+                <span style={{ color: FOOTER_ACCENT }}>✉</span>
                 <a href={`mailto:${storeEmail}`} className="break-all">
                   {storeEmail}
                 </a>
               </p>
               <p className="text-[13px] text-[#4a4a4a] leading-relaxed pt-2 flex gap-2 max-w-xs">
-                <span style={{ color: SECTION_RED }}>⚲</span>
+                <span style={{ color: FOOTER_ACCENT }}>⚲</span>
                 <span>{labelText(storeAddress, t)}</span>
               </p>
               {storeHours && (
                 <p className="text-[13px] text-[#4a4a4a] leading-relaxed flex gap-2 max-w-xs">
-                  <span style={{ color: SECTION_RED }}>◷</span>
+                  <span style={{ color: FOOTER_ACCENT }}>◷</span>
                   <span>{labelText(storeHours, t)}</span>
                 </p>
               )}
               <p className="text-[13px] text-[#4a4a4a] leading-relaxed flex items-center gap-2 pt-1">
-                <span style={{ color: SECTION_RED }} className="shrink-0 flex items-center">
+                <span style={{ color: FOOTER_ACCENT }} className="shrink-0 flex items-center">
                   <FaInstagram size={15} />
                 </span>
                 <span>
@@ -216,7 +216,7 @@ const Footer = () => {
                     href={instagramUrl || "https://www.instagram.com/manchanda.fabrics/"}
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-[#B0322F] underline-offset-2 hover:underline transition-colors"
+                    className="hover:text-[#9C6A5A] underline-offset-2 hover:underline transition-colors"
                   >
                     @manchanda.fabrics
                   </a>
@@ -300,7 +300,7 @@ const Footer = () => {
               target="_blank"
               rel="noreferrer"
               className="font-semibold hover:underline"
-              style={{ color: SECTION_RED }}
+              style={{ color: FOOTER_ACCENT }}
             >
               {copyrightName}
             </a>
@@ -319,7 +319,7 @@ const Footer = () => {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 lg:bottom-8 lg:right-24 z-40 w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-sm flex items-center justify-center text-[#B0322F] hover:bg-[#B0322F] hover:text-white hover:border-[#B0322F] transition-all"
+          className="fixed bottom-6 right-6 lg:bottom-8 lg:right-24 z-40 w-10 h-10 rounded-full bg-white border border-[#E6D1CB] shadow-sm flex items-center justify-center text-[#9C6A5A] hover:bg-[#9C6A5A] hover:text-white hover:border-[#9C6A5A] transition-all"
           aria-label={t("Back to top")}
         >
           <FiArrowUp size={16} />

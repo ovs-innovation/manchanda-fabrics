@@ -56,13 +56,27 @@ const Wishlist = ({ attributes }) => {
           </div>
         ) : (
           <>
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-serif font-bold text-[#111111]">
-                {t("My Wishlist")}{" "}
-                <span className="text-sm sm:text-base font-normal text-neutral-500 font-sans">
-                  ({wishlistItems.length} {wishlistItems.length === 1 ? t("item") : t("items")})
+            <div className="pt-4 sm:pt-8 pb-6 sm:pb-10 text-center max-w-3xl mx-auto">
+              <div className="flex items-center justify-center gap-2.5 sm:gap-3 mb-2.5">
+                <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+                <span
+                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                  {t("SAVED ITEMS")}
                 </span>
+                <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+              </div>
+              <h1
+                className="text-2xl sm:text-4xl lg:text-5xl font-light text-[#3B2A25] leading-tight"
+                style={{ fontFamily: "'Poppins', sans-serif" }}
+              >
+                {t("My")}{" "}
+                <em className="not-italic font-normal italic text-[#9C6A5A]">{t("Wishlist")}</em>
               </h1>
+              <p className="mt-2 text-xs sm:text-sm text-neutral-400 font-light">
+                ({wishlistItems.length} {wishlistItems.length === 1 ? t("item") : t("items")})
+              </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
               {wishlistItems.map((product, i) => (
@@ -71,7 +85,7 @@ const Wishlist = ({ attributes }) => {
                   <button
                     type="button"
                     onClick={() => handleRemove(product._id)}
-                    className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-30 w-8 h-8 sm:w-9 sm:h-9 bg-white/95 backdrop-blur-xs text-neutral-700 hover:text-[#B0322F] hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer border border-black/5"
+                    className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-30 w-8 h-8 sm:w-9 sm:h-9 bg-white/95 backdrop-blur-xs text-neutral-700 hover:text-[#9C6A5A] hover:bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer border border-black/5"
                     aria-label={t("Remove from wishlist")}
                     title={t("Remove from wishlist")}
                   >

@@ -368,8 +368,8 @@ const AishaProductHero = ({
             aria-label={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
             className={`w-12 h-12 border flex items-center justify-center transition-all duration-200 cursor-pointer ${
               wishlistActive
-                ? "bg-[#B0322F] border-[#B0322F] text-white hover:bg-[#8e2825]"
-                : "border-neutral-300 text-neutral-700 hover:border-[#B0322F] hover:text-[#B0322F] bg-white"
+                ? "bg-[#9C6A5A] border-[#9C6A5A] text-white hover:bg-[#835648]"
+                : "border-neutral-300 text-neutral-700 hover:border-[#9C6A5A] hover:text-[#9C6A5A] bg-white"
             }`}
           >
             <FiHeart

@@ -130,10 +130,10 @@ const LanguagePopup = () => {
             disabled={selecting}
             onClick={() => handleSelect("en")}
             onMouseEnter={() => setActiveIndex(0)}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[#B0322F] ${
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[#9C6A5A] ${
               activeIndex === 0
-                ? "border-[#B0322F] bg-neutral-50/50 shadow-sm"
-                : "border-neutral-200 hover:border-[#B0322F] hover:bg-neutral-50/50"
+                ? "border-[#9C6A5A] bg-[#FAF7F5] shadow-sm"
+                : "border-neutral-200 hover:border-[#9C6A5A] hover:bg-[#FAF7F5]/50"
             }`}
           >
             <span className="text-3xl filter drop-shadow-sm group-hover:scale-110 transition-transform duration-300">
@@ -141,7 +141,7 @@ const LanguagePopup = () => {
             </span>
             <div>
               <h3 className={`font-semibold text-sm tracking-wide transition-colors ${
-                activeIndex === 0 ? "text-[#B0322F]" : "text-neutral-800"
+                activeIndex === 0 ? "text-[#9C6A5A]" : "text-neutral-800"
               }`}>
                 English
               </h3>
@@ -157,10 +157,10 @@ const LanguagePopup = () => {
             disabled={selecting}
             onClick={() => handleSelect("hi")}
             onMouseEnter={() => setActiveIndex(1)}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[#B0322F] ${
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[#9C6A5A] ${
               activeIndex === 1
-                ? "border-[#B0322F] bg-neutral-50/50 shadow-sm"
-                : "border-neutral-200 hover:border-[#B0322F] hover:bg-neutral-50/50"
+                ? "border-[#9C6A5A] bg-[#FAF7F5] shadow-sm"
+                : "border-neutral-200 hover:border-[#9C6A5A] hover:bg-[#FAF7F5]/50"
             }`}
           >
             <span className="text-3xl filter drop-shadow-sm group-hover:scale-110 transition-transform duration-300">
@@ -168,7 +168,7 @@ const LanguagePopup = () => {
             </span>
             <div>
               <h3 className={`font-semibold text-sm tracking-wide transition-colors ${
-                activeIndex === 1 ? "text-[#B0322F]" : "text-neutral-800"
+                activeIndex === 1 ? "text-[#9C6A5A]" : "text-neutral-800"
               }`}>
                 हिन्दी
               </h3>

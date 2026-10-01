@@ -4,7 +4,7 @@ import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import PolicyPage from "@components/policy/PolicyPage";
 
-const DEFAULT_CONTENT = `<p style="background-color: #fbf2f2; border-left: 4px solid #B0322F; padding: 16px 20px; font-weight: 600; color: #2c2320; border-radius: 4px; font-size: 1.05rem; margin-bottom: 1.5rem;">All sales are final. We do not provide any return, refund, or exchange under any circumstances.</p>
+const DEFAULT_CONTENT = `<p style="background-color: #FAF7F5; border-left: 4px solid #9C6A5A; padding: 16px 20px; font-weight: 600; color: #3B2A25; border-radius: 4px; font-size: 1.05rem; margin-bottom: 1.5rem;">All sales are final. We do not provide any return, refund, or exchange under any circumstances.</p>
 <h2>Return & Exchange Policy</h2>
 <p>At Manchanda Fabrics, every article is carefully checked by our team for defects before it is packed and shipped. Please read our policy below before placing your order.</p>
 <ul>

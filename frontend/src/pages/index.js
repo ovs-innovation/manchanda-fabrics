@@ -183,7 +183,7 @@ const Home = ({
 
   return (
     <Layout>
-      <div className="min-h-screen bg-white text-[#111111] overflow-x-hidden">
+      <div className="min-h-screen bg-[#FAF7F5] text-[#111111] overflow-x-hidden">
 
         {/* 1 ── Hero */}
         <HeroBanner homepage={homepage} />
@@ -193,32 +193,40 @@ const Home = ({
         {/* 2 ── Shop By Categories (real store categories, circle avatars like ref) */}
         <HomeCategoryCircles categories={circleCategories} counts={categoryCounts} />
 
-        {/* 3 ── New Arrivals (exact ref layout) */}
-        <section className="py-16 sm:py-28 bg-white border-b border-black/5">
+        {/* 3 ── New Arrivals (About Us luxury style) */}
+        <section className="py-16 sm:py-24 bg-[#FAF7F5] border-b border-[#E6D1CB]/50">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 mb-10 sm:mb-16">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 mb-10 sm:mb-14">
               <div>
-                <p className="text-[12px] sm:text-[13px] text-neutral-500 text-center lg:text-left">
-                  {t("Be the First to Try Our New Collection")}
-                </p>
+                <div className="flex items-center justify-center lg:justify-start gap-2.5 sm:gap-3 mb-2.5">
+                  <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
+                  <span
+                    className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
+                    style={{ fontFamily: "'Poppins', sans-serif" }}
+                  >
+                    {t("FRESH ARRIVALS")}
+                  </span>
+                  <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A] lg:hidden" />
+                </div>
                 <h2
-                  className="text-3xl sm:text-5xl font-semibold text-[#111111] text-center lg:text-left"
+                  className="text-3xl sm:text-5xl font-light text-[#3B2A25] text-center lg:text-left leading-tight"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                  {t("New Arrivals")}
+                  {t("New")}{" "}
+                  <em className="not-italic font-normal italic text-[#9C6A5A]">{t("Arrivals")}</em>
                 </h2>
-                <p className="mt-2 sm:mt-4 text-xs sm:text-sm text-[#7A7A7A] max-w-2xl font-light text-center lg:text-left" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-[#7A7A7A] max-w-2xl font-light text-center lg:text-left" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   {t("New season, new vibes, new arrivals – because you deserve the freshest picks.")}
                 </p>
               </div>
               <Link
                 href="/search"
-                className="group hidden lg:inline-flex items-center gap-3 px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white"
+                className="group hidden lg:inline-flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#111111] text-white border border-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#333333] shadow-sm"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 <span>{t("View All")}</span>
                 <ChevronRight
-                  size={20}
+                  size={18}
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
               </Link>
@@ -236,16 +244,16 @@ const Home = ({
                   ))}
                 </div>
 
-                {/* Mobile View All Button (shows below 4 products on mobile only) */}
+                {/* Mobile View All Button */}
                 <div className="mt-10 flex justify-center lg:hidden">
                   <Link
                     href="/search"
-                    className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 border border-[#111111] text-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#111111] hover:text-white"
+                    className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 bg-[#111111] text-white border border-[#111111] text-[13px] sm:text-[14px] font-medium uppercase tracking-[0.18em] transition-all duration-300 hover:bg-[#333333] shadow-sm"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     <span>{t("View All")}</span>
                     <ChevronRight
-                      size={20}
+                      size={18}
                       className="transition-transform duration-300 group-hover:translate-x-1"
                     />
                   </Link>

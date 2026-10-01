@@ -377,7 +377,7 @@ export default function ContactUs() {
             {vs.enabled !== false && (
               <div className="rounded-2xl border border-[#E6D1CB] bg-[#FAF7F5] p-10 lg:p-12 flex flex-col gap-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#B0322F]/10 flex items-center justify-center text-[#B0322F] shrink-0">
+                  <div className="w-16 h-16 rounded-full bg-[#9C6A5A]/10 flex items-center justify-center text-[#9C6A5A] shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72V10.5z" />
@@ -402,7 +402,7 @@ export default function ContactUs() {
                         href={videoShoppingWhatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
+                        className="inline-flex items-center justify-center gap-2 bg-[#9C6A5A] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#835648] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                       >
                         <FaWhatsapp className="text-lg" />
                         {vs.buttonText ? t(vs.buttonText) : t("Start Video Shopping")}
@@ -421,7 +421,7 @@ export default function ContactUs() {
                         href={videoShoppingWhatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 bg-[#B0322F] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#912826] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
+                        className="inline-flex items-center justify-center gap-2 bg-[#9C6A5A] text-white font-bold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-[#835648] transition-all hover:scale-102 active:scale-98 duration-200 shadow-md w-fit"
                       >
                         <FaWhatsapp className="text-lg" />
                         {t("Send WhatsApp Message")}
