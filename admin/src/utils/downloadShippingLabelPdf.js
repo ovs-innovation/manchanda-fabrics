@@ -561,11 +561,13 @@ const downloadShippingLabelPdf = async (params) => {
         })}  •  Shipping: ${shipCostText}`;
     doc.text(subtotalText, 12, currentY + 11);
 
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(17, 24, 39);
-    doc.text(`Net Invoice Value: Rs. ${payableAmount}`, 278, currentY + 11, {
-      align: "right",
-    });
+    if (!isReseller) {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(17, 24, 39);
+      doc.text(`Net Invoice Value: Rs. ${payableAmount}`, 278, currentY + 11, {
+        align: "right",
+      });
+    }
 
     currentY += 16;
     doc.setDrawColor(209, 213, 219);
@@ -650,16 +652,24 @@ const downloadShippingLabelPdf = async (params) => {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(6.5);
       doc.setTextColor(75, 85, 99);
-      doc.text(
-        `Total Packed Items: ${totalItemsCount} Unit(s)  •  Shipping: ${shipCostText}`,
-        12,
-        currentY + 9
-      );
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(17, 24, 39);
-      doc.text(`Total: Rs. ${payableAmount}`, 278, currentY + 9, {
-        align: "right",
-      });
+      if (isReseller) {
+        doc.text(
+          `Total Packed Items: ${totalItemsCount} Unit(s)  •  Direct Fulfillment Package`,
+          12,
+          currentY + 9
+        );
+      } else {
+        doc.text(
+          `Total Packed Items: ${totalItemsCount} Unit(s)  •  Shipping: ${shipCostText}`,
+          12,
+          currentY + 9
+        );
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(17, 24, 39);
+        doc.text(`Total: Rs. ${payableAmount}`, 278, currentY + 9, {
+          align: "right",
+        });
+      }
 
       currentY += 13;
       doc.setDrawColor(229, 231, 235);

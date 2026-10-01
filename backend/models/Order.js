@@ -177,6 +177,8 @@ const orderSchema = new mongoose.Schema(
     invoiceEmailSent: { type: Boolean, default: false },
     adminNewOrderEmailSent: { type: Boolean, default: false },
     lastStatusNotified: { type: String, default: "" },
+    trackingEmailSent: { type: Boolean, default: false },
+    lastTrackingNotified: { type: String, default: "" },
     refundEmailSent: { type: Boolean, default: false },
     refundNotifiedAt: { type: Date },
     refund: {

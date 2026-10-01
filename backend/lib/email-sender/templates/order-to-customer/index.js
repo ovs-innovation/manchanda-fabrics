@@ -586,7 +586,9 @@ const customerInvoiceEmailBody = (option) => {
 };
 
 const { orderConfirmationBody } = require("./confirmation");
+const { orderTrackingDispatchBody } = require("./tracking-dispatch");
 module.exports = {
   customerInvoiceEmailBody,
   orderConfirmationBody,
+  orderTrackingDispatchBody,
 };

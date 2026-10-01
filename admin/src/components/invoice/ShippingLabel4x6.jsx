@@ -881,9 +881,11 @@ const ShippingLabel4x6 = ({
                       : "FREE"
                   }`}
             </span>
-            <span style={{ fontWeight: 800, color: "#111827" }}>
-              Net Value: {currency}{payableAmount}
-            </span>
+            {!isReseller && (
+              <span style={{ fontWeight: 800, color: "#111827" }}>
+                Net Value: {currency}{payableAmount}
+              </span>
+            )}
           </div>
 
           {/* Logistics Handling & Transit Declaration Box */}
@@ -1062,7 +1064,7 @@ const ShippingLabel4x6 = ({
             </div>
           </div>
 
-          {/* Right: Total Amount box */}
+          {/* Right: Total Amount / Package Status box */}
           <div
             style={{
               width: "115px",
@@ -1085,11 +1087,11 @@ const ShippingLabel4x6 = ({
                 lineHeight: 1.2,
               }}
             >
-              TOTAL AMOUNT
+              {isReseller ? "PACKAGE STATUS" : "TOTAL AMOUNT"}
             </span>
             <div
               style={{
-                fontSize: "15px",
+                fontSize: isReseller ? "14px" : "15px",
                 fontWeight: 900,
                 color: "#000000",
                 lineHeight: 1.1,
@@ -1097,7 +1099,7 @@ const ShippingLabel4x6 = ({
                 letterSpacing: "-0.02em",
               }}
             >
-              {currency}{payableAmount}
+              {isReseller ? "PREPAID" : `${currency}${payableAmount}`}
             </div>
             <span
               style={{
@@ -1108,7 +1110,11 @@ const ShippingLabel4x6 = ({
                 lineHeight: 1.2,
               }}
             >
-              {isCod ? "Cash Due on Delivery" : "Prepaid (₹0 to Pay)"}
+              {isReseller
+                ? "DO NOT COLLECT CASH"
+                : isCod
+                ? "Cash Due on Delivery"
+                : "Prepaid (₹0 to Pay)"}
             </span>
             <span
               style={{
@@ -1120,7 +1126,7 @@ const ShippingLabel4x6 = ({
                 lineHeight: 1.2,
               }}
             >
-              Authorized Signatory
+              {isReseller ? "AUTHORIZED DISPATCH" : "Authorized Signatory"}
             </span>
           </div>
         </div>

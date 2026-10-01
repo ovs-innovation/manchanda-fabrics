@@ -2287,33 +2287,31 @@ const sendEmailOtpLogin = async (req, res) => {
 
     let user = await Customer.findOne({ email: emailNorm });
 
-    if (intent === "signup" && user) {
-      return res.status(409).send({
-        message: "This email is already registered. Please login instead.",
-        code: "EMAIL_ALREADY_REGISTERED",
-      });
-    }
+    if (!user) {
+      // Find if they placed any order previously to grab their real name & contact
+      let nameFromOrder = null;
+      let phoneFromOrder = null;
+      try {
+        const order = await Order.findOne({ "user_info.email": new RegExp(`^${emailNorm}$`, "i") }).sort({ createdAt: -1 });
+        if (order?.user_info) {
+          nameFromOrder = order.user_info.name;
+          phoneFromOrder = order.user_info.contact || order.user_info.phone;
+        }
+      } catch (_) {}
 
-    if (intent === "login" && !user) {
-      return res.status(404).send({
-        message: "No account found with this email. Please sign up first.",
-        code: "EMAIL_NOT_REGISTERED",
-      });
-    }
-
-    if (!user && intent === "signup") {
       user = new Customer({
-        name: emailNorm.split("@")[0],
+        name: nameFromOrder || emailNorm.split("@")[0],
         email: emailNorm,
+        phone: phoneFromOrder || "",
         image: avatar || "",
         emailVerified: false,
         authProvider: "email",
         profileComplete: false,
       });
       await user.save();
-    } else if (user && intent === "signup" && !user.emailVerified && avatar) {
+    } else if (avatar && !user.emailVerified) {
       user.image = avatar;
-      await user.save();
+      await user.save().catch(() => {});
     }
 
     // Check resend cooldown (60 seconds)
@@ -2433,6 +2431,16 @@ const verifyEmailOtpLogin = async (req, res) => {
     user.lastLogin = new Date();
     if (avatar) {
       user.image = avatar;
+    }
+
+    // Auto-link any past guest orders with this email to the customer user id
+    try {
+      await Order.updateMany(
+        { "user_info.email": new RegExp(`^${user.email}$`, "i"), user: null },
+        { $set: { user: user._id } }
+      );
+    } catch (orderLinkErr) {
+      console.warn("Failed to link past orders upon OTP login:", orderLinkErr.message);
     }
 
     const isNewUser = !wasVerified;

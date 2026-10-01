@@ -7,6 +7,7 @@ const MailChecker = require("mailchecker");
 const mongoose = require("mongoose");
 
 const Order = require("../models/Order");
+const Customer = require("../models/Customer");
 const Product = require("../models/Product");
 const Setting = require("../models/Setting");
 const Brand = require("../models/Brand");
@@ -271,6 +272,58 @@ const validateResellerOrder = (body) => {
   return null;
 };
 
+// Helper function to link an order to existing customer or auto-create lightweight customer profile
+const linkOrCreateCustomer = async (orderData, explicitUserId) => {
+  try {
+    if (explicitUserId && mongoose.Types.ObjectId.isValid(explicitUserId)) {
+      return explicitUserId;
+    }
+    const rawEmail = orderData?.user_info?.email || orderData?.user_info?.emailAddress;
+    const email = rawEmail ? String(rawEmail).trim().toLowerCase() : null;
+    if (!email) return null;
+
+    let customer = await Customer.findOne({ email });
+    if (customer) {
+      const phone = orderData?.user_info?.contact || orderData?.user_info?.phone;
+      if (phone && !customer.phone) {
+        customer.phone = phone;
+        await customer.save().catch(() => {});
+      }
+      return customer._id;
+    }
+
+    const fullName =
+      orderData?.user_info?.name ||
+      [orderData?.user_info?.firstName, orderData?.user_info?.lastName].filter(Boolean).join(" ") ||
+      email.split("@")[0];
+
+    customer = new Customer({
+      name: fullName,
+      email,
+      phone: orderData?.user_info?.contact || orderData?.user_info?.phone || "",
+      address: orderData?.user_info?.address || "",
+      city: orderData?.user_info?.city || "",
+      country: orderData?.user_info?.country || "India",
+      zipCode: orderData?.user_info?.zipCode || "",
+      authProvider: "email",
+      emailVerified: false,
+      profileComplete: false,
+    });
+    const saved = await customer.save();
+    return saved._id;
+  } catch (err) {
+    console.warn("[customerOrderController] linkOrCreateCustomer warning:", err.message);
+    try {
+      const rawEmail = orderData?.user_info?.email;
+      if (rawEmail) {
+        const existing = await Customer.findOne({ email: String(rawEmail).trim().toLowerCase() });
+        if (existing) return existing._id;
+      }
+    } catch (_) {}
+    return null;
+  }
+};
+
 // Helper function to sanitize order data for customer endpoints (privacy protection)
 const sanitizeOrderForCustomer = (orderObj) => {
   if (!orderObj || orderObj.orderType !== "RESELLER") {
@@ -345,6 +398,8 @@ const addOrder = async (req, res) => {
       shippingCost = calculateShipping(totalQty, destination);
     }
 
+    const customerUserId = await linkOrCreateCustomer(req.body, req.user?._id || req.body.user);
+
     const newOrder = new Order({
       ...req.body,
       orderType: req.body.orderType || "DIRECT",
@@ -352,7 +407,7 @@ const addOrder = async (req, res) => {
       final_customer_info: req.body.final_customer_info || {},
       shippingCost: Number(shippingCost || 0),
       cart: cartWithTax,
-      user: req.user?._id || null,
+      user: customerUserId,
     });
     const order = await newOrder.save();
     res.status(201).send(order);
@@ -575,13 +630,15 @@ const addRazorpayOrder = async (req, res) => {
 
     const cartWithTax = await populateCartTaxFields(req.body.cart || []);
 
+    const customerUserId = await linkOrCreateCustomer(req.body, req.user?._id || req.body.user);
+
     const newOrder = new Order({
       ...req.body,
       orderType: req.body.orderType || "DIRECT",
       reseller_info: req.body.reseller_info || {},
       final_customer_info: req.body.final_customer_info || {},
       cart: cartWithTax,
-      user: req.user?._id || null,
+      user: customerUserId,
     });
     const order = await newOrder.save();
     res.status(201).send(order);
@@ -612,15 +669,47 @@ const getOrderCustomer = async (req, res) => {
     const limits = Number(limit) || 8;
     const skip = (pages - 1) * limits;
 
-    const totalDoc = await Order.countDocuments({ user: req.user._id });
+    const userEmail = req.user.email ? String(req.user.email).trim().toLowerCase() : null;
+    const userMatch = userEmail
+      ? {
+          $or: [
+            { user: req.user._id },
+            { "user_info.email": new RegExp(`^${userEmail}$`, "i") },
+          ],
+        }
+      : { user: req.user._id };
 
-    // total padding order count
+    // Auto-link any past guest orders with this email in the background
+    if (userEmail) {
+      Order.updateMany(
+        { "user_info.email": new RegExp(`^${userEmail}$`, "i"), user: null },
+        { $set: { user: req.user._id } }
+      ).catch(() => {});
+    }
+
+    const totalDoc = await Order.countDocuments(userMatch);
+
+    const aggregateMatch = (targetStatus) => {
+      const statusClause = { status: targetStatus };
+      if (userEmail) {
+        return {
+          ...statusClause,
+          $or: [
+            { user: mongoose.Types.ObjectId(req.user._id) },
+            { "user_info.email": new RegExp(`^${userEmail}$`, "i") },
+          ],
+        };
+      }
+      return {
+        ...statusClause,
+        user: mongoose.Types.ObjectId(req.user._id),
+      };
+    };
+
+    // total pending order count
     const totalPendingOrder = await Order.aggregate([
       {
-        $match: {
-          status: "Pending",
-          user: mongoose.Types.ObjectId(req.user._id),
-        },
+        $match: aggregateMatch("Pending"),
       },
       {
         $group: {
@@ -633,13 +722,10 @@ const getOrderCustomer = async (req, res) => {
       },
     ]);
 
-    // total padding order count
+    // total processing order count
     const totalProcessingOrder = await Order.aggregate([
       {
-        $match: {
-          status: "Processing",
-          user: mongoose.Types.ObjectId(req.user._id),
-        },
+        $match: aggregateMatch("Processing"),
       },
       {
         $group: {
@@ -654,10 +740,7 @@ const getOrderCustomer = async (req, res) => {
 
     const totalDeliveredOrder = await Order.aggregate([
       {
-        $match: {
-          status: "Delivered",
-          user: mongoose.Types.ObjectId(req.user._id),
-        },
+        $match: aggregateMatch("Delivered"),
       },
       {
         $group: {
@@ -670,10 +753,8 @@ const getOrderCustomer = async (req, res) => {
       },
     ]);
 
-    // today order amount
-
     // query for orders
-    const orders = await Order.find({ user: req.user._id })
+    const orders = await Order.find(userMatch)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limits);
@@ -886,6 +967,8 @@ const createPhonePeOrder = async (req, res) => {
 
     const merchantTransactionId = `MT${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
+    const customerUserId = await linkOrCreateCustomer(orderData, req.user?._id || orderData.user);
+
     const newOrder = new Order({
       ...orderData,
       orderType: orderData.orderType || "DIRECT",
@@ -894,6 +977,7 @@ const createPhonePeOrder = async (req, res) => {
       shippingCost: Number(shippingCost || 0),
       status: "Pending",
       paymentMethod: "PhonePe",
+      user: customerUserId,
       paymentDetails: {
         merchantTransactionId,
         paymentStatus: "Pending",
@@ -1127,6 +1211,76 @@ const getPhonePeStatusApi = async (req, res) => {
   }
 };
 
+// Link email to an existing order (post-checkout order confirmation screen)
+const linkEmailToOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email } = req.body;
+
+    if (!email || !String(email).trim()) {
+      return res.status(400).send({ message: "Please provide an email address." });
+    }
+
+    const emailClean = String(email).trim().toLowerCase();
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailClean)) {
+      return res.status(400).send({ message: "Please enter a valid email address." });
+    }
+
+    let order = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      order = await Order.findById(id);
+    }
+    if (!order) {
+      const cleanNum = Number(String(id).replace(/\D/g, ""));
+      const numValue = !isNaN(cleanNum) && cleanNum > 0 ? cleanNum : null;
+      order = await Order.findOne({
+        $or: [
+          { invoice: id },
+          numValue ? { invoice: numValue } : null,
+          { "paymentDetails.merchantTransactionId": id },
+        ].filter(Boolean),
+      });
+    }
+
+    if (!order) {
+      return res.status(404).send({ message: "Order not found." });
+    }
+
+    if (!order.user_info) {
+      order.user_info = {};
+    }
+    order.user_info.email = emailClean;
+
+    // Link customer account or create/update customer
+    try {
+      const customerId = await linkOrCreateCustomer(order, order.user);
+      if (customerId) {
+        order.user = customerId;
+      }
+    } catch (custErr) {
+      console.warn("[linkEmailToOrder] Error linking customer:", custErr.message);
+    }
+
+    order.confirmationEmailSent = false;
+    await order.save();
+
+    // Trigger order confirmation email with invoice PDF attached
+    sendOrderNotifications(order).catch((err) => {
+      console.error("[linkEmailToOrder] sendOrderNotifications error:", err.message);
+    });
+
+    const sanitized = sanitizeOrderForCustomer(order.toObject ? order.toObject() : order);
+    res.send({
+      success: true,
+      message: "Email linked successfully! Order invoice and tracking updates have been sent to your email.",
+      order: sanitized,
+    });
+  } catch (err) {
+    console.error("[linkEmailToOrder] error:", err);
+    res.status(500).send({ message: err.message });
+  }
+};
+
 module.exports = {
   addOrder,
   getOrderById,
@@ -1140,4 +1294,5 @@ module.exports = {
   handlePhonePeCallback,
   handlePhonePeWebhook,
   getPhonePeStatusApi,
+  linkEmailToOrder,
 };

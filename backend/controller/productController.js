@@ -918,18 +918,46 @@ const getShowingStoreProducts = async (req, res) => {
         ];
       } else {
         try {
-          const decoded = decodeURIComponent(category).toString();
-          const categoryNameQueries = languageCodes.map((lang) => ({
-            [`name.${lang}`]: { $regex: decoded.replace(/[-]+/g, " "), $options: "i" },
+          const decoded = decodeURIComponent(category).toString().trim();
+          const decodedFormatted = decoded.replace(/[-]+/g, " ").trim();
+          const escapedFormatted = decodedFormatted.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const exactNameQueries = languageCodes.map((lang) => ({
+            [`name.${lang}`]: { $regex: `^\\s*${escapedFormatted}\\s*$`, $options: "i" },
           }));
-          const matchingCategories = await Category.find({
+
+          let matchingCategories = await Category.find({
             $or: [
-              { slug: decoded.toLowerCase().trim() },
-              { slug: decoded.trim() },
-              ...categoryNameQueries,
+              { slug: decoded.toLowerCase() },
+              { slug: decoded },
+              ...exactNameQueries,
             ],
             status: "show",
           }).select("_id");
+
+          if (!matchingCategories || matchingCategories.length === 0) {
+            const allCategories = await Category.find({ status: "show" }).select("_id slug name");
+            const cleanTarget = decoded.toLowerCase().replace(/[^a-z0-9]/g, "");
+            const reducedTarget = cleanTarget.replace(/([a-z])\1+/g, "$1");
+
+            const reducedMatch = allCategories.find((cat) => {
+              const catSlug = String(cat.slug || "").toLowerCase().trim();
+              const catEn = String(cat.name?.en || cat.name?.default || cat.name || "").toLowerCase().trim();
+              const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
+              const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
+              const redSlug = cleanSlug.replace(/([a-z])\1+/g, "$1");
+              const redEn = cleanEn.replace(/([a-z])\1+/g, "$1");
+              return (
+                cleanSlug === cleanTarget ||
+                cleanEn === cleanTarget ||
+                redSlug === reducedTarget ||
+                redEn === reducedTarget
+              );
+            });
+
+            if (reducedMatch) {
+              matchingCategories = [reducedMatch];
+            }
+          }
 
           if (matchingCategories && matchingCategories.length > 0) {
             const categoryIds = matchingCategories.map((c) => c._id);
@@ -938,20 +966,10 @@ const getShowingStoreProducts = async (req, res) => {
               { categories: { $in: categoryIds } },
             ];
           } else {
-            const looseQueries = languageCodes.map((lang) => ({
-              [`name.${lang}`]: { $regex: decoded, $options: "i" },
-            }));
-            const looseMatches = await Category.find({
-              $or: looseQueries,
-              status: "show",
-            }).select("_id");
-            if (looseMatches && looseMatches.length > 0) {
-              const categoryIds = looseMatches.map((c) => c._id);
-              queryObject.$or = [
-                { category: { $in: categoryIds } },
-                { categories: { $in: categoryIds } },
-              ];
-            }
+            queryObject.$or = [
+              { category: category },
+              { categories: { $in: [category] } },
+            ];
           }
         } catch (err) {
           queryObject.$or = [

@@ -13,6 +13,7 @@ const {
   handlePhonePeCallback,
   handlePhonePeWebhook,
   getPhonePeStatusApi,
+  linkEmailToOrder,
 } = require("../controller/customerOrderController");
 
 const { emailVerificationLimit } = require("../lib/email-sender/sender");
@@ -35,6 +36,9 @@ router.post("/create-phonepe-payment", isAuthOptional, createPhonePeOrder);
 router.all("/phonepe-callback", handlePhonePeCallback);
 router.post("/phonepe-webhook", handlePhonePeWebhook);
 router.get("/phonepe-status/:transactionId", isAuthOptional, getPhonePeStatusApi);
+
+// Link email to order (from confirmation screen)
+router.post("/:id/link-email", isAuthOptional, linkEmailToOrder);
 
 //get a order by id
 router.get("/:id", isAuthOptional, getOrderById);

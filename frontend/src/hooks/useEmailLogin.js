@@ -22,31 +22,18 @@ export default function useEmailLogin(authIntent = "login", options = {}) {
 
   const resolveSendIntent = useCallback(
     async (email) => {
-      const normalized = normalizeEmail(email);
-      const check = await CustomerServices.checkEmailRegistered(normalized);
-
-      if (intent === "signup" && check?.exists) {
-        const err = new Error(
-          "This email is already registered. Please login instead."
-        );
-        err.code = "EMAIL_ALREADY_REGISTERED";
-        throw err;
-      }
-
-      if (intent === "login" && !check?.exists) {
-        if (allowCheckoutSignup) {
-          return "signup";
+      try {
+        const normalized = normalizeEmail(email);
+        const check = await CustomerServices.checkEmailRegistered(normalized);
+        if (check?.exists) {
+          return "login";
         }
-        const err = new Error(
-          "No account found with this email. Please sign up first."
-        );
-        err.code = "EMAIL_NOT_REGISTERED";
-        throw err;
+        return "signup";
+      } catch (e) {
+        return intent;
       }
-
-      return intent;
     },
-    [intent, allowCheckoutSignup]
+    [intent]
   );
 
   const sendOtp = useCallback(

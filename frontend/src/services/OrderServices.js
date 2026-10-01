@@ -36,6 +36,10 @@ const OrderServices = {
   createPhonePePayment: async (body) => {
     return requests.post("/order/create-phonepe-payment", body);
   },
+
+  linkEmailToOrder: async (id, body) => {
+    return requests.post(`/order/${id}/link-email`, body);
+  },
 };
 
 export default OrderServices;

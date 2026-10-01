@@ -325,6 +325,7 @@ const Setting = require("../models/Setting");
 const { sendEmail } = require("../lib/email-sender/sender");
 const { sendSMS } = require("../lib/sms-sender/sender");
 const { orderStatusUpdateBody } = require("../lib/email-sender/templates/order-to-customer/status-update");
+const { orderTrackingDispatchBody } = require("../lib/email-sender/templates/order-to-customer/tracking-dispatch");
 
 const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 const isPlaceholderEmail = (email) =>
@@ -351,6 +352,112 @@ const getEmailLogoUrl = async () => {
   if (process.env.STORE_LOGO_URL) return process.env.STORE_LOGO_URL;
   const base = (process.env.STORE_URL || "https://Manchanda Fabrics.com").replace(/\/$/, "");
   return `${base}/favicon.png`;
+};
+
+// Direct tracking URL helper for popular Indian couriers
+const getCourierDirectTrackingUrl = (courierName, trackingNumber, orderId) => {
+  const storeUrl = (process.env.STORE_URL || "https://manchandafabrics.com").replace(/\/+$/, "");
+  if (!trackingNumber) {
+    return `${storeUrl}/order/${orderId}`;
+  }
+  const c = String(courierName || "").toLowerCase();
+  const awb = encodeURIComponent(String(trackingNumber).trim());
+
+  if (c.includes("delhivery")) {
+    return `https://www.delhivery.com/track/package/${awb}`;
+  }
+  if (c.includes("bluedart") || c.includes("blue dart")) {
+    return `https://www.bluedart.com/tracking?trackNumber=${awb}`;
+  }
+  if (c.includes("dtdc")) {
+    return `https://www.dtdc.in/tracking/shipment-tracking.asp?strCnno=${awb}`;
+  }
+  if (c.includes("shiprocket")) {
+    return `https://shiprocket.co/tracking/${awb}`;
+  }
+  if (c.includes("ekart")) {
+    return `https://ekartlogistics.com/shipmenttrack/${awb}`;
+  }
+  if (c.includes("ecom")) {
+    return `https://ecomexpress.in/tracking/?awb_field=${awb}`;
+  }
+  return `${storeUrl}/order/${orderId}`;
+};
+
+// Helper to send automated Dispatch & Tracking Email to Customer
+const sendOrderTrackingEmail = async (order, trackingId, courierName, customTrackingUrl) => {
+  try {
+    if (!order) return;
+    const customerEmail = getRealEmail(order.user_info?.email);
+    const effectiveTrackingId = trackingId || order.shippingTrackingId || order.trackingNumber;
+
+    if (!customerEmail || !effectiveTrackingId) {
+      return;
+    }
+
+    const globalSetting = await Setting.findOne({ name: "globalSetting" });
+    const shopName = globalSetting?.setting?.shop_name || "Manchanda Fabrics";
+    const contactEmail = globalSetting?.setting?.email || "manchandafabrics@gmail.com";
+    const logo = await getEmailLogoUrl();
+
+    const effectiveCourier = courierName || order.courierName || "Express Courier";
+    const effectiveTrackingUrl =
+      customTrackingUrl ||
+      order.trackingUrl ||
+      getCourierDirectTrackingUrl(effectiveCourier, effectiveTrackingId, order._id);
+
+    const recipient =
+      order.orderType === "RESELLER" && order.final_customer_info?.name
+        ? order.final_customer_info
+        : order.user_info || {};
+
+    const destinationAddress = [
+      recipient.address,
+      recipient.city,
+      recipient.state,
+      recipient.zipCode,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const emailHtml = orderTrackingDispatchBody({
+      shop_name: shopName,
+      logo,
+      name: order.user_info?.name || recipient.name || "Valued Customer",
+      invoice: order.invoice || order._id?.toString()?.slice(-6)?.toUpperCase(),
+      trackingNumber: effectiveTrackingId,
+      courierName: effectiveCourier,
+      trackingUrl: effectiveTrackingUrl,
+      destinationCity: recipient.city || "",
+      destinationAddress,
+      dispatchDate: new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      paymentMethod: order.paymentMethod || "Prepaid",
+      cart: order.cart || [],
+      contact_email: contactEmail,
+    });
+
+    await sendEmail({
+      to: customerEmail,
+      replyTo: contactEmail,
+      subject: `${shopName} – Your order #${order.invoice} has been dispatched! 🚚 (Tracking: ${effectiveTrackingId})`,
+      html: emailHtml,
+      text: `Hi ${order.user_info?.name || "there"}, your order #${order.invoice} has been dispatched via ${effectiveCourier} (AWB: ${effectiveTrackingId}). Track live here: ${effectiveTrackingUrl}`,
+      emailType: "order-dispatch-tracking",
+    });
+
+    console.log(`[email] Dispatch & tracking email sent to ${customerEmail} | #${order.invoice} | AWB: ${effectiveTrackingId}`);
+
+    await Order.updateOne(
+      { _id: order._id },
+      { $set: { trackingEmailSent: true, lastTrackingNotified: effectiveTrackingId } }
+    );
+  } catch (err) {
+    console.error(`[email] Failed to send tracking email for order #${order?.invoice}:`, err.message);
+  }
 };
 
 const updateOrder = async (req, res) => {
@@ -455,6 +562,18 @@ const updateOrder = async (req, res) => {
           console.error("[order] status notification failed:", err.message || err);
         }
       })();
+    }
+
+    // Trigger dispatch & tracking email if tracking was updated or order was marked as Shipped
+    const hasNewTracking = trackingNumber && updatedOrder.lastTrackingNotified !== trackingNumber;
+    const isNowShipped = (status === "Shipped" || status === "Dispatched") && updatedOrder.trackingNumber && !updatedOrder.trackingEmailSent;
+    if (hasNewTracking || isNowShipped) {
+      sendOrderTrackingEmail(
+        updatedOrder,
+        trackingNumber || updatedOrder.trackingNumber,
+        courierName || updatedOrder.courierName,
+        trackingUrl || updatedOrder.trackingUrl
+      ).catch((e) => console.error("Error triggering tracking email in updateOrder:", e));
     }
 
     if (
@@ -1039,7 +1158,21 @@ const updateShippingId = async (req, res) => {
     if (courierName !== undefined) {
       order.courierName = courierName ? String(courierName).trim() : null;
     }
+    if (req.body.trackingUrl !== undefined) {
+      order.trackingUrl = req.body.trackingUrl ? String(req.body.trackingUrl).trim() : null;
+    }
     await order.save();
+
+    // Trigger automated dispatch & tracking email to customer
+    if (cleanTrackingId && order.lastTrackingNotified !== cleanTrackingId) {
+      sendOrderTrackingEmail(
+        order,
+        cleanTrackingId,
+        order.courierName,
+        order.trackingUrl
+      ).catch((err) => console.error("Error sending tracking email in updateShippingId:", err));
+    }
+
     return res.status(200).json({
       message: "Shipping tracking details updated successfully",
       shippingTrackingId: order.shippingTrackingId,

@@ -366,7 +366,7 @@ const Checkout = () => {
                             );
                           },
                         })}
-                        className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border transition-colors bg-white focus:outline-none focus:ring-1 ${errors.email
+                        className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-1 bg-white text-gray-900 ${errors.email
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-gray-300 focus:border-black focus:ring-black"
                           }`}

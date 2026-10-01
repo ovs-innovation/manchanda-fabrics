@@ -21,40 +21,72 @@ import FilterSidebar from "@components/category/FilterSidebar";
 import FilterDrawer from "@components/drawer/FilterDrawer";
 import useWishlist from "@hooks/useWishlist";
 
+const flattenCategories = (catList = []) => {
+  const flat = [];
+  const walk = (items) => {
+    if (!Array.isArray(items)) return;
+    for (const item of items) {
+      if (!item) continue;
+      flat.push(item);
+      if (Array.isArray(item.children) && item.children.length > 0) {
+        walk(item.children);
+      }
+    }
+  };
+  walk(catList);
+  return flat;
+};
+
 const findCategoryBySlugOrId = (catList, slugOrId) => {
   if (!slugOrId || !Array.isArray(catList)) return null;
   const target = String(slugOrId).toLowerCase().trim();
   const cleanTarget = target.replace(/[^a-z0-9]/g, "");
   const reducedTarget = cleanTarget.replace(/([a-z])\1+/g, "$1");
 
-  for (const cat of catList) {
-    if (!cat) continue;
-    const catId = String(cat._id || "").toLowerCase();
-    const catSlug = String(cat.slug || "").toLowerCase().trim();
-    const catEn = String(cat.name?.en || cat.name || "").toLowerCase().trim();
-    const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
-    const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
-    const reducedSlug = cleanSlug.replace(/([a-z])\1+/g, "$1");
-    const reducedEn = cleanEn.replace(/([a-z])\1+/g, "$1");
+  const allCats = flattenCategories(catList);
 
-    if (
-      catId === target ||
-      catSlug === target ||
-      catEn === target ||
-      cleanSlug === cleanTarget ||
-      cleanEn === cleanTarget ||
-      reducedSlug === reducedTarget ||
-      reducedEn === reducedTarget ||
-      (cleanSlug && cleanTarget && (cleanSlug.includes(cleanTarget) || cleanTarget.includes(cleanSlug))) ||
-      (cleanEn && cleanTarget && (cleanEn.includes(cleanTarget) || cleanTarget.includes(cleanEn)))
-    ) {
+  // Pass 1: Exact ID, Exact Slug, or Exact English/Default/Hindi Name
+  for (const cat of allCats) {
+    const catId = String(cat._id || "").toLowerCase().trim();
+    const catSlug = String(cat.slug || "").toLowerCase().trim();
+    const catEn = String(cat.name?.en || cat.name?.default || cat.name || "").toLowerCase().trim();
+    const catHi = String(cat.name?.hi || "").toLowerCase().trim();
+
+    if (catId === target || catSlug === target || catEn === target || (catHi && catHi === target)) {
       return cat;
     }
-    if (Array.isArray(cat.children) && cat.children.length > 0) {
-      const foundChild = findCategoryBySlugOrId(cat.children, slugOrId);
-      if (foundChild) return foundChild;
+  }
+
+  // Pass 2: Clean alphanumeric exact match (ignoring dashes, spaces, punctuation)
+  if (cleanTarget) {
+    for (const cat of allCats) {
+      const catSlug = String(cat.slug || "").toLowerCase().trim();
+      const catEn = String(cat.name?.en || cat.name?.default || cat.name || "").toLowerCase().trim();
+      const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
+      const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
+
+      if (cleanSlug === cleanTarget || cleanEn === cleanTarget) {
+        return cat;
+      }
     }
   }
+
+  // Pass 3: Reduced repeating consonants exact match (e.g. "gajji" vs "gaji")
+  if (reducedTarget) {
+    for (const cat of allCats) {
+      const catSlug = String(cat.slug || "").toLowerCase().trim();
+      const catEn = String(cat.name?.en || cat.name?.default || cat.name || "").toLowerCase().trim();
+      const cleanSlug = catSlug.replace(/[^a-z0-9]/g, "");
+      const cleanEn = catEn.replace(/[^a-z0-9]/g, "");
+      const reducedSlug = cleanSlug.replace(/([a-z])\1+/g, "$1");
+      const reducedEn = cleanEn.replace(/([a-z])\1+/g, "$1");
+
+      if (reducedSlug === reducedTarget || reducedEn === reducedTarget) {
+        return cat;
+      }
+    }
+  }
+
   return null;
 };
 
