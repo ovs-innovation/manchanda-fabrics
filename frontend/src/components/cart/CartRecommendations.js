@@ -147,6 +147,7 @@ const CartRecommendations = ({ cartItems = [] }) => {
       const itemToAdd = {
         ...product,
         id: product._id,
+        slug: product.slug || "",
         title: showingTranslateValue(product.title),
         price: effectivePrice,
         originalPrice: originalPrice,

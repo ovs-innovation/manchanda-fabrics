@@ -54,6 +54,8 @@ const useAddToCart = () => {
     const originalPrice =
       product.prices?.originalPrice || effectivePrice;
 
+    updatedProduct.id = product.id || product._id;
+    updatedProduct.slug = product.slug || updatedProduct.slug || "";
     updatedProduct.price = effectivePrice;
     updatedProduct.originalPrice = originalPrice;
     updatedProduct.mrp = originalPrice;

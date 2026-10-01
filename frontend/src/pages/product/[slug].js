@@ -1406,7 +1406,23 @@ export const getServerSideProps = async (context) => {
     const product =
       directProduct?._id
         ? directProduct
-        : storeData?.products?.find((p) => p.slug === slug) || {};
+        : storeData?.products?.find((p) => p.slug === slug || String(p._id) === String(slug)) || null;
+
+    if (!product || !product._id) {
+      return {
+        notFound: true,
+      };
+    }
+
+    // If accessed via MongoDB _id instead of slug, cleanly redirect to canonical slug URL
+    if (product.slug && product.slug !== slug && String(product._id) === String(slug)) {
+      return {
+        redirect: {
+          destination: `/product/${product.slug}`,
+          permanent: false,
+        },
+      };
+    }
 
     return {
       props: {
@@ -1418,11 +1434,7 @@ export const getServerSideProps = async (context) => {
   } catch (error) {
     console.error("Error in getServerSideProps product:", error);
     return {
-      props: {
-        product: {},
-        attributes: [],
-        relatedProducts: [],
-      },
+      notFound: true,
     };
   }
 };

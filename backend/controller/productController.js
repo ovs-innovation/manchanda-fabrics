@@ -623,7 +623,20 @@ const getAllProducts = async (req, res) => {
 
 const getProductBySlug = async (req, res) => {
   try {
-    const product = await Product.findOne({ slug: req.params.slug, status: "show" });
+    const slugOrId = String(req.params.slug || "").trim();
+    const isObjectId = mongoose.Types.ObjectId.isValid(slugOrId) && slugOrId.length === 24;
+
+    let product = await Product.findOne({ slug: slugOrId, status: "show" });
+    if (!product && isObjectId) {
+      product = await Product.findOne({ _id: slugOrId, status: "show" });
+    }
+    if (!product) {
+      product = await Product.findOne({
+        slug: { $regex: new RegExp(`^${slugOrId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") },
+        status: "show",
+      });
+    }
+
     if (!product) {
       return res.status(404).send({ message: "Product not found" });
     }

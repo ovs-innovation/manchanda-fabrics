@@ -58,10 +58,21 @@ const CartItem = ({ item, currency: propCurrency }) => {
     await removeItemWithDB(item.id);
   };
 
+  const productHref = (() => {
+    if (item.slug) return `/product/${item.slug}`;
+    const raw = String(item.id || item._id || "");
+    const baseId = raw.includes("-") ? raw.split("-")[0] : raw;
+    return `/product/${baseId}`;
+  })();
+
   return (
     <div className="flex gap-3.5 p-3.5 border-b border-neutral-100 hover:bg-neutral-50/40 transition-colors">
       {/* Product Image */}
-      <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-md overflow-hidden bg-neutral-100 border border-black/5">
+      <Link
+        href={productHref}
+        onClick={closeCartDrawer}
+        className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-md overflow-hidden bg-neutral-100 border border-black/5 block group"
+      >
         <Image
           src={
             (Array.isArray(item.image) ? item.image[0] : item.image) ||
@@ -71,16 +82,16 @@ const CartItem = ({ item, currency: propCurrency }) => {
           alt={item.title || "Product"}
           layout="fill"
           objectFit="cover"
-          className="hover:scale-105 transition-transform duration-200"
+          className="group-hover:scale-105 transition-transform duration-200"
         />
-      </div>
+      </Link>
 
       {/* Product Details */}
       <div className="flex flex-col flex-grow min-w-0 justify-between">
         <div>
           {/* Title */}
           <Link
-            href={`/product/${item.slug || item.id}`}
+            href={productHref}
             onClick={closeCartDrawer}
             className="text-xs sm:text-[13px] font-medium text-[#111111] hover:text-neutral-600 transition-colors line-clamp-1 block leading-snug"
           >
