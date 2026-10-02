@@ -324,22 +324,77 @@ const InvoiceForDownload = ({
   // Ensure total GST is always positive
   const totalGst = Math.abs(totalGstRaw);
 
+  const isReseller =
+    data?.orderType === "RESELLER" ||
+    String(data?.orderType).toUpperCase() === "RESELLER" ||
+    Boolean(data?.reseller_info?.name);
+
   const companyName = getStoreCompanyName();
   const companyAddress = getStoreAddress({
     storeCustomizationSetting,
     globalSetting,
   });
 
+  const sellerName = isReseller
+    ? data?.reseller_info?.name || "Authorized Merchant"
+    : companyName;
+
+  const sellerAddress = isReseller
+    ? [
+        data?.reseller_info?.address,
+        data?.reseller_info?.address2,
+        data?.reseller_info?.city,
+        data?.reseller_info?.state,
+        data?.reseller_info?.zipCode,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : companyAddress;
+
+  const sellerPhone = isReseller
+    ? data?.reseller_info?.contact
+    : globalSetting?.contact || "9654582246, 9650544554";
+
+  const sellerEmail = isReseller
+    ? data?.reseller_info?.email
+    : globalSetting?.email || "manchandafabrics@gmail.com";
+
+  const recipient = isReseller ? data?.final_customer_info : data?.user_info;
+
+  const recipientAddress = [
+    recipient?.address,
+    recipient?.address2,
+    recipient?.landmark,
+    recipient?.city,
+    recipient?.state,
+    recipient?.country,
+    recipient?.zipCode,
+  ]
+    .filter(Boolean)
+    .reduce((acc, curr) => {
+      const c = String(curr).trim();
+      if (!c) return acc;
+      if (!acc.some((item) => item.toLowerCase().includes(c.toLowerCase()))) {
+        acc.push(c);
+      }
+      return acc;
+    }, [])
+    .join(", ");
+
+  const totalQuantity = (data?.cart || []).reduce(
+    (acc, item) => acc + (Number(item?.quantity) || 1),
+    0
+  );
+
   const formatInvoiceNumber = (invoice, createdAt) => {
     if (!invoice) return "-";
     const invStr = String(invoice).trim();
-    if (invStr.startsWith("MF/") || invStr.startsWith("FK/")) return invStr;
+    if (invStr.startsWith("MF/") || invStr.startsWith("FK/") || invStr.startsWith("PKG/")) return invStr;
     const year = createdAt
       ? dayjs(createdAt).format("YYYY")
       : dayjs().format("YYYY");
-    return `MF/${year}/${invStr}`;
+    return isReseller ? `PKG/${year}/${invStr}` : `MF/${year}/${invStr}`;
   };
-
 
   return (
     <>
@@ -347,27 +402,31 @@ const InvoiceForDownload = ({
         <Page size="A4" style={styles.page}>
           <View style={{ borderWidth: 1.5, borderColor: "#222", padding: 10 }}>
             <Text style={{ fontSize: 12, fontWeight: "bold", textAlign: "center", marginBottom: 8 }}>
-              Invoice
+              {isReseller ? "Packaging Slip & Delivery Challan" : "Invoice"}
             </Text>
             <View style={{ borderTopWidth: 1, borderColor: "#222", marginBottom: 8 }} />
 
             <View style={{ flexDirection: "row", borderWidth: 1, borderColor: "#222" }}>
               <View style={{ width: "52%", padding: 8, borderRightWidth: 1, borderColor: "#222" }}>
-                <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>Sold By</Text>
+                <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>
+                  {isReseller ? "Dispatched / Sold By" : "Sold By"}
+                </Text>
                 <Text style={{ fontSize: 10, fontWeight: "bold", color: "#111", marginBottom: 3 }}>
-                  {companyName}
+                  {sellerName}
                 </Text>
-                <Text style={{ fontSize: 8, color: "#444", lineHeight: 1.35, marginBottom: 4 }}>
-                  {companyAddress}
-                </Text>
-                {globalSetting?.gstin ? (
+                {sellerAddress ? (
+                  <Text style={{ fontSize: 8, color: "#444", lineHeight: 1.35, marginBottom: 4 }}>
+                    {sellerAddress}
+                  </Text>
+                ) : null}
+                {!isReseller && globalSetting?.gstin ? (
                   <Text style={{ fontSize: 8, color: "#444" }}>GSTIN: {globalSetting.gstin}</Text>
                 ) : null}
-                {globalSetting?.contact ? (
-                  <Text style={{ fontSize: 8, color: "#444" }}>Phone: {globalSetting.contact}</Text>
+                {sellerPhone ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Phone: {sellerPhone}</Text>
                 ) : null}
-                {globalSetting?.email ? (
-                  <Text style={{ fontSize: 8, color: "#444" }}>Email: {globalSetting.email}</Text>
+                {sellerEmail ? (
+                  <Text style={{ fontSize: 8, color: "#444" }}>Email: {sellerEmail}</Text>
                 ) : null}
               </View>
               <View style={{ width: "48%", padding: 8 }}>
@@ -382,7 +441,7 @@ const InvoiceForDownload = ({
                 </Text>
                 <Text style={{ fontSize: 8, color: "#444", marginBottom: 2 }}>
                   <Text style={{ fontWeight: "bold" }}>Payment: </Text>
-                  {data?.paymentMethod || "-"}
+                  {isReseller ? "PREPAID" : (data?.paymentMethod || "-")}
                 </Text>
                 <Text style={{ fontSize: 8, color: "#444" }}>
                   <Text style={{ fontWeight: "bold" }}>Status: </Text>
@@ -392,17 +451,19 @@ const InvoiceForDownload = ({
             </View>
 
             <View style={{ borderWidth: 1, borderTopWidth: 0, borderColor: "#222", padding: 8 }}>
-              <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>Bill To</Text>
-              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111" }}>{data?.user_info?.name || "-"}</Text>
-              {data?.user_info?.email ? (
-                <Text style={{ fontSize: 8, color: "#444", marginTop: 2 }}>Email: {data.user_info.email}</Text>
+              <Text style={{ fontSize: 8, fontWeight: "bold", color: "#333", marginBottom: 4 }}>
+                {isReseller ? "Ship To / Customer" : "Bill To"}
+              </Text>
+              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#111" }}>{recipient?.name || "-"}</Text>
+              {recipient?.email ? (
+                <Text style={{ fontSize: 8, color: "#444", marginTop: 2 }}>Email: {recipient.email}</Text>
               ) : null}
-              {data?.user_info?.contact ? (
-                <Text style={{ fontSize: 8, color: "#444" }}>Phone: {data.user_info.contact}</Text>
+              {recipient?.contact ? (
+                <Text style={{ fontSize: 8, color: "#444" }}>Phone: {recipient.contact}</Text>
               ) : null}
-              {(data?.user_info?.address || data?.user_info?.city) ? (
-                <Text style={{ fontSize: 8, color: "#444" }}>
-                  Address: {[data?.user_info?.address, data?.user_info?.city, data?.user_info?.country, data?.user_info?.zipCode].filter(Boolean).join(", ")}
+              {recipientAddress ? (
+                <Text style={{ fontSize: 8, color: "#444", marginTop: 2 }}>
+                  Address: {recipientAddress}
                 </Text>
               ) : null}
             </View>
@@ -563,59 +624,78 @@ const InvoiceForDownload = ({
 
             {/* Right: Price Summary */}
             <View style={{ width: "40%", borderLeft: 1, borderColor: "#e5e7eb", paddingLeft: 10 }}>
-              {/* MRP Total */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
-                <Text style={{ fontSize: 7, color: "#374151" }}>MRP Total</Text>
-                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
-                  {currency}{getNumberTwo(Math.abs(mrpTotal))}
-                </Text>
-              </View>
-              
-              {/* Total Discount */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
-                <Text style={{ fontSize: 7, color: "#374151" }}>Total Discount</Text>
-                <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
-                  -{currency}{getNumberTwo(Math.abs(totalDiscount))}
-                </Text>
-              </View>
-              
-              {/* Coupon Applied */}
-              {data?.coupon?.couponCode && (
-                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
-                  <Text style={{ fontSize: 7, color: "#444" }}>
-                    Coupon: <Text style={{ fontWeight: "bold" }}>{data.coupon.couponCode}</Text>
-                  </Text>
-                  <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
-                    -{currency}{getNumberTwo(Math.abs(data?.coupon?.discountAmount || data?.discount || 0))}
-                  </Text>
+              {isReseller ? (
+                <View>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>Total Line Items</Text>
+                    <Text style={{ fontSize: 7, color: "#111", fontWeight: "bold" }}>{data?.cart?.length || 0}</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 3 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>Total Quantity</Text>
+                    <Text style={{ fontSize: 7, color: "#111", fontWeight: "bold" }}>{totalQuantity}</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "#f3f4f6", padding: 4, borderRadius: 2, borderWidth: 1, borderColor: "#222", marginTop: 6 }}>
+                    <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold" }}>Payment Type</Text>
+                    <Text style={{ fontSize: 8, color: "#065f46", fontWeight: "bold" }}>PREPAID</Text>
+                  </View>
                 </View>
+              ) : (
+                <>
+                  {/* MRP Total */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>MRP Total</Text>
+                    <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
+                      {currency}{getNumberTwo(Math.abs(mrpTotal))}
+                    </Text>
+                  </View>
+                  
+                  {/* Total Discount */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>Total Discount</Text>
+                    <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
+                      -{currency}{getNumberTwo(Math.abs(totalDiscount))}
+                    </Text>
+                  </View>
+                  
+                  {/* Coupon Applied */}
+                  {data?.coupon?.couponCode && (
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                      <Text style={{ fontSize: 7, color: "#444" }}>
+                        Coupon: <Text style={{ fontWeight: "bold" }}>{data.coupon.couponCode}</Text>
+                      </Text>
+                      <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
+                        -{currency}{getNumberTwo(Math.abs(data?.coupon?.discountAmount || data?.discount || 0))}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {/* GST */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>GST</Text>
+                    <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
+                      {currency}{getNumberTwo(Math.abs(totalGst))}
+                    </Text>
+                  </View>
+                  
+                  {/* Shipping Cost */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
+                    <Text style={{ fontSize: 7, color: "#374151" }}>Shipping Cost</Text>
+                    <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
+                      {(data?.shippingCost || 0) > 0 ? `${currency}${getNumberTwo(Math.abs(data.shippingCost))}` : "FREE"}
+                    </Text>
+                  </View>
+                  
+                  {/* Estimated Payable */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "#f3f4f6", padding: 4, borderRadius: 2, borderWidth: 1, borderColor: "#222" }}>
+                    <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold" }}>Grand Total</Text>
+                    <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold", fontFamily: "Arial" }}>
+                      {currency}{getNumberTwo(Math.abs(data.total || 0))}
+                    </Text>
+                  </View>
+                </>
               )}
-              
-              {/* GST */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
-                <Text style={{ fontSize: 7, color: "#374151" }}>GST</Text>
-                <Text style={{ fontSize: 7, color: "#374151", fontWeight: "bold", fontFamily: "Arial" }}>
-                  {currency}{getNumberTwo(Math.abs(totalGst))}
-                </Text>
-              </View>
-              
-              {/* Shipping Cost */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 0 }}>
-                <Text style={{ fontSize: 7, color: "#374151" }}>Shipping Cost</Text>
-                <Text style={{ fontSize: 7, color: "#444", fontWeight: "bold", fontFamily: "Arial" }}>
-                  {(data?.shippingCost || 0) > 0 ? `${currency}${getNumberTwo(Math.abs(data.shippingCost))}` : "FREE"}
-                </Text>
-              </View>
-              
-              {/* Estimated Payable */}
-              <View style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "#f3f4f6", padding: 4, borderRadius: 2, borderWidth: 1, borderColor: "#222" }}>
-                <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold" }}>Grand Total</Text>
-                <Text style={{ fontSize: 8, color: "#111", fontWeight: "bold", fontFamily: "Arial" }}>
-                  {currency}{getNumberTwo(Math.abs(data.total || 0))}
-                </Text>
-              </View>
               <Text style={{ fontSize: 8, fontWeight: "bold", color: "#111", textAlign: "right", marginTop: 16 }}>
-                For {companyName}
+                For {sellerName}
               </Text>
               <Text style={{ fontSize: 7, color: "#555", textAlign: "right", marginTop: 4 }}>
                 Authorised Signatory

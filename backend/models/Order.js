@@ -22,6 +22,8 @@ const orderSchema = new mongoose.Schema(
       email: { type: String, default: "" },
       contact: { type: String, default: "" },
       address: { type: String, default: "" },
+      address2: { type: String, default: "" },
+      landmark: { type: String, default: "" },
       city: { type: String, default: "" },
       state: { type: String, default: "" },
       country: { type: String, default: "India" },
@@ -33,6 +35,7 @@ const orderSchema = new mongoose.Schema(
       contact: { type: String, default: "" },
       address: { type: String, default: "" },
       address2: { type: String, default: "" },
+      landmark: { type: String, default: "" },
       city: { type: String, default: "" },
       state: { type: String, default: "" },
       country: { type: String, default: "India" },
@@ -56,7 +59,19 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: false,
       },
+      address2: {
+        type: String,
+        required: false,
+      },
+      landmark: {
+        type: String,
+        required: false,
+      },
       city: {
+        type: String,
+        required: false,
+      },
+      state: {
         type: String,
         required: false,
       },

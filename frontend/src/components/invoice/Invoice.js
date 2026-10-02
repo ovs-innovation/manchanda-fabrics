@@ -80,17 +80,41 @@ const Invoice = ({ data, printRef, globalSetting, currency, storeCustomizationSe
   const recipientAddress = isReseller
     ? [
         data?.final_customer_info?.address,
+        data?.final_customer_info?.address2,
         data?.final_customer_info?.landmark,
         data?.final_customer_info?.city,
         data?.final_customer_info?.state,
         data?.final_customer_info?.zipCode,
-      ].filter(Boolean).join(", ")
+      ]
+        .filter(Boolean)
+        .reduce((acc, curr) => {
+          const c = String(curr).trim();
+          if (!c) return acc;
+          if (!acc.some((item) => item.toLowerCase().includes(c.toLowerCase()))) {
+            acc.push(c);
+          }
+          return acc;
+        }, [])
+        .join(", ")
     : [
         data?.user_info?.address,
+        data?.user_info?.address2,
+        data?.user_info?.landmark,
         data?.user_info?.city,
+        data?.user_info?.state,
         data?.user_info?.country,
         data?.user_info?.zipCode,
-      ].filter(Boolean).join(", ");
+      ]
+        .filter(Boolean)
+        .reduce((acc, curr) => {
+          const c = String(curr).trim();
+          if (!c) return acc;
+          if (!acc.some((item) => item.toLowerCase().includes(c.toLowerCase()))) {
+            acc.push(c);
+          }
+          return acc;
+        }, [])
+        .join(", ");
 
   const totalQuantity = (data?.cart || []).reduce(
     (acc, item) => acc + (Number(item?.quantity) || 1),

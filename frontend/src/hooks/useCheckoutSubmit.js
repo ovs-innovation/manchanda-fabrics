@@ -330,13 +330,18 @@ const useCheckoutSubmit = (storeSetting) => {
       setIsCheckoutSubmit(true);
       setError("");
 
+      const combinedUserAddress = [data.address, data.address2]
+        .map((s) => String(s || "").trim())
+        .filter(Boolean)
+        .join(", ");
+
       const userDetails = {
         name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "A customer",
         contact: data.contact,
         email: data.email ? String(data.email).trim() : "",
-        address: data.address,
+        address: combinedUserAddress || data.address || "",
         address2: data.address2 || "",
-        country: data.country,
+        country: data.country || "India",
         city: data.city,
         state: data.state || "",
         zipCode: data.zipCode,
@@ -436,12 +441,20 @@ const useCheckoutSubmit = (storeSetting) => {
           }
         : {};
 
+      const combinedFinalCustomerAddress = [
+        data.finalCustomerAddress,
+        data.finalCustomerAddress2,
+      ]
+        .map((s) => String(s || "").trim())
+        .filter(Boolean)
+        .join(", ");
+
       const finalCustomerDetails = isReseller
         ? {
             name: String(data.finalCustomerName || "").trim(),
             contact: String(data.finalCustomerContact || "").trim(),
             email: String(data.finalCustomerEmail || "").trim(),
-            address: String(data.finalCustomerAddress || "").trim(),
+            address: combinedFinalCustomerAddress || String(data.finalCustomerAddress || "").trim(),
             address2: String(data.finalCustomerAddress2 || "").trim(),
             city: String(data.finalCustomerCity || "").trim(),
             state: String(data.finalCustomerState || "").trim(),

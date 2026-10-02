@@ -90,24 +90,51 @@ const ShippingLabel4x6 = ({
     ? (data?.final_customer_info?.contact || "-")
     : (data?.user_info?.contact || "-");
 
+  const formatAddressString = (addr, addr2, landmark, city, state, country) => {
+    const parts = [];
+    const a1 = String(addr || "").trim();
+    const a2 = String(addr2 || "").trim();
+    const lm = String(landmark || "").trim();
+    if (a1) parts.push(a1);
+    if (a2 && !a1.toLowerCase().includes(a2.toLowerCase())) {
+      parts.push(a2);
+    }
+    if (
+      lm &&
+      !a1.toLowerCase().includes(lm.toLowerCase()) &&
+      !a2.toLowerCase().includes(lm.toLowerCase())
+    ) {
+      parts.push(lm);
+    }
+    if (city && !parts.some((p) => p.toLowerCase().includes(String(city).toLowerCase()))) {
+      parts.push(city);
+    }
+    if (state && !parts.some((p) => p.toLowerCase().includes(String(state).toLowerCase()))) {
+      parts.push(state);
+    }
+    if (country && !parts.some((p) => p.toLowerCase().includes(String(country).toLowerCase()))) {
+      parts.push(country);
+    }
+    return parts.filter(Boolean).join(", ");
+  };
+
   const recipientAddress = isReseller
-    ? [
+    ? formatAddressString(
         data?.final_customer_info?.address,
+        data?.final_customer_info?.address2,
         data?.final_customer_info?.landmark,
         data?.final_customer_info?.city,
         data?.final_customer_info?.state,
-      ]
-        .filter(Boolean)
-        .join(", ")
-    : [
+        data?.final_customer_info?.country
+      )
+    : formatAddressString(
         data?.user_info?.address,
         data?.user_info?.address2,
+        data?.user_info?.landmark,
         data?.user_info?.city,
         data?.user_info?.state,
-        data?.user_info?.country,
-      ]
-        .filter(Boolean)
-        .join(", ");
+        data?.user_info?.country
+      );
 
   const recipientZip = isReseller
     ? (data?.final_customer_info?.zipCode || "-")
@@ -671,17 +698,19 @@ const ShippingLabel4x6 = ({
               <span style={{ color: "#4b5563" }}>Total Items:</span>
               <span style={{ fontWeight: 700, color: "#000000" }}>{totalItemsCount} Unit(s)</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25, marginTop: "2px" }}>
-              <span style={{ color: "#4b5563" }}>Shipping:</span>
-              <span style={{ fontWeight: 700, color: "#000000" }}>
-                {data?.shippingCost > 0 ? `${currency}${data.shippingCost}` : "FREE"}
-              </span>
-            </div>
+            {!isReseller && (
+              <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25, marginTop: "2px" }}>
+                <span style={{ color: "#4b5563" }}>Shipping:</span>
+                <span style={{ fontWeight: 700, color: "#000000" }}>
+                  {data?.shippingCost > 0 ? `${currency}${data.shippingCost}` : "FREE"}
+                </span>
+              </div>
+            )}
             <div
               style={{
                 borderTop: "1px dotted #9ca3af",
-                marginTop: "3px",
-                paddingTop: "3px",
+                marginTop: isReseller ? "6px" : "3px",
+                paddingTop: isReseller ? "5px" : "3px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",

@@ -110,24 +110,51 @@ const downloadShippingLabelPdf = async (params) => {
     ? data?.final_customer_info?.contact || "-"
     : data?.user_info?.contact || "-";
 
+  const formatAddressString = (addr, addr2, landmark, city, state, country) => {
+    const parts = [];
+    const a1 = String(addr || "").trim();
+    const a2 = String(addr2 || "").trim();
+    const lm = String(landmark || "").trim();
+    if (a1) parts.push(a1);
+    if (a2 && !a1.toLowerCase().includes(a2.toLowerCase())) {
+      parts.push(a2);
+    }
+    if (
+      lm &&
+      !a1.toLowerCase().includes(lm.toLowerCase()) &&
+      !a2.toLowerCase().includes(lm.toLowerCase())
+    ) {
+      parts.push(lm);
+    }
+    if (city && !parts.some((p) => p.toLowerCase().includes(String(city).toLowerCase()))) {
+      parts.push(city);
+    }
+    if (state && !parts.some((p) => p.toLowerCase().includes(String(state).toLowerCase()))) {
+      parts.push(state);
+    }
+    if (country && !parts.some((p) => p.toLowerCase().includes(String(country).toLowerCase()))) {
+      parts.push(country);
+    }
+    return parts.filter(Boolean).join(", ");
+  };
+
   const recipientAddress = isReseller
-    ? [
+    ? formatAddressString(
         data?.final_customer_info?.address,
+        data?.final_customer_info?.address2,
         data?.final_customer_info?.landmark,
         data?.final_customer_info?.city,
         data?.final_customer_info?.state,
-      ]
-        .filter(Boolean)
-        .join(", ")
-    : [
+        data?.final_customer_info?.country
+      )
+    : formatAddressString(
         data?.user_info?.address,
         data?.user_info?.address2,
+        data?.user_info?.landmark,
         data?.user_info?.city,
         data?.user_info?.state,
-        data?.user_info?.country,
-      ]
-        .filter(Boolean)
-        .join(", ");
+        data?.user_info?.country
+      );
 
   const recipientZip = isReseller
     ? data?.final_customer_info?.zipCode || "110006"
@@ -390,17 +417,28 @@ const downloadShippingLabelPdf = async (params) => {
 
   // Prominent bold customer address (requested by client: "Address ka size jo customer ka h woh thoda prominent kro")
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  const addrLines = doc.splitTextToSize(recipientAddress || "-", 176).slice(0, 3);
-  let startAddrY = 153;
+  const fullAddrLines = doc.splitTextToSize(recipientAddress || "-", 176);
+  let addrLines = fullAddrLines;
+  let startAddrY = 152;
   let lineStep = 11;
-  if (addrLines.length === 1) {
+  if (fullAddrLines.length <= 1) {
+    doc.setFontSize(10);
     startAddrY = 157;
-  } else if (addrLines.length === 2) {
-    startAddrY = 155;
+  } else if (fullAddrLines.length === 2) {
+    doc.setFontSize(10);
+    startAddrY = 154;
     lineStep = 13;
+  } else if (fullAddrLines.length === 3) {
+    doc.setFontSize(9.2);
+    startAddrY = 151;
+    lineStep = 10.5;
+  } else {
+    doc.setFontSize(8.2);
+    startAddrY = 149;
+    lineStep = 9.2;
+    addrLines = fullAddrLines.slice(0, 4);
   }
+  doc.setTextColor(0, 0, 0);
   addrLines.forEach((line, idx) => {
     doc.text(line, 10, startAddrY + idx * lineStep);
   });
@@ -450,28 +488,45 @@ const downloadShippingLabelPdf = async (params) => {
   doc.setTextColor(0, 0, 0);
   doc.text(`${totalItemsCount} Unit(s)`, 278, 208, { align: "right" });
 
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(75, 85, 99);
-  doc.text("Shipping:", 148, 220);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(0, 0, 0);
-  const shipCostText =
-    data?.shippingCost > 0 ? `Rs. ${data.shippingCost}` : "FREE";
-  doc.text(shipCostText, 278, 220, { align: "right" });
+  if (!isReseller) {
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(75, 85, 99);
+    doc.text("Shipping:", 148, 220);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    const shipCostText =
+      data?.shippingCost > 0 ? `Rs. ${data.shippingCost}` : "FREE";
+    doc.text(shipCostText, 278, 220, { align: "right" });
 
-  doc.setDrawColor(156, 163, 175);
-  doc.line(144, 229, 282, 229);
+    doc.setDrawColor(156, 163, 175);
+    doc.line(144, 229, 282, 229);
 
-  doc.setDrawColor(0, 0, 0);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(0, 0, 0);
-  doc.text("Payment Mode:", 148, 244);
-  doc.setFontSize(8.5);
-  const payModeText = String(
-    data?.paymentMethod || (isCod ? "COD" : "PREPAID")
-  ).toUpperCase();
-  doc.text(payModeText, 278, 244, { align: "right" });
+    doc.setDrawColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Payment Mode:", 148, 244);
+    doc.setFontSize(8.5);
+    const payModeText = String(
+      data?.paymentMethod || (isCod ? "COD" : "PREPAID")
+    ).toUpperCase();
+    doc.text(payModeText, 278, 244, { align: "right" });
+  } else {
+    // For reseller order: do NOT mention shipping cost
+    doc.setDrawColor(156, 163, 175);
+    doc.line(144, 223, 282, 223);
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Payment Mode:", 148, 239);
+    doc.setFontSize(8.5);
+    const payModeText = String(
+      data?.paymentMethod || (isCod ? "COD" : "PREPAID")
+    ).toUpperCase();
+    doc.text(payModeText, 278, 239, { align: "right" });
+  }
 
   // ==========================================
   // SECTION 6: PRODUCT MANIFEST & TRANSIT DECLARATION (y = 254 to y = 352, h = 98 pt)

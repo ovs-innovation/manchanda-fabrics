@@ -75,7 +75,12 @@ const isAllowedOrigin = (origin) => {
   if (allowedOrigins.some((o) => origin === o || origin.startsWith(o))) return true;
   try {
     const { hostname } = new URL(origin);
-    if (hostname === "manchandafabric.in" || hostname.endsWith(".manchandafabric.in")) {
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "manchandafabric.in" ||
+      hostname.endsWith(".manchandafabric.in")
+    ) {
       return true;
     }
   } catch (e) {
