@@ -49,22 +49,32 @@ const ShippingLabel4x6 = ({
     ? (data?.reseller_info?.name || "Authorized Merchant")
     : defaultCompanyName;
 
+  const cleanAddressParts = (...parts) =>
+    parts
+      .map((p) => String(p || "").replace(/^[,\s]+|[,\s]+$/g, "").trim())
+      .filter((p) => p.length > 0 && p.replace(/[,\s]/g, "").length > 0)
+      .join(", ");
+
   const senderSubtext = isReseller
     ? [
-        data?.reseller_info?.city,
-        data?.reseller_info?.state,
-        data?.reseller_info?.zipCode,
-      ].filter(Boolean).join(", ") +
-      (data?.reseller_info?.contact ? ` • Phone: ${data?.reseller_info?.contact}` : "")
+        cleanAddressParts(
+          data?.reseller_info?.city,
+          data?.reseller_info?.state,
+          data?.reseller_info?.zipCode
+        ),
+        data?.reseller_info?.contact ? `Phone: ${data.reseller_info.contact}` : "",
+      ]
+        .filter(Boolean)
+        .join(" • ")
     : "Chandni Chowk, Delhi - 110006";
 
   const senderFullAddress = isReseller
-    ? [
+    ? cleanAddressParts(
         data?.reseller_info?.address,
         data?.reseller_info?.city,
         data?.reseller_info?.state,
-        data?.reseller_info?.zipCode,
-      ].filter(Boolean).join(", ")
+        data?.reseller_info?.zipCode
+      )
     : defaultCompanyAddress;
 
   const invoiceNo = isReseller
@@ -620,68 +630,127 @@ const ShippingLabel4x6 = ({
             backgroundColor: "#ffffff",
           }}
         >
-          {/* Left: Sender Return Details */}
-          <div
-            style={{
-              width: "50%",
-              borderRight: "1px solid #000000",
-              padding: "5px 6px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "7.5px",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                color: "#4b5563",
-                display: "block",
-                lineHeight: 1.2,
-              }}
-            >
-              If undelivered, return to:
-            </span>
+          {/* Left: Sender Return Details (Hidden for reseller orders: "reseller shipping label se yeh hatao that if undelivered return to") */}
+          {!isReseller ? (
             <div
               style={{
-                fontSize: "9px",
-                fontWeight: 900,
-                color: "#000000",
-                marginTop: "2px",
-                lineHeight: 1.2,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                width: "50%",
+                borderRight: "1px solid #000000",
+                padding: "5px 6px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
-              {senderName}
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  color: "#4b5563",
+                  display: "block",
+                  lineHeight: 1.2,
+                }}
+              >
+                If undelivered, return to:
+              </span>
+              <div
+                style={{
+                  fontSize: "9px",
+                  fontWeight: 900,
+                  color: "#000000",
+                  marginTop: "2px",
+                  lineHeight: 1.2,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {senderName}
+              </div>
+              <div
+                style={{
+                  fontSize: "8px",
+                  color: "#374151",
+                  lineHeight: 1.25,
+                  marginTop: "2px",
+                }}
+              >
+                {senderFullAddress}
+              </div>
+              {(globalSetting?.gstin || "07ADKPM4552G1ZG") && (
+                <div
+                  style={{
+                    fontSize: "7.5px",
+                    fontWeight: 700,
+                    color: "#111827",
+                    lineHeight: 1.2,
+                    marginTop: "2px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  GSTIN: {globalSetting?.gstin || "07ADKPM4552G1ZG"}
+                </div>
+              )}
             </div>
+          ) : (
             <div
               style={{
-                fontSize: "8px",
-                color: "#374151",
-                lineHeight: 1.25,
-                marginTop: "2px",
+                width: "50%",
+                borderRight: "1px solid #000000",
+                padding: "5px 6px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
-              {senderFullAddress}
-            </div>
-            {(globalSetting?.gstin || "07ADKPM4552G1ZG") && !isReseller && (
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  color: "#4b5563",
+                  display: "block",
+                  lineHeight: 1.2,
+                }}
+              >
+                Dispatch &amp; Routing:
+              </span>
+              <div
+                style={{
+                  fontSize: "9px",
+                  fontWeight: 900,
+                  color: "#000000",
+                  marginTop: "2px",
+                  lineHeight: 1.2,
+                }}
+              >
+                Direct Fulfillment Package
+              </div>
+              <div
+                style={{
+                  fontSize: "8px",
+                  color: "#374151",
+                  lineHeight: 1.25,
+                  marginTop: "2px",
+                }}
+              >
+                Standard Surface Logistics • Fast Dispatch
+              </div>
               <div
                 style={{
                   fontSize: "7.5px",
                   fontWeight: 700,
-                  color: "#111827",
+                  color: "#166534",
                   lineHeight: 1.2,
                   marginTop: "2px",
                   whiteSpace: "nowrap",
                 }}
               >
-                GSTIN: {globalSetting?.gstin || "07ADKPM4552G1ZG"}
+                ✓ Secure Verified Shipment
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Right: Package specifics */}
           <div
@@ -698,19 +767,24 @@ const ShippingLabel4x6 = ({
               <span style={{ color: "#4b5563" }}>Total Items:</span>
               <span style={{ fontWeight: 700, color: "#000000" }}>{totalItemsCount} Unit(s)</span>
             </div>
-            {!isReseller && (
+            {!isReseller ? (
               <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25, marginTop: "2px" }}>
                 <span style={{ color: "#4b5563" }}>Shipping:</span>
                 <span style={{ fontWeight: 700, color: "#000000" }}>
                   {data?.shippingCost > 0 ? `${currency}${data.shippingCost}` : "FREE"}
                 </span>
               </div>
+            ) : (
+              <div style={{ display: "flex", justifyContent: "space-between", lineHeight: 1.25, marginTop: "2px" }}>
+                <span style={{ color: "#4b5563" }}>Order Type:</span>
+                <span style={{ fontWeight: 700, color: "#000000" }}>Direct Fulfillment</span>
+              </div>
             )}
             <div
               style={{
                 borderTop: "1px dotted #9ca3af",
-                marginTop: isReseller ? "6px" : "3px",
-                paddingTop: isReseller ? "5px" : "3px",
+                marginTop: isReseller ? "5px" : "3px",
+                paddingTop: isReseller ? "4px" : "3px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",

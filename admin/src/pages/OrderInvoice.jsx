@@ -405,7 +405,10 @@ const OrderInvoice = () => {
                       Email: {data?.reseller_info?.email || data?.user_info?.email || "-"}
                     </p>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
-                      Sender Address: {[data?.reseller_info?.address, data?.reseller_info?.city, data?.reseller_info?.state, data?.reseller_info?.zipCode].filter(Boolean).join(", ") || "-"}
+                      Sender Address: {[data?.reseller_info?.address, data?.reseller_info?.city, data?.reseller_info?.state, data?.reseller_info?.zipCode]
+                        .map((p) => String(p || "").replace(/^[,\s]+|[,\s]+$/g, "").trim())
+                        .filter((p) => p.length > 0 && p.replace(/[,\s]/g, "").length > 0)
+                        .join(", ") || "-"}
                     </p>
                   </div>
 
@@ -424,7 +427,10 @@ const OrderInvoice = () => {
                       Email: {data?.final_customer_info?.email || "-"}
                     </p>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
-                      Delivery Address: {[data?.final_customer_info?.address, data?.final_customer_info?.landmark, data?.final_customer_info?.city, data?.final_customer_info?.state, data?.final_customer_info?.zipCode].filter(Boolean).join(", ") || "-"}
+                      Delivery Address: {[data?.final_customer_info?.address, data?.final_customer_info?.landmark, data?.final_customer_info?.city, data?.final_customer_info?.state, data?.final_customer_info?.zipCode]
+                        .map((p) => String(p || "").replace(/^[,\s]+|[,\s]+$/g, "").trim())
+                        .filter((p) => p.length > 0 && p.replace(/[,\s]/g, "").length > 0)
+                        .join(", ") || "-"}
                     </p>
                   </div>
                 </div>

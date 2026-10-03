@@ -80,25 +80,32 @@ const downloadShippingLabelPdf = async (params) => {
     ? data?.reseller_info?.name || "Authorized Merchant"
     : defaultCompanyName || "MANCHANDA FAB";
 
+  const cleanAddressParts = (...parts) =>
+    parts
+      .map((p) => String(p || "").replace(/^[,\s]+|[,\s]+$/g, "").trim())
+      .filter((p) => p.length > 0 && p.replace(/[,\s]/g, "").length > 0)
+      .join(", ");
+
   const senderSubtext = isReseller
     ? [
-        data?.reseller_info?.city,
-        data?.reseller_info?.state,
-        data?.reseller_info?.zipCode,
+        cleanAddressParts(
+          data?.reseller_info?.city,
+          data?.reseller_info?.state,
+          data?.reseller_info?.zipCode
+        ),
+        data?.reseller_info?.contact ? `Phone: ${data.reseller_info.contact}` : "",
       ]
         .filter(Boolean)
-        .join(", ")
+        .join(" • ")
     : "Chandni Chowk, Delhi - 110006";
 
   const senderFullAddress = isReseller
-    ? [
+    ? cleanAddressParts(
         data?.reseller_info?.address,
         data?.reseller_info?.city,
         data?.reseller_info?.state,
-        data?.reseller_info?.zipCode,
-      ]
-        .filter(Boolean)
-        .join(", ")
+        data?.reseller_info?.zipCode
+      )
     : defaultCompanyAddress || "12-A, Krishna Cloth Market, Chandni Chowk - 110006";
 
   // Recipient Details
@@ -204,6 +211,9 @@ const downloadShippingLabelPdf = async (params) => {
       (sum, item) => sum + (Number(item?.quantity) || 1),
       0
     ) || 1;
+
+  const shipCostText =
+    Number(data?.shippingCost) > 0 ? `Rs. ${data.shippingCost}` : "FREE";
 
   // 1. Generate High-Density Barcode Image (Code128)
   let barcodeDataUrl = null;
@@ -454,29 +464,51 @@ const downloadShippingLabelPdf = async (params) => {
   doc.line(6, 254, 282, 254);
   doc.line(144, 196, 144, 254);
 
-  // Left: Return Address (x = 6 to 144)
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(6.5);
-  doc.setTextColor(75, 85, 99);
-  doc.text("IF UNDELIVERED, RETURN TO:", 10, 206);
+  if (!isReseller) {
+    // Left: Return Address (x = 6 to 144)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
+    doc.setTextColor(75, 85, 99);
+    doc.text("IF UNDELIVERED, RETURN TO:", 10, 206);
 
-  doc.setFontSize(8.5);
-  doc.setTextColor(0, 0, 0);
-  doc.text(truncateToWidth(doc, senderName, 128), 10, 217);
+    doc.setFontSize(8.5);
+    doc.setTextColor(0, 0, 0);
+    doc.text(truncateToWidth(doc, senderName, 128), 10, 217);
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(31, 41, 55);
-  const returnLines = doc.splitTextToSize(senderFullAddress || "-", 128).slice(0, 2);
-  if (returnLines[0]) doc.text(returnLines[0], 10, 227);
-  if (returnLines[1]) doc.text(returnLines[1], 10, 236);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(31, 41, 55);
+    const returnLines = doc.splitTextToSize(senderFullAddress || "-", 128).slice(0, 2);
+    if (returnLines[0]) doc.text(returnLines[0], 10, 227);
+    if (returnLines[1]) doc.text(returnLines[1], 10, 236);
 
-  const effectiveGstin = globalSetting?.gstin || "07ADKPM4552G1ZG";
-  if (effectiveGstin && !isReseller) {
+    const effectiveGstin = globalSetting?.gstin || "07ADKPM4552G1ZG";
+    if (effectiveGstin) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(17, 24, 39);
+      doc.text(`GSTIN: ${effectiveGstin}`, 10, 247);
+    }
+  } else {
+    // Left: Reseller Order - do NOT show "IF UNDELIVERED, RETURN TO" or reseller return address
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
+    doc.setTextColor(75, 85, 99);
+    doc.text("DISPATCH & ROUTING:", 10, 206);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Direct Fulfillment Package", 10, 217);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(55, 65, 81);
+    doc.text("Standard Surface Logistics • Fast Dispatch", 10, 228);
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
-    doc.setTextColor(17, 24, 39);
-    doc.text(`GSTIN: ${effectiveGstin}`, 10, 247);
+    doc.setTextColor(22, 101, 52);
+    doc.text("VERIFIED SHIPMENT • TAMPER-SEALED", 10, 241);
   }
 
   // Right: Package Specs & Payment Mode (x = 144 to 282)
@@ -494,8 +526,6 @@ const downloadShippingLabelPdf = async (params) => {
     doc.text("Shipping:", 148, 220);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
-    const shipCostText =
-      data?.shippingCost > 0 ? `Rs. ${data.shippingCost}` : "FREE";
     doc.text(shipCostText, 278, 220, { align: "right" });
 
     doc.setDrawColor(156, 163, 175);
@@ -513,20 +543,28 @@ const downloadShippingLabelPdf = async (params) => {
     doc.text(payModeText, 278, 244, { align: "right" });
   } else {
     // For reseller order: do NOT mention shipping cost
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(75, 85, 99);
+    doc.text("Order Type:", 148, 220);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("Direct Fulfillment", 278, 220, { align: "right" });
+
     doc.setDrawColor(156, 163, 175);
-    doc.line(144, 223, 282, 223);
+    doc.line(144, 229, 282, 229);
 
     doc.setDrawColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     doc.setTextColor(0, 0, 0);
-    doc.text("Payment Mode:", 148, 239);
+    doc.text("Payment Mode:", 148, 244);
     doc.setFontSize(8.5);
     const payModeText = String(
       data?.paymentMethod || (isCod ? "COD" : "PREPAID")
     ).toUpperCase();
-    doc.text(payModeText, 278, 239, { align: "right" });
+    doc.text(payModeText, 278, 244, { align: "right" });
   }
+
 
   // ==========================================
   // SECTION 6: PRODUCT MANIFEST & TRANSIT DECLARATION (y = 254 to y = 352, h = 98 pt)
