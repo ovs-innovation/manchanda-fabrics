@@ -725,7 +725,7 @@ const ShippingLabel4x6 = ({
                   lineHeight: 1.2,
                 }}
               >
-                Direct Fulfillment Package
+                Direct Fulfillment
               </div>
               <div
                 style={{
@@ -735,19 +735,25 @@ const ShippingLabel4x6 = ({
                   marginTop: "2px",
                 }}
               >
-                Standard Surface Logistics • Fast Dispatch
+                Standard Logistics • Fast Dispatch
               </div>
               <div
                 style={{
-                  fontSize: "7.5px",
-                  fontWeight: 700,
+                  marginTop: "4px",
+                  display: "inline-block",
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  borderRadius: "2px",
+                  padding: "1px 6px",
+                  fontSize: "6.5px",
+                  fontWeight: 800,
                   color: "#166534",
                   lineHeight: 1.2,
-                  marginTop: "2px",
-                  whiteSpace: "nowrap",
+                  width: "fit-content",
+                  textTransform: "uppercase",
                 }}
               >
-                ✓ Secure Verified Shipment
+                VERIFIED &amp; TAMPER-SEALED
               </div>
             </div>
           )}

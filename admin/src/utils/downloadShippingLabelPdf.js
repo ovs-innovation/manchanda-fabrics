@@ -299,15 +299,16 @@ const downloadShippingLabelPdf = async (params) => {
     textStartX = 44;
   }
 
+  const maxHeaderWidth = 194 - textStartX - 6;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
   doc.setTextColor(0, 0, 0);
-  doc.text(truncateToWidth(doc, senderName.toUpperCase(), 144), textStartX, 21);
+  doc.text(truncateToWidth(doc, senderName.toUpperCase(), maxHeaderWidth), textStartX, 21);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(55, 65, 81);
-  doc.text(truncateToWidth(doc, senderSubtext, 144), textStartX, 32);
+  doc.text(truncateToWidth(doc, senderSubtext, maxHeaderWidth), textStartX, 32);
 
   // Badge: STANDARD EXPRESS DELIVERY SLIP
   doc.setFillColor(0, 0, 0);
@@ -494,21 +495,26 @@ const downloadShippingLabelPdf = async (params) => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(6.5);
     doc.setTextColor(75, 85, 99);
-    doc.text("DISPATCH & ROUTING:", 10, 206);
+    doc.text("DISPATCH & ROUTING:", 10, 207);
 
     doc.setFontSize(8.5);
     doc.setTextColor(0, 0, 0);
-    doc.text("Direct Fulfillment Package", 10, 217);
+    doc.text(truncateToWidth(doc, "Direct Fulfillment", 125), 10, 219);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(55, 65, 81);
-    doc.text("Standard Surface Logistics • Fast Dispatch", 10, 228);
-
-    doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
+    doc.setTextColor(55, 65, 81);
+    doc.text(truncateToWidth(doc, "Standard Logistics • Fast Dispatch", 125), 10, 229);
+
+    // Verified badge contained strictly within the left box (safely before x = 144)
+    doc.setFillColor(240, 253, 244);
+    doc.setDrawColor(187, 247, 208);
+    doc.rect(10, 235, 116, 12, "FD");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.5);
     doc.setTextColor(22, 101, 52);
-    doc.text("VERIFIED SHIPMENT • TAMPER-SEALED", 10, 241);
+    doc.text("VERIFIED & TAMPER-SEALED", 68, 243.5, { align: "center" });
+    doc.setDrawColor(0, 0, 0);
   }
 
   // Right: Package Specs & Payment Mode (x = 144 to 282)
@@ -528,7 +534,7 @@ const downloadShippingLabelPdf = async (params) => {
     doc.setTextColor(0, 0, 0);
     doc.text(shipCostText, 278, 220, { align: "right" });
 
-    doc.setDrawColor(156, 163, 175);
+    doc.setDrawColor(209, 213, 219);
     doc.line(144, 229, 282, 229);
 
     doc.setDrawColor(0, 0, 0);
@@ -548,9 +554,9 @@ const downloadShippingLabelPdf = async (params) => {
     doc.text("Order Type:", 148, 220);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
-    doc.text("Direct Fulfillment", 278, 220, { align: "right" });
+    doc.text(truncateToWidth(doc, "Direct Fulfillment", 68), 278, 220, { align: "right" });
 
-    doc.setDrawColor(156, 163, 175);
+    doc.setDrawColor(209, 213, 219);
     doc.line(144, 229, 282, 229);
 
     doc.setDrawColor(0, 0, 0);
