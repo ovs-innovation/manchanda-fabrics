@@ -44,28 +44,45 @@ function MyApp({ Component, pageProps }) {
   // Show branded loading screen when page is opening late / loading slowly (>250ms)
   useEffect(() => {
     let timer = null;
+    let safetyTimer = null;
+
     const handleStart = () => {
+      if (timer) clearTimeout(timer);
+      if (safetyTimer) clearTimeout(safetyTimer);
       timer = setTimeout(() => {
         setRouteLoading(true);
+        // Safety watchdog: never keep loading screen stuck for more than 3s
+        safetyTimer = setTimeout(() => {
+          setRouteLoading(false);
+        }, 3000);
       }, 250);
     };
 
     const handleEnd = () => {
       if (timer) clearTimeout(timer);
+      if (safetyTimer) clearTimeout(safetyTimer);
       setRouteLoading(false);
     };
 
     router.events.on("routeChangeStart", handleStart);
     router.events.on("routeChangeComplete", handleEnd);
     router.events.on("routeChangeError", handleEnd);
+    router.events.on("beforeHistoryChange", handleEnd);
 
     return () => {
       if (timer) clearTimeout(timer);
+      if (safetyTimer) clearTimeout(safetyTimer);
       router.events.off("routeChangeStart", handleStart);
       router.events.off("routeChangeComplete", handleEnd);
       router.events.off("routeChangeError", handleEnd);
+      router.events.off("beforeHistoryChange", handleEnd);
     };
   }, [router]);
+
+  // Always dismiss routeLoading once the route asPath updates
+  useEffect(() => {
+    setRouteLoading(false);
+  }, [router.asPath]);
 
   // Restore saved language preference (default en)
   useEffect(() => {

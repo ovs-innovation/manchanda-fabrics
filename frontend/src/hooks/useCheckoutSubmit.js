@@ -317,12 +317,15 @@ const useCheckoutSubmit = (storeSetting) => {
         return;
       }
 
-      if (data.email && String(data.email).trim()) {
-        if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(String(data.email).trim())) {
-          notifyError("Please enter a valid email address.");
-          setIsCheckoutSubmit(false);
-          return;
-        }
+      if (!data.email || !String(data.email).trim()) {
+        notifyError("Please enter your email address to receive delivery tracking updates.");
+        setIsCheckoutSubmit(false);
+        return;
+      }
+      if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(String(data.email).trim())) {
+        notifyError("Please enter a valid email address.");
+        setIsCheckoutSubmit(false);
+        return;
       }
 
       dispatch({ type: "SAVE_SHIPPING_ADDRESS", payload: data });

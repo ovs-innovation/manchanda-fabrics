@@ -6,6 +6,7 @@ import useTranslation from "next-translate/useTranslation";
 
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { getUserSession } from "@lib/auth";
 import { getStoreAddress, translateStoreAddress } from "@utils/storeBrand";
 import { mergeHomepage } from "@utils/homepageDefaults";
 
@@ -93,14 +94,25 @@ const Footer = () => {
 
   const collectionLinks = footer.collectionLinks || [];
   const rawQuickLinks = footer.quickLinks || [];
-  let quickLinks = [...rawQuickLinks].filter(
-    (l) =>
-      l.href !== "/user/track-order" &&
-      l.href !== "/refund-return-policy" &&
-      l.href !== "/privacy-policy"
-  );
-  if (!quickLinks.some((l) => l.href === "/user/my-orders")) {
-    quickLinks.unshift({ title: "My Orders", href: "/user/my-orders" });
+  const userInfo = getUserSession();
+  const isLoggedIn = !!userInfo?.token;
+  const myOrdersHref = isLoggedIn
+    ? "/user/my-orders"
+    : "/auth/login?redirectUrl=/user/my-orders";
+
+  let quickLinks = [...rawQuickLinks]
+    .filter(
+      (l) =>
+        l.href !== "/user/track-order" &&
+        l.href !== "/refund-return-policy" &&
+        l.href !== "/privacy-policy"
+    )
+    .map((l) =>
+      l.href === "/user/my-orders" ? { ...l, href: myOrdersHref } : l
+    );
+
+  if (!quickLinks.some((l) => l.href === myOrdersHref || l.href === "/user/my-orders")) {
+    quickLinks.unshift({ title: "My Orders", href: myOrdersHref });
   }
   if (!quickLinks.some((l) => l.href === "/about-us")) {
     quickLinks.unshift({ title: "About Us", href: "/about-us" });

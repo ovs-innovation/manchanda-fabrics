@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,6 +13,7 @@ import { FiLoader, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 
 import { getUserSession } from "@lib/auth";
+import { UserContext } from "@context/UserContext";
 
 // Internal imports
 import Layout from "@layout/Layout";
@@ -21,6 +22,7 @@ import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
+import CheckoutEmailOtpModal from "@components/checkout/CheckoutEmailOtpModal";
 import { notifySuccess, notifyError } from "@utils/toast";
 import { INDIAN_STATES, isDelhiLocation } from "@utils/shippingRules";
 import { getDisplayEmail } from "@utils/profileAuth";
@@ -29,11 +31,16 @@ const Checkout = () => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const formRef = useRef(null);
+  const { dispatch } = useContext(UserContext);
 
   const [agreeToTerms, setAgreeToTerms] = useState(true);
   const [saveInfoForNextTime, setSaveInfoForNextTime] = useState(true);
   const [useShippingAsBilling, setUseShippingAsBilling] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState("");
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const lastVerifiedEmailRef = useRef("");
 
   const userInfo = getUserSession();
   const { currency, formatPrice, showingTranslateValue } = useUtilsFunction();
@@ -98,6 +105,56 @@ const Checkout = () => {
   const selectedPaymentMethod = "PhonePe";
   const watchZipCode = watch("zipCode");
   const watchFinalCustomerZipCode = watch("finalCustomerZipCode");
+  const watchEmail = watch("email");
+
+  // Sync email verification status with user session
+  useEffect(() => {
+    const sessionEmail = getDisplayEmail(userInfo);
+    if (userInfo?.token && sessionEmail) {
+      setIsEmailVerified(true);
+      lastVerifiedEmailRef.current = sessionEmail.trim().toLowerCase();
+    }
+  }, [userInfo]);
+
+  // If email changes, check whether it matches the verified email
+  useEffect(() => {
+    const current = String(watchEmail || "").trim().toLowerCase();
+    const verified = String(lastVerifiedEmailRef.current || "").trim().toLowerCase();
+    if (verified && current === verified) {
+      setIsEmailVerified(true);
+    } else {
+      setIsEmailVerified(false);
+    }
+  }, [watchEmail]);
+
+  const handleCheckoutFormSubmit = (data) => {
+    const currentEmail = String(data.email || "").trim().toLowerCase();
+    const verifiedEmail = String(lastVerifiedEmailRef.current || "").trim().toLowerCase();
+
+    // If email is not yet verified via OTP, open verification modal
+    if (!isEmailVerified || !verifiedEmail || currentEmail !== verifiedEmail) {
+      setPendingFormData(data);
+      setIsOtpModalOpen(true);
+      return;
+    }
+
+    // Email is verified! Proceed with normal checkout submit
+    submitHandler(data);
+  };
+
+  const handleOtpSuccess = (authResponse) => {
+    const verifiedEmail = String(authResponse?.email || watchEmail || "").trim().toLowerCase();
+    setIsEmailVerified(true);
+    lastVerifiedEmailRef.current = verifiedEmail;
+    setValue("email", verifiedEmail);
+    setIsOtpModalOpen(false);
+
+    if (pendingFormData) {
+      const updatedData = { ...pendingFormData, email: verifiedEmail };
+      setPendingFormData(null);
+      submitHandler(updatedData);
+    }
+  };
 
   const populateAddressFields = useCallback((addr) => {
     if (!addr) return;
@@ -341,14 +398,25 @@ const Checkout = () => {
                 <span className="text-gray-900 font-semibold">{t("Information & Payment")}</span>
               </div>
 
-              <form ref={formRef} onSubmit={handleSubmit(submitHandler)} className="space-y-8">
+              <form ref={formRef} onSubmit={handleSubmit(handleCheckoutFormSubmit)} className="space-y-8">
 
                 {/* 1. CONTACT SECTION */}
                 <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-                  <div className="mb-4">
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-                      {t("Contact")}
-                    </h2>
+                  <div className="mb-4 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+                        {t("Contact & Delivery Updates")}
+                      </h2>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {t("Your order receipt and live courier tracking updates will be delivered to this email.")}
+                      </p>
+                    </div>
+                    {isEmailVerified && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                        <IoShieldCheckmarkOutline className="w-3.5 h-3.5 text-emerald-600" />
+                        {t("Verified")}
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -356,10 +424,11 @@ const Checkout = () => {
                       <input
                         type="email"
                         id="email"
-                        placeholder={t("Email address (Optional)")}
+                        placeholder={t("Email address (Required for live tracking updates)")}
                         {...register("email", {
+                          required: t("Email address is required for delivery tracking"),
                           validate: (value) => {
-                            if (!value || !value.trim()) return true;
+                            if (!value || !value.trim()) return t("Email address is required");
                             return (
                               /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim()) ||
                               t("Please enter a valid email address")
@@ -368,15 +437,37 @@ const Checkout = () => {
                         })}
                         className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-1 bg-white text-gray-900 ${errors.email
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                          : isEmailVerified
+                          ? "border-emerald-400 focus:border-emerald-600 focus:ring-emerald-600"
                           : "border-gray-300 focus:border-black focus:ring-black"
                           }`}
                       />
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer" title={t("Email address (Optional)")}>
-                        <IoHelpCircleOutline size={18} />
-                        <span className="sr-only">Help</span>
-                      </div>
+
+                      {!isEmailVerified && watchEmail && /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(watchEmail.trim()) ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsOtpModalOpen(true)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#6D3D2E] hover:bg-[#4A291E] text-white rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                        >
+                          {t("Verify with OTP")}
+                        </button>
+                      ) : (
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 group cursor-pointer" title={t("Email address (Required)")}>
+                          <IoHelpCircleOutline size={18} />
+                          <span className="sr-only">Help</span>
+                        </div>
+                      )}
                     </div>
                     <Error errorMessage={errors.email?.message} />
+
+                    {!isEmailVerified && (
+                      <p className="text-[11px] text-[#6D3D2E] bg-[#6D3D2E]/5 border border-[#6D3D2E]/20 rounded-xl px-3.5 py-2.5 flex items-center gap-2">
+                        <IoShieldCheckmarkOutline className="w-4 h-4 text-[#6D3D2E] shrink-0" />
+                        <span>
+                          {t("Email OTP verification is required so you receive courier tracking updates once your order is dispatched.")}
+                        </span>
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -1178,6 +1269,25 @@ const Checkout = () => {
 
         </div>
       </div>
+
+      {/* Email OTP Verification Modal during Checkout */}
+      <CheckoutEmailOtpModal
+        isOpen={isOtpModalOpen}
+        onClose={() => setIsOtpModalOpen(false)}
+        email={watchEmail || ""}
+        onSuccess={handleOtpSuccess}
+        onChangeEmail={() => {
+          setIsOtpModalOpen(false);
+          setTimeout(() => {
+            const el = document.getElementById("email");
+            if (el) {
+              el.focus();
+              el.select();
+            }
+          }, 100);
+        }}
+        dispatch={dispatch}
+      />
     </Layout>
   );
 };

@@ -58,7 +58,7 @@ const MobileBottomNavigation = () => {
         </Link>
 
         {/* My Orders */}
-        <Link href="/user/my-orders" className={`flex flex-col items-center justify-center w-full ${isActive("/user/my-orders") ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}>
+        <Link href={isLoggedIn ? "/user/my-orders" : "/auth/login?redirectUrl=/user/my-orders"} className={`flex flex-col items-center justify-center w-full ${isActive("/user/my-orders") ? "text-[#9C6A5A]" : "text-[#3B2A25]/70 hover:text-[#3B2A25]"}`}>
           <FiFileText className="w-5 h-5 sm:w-6 sm:h-6 mb-0.5" />
           <span className="text-[9px] sm:text-[10px] font-medium leading-none">Orders</span>
         </Link>

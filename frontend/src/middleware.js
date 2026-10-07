@@ -18,7 +18,11 @@ export async function middleware(request) {
   const isAuthenticated = !!nextAuthToken || !!cookieUserInfo?.token;
 
   if (!isAuthenticated) {
-    return NextResponse.redirect(new URL(`/auth/login`, request.url));
+    const loginUrl = new URL(`/auth/login`, request.url);
+    if (request.nextUrl?.pathname) {
+      loginUrl.searchParams.set("redirectUrl", request.nextUrl.pathname);
+    }
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
