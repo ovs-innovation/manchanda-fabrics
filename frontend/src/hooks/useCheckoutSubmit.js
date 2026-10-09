@@ -12,7 +12,6 @@ import { getUserSession } from "@lib/auth";
 import { UserContext } from "@context/UserContext";
 import { SidebarContext } from "@context/SidebarContext";
 import OrderServices from "@services/OrderServices";
-import useUtilsFunction from "./useUtilsFunction";
 import CouponServices from "@services/CouponServices";
 import { notifyError, notifySuccess } from "@utils/toast";
 import CustomerServices from "@services/CustomerServices";
@@ -21,9 +20,8 @@ import NotificationServices from "@services/NotificationServices";
 import ShiprocketServices from "@services/ShiprocketServices";
 import ProductServices from "@services/ProductServices";
 import useCartDB from "@hooks/useCartDB";
-import { isUsableImageUrl } from "@utils/brandAssets";
 import { normalizeCartItemPricing } from "@utils/invoicePricing";
-import { calculateShipping, isDelhiLocation, hasAddressInfo } from "@utils/shippingRules";
+import { calculateShipping, isDelhiLocation, hasAddressInfo, cleanIndianMobile } from "@utils/shippingRules";
 
 const useCheckoutSubmit = (storeSetting) => {
   const { dispatch } = useContext(UserContext);
@@ -51,16 +49,17 @@ const useCheckoutSubmit = (storeSetting) => {
   const [isCouponAvailable, setIsCouponAvailable] = useState(false);
   const [availableCoupons, setAvailableCoupons] = useState([]);
   const [selectedCouponCode, setSelectedCouponCode] = useState("");
+  const [phonePeModalData, setPhonePeModalData] = useState(null);
 
   const router = useRouter();
   const couponRef = useRef("");
   const isRemovingCouponRef = useRef(false);
+  const hasInitializedEmailRef = useRef(false);
   const [Razorpay] = useRazorpay();
   const { isEmpty, emptyCart, items, cartTotal, removeItem } = useCart();
   const { clearCartWithDB } = useCartDB();
 
   const userInfo = getUserSession();
-  const { showDateFormat, currency, globalSetting } = useUtilsFunction();
 
   const { data, isLoading } = useQuery({
     queryKey: ["shippingAddress", { id: userInfo?.id }],
@@ -86,6 +85,7 @@ const useCheckoutSubmit = (storeSetting) => {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { errors },
   } = useForm();
 
@@ -101,16 +101,23 @@ const useCheckoutSubmit = (storeSetting) => {
 
   useEffect(() => {
     if (Cookies.get("couponInfo")) {
-      const coupon = JSON.parse(Cookies.get("couponInfo"));
-      setCouponInfo(coupon);
-      setDiscountPercentage(coupon.discountType);
-      setMinimumAmount(coupon.minimumAmount);
+      try {
+        const coupon = JSON.parse(Cookies.get("couponInfo"));
+        setCouponInfo(coupon);
+        setDiscountPercentage(coupon.discountType);
+        setMinimumAmount(coupon.minimumAmount);
+      } catch (e) {}
     }
     const displayEmail = getDisplayEmail(userInfo);
-    if (displayEmail) {
-      setValue("email", displayEmail);
+    if (displayEmail && !hasInitializedEmailRef.current) {
+      const currentEmail = getValues("email");
+      if (!currentEmail) {
+        setValue("email", displayEmail);
+      }
+      hasInitializedEmailRef.current = true;
     }
-  }, [setValue, userInfo]);
+  }, [setValue, userInfo, getValues]);
+
 
   //remove coupon if total value less then minimum amount of coupon
   useEffect(() => {
@@ -169,9 +176,8 @@ const useCheckoutSubmit = (storeSetting) => {
       setAvailableCoupons([]);
       setSelectedCouponCode("");
     }
-  }, [total, isEmpty, selectedCouponCode]);
+  }, [cartTotal, isEmpty, selectedCouponCode]);
 
-  //calculate total and discount value
   //calculate total and discount value
   useEffect(() => {
     if (!items || items.length === 0) {
@@ -208,7 +214,18 @@ const useCheckoutSubmit = (storeSetting) => {
     );
     nextTaxSummary.totalTax =
       nextTaxSummary.inclusiveTax + nextTaxSummary.exclusiveTax;
-    setTaxSummary(nextTaxSummary);
+
+    setTaxSummary((prev) => {
+      if (
+        prev &&
+        prev.inclusiveTax === nextTaxSummary.inclusiveTax &&
+        prev.exclusiveTax === nextTaxSummary.exclusiveTax &&
+        prev.totalTax === nextTaxSummary.totalTax
+      ) {
+        return prev;
+      }
+      return nextTaxSummary;
+    });
 
     const totalQuantity = items?.reduce(
       (sum, item) => sum + (Number(item.quantity) || 1),
@@ -235,20 +252,10 @@ const useCheckoutSubmit = (storeSetting) => {
       ? (isFastShipping ? baseShipping * 2 : baseShipping)
       : null;
 
-    if (calculatedShipping !== null) {
-      setShippingCost(calculatedShipping);
-      setIsShippingCalculated(true);
-    } else {
-      setShippingCost(null);
-      setIsShippingCalculated(false);
-    }
+    setShippingCost((prev) => (prev === calculatedShipping ? prev : calculatedShipping));
+    setIsShippingCalculated((prev) => (prev === (calculatedShipping !== null) ? prev : (calculatedShipping !== null)));
 
     const effectiveShipping = calculatedShipping !== null ? calculatedShipping : 0;
-
-    let totalValue = 0;
-    const subTotal = parseFloat(
-      cartTotal + effectiveShipping + nextTaxSummary.exclusiveTax
-    ).toFixed(2);
 
     let calculatedDiscountAmount = 0;
     if (discountPercentage && typeof discountPercentage === 'object' && discountPercentage.type) {
@@ -259,10 +266,15 @@ const useCheckoutSubmit = (storeSetting) => {
     }
 
     const discountAmountTotal = Math.max(0, calculatedDiscountAmount || 0);
-    totalValue = Math.max(0, Number(subTotal) - discountAmountTotal);
+    setDiscountAmount((prev) => (prev === discountAmountTotal ? prev : discountAmountTotal));
 
-    setDiscountAmount(discountAmountTotal);
-    setTotal(totalValue);
+    const subTotal = parseFloat(
+      cartTotal + effectiveShipping + nextTaxSummary.exclusiveTax
+    ).toFixed(2);
+    const totalValue = Math.max(0, Number(subTotal) - discountAmountTotal);
+
+    setTotal((prev) => (prev === totalValue ? prev : totalValue));
+
   }, [
     items,
     cartTotal,
@@ -340,7 +352,7 @@ const useCheckoutSubmit = (storeSetting) => {
 
       const userDetails = {
         name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "A customer",
-        contact: data.contact,
+        contact: cleanIndianMobile(data.contact) || data.contact,
         email: data.email ? String(data.email).trim() : "",
         address: combinedUserAddress || data.address || "",
         address2: data.address2 || "",
@@ -434,7 +446,7 @@ const useCheckoutSubmit = (storeSetting) => {
       const resellerDetails = isReseller
         ? {
             name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || userInfo?.name || "Reseller",
-            contact: data.contact || userInfo?.phone || "",
+            contact: cleanIndianMobile(data.contact) || data.contact || userInfo?.phone || "",
             email: data.email ? String(data.email).trim() : "",
             address: data.address2 ? `${data.address}, ${data.address2}` : (data.address || ""),
             city: data.city || "",
@@ -455,7 +467,7 @@ const useCheckoutSubmit = (storeSetting) => {
       const finalCustomerDetails = isReseller
         ? {
             name: String(data.finalCustomerName || "").trim(),
-            contact: String(data.finalCustomerContact || "").trim(),
+            contact: cleanIndianMobile(data.finalCustomerContact) || String(data.finalCustomerContact || "").trim(),
             email: String(data.finalCustomerEmail || "").trim(),
             address: combinedFinalCustomerAddress || String(data.finalCustomerAddress || "").trim(),
             address2: String(data.finalCustomerAddress2 || "").trim(),
@@ -465,6 +477,7 @@ const useCheckoutSubmit = (storeSetting) => {
             zipCode: String(data.finalCustomerZipCode || "").trim(),
           }
         : {};
+
 
       let orderInfo = {
         orderType: isReseller ? "RESELLER" : "DIRECT",
@@ -702,8 +715,6 @@ const useCheckoutSubmit = (storeSetting) => {
     const orderResponse = await OrderServices.addOrder(orderInfo);
     await handleOrderSuccess(orderResponse, orderInfo);
   };
-
-  const [phonePeModalData, setPhonePeModalData] = useState(null);
 
   //handle phonepe payment
   const handlePaymentWithPhonePe = async (orderInfo) => {
@@ -1019,6 +1030,7 @@ const useCheckoutSubmit = (storeSetting) => {
     handleDefaultShippingAddress,
     taxSummary,
     setValue,
+    getValues,
     handleRemoveCoupon,
     emptyCart,
     phonePeModalData,
@@ -1028,6 +1040,7 @@ const useCheckoutSubmit = (storeSetting) => {
     isFastShipping,
     setIsFastShipping,
   };
+
 };
 
 export default useCheckoutSubmit;

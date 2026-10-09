@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useContext } from "rea
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import useTranslation from "next-translate/useTranslation";
+import I18nContext from "next-translate/context";
 import {
   IoChevronForward,
   IoLockClosedOutline,
@@ -24,14 +24,23 @@ import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
 import CheckoutEmailOtpModal from "@components/checkout/CheckoutEmailOtpModal";
 import { notifySuccess, notifyError } from "@utils/toast";
-import { INDIAN_STATES, isDelhiLocation } from "@utils/shippingRules";
+import { INDIAN_STATES, isDelhiLocation, cleanIndianMobile } from "@utils/shippingRules";
 import { getDisplayEmail } from "@utils/profileAuth";
 
 const Checkout = () => {
-  const { t } = useTranslation("common");
+  const i18nCtx = useContext(I18nContext);
+  const t = (k) => {
+    if (!k) return "";
+    try {
+      if (typeof i18nCtx?.t === "function") {
+        return i18nCtx.t(k, undefined, { ns: "common" });
+      }
+    } catch (e) {}
+    return Array.isArray(k) ? k[0] : k;
+  };
   const router = useRouter();
   const formRef = useRef(null);
-  const { dispatch } = useContext(UserContext);
+  const { state: userState, dispatch } = useContext(UserContext);
 
   const [agreeToTerms, setAgreeToTerms] = useState(true);
   const [saveInfoForNextTime, setSaveInfoForNextTime] = useState(true);
@@ -41,8 +50,12 @@ const Checkout = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [pendingFormData, setPendingFormData] = useState(null);
   const lastVerifiedEmailRef = useRef("");
+  const hasInitializedDefaultsRef = useRef(false);
+  const lastFetchedPinRef = useRef("");
+  const lastFetchedFinalCustomerPinRef = useRef("");
 
-  const userInfo = getUserSession();
+  const userInfo = userState?.userInfo || getUserSession();
+
   const { currency, formatPrice, showingTranslateValue } = useUtilsFunction();
 
   const { data: storeSetting, isLoading: isStoreSettingLoading } = useQuery({
@@ -87,11 +100,13 @@ const Checkout = () => {
     setIsCheckoutSubmit,
     taxSummary,
     setValue,
+    getValues,
     orderType,
     setOrderType,
     isFastShipping,
     setIsFastShipping,
   } = useCheckoutSubmit(storeSetting);
+
 
   const isDigitalPaymentEnabled =
     storeSetting?.digital_payment_status != null
@@ -149,6 +164,25 @@ const Checkout = () => {
     setValue("email", verifiedEmail);
     setIsOtpModalOpen(false);
 
+    // If customer just verified OTP, fill missing contact or name without overwriting user's input
+    if (authResponse?.phone) {
+      const curContact = getValues ? getValues("contact") : "";
+      if (!curContact) {
+        setValue("contact", cleanIndianMobile(authResponse.phone));
+      }
+    }
+    if (authResponse?.name) {
+      const curFirst = getValues ? getValues("firstName") : "";
+      const curLast = getValues ? getValues("lastName") : "";
+      const parts = authResponse.name.trim().split(" ");
+      if (!curFirst && parts[0]) {
+        setValue("firstName", parts[0]);
+      }
+      if (!curLast && parts.length > 1) {
+        setValue("lastName", parts.slice(1).join(" "));
+      }
+    }
+
     if (pendingFormData) {
       const updatedData = { ...pendingFormData, email: verifiedEmail };
       setPendingFormData(null);
@@ -159,9 +193,19 @@ const Checkout = () => {
   const populateAddressFields = useCallback((addr) => {
     if (!addr) return;
     const nameParts = (addr.name || "").trim().split(" ");
-    setValue("firstName", nameParts[0] || "");
-    setValue("lastName", nameParts.slice(1).join(" ") || "");
-    setValue("contact", addr.phone || userInfo?.phone || "");
+    if (nameParts[0]) {
+      setValue("firstName", nameParts[0]);
+    }
+    if (nameParts.length > 1) {
+      setValue("lastName", nameParts.slice(1).join(" "));
+    } else {
+      const sessionParts = (userInfo?.name || "").trim().split(" ");
+      if (sessionParts.length > 1) {
+        setValue("lastName", sessionParts.slice(1).join(" "));
+      }
+    }
+    const rawPhone = addr.phone || addr.contact || userInfo?.phone || "";
+    setValue("contact", cleanIndianMobile(rawPhone));
     setValue("address", addr.address || "");
     setValue("address2", addr.address2 || "");
     setValue("city", addr.city || "");
@@ -170,25 +214,37 @@ const Checkout = () => {
     setValue("zipCode", addr.zipCode || "");
   }, [setValue, userInfo]);
 
-  // Default values initialization
+  // Default values initialization (runs only once per session to avoid overwriting user edits)
   useEffect(() => {
     setValue("country", "India");
     setValue("shippingOption", "Standard");
     setValue("paymentMethod", "PhonePe");
 
+    if (hasInitializedDefaultsRef.current) return;
+
+    const currentValues = getValues ? getValues() : {};
+
     const displayEmail = getDisplayEmail(userInfo);
-    if (displayEmail) {
+    if (displayEmail && !currentValues.email) {
       setValue("email", displayEmail);
     }
-    if (userInfo?.phone) {
-      setValue("contact", userInfo.phone);
+    if (userInfo?.phone && !currentValues.contact) {
+      setValue("contact", cleanIndianMobile(userInfo.phone));
     }
     if (userInfo?.name) {
       const parts = userInfo.name.trim().split(" ");
-      setValue("firstName", parts[0] || "");
-      setValue("lastName", parts.slice(1).join(" ") || "");
+      if (!currentValues.firstName && parts[0]) {
+        setValue("firstName", parts[0]);
+      }
+      if (!currentValues.lastName && parts.length > 1) {
+        setValue("lastName", parts.slice(1).join(" "));
+      }
     }
-  }, [setValue, userInfo]);
+
+    if (userInfo?._id || userInfo?.id || userInfo?.email) {
+      hasInitializedDefaultsRef.current = true;
+    }
+  }, [setValue, userInfo, getValues]);
 
   // Ensure PhonePe is always selected
   useEffect(() => {
@@ -224,7 +280,7 @@ const Checkout = () => {
         if (parsed) {
           if (parsed.firstName) setValue("firstName", parsed.firstName);
           if (parsed.lastName) setValue("lastName", parsed.lastName);
-          if (parsed.contact) setValue("contact", parsed.contact);
+          if (parsed.contact) setValue("contact", cleanIndianMobile(parsed.contact));
           if (parsed.email) setValue("email", parsed.email);
           if (parsed.address) setValue("address", parsed.address);
           if (parsed.address2) setValue("address2", parsed.address2);
@@ -235,7 +291,7 @@ const Checkout = () => {
           if (parsed.orderType) setOrderType(parsed.orderType);
           if (parsed.selectedAddressId) setSelectedAddressId(parsed.selectedAddressId);
           if (parsed.finalCustomerName) setValue("finalCustomerName", parsed.finalCustomerName);
-          if (parsed.finalCustomerContact) setValue("finalCustomerContact", parsed.finalCustomerContact);
+          if (parsed.finalCustomerContact) setValue("finalCustomerContact", cleanIndianMobile(parsed.finalCustomerContact));
           if (parsed.finalCustomerEmail) setValue("finalCustomerEmail", parsed.finalCustomerEmail);
           if (parsed.finalCustomerAddress) setValue("finalCustomerAddress", parsed.finalCustomerAddress);
           if (parsed.finalCustomerAddress2) setValue("finalCustomerAddress2", parsed.finalCustomerAddress2);
@@ -249,21 +305,28 @@ const Checkout = () => {
     }
   }, [setValue, setOrderType]);
 
-  // Continuously save form draft to sessionStorage as user types
+  // Continuously save form draft to sessionStorage as user types (debounced to avoid typing lag)
   useEffect(() => {
+    let saveTimer = null;
     const subscription = watch((values) => {
-      try {
-        sessionStorage.setItem(
-          "checkout_form_draft",
-          JSON.stringify({
-            ...values,
-            orderType,
-            selectedAddressId,
-          })
-        );
-      } catch (e) { }
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try {
+          sessionStorage.setItem(
+            "checkout_form_draft",
+            JSON.stringify({
+              ...values,
+              orderType,
+              selectedAddressId,
+            })
+          );
+        } catch (e) { }
+      }, 400);
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (saveTimer) clearTimeout(saveTimer);
+    };
   }, [watch, orderType, selectedAddressId]);
 
   // Handle saved address auto-fill
@@ -284,6 +347,7 @@ const Checkout = () => {
     if (val === "new") {
       setValue("firstName", "");
       setValue("lastName", "");
+      setValue("contact", "");
       setValue("address", "");
       setValue("address2", "");
       setValue("city", "");
@@ -297,10 +361,16 @@ const Checkout = () => {
     }
   };
 
-  // Auto fetch location by PIN code
+  // Auto fetch location by PIN code (only when 6-digit pin is changed)
   useEffect(() => {
     const fetchLocationByPin = async () => {
-      if (watchZipCode && watchZipCode.length === 6 && /^\d+$/.test(watchZipCode)) {
+      if (
+        watchZipCode &&
+        watchZipCode.length === 6 &&
+        /^\d+$/.test(watchZipCode) &&
+        lastFetchedPinRef.current !== watchZipCode
+      ) {
+        lastFetchedPinRef.current = watchZipCode;
         try {
           const response = await fetch(`https://api.postalpincode.in/pincode/${watchZipCode}`);
           const data = await response.json();
@@ -329,7 +399,13 @@ const Checkout = () => {
   useEffect(() => {
     if (orderType !== "RESELLER") return;
     const fetchFinalCustomerLocation = async () => {
-      if (watchFinalCustomerZipCode && watchFinalCustomerZipCode.length === 6 && /^\d+$/.test(watchFinalCustomerZipCode)) {
+      if (
+        watchFinalCustomerZipCode &&
+        watchFinalCustomerZipCode.length === 6 &&
+        /^\d+$/.test(watchFinalCustomerZipCode) &&
+        lastFetchedFinalCustomerPinRef.current !== watchFinalCustomerZipCode
+      ) {
+        lastFetchedFinalCustomerPinRef.current = watchFinalCustomerZipCode;
         try {
           const response = await fetch(`https://api.postalpincode.in/pincode/${watchFinalCustomerZipCode}`);
           const data = await response.json();
@@ -353,6 +429,7 @@ const Checkout = () => {
 
     return () => clearTimeout(timer);
   }, [watchFinalCustomerZipCode, orderType, setValue]);
+
 
   // Calculate MRP savings
   const calculateTotals = () => {
@@ -726,19 +803,28 @@ const Checkout = () => {
 
                     {/* Phone */}
                     <div>
-                      <div className="relative">
+                      <div className="relative flex items-center">
+                        <span className="absolute left-3.5 text-sm font-semibold text-gray-400 select-none pointer-events-none">
+                          +91
+                        </span>
                         <input
                           type="tel"
                           maxLength={10}
-                          placeholder={t("Phone (10 digits) *")}
+                          placeholder={t("10-digit mobile number *")}
                           {...register("contact", {
                             required: t("Phone number is required"),
                             pattern: {
                               value: /^[0-9]{10}$/,
                               message: t("Enter a valid 10-digit mobile number")
+                            },
+                            onChange: (e) => {
+                              const cleaned = cleanIndianMobile(e.target.value);
+                              if (e.target.value !== cleaned) {
+                                setValue("contact", cleaned, { shouldValidate: true });
+                              }
                             }
                           })}
-                          className={`w-full h-12 px-3.5 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.contact
+                          className={`w-full h-12 pl-12 pr-10 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.contact
                             ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:border-black focus:ring-black"
                             }`}
@@ -749,6 +835,7 @@ const Checkout = () => {
                       </div>
                       <Error errorMessage={errors.contact?.message} />
                     </div>
+
 
                     {/* Save this information checkbox */}
                     <label className="flex items-center gap-2.5 text-xs sm:text-sm text-gray-600 cursor-pointer pt-1 select-none">
@@ -800,24 +887,36 @@ const Checkout = () => {
                         </div>
 
                         <div>
-                          <input
-                            type="tel"
-                            maxLength={10}
-                            placeholder={t("Customer Phone (10 digits) *")}
-                            {...register("finalCustomerContact", {
-                              required: orderType === "RESELLER" ? t("Customer phone is required") : false,
-                              pattern: {
-                                value: /^[0-9]{10}$/,
-                                message: t("Enter a valid 10-digit mobile number")
-                              }
-                            })}
-                            className={`w-full h-12 px-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerContact
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-gray-300 focus:border-black focus:ring-black"
-                              }`}
-                          />
+                          <div className="relative flex items-center">
+                            <span className="absolute left-3.5 text-sm font-semibold text-gray-400 select-none pointer-events-none">
+                              +91
+                            </span>
+                            <input
+                              type="tel"
+                              maxLength={10}
+                              placeholder={t("Customer Phone (10 digits) *")}
+                              {...register("finalCustomerContact", {
+                                required: orderType === "RESELLER" ? t("Customer phone is required") : false,
+                                pattern: {
+                                  value: /^[0-9]{10}$/,
+                                  message: t("Enter a valid 10-digit mobile number")
+                                },
+                                onChange: (e) => {
+                                  const cleaned = cleanIndianMobile(e.target.value);
+                                  if (e.target.value !== cleaned) {
+                                    setValue("finalCustomerContact", cleaned, { shouldValidate: true });
+                                  }
+                                }
+                              })}
+                              className={`w-full h-12 pl-12 pr-3.5 text-sm rounded-lg border bg-white focus:outline-none focus:ring-1 transition-colors ${errors.finalCustomerContact
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-gray-300 focus:border-black focus:ring-black"
+                                }`}
+                            />
+                          </div>
                           <Error errorMessage={errors.finalCustomerContact?.message} />
                         </div>
+
                       </div>
 
                       {/* Customer Email (Optional) */}

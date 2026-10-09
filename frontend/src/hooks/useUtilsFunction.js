@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
-import useTranslation from "next-translate/useTranslation";
+import I18nContext from "next-translate/context";
 import useGetSetting from "./useGetSetting";
 import { translateProductTitle } from "@utils/fashionTranslations";
 import { getAiTranslation, subscribeAiTranslations } from "@utils/aiTranslator";
@@ -16,7 +16,16 @@ export const formatPrice = (value = 0) => {
 
 const useUtilsFunction = () => {
   const router = useRouter();
-  const { t } = useTranslation("common");
+  const i18nCtx = useContext(I18nContext);
+  const t = (k) => {
+    if (!k) return "";
+    try {
+      if (typeof i18nCtx?.t === "function") {
+        return i18nCtx.t(k, undefined, { ns: "common" });
+      }
+    } catch (e) {}
+    return Array.isArray(k) ? k[0] : k;
+  };
   const lang = router?.locale || "en";
   const [, setAiTick] = useState(0);
   const [isMounted, setIsMounted] = useState(false);

@@ -152,3 +152,20 @@ export const calculateShipping = (totalQuantity = 1, destination = null, require
     return 600 + (qty - 10) * 50;
   }
 };
+
+/**
+ * Normalizes an Indian mobile number by stripping +91, 91 prefix, leading 0, and non-digits.
+ * Always returns at most 10 digits.
+ */
+export const cleanIndianMobile = (phone) => {
+  if (!phone) return "";
+  let digits = String(phone).replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  } else if (digits.length > 10) {
+    digits = digits.slice(-10);
+  }
+  return digits.slice(0, 10);
+};

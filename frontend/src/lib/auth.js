@@ -1,6 +1,9 @@
 import { useSession } from "next-auth/react";
 import Cookies from "js-cookie";
 
+let cachedCookieStr = null;
+let cachedUserObj = null;
+
 const getUserSession = () => {
   const { data } = useSession();
 
@@ -11,11 +14,21 @@ const getUserSession = () => {
   if (typeof window !== "undefined") {
     const cookieUserInfo = Cookies.get("userInfo");
     if (cookieUserInfo) {
+      if (cookieUserInfo === cachedCookieStr && cachedUserObj) {
+        return cachedUserObj;
+      }
       try {
-        return JSON.parse(cookieUserInfo);
+        cachedUserObj = JSON.parse(cookieUserInfo);
+        cachedCookieStr = cookieUserInfo;
+        return cachedUserObj;
       } catch (e) {
+        cachedCookieStr = null;
+        cachedUserObj = null;
         return null;
       }
+    } else {
+      cachedCookieStr = null;
+      cachedUserObj = null;
     }
   }
 
@@ -23,3 +36,4 @@ const getUserSession = () => {
 };
 
 export { getUserSession };
+

@@ -46,3 +46,16 @@ export const getPostAuthPath = (response, query = {}) => {
   if (!isProfileComplete(response)) return "/";
   return "/";
 };
+
+export const cleanIndianMobile = (phone) => {
+  if (!phone) return "";
+  let digits = String(phone).replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  } else if (digits.length > 10) {
+    digits = digits.slice(-10);
+  }
+  return digits.slice(0, 10);
+};
