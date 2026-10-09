@@ -48,5 +48,5 @@ const nextConfig = {
   },
 };
 
-// Reload webpack and i18n config (keySeparator: false)
+// Reload webpack and i18n config (clean-reload)
 module.exports = nextTranslate(nextConfig);

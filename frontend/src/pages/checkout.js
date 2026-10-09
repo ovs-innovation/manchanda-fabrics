@@ -19,7 +19,7 @@ import { UserContext } from "@context/UserContext";
 import Layout from "@layout/Layout";
 import Error from "@components/form/Error";
 import useCheckoutSubmit from "@hooks/useCheckoutSubmit";
-import useUtilsFunction from "@hooks/useUtilsFunction";
+import { formatPrice } from "@hooks/useUtilsFunction";
 import SettingServices from "@services/SettingServices";
 import CustomerServices from "@services/CustomerServices";
 import CheckoutEmailOtpModal from "@components/checkout/CheckoutEmailOtpModal";
@@ -56,7 +56,13 @@ const Checkout = () => {
 
   const userInfo = userState?.userInfo || getUserSession();
 
-  const { currency, formatPrice, showingTranslateValue } = useUtilsFunction();
+  const currency = "₹";
+  const showingTranslateValue = (data) => {
+    if (!data) return "";
+    if (typeof data === "string") return data;
+    const lang = router?.locale || "en";
+    return data[lang] || data.en || String(data);
+  };
 
   const { data: storeSetting, isLoading: isStoreSettingLoading } = useQuery({
     queryKey: ["storeSetting"],
