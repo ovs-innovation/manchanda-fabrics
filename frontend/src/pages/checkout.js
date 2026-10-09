@@ -265,7 +265,7 @@ const Checkout = () => {
     } else if (router.query.error === "server_error" || router.query.error === "invalid_transaction") {
       notifyError(t("Payment processing error. Please try again."));
     }
-  }, [router.isReady, router.query.error, t]);
+  }, [router.isReady, router.query.error]);
 
   // Handle pageshow event to reset submitting state when returning via Back button
   useEffect(() => {

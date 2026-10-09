@@ -750,5 +750,20 @@
   "common:addToCart": "कार्ट में जोड़ें",
   "common:category": "श्रेणी",
   "common:moreInfo": "अधिक जानकारी",
-  "common:search-placeholder": "उत्पादों की खोज करें..."
+  "common:search-placeholder": "उत्पादों की खोज करें...",
+  " ": " ",
+  "Payment was not completed. Your items and details are saved — please try again.": "भुगतान पूरा नहीं हुआ। आपके आइटम और विवरण सहेजे गए हैं — कृपया पुनः प्रयास करें।",
+  "Payment processing error. Please try again.": "भुगतान प्रसंस्करण त्रुटि। कृपया पुनः प्रयास करें।",
+  "Contact & Delivery Updates": "संपर्क एवं डिलीवरी अपडेट",
+  "Your order receipt and live courier tracking updates will be delivered to this email.": "आपकी ऑर्डर रसीद और लाइव कूरियर ट्रैकिंग अपडेट इस ईमेल पर भेजे जाएंगे।",
+  "Verified": "Verified",
+  "Email address (Required for live tracking updates)": "ईमेल पता (लाइव ट्रैकिंग अपडेट के लिए आवश्यक)",
+  "Email address is required for delivery tracking": "डिलीवरी ट्रैकिंग के लिए ईमेल पता आवश्यक है",
+  "Verify with OTP": "ओटीपी से सत्यापित करें",
+  "Email address (Required)": "ईमेल पता (आवश्यक)",
+  "Email OTP verification is required so you receive courier tracking updates once your order is dispatched.": "ऑर्डर डिस्पैच होने पर कूरियर ट्रैकिंग अपडेट प्राप्त करने के लिए ईमेल ओटीपी सत्यापन आवश्यक है।",
+  "10-digit mobile number *": "10-digit mobile number *",
+  "Fast Shipping": "Fast Shipping",
+  "Priority dispatch — 2x standard cost": "Priority dispatch — 2x standard cost",
+  "Fast Delivery ⚡": "Fast Delivery ⚡"
 }
