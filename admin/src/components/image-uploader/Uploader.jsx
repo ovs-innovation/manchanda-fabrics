@@ -14,6 +14,7 @@ import Container from "@/components/image-uploader/Container";
 import { FiCheck } from "react-icons/fi";
 import requests from "@/services/httpService";
 import { resolveCloudinaryUrl } from "@/utils/cloudinaryUrl";
+import { uploadMedia } from "@/utils/mediaUpload";
 
 const getCloudinaryErrorMessage = (err) => {
   const apiMessage = err?.response?.data?.error?.message;
@@ -174,14 +175,6 @@ const Uploader = ({
         const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
         const baseUrl = import.meta.env.VITE_APP_CLOUDINARY_URL;
 
-        if (!uploadPreset || !baseUrl) {
-          showAlert(
-            "Cloudinary is not configured. Set VITE_APP_CLOUDINARY_UPLOAD_PRESET and VITE_APP_CLOUDINARY_URL in admin/.env",
-            "error"
-          );
-          return;
-        }
-
         setLoading(true);
         setError("Uploading....");
 
@@ -200,20 +193,6 @@ const Uploader = ({
           ? (uniquePublicId ? `${cleanPublicId}_${Date.now()}` : cleanPublicId)
           : `image_${Date.now()}`;
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", uploadPreset);
-        formData.append("folder", safeFolder);
-        if (public_id) {
-          formData.append("public_id", public_id);
-        }
-        console.log(formData.entries());
-
-        const uploadUrl =
-          file?.type === "application/pdf" && typeof baseUrl === "string"
-            ? baseUrl.replace("/image/upload", "/auto/upload")
-            : baseUrl;
-
         const finishUpload = (payload) => {
           showAlert("Image Uploaded successfully!", "success");
           setLoading(false);
@@ -229,26 +208,57 @@ const Uploader = ({
           }
         };
 
-        axios({
-          url: uploadUrl,
-          method: "POST",
-          data: formData,
-        })
-          .then((res) => finishUpload(res.data))
-          .catch(async (err) => {
-            console.warn("Direct upload failed, attempting backend fallback:", err?.response?.data || err?.message);
-            try {
-              const payload = await uploadViaBackend(file, safeFolder, public_id);
-              if (payload && (payload.secure_url || payload.url)) {
-                return finishUpload(payload);
-              }
-            } catch (backendErr) {
-              console.error("Backend upload fallback error:", backendErr);
-            }
-            showAlert(getCloudinaryErrorMessage(err), "error");
+        const legacyUpload = () => {
+          if (!uploadPreset || !baseUrl) {
+            showAlert(
+              "Cloudinary is not configured. Set VITE_APP_CLOUDINARY_UPLOAD_PRESET and VITE_APP_CLOUDINARY_URL in admin/.env",
+              "error"
+            );
             setLoading(false);
             setFiles([]);
-          });
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", uploadPreset);
+          formData.append("folder", safeFolder);
+          if (public_id) {
+            formData.append("public_id", public_id);
+          }
+
+          const uploadUrl =
+            file?.type === "application/pdf" && typeof baseUrl === "string"
+              ? baseUrl.replace("/image/upload", "/auto/upload")
+              : baseUrl;
+
+          return axios({
+            url: uploadUrl,
+            method: "POST",
+            data: formData,
+          })
+            .then((res) => finishUpload(res.data))
+            .catch(async (err) => {
+              console.warn("Direct upload failed, attempting backend fallback:", err?.response?.data || err?.message);
+              try {
+                const payload = await uploadViaBackend(file, safeFolder, public_id);
+                if (payload && (payload.secure_url || payload.url)) {
+                  return finishUpload(payload);
+                }
+              } catch (backendErr) {
+                console.error("Backend upload fallback error:", backendErr);
+              }
+              showAlert(getCloudinaryErrorMessage(err), "error");
+              setLoading(false);
+              setFiles([]);
+            });
+        };
+
+        uploadMedia(file, {
+          folder: safeFolder,
+          kind: file?.type === "application/pdf" ? "pdf" : "image",
+          maxDimension: useOriginalSize ? 2400 : 1600,
+        }).then((signed) => (signed?.secure_url ? finishUpload(signed) : legacyUpload()));
       });
     }
   }, [files]);

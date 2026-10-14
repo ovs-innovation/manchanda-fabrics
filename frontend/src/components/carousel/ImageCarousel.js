@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 
 const ImageCarousel = ({ images, handleChangeImage }) => {
   // Filter out any null/undefined/invalid images
@@ -67,7 +68,7 @@ const ImageCarousel = ({ images, handleChangeImage }) => {
               >
                 <Image
                   className="border rounded object-cover"
-                  src={img}
+                  src={cloudinaryImageAt(img, 200, 200)}
                   alt={`product image ${i + 1}`}
                   width={100}
                   height={100}

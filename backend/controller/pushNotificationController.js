@@ -1,6 +1,11 @@
 const PushNotification = require("../models/PushNotification");
 const Setting = require("../models/Setting");
 const { dispatchCampaign } = require("../lib/notification-dispatch");
+const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
 
 const getShopName = async () => {
   try {
@@ -139,6 +144,7 @@ const updatePushNotification = async (req, res) => {
     if (!notification) {
       return res.status(404).send({ message: "Notification not found" });
     }
+    const mediaBefore = snapshotMedia(notification.image);
 
     notification.title = req.body.title || notification.title;
     notification.description = req.body.description || notification.description;
@@ -150,6 +156,7 @@ const updatePushNotification = async (req, res) => {
       req.body.notificationType || notification.notificationType;
 
     const updatedNotification = await notification.save();
+    releaseMedia(mediaBefore, updatedNotification.image, "pushNotification.update");
     res.status(200).send({
       message: "Notification updated successfully!",
       data: updatedNotification,
@@ -179,7 +186,9 @@ const updateStatus = async (req, res) => {
 
 const deletePushNotification = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(PushNotification, { _id: req.params.id });
     await PushNotification.deleteOne({ _id: req.params.id });
+    releaseMedia(mediaBefore, null, "pushNotification.delete");
     res.status(200).send({
       message: "Notification deleted successfully!",
     });
@@ -192,7 +201,9 @@ const deletePushNotification = async (req, res) => {
 
 const deleteManyPushNotifications = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(PushNotification, { _id: { $in: req.body.ids } });
     await PushNotification.deleteMany({ _id: { $in: req.body.ids } });
+    releaseMedia(mediaBefore, null, "pushNotification.deleteMany");
     res.status(200).send({
       message: "Selected notifications deleted successfully!",
     });

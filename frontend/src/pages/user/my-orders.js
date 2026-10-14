@@ -19,6 +19,7 @@ import ReviewModal from "@components/reviews/ReviewModal";
 import { SidebarContext } from "@context/SidebarContext";
 import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 import useCartDB from "@hooks/useCartDB";
 
 /* ─── Status badge ─── */
@@ -75,8 +76,9 @@ const ProductStrip = ({ cart = [] }) => {
           >
             {img ? (
               <img
-                src={img}
+                src={cloudinaryImageAt(img, 100, 100)}
                 alt={item.title || "product"}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             ) : (

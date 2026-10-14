@@ -31,6 +31,10 @@ const pushNotificationRoutes = require("../routes/pushNotificationRoutes");
 const customerNotificationRoutes = require("../routes/customerNotificationRoutes");
 const webhookRoutes = require("../routes/webhookRoutes");
 const reelRoutes = require("../routes/reelRoutes");
+const mediaRoutes = require("../routes/mediaRoutes");
+const { startMediaWorker } = require("../lib/media/worker");
+const responseCache = require("../lib/responseCache");
+const mongoose = require("mongoose");
 
 const { isAuth, isAdmin } = require("../config/auth");
 // const {
@@ -109,6 +113,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false,
 }));
+app.use(responseCache.middleware);
 
 //root route
 app.get("/", (req, res) => {
@@ -146,6 +151,7 @@ app.use("/api/push-notification", pushNotificationRoutes);
 app.use("/api/customer-notifications", customerNotificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/reels", reelRoutes);
+app.use("/api/media", mediaRoutes);
 //if you not use admin dashboard then these two route will not needed.
 app.use("/api/admin", adminRoutes);
 app.use("/api/orders", orderRoutes);
@@ -182,6 +188,19 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
+  startMediaWorker();
+  responseCache.setPort(PORT);
+  const warmStorefront = () =>
+    responseCache.warm([
+      "/api/setting/store/customization/all",
+      "/api/setting/global/all",
+      "/api/setting/store-setting/all",
+      "/api/category/show",
+      "/api/products/store",
+      "/api/products/show",
+    ]);
+  if (mongoose.connection.readyState === 1) warmStorefront();
+  else mongoose.connection.once("open", warmStorefront);
 });
 
 server.on("error", (err) => {

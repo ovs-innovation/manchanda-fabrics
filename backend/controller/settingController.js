@@ -1,5 +1,6 @@
 //models
 const Setting = require("../models/Setting");
+const { snapshotMediaFromQuery, releaseMedia } = require("../lib/media/cleanupService");
 
 //global setting controller
 const addGlobalSetting = async (req, res) => {
@@ -40,11 +41,13 @@ const updateGlobalSetting = async (req, res) => {
       return acc;
     }, {});
 
+    const mediaBefore = await snapshotMediaFromQuery(Setting, { name: "globalSetting" });
     const globalSetting = await Setting.findOneAndUpdate(
       { name: "globalSetting" },
       { $set: setObject },
       { new: true, upsert: true }
     );
+    releaseMedia(mediaBefore, globalSetting, "setting.global");
 
     res.send({
       data: globalSetting,
@@ -96,11 +99,13 @@ const updateStoreSetting = async (req, res) => {
       return acc;
     }, {});
     // Update the online store setting document
+    const mediaBefore = await snapshotMediaFromQuery(Setting, { name: "storeSetting" });
     const storeSetting = await Setting.findOneAndUpdate(
       { name: "storeSetting" },
       { $set: updateFields },
       { new: true, upsert: true } // upsert to create the document if it doesn't exist
     );
+    releaseMedia(mediaBefore, storeSetting, "setting.store");
 
     res.send({
       data: storeSetting,
@@ -240,11 +245,13 @@ const updateStoreCustomizationSetting = async (req, res) => {
       return acc;
     }, {});
     // Update the online store setting document
+    const mediaBefore = await snapshotMediaFromQuery(Setting, { name: "storeCustomizationSetting" });
     const storeCustomizationSetting = await Setting.findOneAndUpdate(
       { name: "storeCustomizationSetting" },
       { $set: updateFields },
       { new: true, upsert: true } // upsert to create the document if it doesn't exist
     );
+    releaseMedia(mediaBefore, storeCustomizationSetting, "setting.storeCustomization");
 
     res.send({
       data: storeCustomizationSetting,

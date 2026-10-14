@@ -3,6 +3,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import useTranslation from "next-translate/useTranslation";
 import { mergeHomepage } from "@utils/homepageDefaults";
+import { isRetiredMediaUrl } from "@utils/brandAssets";
+
+const FALLBACK_HERO_VIDEO = "/main1.mp4";
+const usableVideo = (src) => (src && !isRetiredMediaUrl(src) ? src : null);
 
 const HeroBanner = ({ homepage: homepageProp }) => {
   const homepage = mergeHomepage(homepageProp);
@@ -21,26 +25,27 @@ const HeroBanner = ({ homepage: homepageProp }) => {
       : rawWelcomeStr;
   const brandText = homepage.heroBrandName || t("hero_brand_text");
 
-  const desktopVideo = homepage.heroVideo || "/main1.mp4";
-  const mobileVideo = homepage.heroMobileVideo || null;
+  const desktopVideo = usableVideo(homepage.heroVideo) || FALLBACK_HERO_VIDEO;
+  const mobileVideo = usableVideo(homepage.heroMobileVideo);
+  const sharedVideo = !mobileVideo || mobileVideo === desktopVideo;
 
   const [desktopSrc, setDesktopSrc] = React.useState(desktopVideo);
   const [mobileSrc, setMobileSrc] = React.useState(mobileVideo || desktopVideo);
 
   React.useEffect(() => {
-    setDesktopSrc(desktopVideo || "/main1.mp4");
-    setMobileSrc(mobileVideo || desktopVideo || "/main1.mp4");
+    setDesktopSrc(desktopVideo);
+    setMobileSrc(mobileVideo || desktopVideo);
   }, [desktopVideo, mobileVideo]);
 
   const handleDesktopError = () => {
-    if (desktopSrc !== "/main1.mp4") {
-      setDesktopSrc("/main1.mp4");
+    if (desktopSrc !== FALLBACK_HERO_VIDEO) {
+      setDesktopSrc(FALLBACK_HERO_VIDEO);
     }
   };
 
   const handleMobileError = () => {
-    if (mobileSrc !== "/main1.mp4") {
-      setMobileSrc("/main1.mp4");
+    if (mobileSrc !== FALLBACK_HERO_VIDEO) {
+      setMobileSrc(FALLBACK_HERO_VIDEO);
     }
   };
 
@@ -94,24 +99,26 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         onLoadedMetadata={handleDesktopMetadata}
         onTimeUpdate={handleDesktopTimeUpdate}
         onError={handleDesktopError}
-        className="hidden md:block absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
+        className={`${sharedVideo ? "block" : "hidden md:block"} absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none`}
         src={desktopSrc}
       />
 
       {/* ── 2. MOBILE HERO VIDEO (Full zoom object-cover — no black empty space) ── */}
-      <video
-        ref={mobileVideoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        onLoadedMetadata={handleMobileMetadata}
-        onTimeUpdate={handleMobileTimeUpdate}
-        onError={handleMobileError}
-        className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
-        src={mobileSrc}
-      />
+      {!sharedVideo && (
+        <video
+          ref={mobileVideoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onLoadedMetadata={handleMobileMetadata}
+          onTimeUpdate={handleMobileTimeUpdate}
+          onError={handleMobileError}
+          className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
+          src={mobileSrc}
+        />
+      )}
 
       {/* ── 3. DARK OVERLAY FOR READABILITY ── */}
       <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/70 via-black/55 to-black/75 pointer-events-none" />

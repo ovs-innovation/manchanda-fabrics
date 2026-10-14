@@ -1,4 +1,5 @@
 const Reel = require("../models/Reel");
+const { snapshotMedia, releaseMedia } = require("../lib/media/cleanupService");
 
 const createReel = async (req, res) => {
   try {
@@ -42,7 +43,7 @@ const resolveReelThumbnail = (thumbnail, video) => {
 
 const resolveReelVideo = (video) => {
   if (!video || typeof video !== "string") return video;
-  if (video.includes("detqbiabu")) {
+  if (/res\.cloudinary\.com\/(tu23xpla|detqbiabu)\//i.test(video)) {
     const match = video.match(/\/R(\d+)[_\.]/i);
     if (match) return `/R${match[1]}.mp4`;
     return "/R1.mp4";
@@ -92,6 +93,7 @@ const updateReel = async (req, res) => {
     if (!reel) {
       return res.status(404).send({ message: "Reel not found" });
     }
+    const mediaBefore = snapshotMedia({ video: reel.video, thumbnail: reel.thumbnail });
 
     reel.video = video !== undefined ? video : reel.video;
     reel.product = product !== undefined ? (product || undefined) : reel.product;
@@ -100,6 +102,7 @@ const updateReel = async (req, res) => {
     reel.status = status !== undefined ? status : reel.status;
 
     await reel.save();
+    releaseMedia(mediaBefore, { video: reel.video, thumbnail: reel.thumbnail }, "reel.update");
     
     // Fetch populated reel to return
     const updatedReel = await Reel.findById(reel._id)
@@ -117,6 +120,7 @@ const deleteReel = async (req, res) => {
     if (!reel) {
       return res.status(404).send({ message: "Reel not found" });
     }
+    releaseMedia(snapshotMedia({ video: reel.video, thumbnail: reel.thumbnail }), null, "reel.delete");
     res.send({ message: "Reel deleted successfully" });
   } catch (err) {
     res.status(500).send({ message: err.message });

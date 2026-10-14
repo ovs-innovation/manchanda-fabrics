@@ -15,6 +15,11 @@ const {
   ensureHindiHighlights,
   translateWithNemotron,
 } = require("../utils/fashionTranslator");
+const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
 
 const normalizeProductStatus = (status) => {
   const map = {
@@ -498,7 +503,6 @@ const addProduct = async (req, res) => {
 const addAllProducts = async (req, res) => {
   try {
     // console.log('product data',req.body)
-    await Product.deleteMany();
     const sanitizedDocs = req.body.map((doc) => ({
       ...doc,
       title: ensureHindiTitle(doc.title),
@@ -506,7 +510,18 @@ const addAllProducts = async (req, res) => {
       highlights: ensureHindiHighlights(doc.highlights),
       ...normalizeTaxPayload(doc),
     }));
-    await Product.insertMany(sanitizedDocs);
+    await Promise.all(sanitizedDocs.map((doc) => new Product(doc).validate()));
+
+    const backup = await Product.find({}).lean();
+    await Product.deleteMany();
+    try {
+      await Product.insertMany(sanitizedDocs);
+    } catch (insertErr) {
+      await Product.deleteMany({});
+      if (backup.length) await Product.collection.insertMany(backup, { ordered: false });
+      throw insertErr;
+    }
+    releaseMedia(snapshotMedia(backup), sanitizedDocs, "product.import");
     res.status(200).send({
       message: "Product Added successfully!",
     });
@@ -675,6 +690,7 @@ const updateProduct = async (req, res) => {
     // console.log("product", product);
 
     if (product) {
+      const mediaBefore = snapshotMedia(product);
       const incomingTitle = req.body.title ? ensureHindiTitle(req.body.title) : {};
       product.title = { ...product.title, ...incomingTitle };
       if (product.title && (!product.title.hi || !String(product.title.hi).trim() || /[a-zA-Z]/.test(product.title.hi)) && product.title.en) {
@@ -801,6 +817,7 @@ const updateProduct = async (req, res) => {
       }
 
       await product.save();
+      releaseMedia(mediaBefore, product, "product.update");
       res.send({ data: product, message: "Product updated successfully!" });
     } else {
       res.status(404).send({
@@ -831,6 +848,7 @@ const updateManyProducts = async (req, res) => {
 
     // console.log("updated data", updatedData);
 
+    const mediaBefore = await snapshotMediaFromQuery(Product, { _id: { $in: req.body.ids } });
     await Product.updateMany(
       { _id: { $in: req.body.ids } },
       {
@@ -840,6 +858,10 @@ const updateManyProducts = async (req, res) => {
         multi: true,
       }
     );
+    if (mediaBefore.length) {
+      const mediaAfter = await snapshotMediaFromQuery(Product, { _id: { $in: req.body.ids } });
+      releaseMedia(mediaBefore, mediaAfter, "product.updateMany");
+    }
     res.send({
       message: "Products update successfully!",
     });
@@ -873,18 +895,19 @@ const updateStatus = (req, res) => {
   );
 };
 
-const deleteProduct = (req, res) => {
-  Product.deleteOne({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: err.message,
-      });
-    } else {
-      res.status(200).send({
-        message: "Product Deleted Successfully!",
-      });
-    }
-  });
+const deleteProduct = async (req, res) => {
+  try {
+    const mediaBefore = await snapshotMediaFromQuery(Product, { _id: req.params.id });
+    await Product.deleteOne({ _id: req.params.id });
+    releaseMedia(mediaBefore, null, "product.delete");
+    res.status(200).send({
+      message: "Product Deleted Successfully!",
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
 };
 
 const PRODUCT_POPULATE = [
@@ -911,6 +934,92 @@ const fetchProductsByPlacementTag = async (flag, sort, limit = 20) =>
     .sort(sort)
     .limit(limit)
     .lean();
+
+const DEFAULT_LIST_LIMIT = 500;
+const HOMEPAGE_SECTION_LIMIT = 20;
+
+const buildManchandaHomepagePayload = (homepageSettings) => ({
+  heroVideo: homepageSettings.heroVideo || "/main.mp4",
+  heroWelcome:
+    !homepageSettings.heroWelcome || homepageSettings.heroWelcome === "Welcome"
+      ? "Welcome to"
+      : homepageSettings.heroWelcome,
+  heroBrandName: homepageSettings.heroBrandName || "Manchanda Fabrics",
+  heroTagline: homepageSettings.heroTagline || "",
+  heroCtaText: homepageSettings.heroCtaText || "Explore Latest Collections",
+  heroCtaLink: homepageSettings.heroCtaLink || "/search",
+  newArrivalProductIds: homepageSettings.newArrivalProductIds || [],
+  trendingProductIds: homepageSettings.trendingProductIds || [],
+  founder: homepageSettings.founder || null,
+  stores: homepageSettings.stores || [],
+  whatsappNumbers: homepageSettings.whatsappNumbers || [],
+  videoShopping: homepageSettings.videoShopping || null,
+  marqueePhrases: homepageSettings.marqueePhrases || [],
+});
+
+const hasPlacementTag = (product, flag) =>
+  Array.isArray(product.tag) ? product.tag.includes(flag) : product.tag === flag;
+
+const bySalesDesc = (a, b) =>
+  (Number(b.sales) || 0) - (Number(a.sales) || 0) ||
+  (String(a._id) < String(b._id) ? -1 : String(a._id) > String(b._id) ? 1 : 0);
+
+// Mirrors the discounted-products MongoDB query: combination products compare
+// variant discounts as strings against "0.00"; simple products use $toDouble.
+const isDiscountedProduct = (product) => {
+  if (product.isCombination === true) {
+    return (
+      Array.isArray(product.variants) &&
+      product.variants.some((v) => v && typeof v.discount === "string" && v.discount > "0.00")
+    );
+  }
+  if (product.isCombination === false) {
+    const discount = product.prices?.discount;
+    if (discount === null || discount === undefined || discount === "") return false;
+    const value = Number(discount);
+    return Number.isFinite(value) && value > 0;
+  }
+  return false;
+};
+
+// `catalogue` must hold every showing product sorted by createdAt desc.
+const deriveHomepageSections = (catalogue, homepageSettings) => {
+  const byId = new Map(catalogue.map((p) => [String(p._id), p]));
+  const pickByIds = (ids) =>
+    Array.isArray(ids)
+      ? ids
+          .filter((id) => mongoose.Types.ObjectId.isValid(id))
+          .map((id) => byId.get(String(id)))
+          .filter(Boolean)
+      : [];
+
+  let popularProducts = pickByIds(homepageSettings.newArrivalProductIds);
+  if (!popularProducts.length) {
+    popularProducts = catalogue
+      .filter((p) => hasPlacementTag(p, "new-arrival"))
+      .slice(0, HOMEPAGE_SECTION_LIMIT);
+  }
+  if (!popularProducts.length) {
+    popularProducts = catalogue.slice(0, HOMEPAGE_SECTION_LIMIT);
+  }
+
+  let bestSellingProducts = pickByIds(homepageSettings.trendingProductIds);
+  if (!bestSellingProducts.length) {
+    bestSellingProducts = catalogue
+      .filter((p) => hasPlacementTag(p, "trending"))
+      .sort(bySalesDesc)
+      .slice(0, HOMEPAGE_SECTION_LIMIT);
+  }
+  if (!bestSellingProducts.length) {
+    bestSellingProducts = [...catalogue].sort(bySalesDesc).slice(0, HOMEPAGE_SECTION_LIMIT);
+  }
+
+  const discountedProducts = catalogue
+    .filter(isDiscountedProduct)
+    .slice(0, HOMEPAGE_SECTION_LIMIT);
+
+  return { popularProducts, bestSellingProducts, discountedProducts };
+};
 
 const getShowingStoreProducts = async (req, res) => {
   // console.log("req.body", req);
@@ -1093,18 +1202,32 @@ const getShowingStoreProducts = async (req, res) => {
       }
     } else {
       // Fetch all products for the default view (e.g., /search page without filters)
-      products = await Product.find({ status: "show" })
-        .populate({ path: "category", select: "name _id slug" })
-        .populate({ path: "categories", select: "name _id slug" })
-        .populate({ path: "brand", select: "_id name slug logo" })
-        .sort({ createdAt: -1 })
-        .limit(500)
-        .lean();
-
-      const settingDoc = await Setting.findOne({
-        name: "storeCustomizationSetting",
-      }).lean();
+      const [allShowing, settingDoc] = await Promise.all([
+        Product.find({ status: "show" })
+          .populate(PRODUCT_POPULATE)
+          .sort({ createdAt: -1 })
+          .limit(DEFAULT_LIST_LIMIT)
+          .lean(),
+        Setting.findOne({ name: "storeCustomizationSetting" }).lean(),
+      ]);
+      products = allShowing;
       const homepageSettings = resolveHomepageSettings(settingDoc?.setting);
+
+      // The MongoDB link is bandwidth-bound, so when the whole catalogue is
+      // already loaded derive the homepage sections from it instead of
+      // re-downloading the same documents.
+      if (products.length < DEFAULT_LIST_LIMIT) {
+        const sections = deriveHomepageSections(products, homepageSettings);
+        res.send({
+          products: products.map(p => flattenProductVariants(p)),
+          popularProducts: sections.popularProducts.map(p => flattenProductVariants(p)),
+          relatedProducts: [],
+          discountedProducts: sections.discountedProducts.map(p => flattenProductVariants(p)),
+          bestSellingProducts: sections.bestSellingProducts.map(p => flattenProductVariants(p)),
+          manchandaHomepage: buildManchandaHomepagePayload(homepageSettings),
+        });
+        return;
+      }
 
       // New Arrivals — admin picks → tag fallback → newest
       popularProducts = await fetchProductsByIds(homepageSettings.newArrivalProductIds);
@@ -1140,24 +1263,7 @@ const getShowingStoreProducts = async (req, res) => {
           .lean();
       }
 
-      manchandaHomepagePayload = {
-        heroVideo: homepageSettings.heroVideo || "/main.mp4",
-        heroWelcome:
-          !homepageSettings.heroWelcome || homepageSettings.heroWelcome === "Welcome"
-            ? "Welcome to"
-            : homepageSettings.heroWelcome,
-        heroBrandName: homepageSettings.heroBrandName || "Manchanda Fabrics",
-        heroTagline: homepageSettings.heroTagline || "",
-        heroCtaText: homepageSettings.heroCtaText || "Explore Latest Collections",
-        heroCtaLink: homepageSettings.heroCtaLink || "/search",
-        newArrivalProductIds: homepageSettings.newArrivalProductIds || [],
-        trendingProductIds: homepageSettings.trendingProductIds || [],
-        founder: homepageSettings.founder || null,
-        stores: homepageSettings.stores || [],
-        whatsappNumbers: homepageSettings.whatsappNumbers || [],
-        videoShopping: homepageSettings.videoShopping || null,
-        marqueePhrases: homepageSettings.marqueePhrases || [],
-      };
+      manchandaHomepagePayload = buildManchandaHomepagePayload(homepageSettings);
 
       discountedProducts = await Product.find({
         status: "show", // Ensure status "show" for discounted products
@@ -1216,7 +1322,9 @@ const deleteManyProducts = async (req, res) => {
     const cname = req.cname;
     // console.log("deleteMany", cname, req.body.ids);
 
+    const mediaBefore = await snapshotMediaFromQuery(Product, { _id: req.body.ids });
     await Product.deleteMany({ _id: req.body.ids });
+    releaseMedia(mediaBefore, null, "product.deleteMany");
 
     res.send({
       message: `Products Delete Successfully!`,

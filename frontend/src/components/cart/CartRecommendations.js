@@ -244,9 +244,11 @@ const CartRecommendations = ({ cartItems = [] }) => {
                 >
                   <div className="relative w-full aspect-square rounded overflow-hidden bg-[#FAF7F5] border border-black/5">
                     <img
-                      src={normalizeProductImageUrl(
-                        product.image?.[0] || product.images?.[0]
-                      )}
+                      src={
+                        normalizeProductImageUrl(
+                          product.image?.[0] || product.images?.[0]
+                        ) || PRODUCT_PLACEHOLDER
+                      }
                       alt={showingTranslateValue(product.title)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"

@@ -12,6 +12,7 @@ import ReviewModal from "@components/reviews/ReviewModal";
 import CMSkeletonTwo from "@components/preloader/CMSkeletonTwo";
 import useCartDB from "@hooks/useCartDB";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 
 /* ─── Status badge ─── */
 const StatusBadge = ({ status }) => {
@@ -42,7 +43,7 @@ const ProductStrip = ({ cart = [] }) => {
         return (
           <div key={i} className="w-8 h-8 rounded-md border border-gray-200 overflow-hidden bg-gray-50 flex-shrink-0">
             {img
-              ? <img src={img} alt={item.title || "product"} className="w-full h-full object-cover" />
+              ? <img src={cloudinaryImageAt(img, 100, 100)} alt={item.title || "product"} loading="lazy" className="w-full h-full object-cover" />
               : <div className="w-full h-full flex items-center justify-center text-gray-300"><FiPackage size={12} /></div>
             }
           </div>

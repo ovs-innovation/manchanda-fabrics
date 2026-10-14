@@ -1,4 +1,9 @@
 const Brand = require("../models/Brand");
+const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
 
 const slugify = (text = "") =>
   text
@@ -135,6 +140,7 @@ const updateBrand = async (req, res) => {
     if (!brand) {
       return res.status(404).send({ message: "Brand not found!" });
     }
+    const mediaBefore = snapshotMedia(brand);
 
     const updatedSlug = await buildSlug(
       slug || name?.en || Object.values(name || {})[0] || brand.slug,
@@ -155,6 +161,7 @@ const updateBrand = async (req, res) => {
     brand.status = status || brand.status;
 
     await brand.save();
+    releaseMedia(mediaBefore, brand, "brand.update");
 
     res.send({ message: "Brand updated successfully!" });
   } catch (err) {
@@ -185,7 +192,9 @@ const updateBrandStatus = async (req, res) => {
 
 const deleteBrand = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(Brand, { _id: req.params.id });
     await Brand.deleteOne({ _id: req.params.id });
+    releaseMedia(mediaBefore, null, "brand.delete");
     res.send({ message: "Brand deleted successfully!" });
   } catch (err) {
     res.status(500).send({ message: err.message });
@@ -199,7 +208,9 @@ const deleteManyBrands = async (req, res) => {
       return res.status(400).send({ message: "No brand ids provided!" });
     }
 
+    const mediaBefore = await snapshotMediaFromQuery(Brand, { _id: { $in: ids } });
     await Brand.deleteMany({ _id: { $in: ids } });
+    releaseMedia(mediaBefore, null, "brand.deleteMany");
     res.send({ message: "Brands deleted successfully!" });
   } catch (err) {
     res.status(500).send({ message: err.message });

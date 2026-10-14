@@ -76,11 +76,11 @@ router.post("/register/:token", registerCustomer);
 //register a user directly
 router.post("/signup", registerCustomerDirect);
 
-// Delete uploaded Cloudinary asset
-router.post("/cloudinary-delete", deleteCloudinaryAsset);
+// Delete uploaded Cloudinary asset (reference-checked, admin only)
+router.post("/cloudinary-delete", isAuth, isAdmin, deleteCloudinaryAsset);
 
-// Server-side cloudinary upload endpoint (accepts data URL)
-router.post("/cloudinary-upload", async (req, res) => {
+// Server-side cloudinary upload endpoint (accepts data URL, admin only)
+router.post("/cloudinary-upload", isAuth, isAdmin, async (req, res) => {
   // delegate to controller
   try {
     const controller = require('../controller/customerController');
@@ -92,10 +92,10 @@ router.post("/cloudinary-upload", async (req, res) => {
 });
 
 // Provide a signature for signed client uploads (allows return_delete_token)
-router.post("/cloudinary-sign", cloudinarySign);
+router.post("/cloudinary-sign", isAuth, isAdmin, cloudinarySign);
 
 // Cloudinary status
-router.get("/cloudinary-status", (req, res) => {
+router.get("/cloudinary-status", isAuth, isAdmin, (req, res) => {
   try {
     const controller = require('../controller/customerController');
     return controller.cloudinaryStatus(req, res);

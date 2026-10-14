@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
 import requests from "@/services/httpService";
+import { uploadMedia } from "@/utils/mediaUpload";
 
 export const isYoutubeUrl = (url = "") => {
   if (!url || typeof url !== "string") return false;
@@ -142,6 +143,9 @@ const VideoUploader = ({
     const name = file.name.replaceAll(/\s/g, "");
     const basePublicId = name?.substring(0, name.lastIndexOf(".")) || "video";
     const public_id = `${basePublicId}_${Date.now()}`.replace(/[^a-zA-Z0-9-_]/g, "-");
+
+    const signed = await uploadMedia(file, { folder: safeFolder, kind: "video" });
+    if (signed?.secure_url) return signed.secure_url;
 
     if (getVideoUploadUrl() && import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET) {
       try {

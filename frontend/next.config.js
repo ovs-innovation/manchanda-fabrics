@@ -30,6 +30,7 @@ const nextConfig = {
       "localhost",
       "127.0.0.1",
     ],
+    minimumCacheTTL: 604800,
   },
 
   i18n: {

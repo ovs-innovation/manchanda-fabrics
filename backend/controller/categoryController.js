@@ -1,5 +1,10 @@
 const Category = require("../models/Category");
 const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
+const {
   ensureHindiName,
   ensureHindiDescription,
 } = require("../utils/fashionTranslator");
@@ -55,7 +60,6 @@ const addCategory = async (req, res) => {
 // all multiple category
 const addAllCategory = async (req, res) => {
   try {
-    await Category.deleteMany();
     const sanitizedDocs = (req.body || []).map((cat) => {
       const rawName = getCategoryRawName(cat.name);
       return {
@@ -67,7 +71,18 @@ const addAllCategory = async (req, res) => {
         description: ensureHindiDescription(cat.description),
       };
     });
-    await Category.insertMany(sanitizedDocs);
+    await Promise.all(sanitizedDocs.map((doc) => new Category(doc).validate()));
+
+    const backup = await Category.find({}).lean();
+    await Category.deleteMany();
+    try {
+      await Category.insertMany(sanitizedDocs);
+    } catch (insertErr) {
+      await Category.deleteMany({});
+      if (backup.length) await Category.collection.insertMany(backup, { ordered: false });
+      throw insertErr;
+    }
+    releaseMedia(snapshotMedia(backup), sanitizedDocs, "category.import");
     res.status(200).send({
       message: "Category Added Successfully!",
     });
@@ -138,6 +153,7 @@ const updateCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (category) {
+      const mediaBefore = snapshotMedia(category);
       const incomingName = req.body.name ? ensureHindiName(req.body.name) : {};
       category.name = { ...category.name, ...incomingName };
       if (category.name && (!category.name.hi || !String(category.name.hi).trim()) && category.name.en) {
@@ -169,6 +185,7 @@ const updateCategory = async (req, res) => {
       }
 
       await category.save();
+      releaseMedia(mediaBefore, category, "category.update");
       res.send({ message: "Category Updated Successfully!" });
     }
   } catch (err) {
@@ -243,8 +260,11 @@ const updateFeatured = async (req, res) => {
 //single category delete
 const deleteCategory = async (req, res) => {
   try {
+    const filter = { $or: [{ _id: req.params.id }, { parentId: req.params.id }] };
+    const mediaBefore = await snapshotMediaFromQuery(Category, filter);
     await Category.deleteOne({ _id: req.params.id });
     await Category.deleteMany({ parentId: req.params.id });
+    releaseMedia(mediaBefore, null, "category.delete");
     res.status(200).send({
       message: "Category Deleted Successfully!",
     });
@@ -258,8 +278,12 @@ const deleteCategory = async (req, res) => {
 // all multiple category delete
 const deleteManyCategory = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(Category, {
+      $or: [{ parentId: { $in: req.body.ids } }, { _id: { $in: req.body.ids } }],
+    });
     await Category.deleteMany({ parentId: { $in: req.body.ids } });
     await Category.deleteMany({ _id: { $in: req.body.ids } });
+    releaseMedia(mediaBefore, null, "category.deleteMany");
     res.status(200).send({
       message: "Categories Deleted Successfully!",
     });

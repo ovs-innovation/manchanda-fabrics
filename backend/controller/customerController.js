@@ -15,6 +15,9 @@ const {
 } = require("../lib/email-sender/simple-templates");
 const { sendVerificationCode } = require("../lib/phone-verification/sender");
 
+const { requestDeletion, snapshotMedia, releaseMedia } = require("../lib/media/cleanupService");
+const { resolveAdminFolder, ADMIN_FOLDERS } = require("../lib/media/uploadPolicy");
+
 const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 
 const normalizePhone = (phone) => {
@@ -691,56 +694,20 @@ const resendVerificationEmail = async (req, res) => {
   }
 };
 
-// Delete Cloudinary asset by public id
+// Request deletion of a Cloudinary asset. The asset is only removed after the
+// cleanup service confirms that nothing references it anymore.
 const deleteCloudinaryAsset = async (req, res) => {
   try {
-    const { publicId } = req.body;
-    if (!publicId) {
+    const { publicId, resourceType } = req.body;
+    if (!publicId || typeof publicId !== 'string') {
       return res.status(400).send({ message: 'publicId is required' });
     }
-
-    // Validate Cloudinary credentials exist
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error('Cloudinary credentials missing');
-      return res.status(500).send({ message: 'Cloudinary credentials are not configured on the server. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.' });
-    }
-
-    const cloudinary = require('cloudinary').v2;
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
+    const type = ['image', 'video', 'raw'].includes(resourceType) ? resourceType : 'image';
+    await requestDeletion(publicId.trim(), type, String(req.user?._id || 'admin'));
+    return res.send({
+      message: 'Deletion scheduled. The file is removed once no product, category, brand, setting or customer references it.',
+      queued: true,
     });
-
-    // Attempt deletion. Some files (like PDFs) are stored as resource_type 'raw', so try default and fallback to 'raw'.
-    const tryDestroy = (id, options = {}) =>
-      new Promise((resolve, reject) => {
-        cloudinary.uploader.destroy(id, options, function (error, result) {
-          if (error) return reject(error);
-          return resolve(result);
-        });
-      });
-
-    try {
-      const result = await tryDestroy(publicId);
-      // cloudinary returns { result: 'not found' } when missing
-      if (result && result.result && result.result !== 'ok' && result.result !== 'deleted') {
-        // try raw
-        const rawResult = await tryDestroy(publicId, { resource_type: 'raw' });
-        return res.send({ message: 'Deleted successfully', result: rawResult });
-      }
-
-      return res.send({ message: 'Deleted successfully', result });
-    } catch (err) {
-      console.warn('First destroy attempt failed, trying raw resource_type:', err?.message || err);
-      try {
-        const rawResult = await tryDestroy(publicId, { resource_type: 'raw' });
-        return res.send({ message: 'Deleted successfully (raw)', result: rawResult });
-      } catch (err2) {
-        console.error('cloudinary destroy error:', err2);
-        return res.status(500).send({ message: 'Failed to delete file from Cloudinary', detail: err2?.message || err2 });
-      }
-    }
   } catch (err) {
     console.error('deleteCloudinaryAsset error:', err);
     res.status(500).send({ message: err.message });
@@ -750,8 +717,29 @@ const deleteCloudinaryAsset = async (req, res) => {
 // Simple server-side upload endpoint that accepts a data URL (base64) and uploads to Cloudinary
 const cloudinaryUpload = async (req, res) => {
   try {
-    const { file, publicId, folder = 'manchanda', resourceType } = req.body;
-    if (!file) return res.status(400).send({ message: 'file (data URL) is required' });
+    const { file, resourceType } = req.body;
+    if (!file || typeof file !== 'string' || !file.startsWith('data:')) {
+      return res.status(400).send({ message: 'file (data URL) is required' });
+    }
+    const folder = resolveAdminFolder(req.body.folder);
+
+    const headerEnd = file.indexOf(',');
+    const declaredMime = file.substring(5, file.indexOf(';') > 0 ? file.indexOf(';') : headerEnd).toLowerCase();
+    const isVideoUpload = resourceType === 'video' || declaredMime.startsWith('video/');
+    const mimeAllowed =
+      declaredMime.startsWith('image/') ||
+      declaredMime.startsWith('video/') ||
+      declaredMime === 'application/pdf' ||
+      declaredMime === 'application/octet-stream' ||
+      declaredMime === '';
+    if (!mimeAllowed) {
+      return res.status(415).send({ message: `File type ${declaredMime} is not allowed` });
+    }
+    const approxBytes = Math.floor(((file.length - headerEnd - 1) * 3) / 4);
+    const maxBytes = (isVideoUpload ? 100 : 20) * 1024 * 1024;
+    if (approxBytes > maxBytes) {
+      return res.status(413).send({ message: `File is too large. Maximum is ${maxBytes / (1024 * 1024)}MB` });
+    }
 
     // Helper to save base64 directly to local disk
     const saveToLocalDisk = () => {
@@ -843,13 +831,18 @@ const cloudinaryUpload = async (req, res) => {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
+    // Content-addressed public_id: retries and repeated uploads of the same file
+    // resolve to the same asset instead of creating copies.
+    const contentHash = require('crypto')
+      .createHash('sha256')
+      .update(file.substring(headerEnd + 1))
+      .digest('hex')
+      .slice(0, 40);
     const options = {
-      folder,
-      resource_type: resourceType === 'video' ? 'video' : 'auto',
+      public_id: `${folder}/${contentHash}`,
+      overwrite: false,
+      resource_type: isVideoUpload ? 'video' : 'auto',
     };
-    if (publicId) options.public_id = publicId;
-    // request delete token since this is a signed upload
-    options.return_delete_token = true;
 
     try {
       const result = await cloudinary.uploader.upload(file, options);
@@ -878,6 +871,12 @@ const cloudinarySign = async (req, res) => {
 
     const crypto = require('crypto');
     const { publicId, folder } = req.body || {};
+    if (folder && !ADMIN_FOLDERS.has(String(folder))) {
+      return res.status(400).send({ message: `Folder "${folder}" is not allowed` });
+    }
+    if (publicId && !/^[a-zA-Z0-9_\-/]{1,200}$/.test(String(publicId))) {
+      return res.status(400).send({ message: 'Invalid publicId' });
+    }
     const timestamp = Math.floor(Date.now() / 1000);
 
     // Include return_delete_token to request delete token in response
@@ -885,7 +884,6 @@ const cloudinarySign = async (req, res) => {
     if (publicId) params.public_id = publicId;
     if (folder) params.folder = folder;
     params.return_delete_token = true;
-    console.log('cloudinarySign params:',);
     // Build string to sign (sorted by keys)
     const toSign = Object.keys(params)
       .sort()
@@ -1850,6 +1848,8 @@ const updateCustomer = async (req, res) => {
       }
     }
 
+    const mediaBefore = snapshotMedia(customer.image);
+
     // Update customer details
     if (name) customer.name = name;
     if (address) customer.address = address;
@@ -1864,6 +1864,7 @@ const updateCustomer = async (req, res) => {
 
     // Save the updated customer
     const updatedUser = await customer.save();
+    releaseMedia(mediaBefore, updatedUser.image, "customer.update");
 
     // Generate a new token
     const token = signInToken(updatedUser);
@@ -1889,18 +1890,19 @@ const updateCustomer = async (req, res) => {
   }
 };
 
-const deleteCustomer = (req, res) => {
-  Customer.deleteOne({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: err.message,
-      });
-    } else {
-      res.status(200).send({
-        message: "User Deleted Successfully!",
-      });
-    }
-  });
+const deleteCustomer = async (req, res) => {
+  try {
+    const existing = await Customer.findById(req.params.id, { image: 1 }).lean().catch(() => null);
+    await Customer.deleteOne({ _id: req.params.id });
+    releaseMedia(snapshotMedia(existing?.image), null, "customer.delete");
+    res.status(200).send({
+      message: "User Deleted Successfully!",
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
 };
 
 // Get customer statistics

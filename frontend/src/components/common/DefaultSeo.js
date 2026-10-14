@@ -3,10 +3,9 @@ import { DefaultSeo as NextSeo } from "next-seo";
 
 //internal import
 import useGetSetting from "@hooks/useGetSetting";
-import { pickBrandLogo } from "@utils/brandAssets";
+import { pickBrandLogo, isRetiredMediaUrl } from "@utils/brandAssets";
 
-const DEFAULT_OG_IMAGE =
-  "https://res.cloudinary.com/tu23xpla/image/upload/v1790472300/seo/manchanda_fabrics_og_preview.jpg";
+const DEFAULT_OG_IMAGE = "https://manchandafabric.in/og-image.jpg";
 const DEFAULT_TITLE =
   "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours";
 const DEFAULT_DESC =
@@ -20,7 +19,7 @@ const DefaultSeo = () => {
   const rawMetaImg = storeCustomizationSetting?.seo?.meta_img;
   const isKachaBazarLegacyImg =
     !rawMetaImg ||
-    rawMetaImg.includes("ahossain") ||
+    isRetiredMediaUrl(rawMetaImg) ||
     rawMetaImg.includes("facebook-page_j7alju.png");
 
   const rawTitle = storeCustomizationSetting?.seo?.meta_title;

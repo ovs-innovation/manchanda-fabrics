@@ -331,6 +331,35 @@ const Home = ({
   );
 };
 
+// Beyond the first few (which can be rendered as fallback cards), the full
+// catalogue is only used for category counts and category thumbnails, so ship
+// just those fields to keep the page payload small.
+const FULL_CATALOG_ITEMS = 8;
+const slimCatalogItem = (p) => {
+  if (!p || typeof p !== "object") return p;
+  const category =
+    p.category && typeof p.category === "object"
+      ? { _id: p.category._id ?? null, slug: p.category.slug ?? null, name: p.category.name ?? null }
+      : p.category ?? null;
+  return {
+    _id: p._id ?? null,
+    slug: p.slug ?? null,
+    categories: Array.isArray(p.categories)
+      ? p.categories.map((x) => (typeof x === "string" ? x : { _id: x?._id ?? null }))
+      : [],
+    category,
+    categorySlug: p.categorySlug ?? null,
+    categoryName: p.categoryName ?? null,
+    featuredImage: p.featuredImage ?? null,
+    image: Array.isArray(p.image) ? p.image.slice(0, 1) : [],
+    images: Array.isArray(p.images) ? p.images.slice(0, 1) : [],
+  };
+};
+const slimCatalog = (list) =>
+  Array.isArray(list)
+    ? list.map((p, i) => (i < FULL_CATALOG_ITEMS ? p : slimCatalogItem(p)))
+    : [];
+
 export const getStaticProps = async () => {
   const [dataResult, attributesResult, categoriesResult, allProductsResult, newArrivalsResult] =
     await Promise.allSettled([
@@ -355,10 +384,10 @@ export const getStaticProps = async () => {
         : (data?.popularProducts || []),
       bestSellingProducts: data?.bestSellingProducts || [],
       categories: categories || [],
-      allProducts: allProducts || [],
+      allProducts: slimCatalog(allProducts),
       homepage: data?.manchandaHomepage || null,
     },
-    revalidate: 1,
+    revalidate: 30,
   };
 };
 

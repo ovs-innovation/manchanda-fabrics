@@ -1,5 +1,5 @@
 /**
- * Creates unsigned Cloudinary upload preset on dse9adftu (run once).
+ * Creates the unsigned Cloudinary upload preset on the configured cloud (run once).
  * Usage: node script/ensureCloudinaryPreset.js
  */
 require("../config/env");

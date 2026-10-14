@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const resolveBrokenVideoUrl = (videoUrl) => {
       if (!videoUrl || typeof videoUrl !== "string") return videoUrl;
-      if (videoUrl.includes("detqbiabu")) {
+      if (/res\.cloudinary\.com\/(tu23xpla|detqbiabu)\//i.test(videoUrl)) {
         const match = videoUrl.match(/\/R(\d+)[_\.]/i);
         if (match) return `/R${match[1]}.mp4`;
         return "/R1.mp4";

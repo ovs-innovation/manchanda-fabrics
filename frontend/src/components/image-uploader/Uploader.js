@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { FiUploadCloud, FiX } from "react-icons/fi";
 import useGetSetting from "@hooks/useGetSetting";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { uploadCustomerImage } from "@utils/mediaUpload";
 
 const Uploader = ({
   setImageUrl,
@@ -130,20 +131,29 @@ const Uploader = ({
         });
       }, 200);
 
-      axios({
-        url: resolvedUploadURL,
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        data: formData,
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress(percentCompleted);
-        },
-      })
+      const legacyUpload = () =>
+        axios({
+          url: resolvedUploadURL,
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          data: formData,
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          },
+        });
+
+      const signedUpload =
+        file?.type && file.type.startsWith("image/")
+          ? uploadCustomerImage(file, { onProgress: setUploadProgress })
+          : Promise.resolve(null);
+
+      signedUpload
+        .then((signed) => (signed?.secure_url ? { data: signed } : legacyUpload()))
         .then((res) => {
           clearInterval(progressInterval);
           setUploadProgress(100);

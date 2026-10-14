@@ -15,7 +15,16 @@ export const productImageAt = (index = 0) =>
     ((index % PRODUCT_IMAGE_COUNT) + PRODUCT_IMAGE_COUNT) % PRODUCT_IMAGE_COUNT
   ];
 
-const LEGACY_CLOUDS = ["dhqcwkpzp", "ahossain"];
+// Cloudinary accounts that are disabled or no longer ours. URLs on them are
+// kept in the database (so they can be migrated later) but never requested,
+// since every request fails and shows a broken image.
+const RETIRED_CLOUDS = ["tu23xpla", "detqbiabu", "dhqcwkpzp", "ahossain", "dse9adftu"];
+
+export const isRetiredMediaUrl = (url) => {
+  if (!url || typeof url !== "string") return false;
+  const lower = url.trim().toLowerCase();
+  return RETIRED_CLOUDS.some((c) => lower.includes(`res.cloudinary.com/${c}/`));
+};
 
 export const isUsableImageUrl = (url) => {
   if (!url || typeof url !== "string") return false;
@@ -23,7 +32,7 @@ export const isUsableImageUrl = (url) => {
   if (!t.startsWith("http")) return false;
   const lower = t.toLowerCase();
   if (lower.includes("logo-light")) return false;
-  return !LEGACY_CLOUDS.some((c) => lower.includes(`res.cloudinary.com/${c}/`));
+  return !isRetiredMediaUrl(t);
 };
 
 /** First valid URL, else default local logo */
@@ -39,6 +48,7 @@ export const normalizeProductImageUrl = (url) => {
   if (!url || typeof url !== "string") return "";
   const trimmed = url.trim();
   if (trimmed.startsWith("blob:")) return "";
+  if (isRetiredMediaUrl(trimmed)) return "";
   if (typeof window !== "undefined") {
     const is127 = window.location.hostname === "127.0.0.1";
     if (is127 && trimmed.includes("localhost:8092")) {
@@ -70,3 +80,13 @@ export const getOptimizedImageUrl = (url, width = 600, height = null) => {
   }
   return normalized;
 };
+
+/**
+ * Resized delivery URL for Cloudinary images only; videos, local files and any
+ * other URL are returned exactly as given. Keep widths to a few fixed sizes so
+ * the number of derived transformations stays small.
+ */
+export const cloudinaryImageAt = (url, width, height = null) =>
+  typeof url === "string" && url.includes("res.cloudinary.com") && url.includes("/image/upload/")
+    ? getOptimizedImageUrl(url, width, height) || url
+    : url;

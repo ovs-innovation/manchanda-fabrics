@@ -10,7 +10,7 @@ import ReelModal from "@components/home/ReelModal";
 import ProductServices from "@services/ProductServices";
 import { FiShoppingBag } from "react-icons/fi";
 import { FaYoutube } from "react-icons/fa";
-import { getOptimizedImageUrl } from "@utils/brandAssets";
+import { getOptimizedImageUrl, isRetiredMediaUrl } from "@utils/brandAssets";
 import {
   isYoutubeUrl,
   getYoutubeVideoId,
@@ -20,7 +20,7 @@ import {
 
 const resolveReelVideo = (src) => {
   if (!src || typeof src !== "string") return "";
-  if (src.includes("detqbiabu")) {
+  if (isRetiredMediaUrl(src)) {
     const match = src.match(/\/R(\d+)[_\.]/i);
     if (match) return `/R${match[1]}.mp4`;
     return "/R1.mp4";
@@ -48,11 +48,9 @@ const formatInr = (value) => {
 };
 
 const pickImage = (item) =>
-  item?.featuredImage ||
-  item?.image?.[0] ||
-  item?.images?.[0] ||
-  item?.thumbnail ||
-  null;
+  [item?.featuredImage, item?.image?.[0], item?.images?.[0], item?.thumbnail].find(
+    (url) => url && !isRetiredMediaUrl(url)
+  ) || null;
 
 const HomeShopLatestCarousel = ({ items = [] }) => {
   const { t } = useTranslation("common");

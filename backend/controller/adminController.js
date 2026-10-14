@@ -9,6 +9,11 @@ const {
   handleEncryptData,
 } = require("../config/auth");
 const { mergeAccessList } = require("../config/adminAccessList");
+const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
 const { sendEmail } = require("../lib/email-sender/sender");
 const Admin = require("../models/Admin");
 const Setting = require("../models/Setting");
@@ -245,6 +250,7 @@ const updateStaff = async (req, res) => {
     const admin = await Admin.findOne({ _id: req.params.id });
 
     if (admin) {
+      const mediaBefore = snapshotMedia(admin.image);
       admin.name = { ...admin.name, ...req.body.name };
       admin.email = req.body.email;
       admin.phone = req.body.phone;
@@ -258,6 +264,7 @@ const updateStaff = async (req, res) => {
 
       admin.image = req.body.image;
       const updatedAdmin = await admin.save();
+      releaseMedia(mediaBefore, updatedAdmin.image, "staff.update");
       const token = signInToken(updatedAdmin);
 
       const { data, iv } = handleEncryptData([
@@ -285,18 +292,19 @@ const updateStaff = async (req, res) => {
   }
 };
 
-const deleteStaff = (req, res) => {
-  Admin.deleteOne({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: err.message,
-      });
-    } else {
-      res.status(200).send({
-        message: "Admin Deleted Successfully!",
-      });
-    }
-  });
+const deleteStaff = async (req, res) => {
+  try {
+    const mediaBefore = await snapshotMediaFromQuery(Admin, { _id: req.params.id });
+    await Admin.deleteOne({ _id: req.params.id });
+    releaseMedia(mediaBefore, null, "staff.delete");
+    res.status(200).send({
+      message: "Admin Deleted Successfully!",
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
 };
 
 const updatedStatus = async (req, res) => {

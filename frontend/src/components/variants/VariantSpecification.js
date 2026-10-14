@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 import useUtilsFunction from "@hooks/useUtilsFunction";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 
 const VariantSpecification = ({ 
   variants, 
@@ -145,7 +146,7 @@ const VariantCard = ({
         <div className="relative w-full aspect-square bg-white border border-gray-100 rounded-lg overflow-hidden mb-2">
           {currentImage ? (
             <Image
-              src={currentImage}
+              src={cloudinaryImageAt(currentImage, 600)}
               alt={variantName}
               fill
               sizes="(max-width: 768px) 100vw, 25vw"
@@ -184,7 +185,7 @@ const VariantCard = ({
                 }`}
               >
                 <Image
-                  src={img}
+                  src={cloudinaryImageAt(img, 100, 100)}
                   alt={`${variantName} - Image ${idx + 1}`}
                   fill
                   sizes="48px"

@@ -4,6 +4,11 @@ dayjs.extend(utc);
 
 // const { mongo_connection } = require('../config/db'); // CCDev
 const Coupon = require("../models/Coupon");
+const {
+  snapshotMedia,
+  snapshotMediaFromQuery,
+  releaseMedia,
+} = require("../lib/media/cleanupService");
 
 const addCoupon = async (req, res) => {
   try {
@@ -78,6 +83,7 @@ const updateCoupon = async (req, res) => {
     const coupon = await Coupon.findById(req.params.id);
 
     if (coupon) {
+      const mediaBefore = snapshotMedia(coupon.logo);
       coupon.title = { ...coupon.title, ...req.body.title };
       // coupon.title[req.body.lang] = req.body.title;
       // coupon.title = req.body.title;
@@ -90,6 +96,7 @@ const updateCoupon = async (req, res) => {
       coupon.logo = req.body.logo;
 
       await coupon.save();
+      releaseMedia(mediaBefore, coupon.logo, "coupon.update");
       res.send({ message: "Coupon Updated Successfully!" });
     }
   } catch (err) {
@@ -149,7 +156,9 @@ const updateStatus = async (req, res) => {
 
 const deleteCoupon = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(Coupon, { _id: req.params.id });
     await Coupon.deleteOne({ _id: req.params.id });
+    releaseMedia(mediaBefore, null, "coupon.delete");
     res.status(200).send({
       message: "Coupon Deleted Successfully!",
     });
@@ -160,7 +169,9 @@ const deleteCoupon = async (req, res) => {
 
 const deleteManyCoupons = async (req, res) => {
   try {
+    const mediaBefore = await snapshotMediaFromQuery(Coupon, { _id: req.body.ids });
     await Coupon.deleteMany({ _id: req.body.ids });
+    releaseMedia(mediaBefore, null, "coupon.deleteMany");
     res.send({
       message: `Coupons Delete Successfully!`,
     });

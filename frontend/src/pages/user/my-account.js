@@ -11,6 +11,7 @@ import Error from "@components/form/Error";
 import CustomerServices from "@services/CustomerServices";
 import { setToken } from "@services/httpServices";
 import { notifySuccess, notifyError } from "@utils/toast";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 import { getDisplayEmail } from "@utils/profileAuth";
 
 const MyAccount = () => {
@@ -196,7 +197,7 @@ const MyAccount = () => {
                     <div className="absolute inset-0 bg-store-500 rounded-full blur opacity-10 group-hover:opacity-20 transition-opacity"></div>
                     {userInfo?.image ? (
                       <img
-                        src={userInfo.image}
+                        src={cloudinaryImageAt(userInfo.image, 200, 200)}
                         className="relative h-24 w-24 rounded-full object-cover border-4 border-white shadow-md"
                         alt={userInfo?.name}
                       />

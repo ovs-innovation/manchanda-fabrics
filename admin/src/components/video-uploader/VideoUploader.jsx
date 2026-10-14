@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { FiUploadCloud, FiXCircle } from "react-icons/fi";
 
 import { notifyError, notifySuccess } from "@/utils/toast";
+import { uploadMedia } from "@/utils/mediaUpload";
 
 const VideoUploader = ({
   imageUrl = [],
@@ -77,15 +78,32 @@ const VideoUploader = ({
 
   useEffect(() => {
     if (!file) return;
-    if (!uploadUrl) {
-      notifyError("Missing Cloudinary configuration for videos.");
-      return;
-    }
+
+    const addVideoUrl = (secureUrl) => {
+      setImageUrl((prev = []) => {
+        const filtered = Array.isArray(prev)
+          ? prev.filter((media) => !isVideoUrl(media))
+          : [];
+        return [...filtered, secureUrl];
+      });
+    };
 
     const uploadVideo = async () => {
       try {
         setLoading(true);
         setStatusMessage("Uploading...");
+
+        const signed = await uploadMedia(file, { folder, kind: "video" });
+        if (signed?.secure_url) {
+          notifySuccess("Video uploaded successfully!");
+          addVideoUrl(signed.secure_url);
+          return;
+        }
+
+        if (!uploadUrl) {
+          notifyError("Missing Cloudinary configuration for videos.");
+          return;
+        }
 
         const formData = new FormData();
         formData.append("file", file);
@@ -106,12 +124,7 @@ const VideoUploader = ({
         });
 
         notifySuccess("Video uploaded successfully!");
-        setImageUrl((prev = []) => {
-          const filtered = Array.isArray(prev)
-            ? prev.filter((media) => !isVideoUrl(media))
-            : [];
-          return [...filtered, response.data.secure_url];
-        });
+        addVideoUrl(response.data.secure_url);
       } catch (error) {
         console.error(error);
         notifyError(

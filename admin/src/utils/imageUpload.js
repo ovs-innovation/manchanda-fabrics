@@ -1,6 +1,7 @@
 import axios from "axios";
 import requests from "@/services/httpService";
 import { FABRIC_COLORS, findClosestFabricColor } from "@/utils/fabricColors";
+import { uploadMedia } from "@/utils/mediaUpload";
 
 export const isHeicFile = (file) => {
   if (!file) return false;
@@ -87,6 +88,10 @@ const fileToDataUrl = (file) => {
 export const uploadImageFile = async (rawFile, folder = "manchanda") => {
   if (!rawFile) return null;
   const file = await ensureBrowserCompatibleFile(rawFile);
+
+  const signed = await uploadMedia(file, { folder, kind: "image" });
+  if (signed?.secure_url) return signed.secure_url;
+
   const uploadPreset = import.meta.env.VITE_APP_CLOUDINARY_UPLOAD_PRESET;
   const baseUrl = import.meta.env.VITE_APP_CLOUDINARY_URL;
 

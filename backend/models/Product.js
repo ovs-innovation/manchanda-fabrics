@@ -384,6 +384,9 @@ const productSchema = new mongoose.Schema(
 productSchema.index({ status: 1, sales: -1 }); // Fast sorting by sales
 productSchema.index({ status: 1, category: 1 }); // Fast category lookups
 productSchema.index({ status: 1, brand: 1 }); // Fast brand lookups
+productSchema.index({ status: 1, createdAt: -1 }); // Newest-first storefront listings
+productSchema.index({ slug: 1 }); // Product page lookups
+productSchema.index({ status: 1, tag: 1 }); // New-arrival / trending placements
 
 // module.exports = productSchema;
 

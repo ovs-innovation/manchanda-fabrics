@@ -27,6 +27,7 @@ import Loading from "@components/preloader/Loading";
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { setToken } from "@services/httpServices";
+import { cloudinaryImageAt } from "@utils/brandAssets";
 
 const Dashboard = ({ title, description, children }) => {
   const router = useRouter();
@@ -344,7 +345,7 @@ const Dashboard = ({ title, description, children }) => {
                       <div className="relative w-12 h-12 rounded-full overflow-hidden border border-[#9C6A5A]/20 bg-[#FAF7F5] flex items-center justify-center">
                         {userInfo?.image ? (
                           <img
-                            src={userInfo.image}
+                            src={cloudinaryImageAt(userInfo.image, 200, 200)}
                             alt={userInfo?.name}
                             className="w-full h-full object-cover"
                           />
@@ -378,7 +379,7 @@ const Dashboard = ({ title, description, children }) => {
                       <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 shadow-lg border-2 border-[#9C6A5A]/30 bg-[#FAF7F5] flex items-center justify-center">
                         {userInfo?.image ? (
                           <img
-                            src={userInfo.image}
+                            src={cloudinaryImageAt(userInfo.image, 200, 200)}
                             alt={userInfo?.name}
                             className="w-full h-full object-cover"
                           />
