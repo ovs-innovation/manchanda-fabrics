@@ -204,10 +204,9 @@ const VideoUploader = ({
 
   const dropzoneClass = useMemo(
     () =>
-      `border-2 border-dashed rounded-xl cursor-pointer px-6 py-8 text-center transition-colors ${
-        isDragActive
-          ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-          : "border-gray-300 dark:border-gray-600 hover:border-emerald-400"
+      `border-2 border-dashed rounded-xl cursor-pointer px-6 py-8 text-center transition-colors ${isDragActive
+        ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
+        : "border-gray-300 dark:border-gray-600 hover:border-emerald-400"
       } ${loading ? "opacity-60 pointer-events-none" : ""}`,
     [isDragActive, loading]
   );
@@ -323,11 +322,10 @@ const VideoUploader = ({
           <button
             type="button"
             onClick={() => setActiveTab("file")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "file"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === "file"
                 ? "bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-400 shadow-xs"
                 : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-            }`}
+              }`}
           >
             <FiUploadCloud size={14} />
             <span>Upload File (MP4)</span>
@@ -335,11 +333,10 @@ const VideoUploader = ({
           <button
             type="button"
             onClick={() => setActiveTab("link")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "link"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === "link"
                 ? "bg-white dark:bg-gray-800 text-red-600 shadow-xs"
                 : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-            }`}
+              }`}
           >
             <FaYoutube size={14} className="text-red-600" />
             <span>Paste YouTube Link</span>
@@ -448,9 +445,8 @@ const VideoUploader = ({
       {alert.show &&
         createPortal(
           <div
-            className={`fixed top-12 left-1/2 -translate-x-1/2 z-[9999] px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 text-white ${
-              alert.type === "success" ? "bg-teal-600" : "bg-red-600"
-            }`}
+            className={`fixed top-12 left-1/2 -translate-x-1/2 z-[9999] px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 text-white ${alert.type === "success" ? "bg-teal-600" : "bg-red-600"
+              }`}
           >
             {alert.type === "success" ? <FiCheck /> : <FiAlertCircle />}
             <span className="text-sm font-medium">{alert.message}</span>

@@ -1,19 +1,11 @@
 /** Manchanda Fabrics brand logo */
 export const DEFAULT_BRAND_LOGO = "/manchandalogo.png";
 
-const HERO_IMAGES = [1, 2, 3, 4, 5, 6].map((n) => `/h${n}.jpeg`);
-const CATALOG_IMAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(
-  (n) => `/p${n}.jpeg`
-);
+export const PRODUCT_PLACEHOLDER = "/product-placeholder.png";
+export const PRODUCT_IMAGES = [PRODUCT_PLACEHOLDER];
+export const PRODUCT_IMAGE_COUNT = 1;
 
-export const PRODUCT_IMAGES = [...HERO_IMAGES, ...CATALOG_IMAGES];
-export const PRODUCT_IMAGE_COUNT = PRODUCT_IMAGES.length;
-export const PRODUCT_PLACEHOLDER = PRODUCT_IMAGES[0];
-
-export const productImageAt = (index = 0) =>
-  PRODUCT_IMAGES[
-    ((index % PRODUCT_IMAGE_COUNT) + PRODUCT_IMAGE_COUNT) % PRODUCT_IMAGE_COUNT
-  ];
+export const productImageAt = () => PRODUCT_PLACEHOLDER;
 
 // Cloudinary accounts that are disabled or no longer ours. URLs on them are
 // kept in the database (so they can be migrated later) but never requested,

@@ -494,8 +494,8 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
                   {query ||
                     (router.query.category
                       ? ["fabrics", "suits", "fabric", "suit"].includes(
-                          String(router.query.category).toLowerCase()
-                        )
+                        String(router.query.category).toLowerCase()
+                      )
                         ? String(router.query.category).toLowerCase().includes("fabric")
                           ? "Fabrics"
                           : "Suits"

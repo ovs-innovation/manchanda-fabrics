@@ -246,7 +246,7 @@ const CartRecommendations = ({ cartItems = [] }) => {
                     <img
                       src={
                         normalizeProductImageUrl(
-                          product.image?.[0] || product.images?.[0]
+                          product.featuredImage || product.image?.[0] || product.images?.[0]
                         ) || PRODUCT_PLACEHOLDER
                       }
                       alt={showingTranslateValue(product.title)}
@@ -293,11 +293,10 @@ const CartRecommendations = ({ cartItems = [] }) => {
                     type="button"
                     onClick={(e) => handleQuickAdd(e, product)}
                     disabled={isAdding}
-                    className={`w-full py-1.5 px-2 rounded text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${
-                      isAdded
-                        ? "bg-green-700 text-white border border-green-700"
-                        : "bg-white hover:bg-[#111111] text-[#111111] hover:text-white border border-neutral-300 hover:border-[#111111]"
-                    }`}
+                    className={`w-full py-1.5 px-2 rounded text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer ${isAdded
+                      ? "bg-green-700 text-white border border-green-700"
+                      : "bg-white hover:bg-[#111111] text-[#111111] hover:text-white border border-neutral-300 hover:border-[#111111]"
+                      }`}
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     {isAdded ? (

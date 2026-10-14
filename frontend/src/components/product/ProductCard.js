@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { IoAdd, IoRemove } from "react-icons/io5";
 import { FiHeart, FiShoppingBag } from "react-icons/fi";
 import { useCart } from "react-use-cart";
@@ -215,17 +216,14 @@ const ProductCard = ({
         style={{ fontFamily: "'Poppins', sans-serif" }}
       >
         {/* Image Container */}
-        <div
-          onClick={goToProduct}
-          className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-t-2xl bg-neutral-50"
-        >
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-2xl bg-neutral-50">
           {isSoldOut && (
             <span className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 z-20 bg-[#111111] text-white text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md shadow-xs">
               {t("Sold Out")}
             </span>
           )}
 
-          {/* Sale badge (White pill badge like reference image 2) */}
+          {/* Sale badge */}
           {hasSale && !hideDiscount && !isSoldOut && (
             <span className="absolute left-2.5 top-2.5 sm:left-3 sm:top-3 z-20 bg-white/95 text-[#111111] text-[11px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md shadow-xs border border-black/5">
               -{discountPercent}%
@@ -240,8 +238,8 @@ const ProductCard = ({
               title={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
               aria-label={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
               className={`absolute right-2.5 top-2.5 sm:right-3 sm:top-3 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full shadow-md flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer border border-black/5 ${wishlistActive
-                  ? "bg-[#9C6A5A] text-white hover:bg-[#835648]"
-                  : "bg-white/90 backdrop-blur-xs text-neutral-700 hover:bg-white hover:text-[#9C6A5A]"
+                ? "bg-[#9C6A5A] text-white hover:bg-[#835648]"
+                : "bg-white/90 backdrop-blur-xs text-neutral-700 hover:bg-white hover:text-[#9C6A5A]"
                 }`}
             >
               <FiHeart
@@ -251,9 +249,13 @@ const ProductCard = ({
             </button>
           )}
 
-          {/* Product Image */}
-          {primaryImg ? (
-            <div className="w-full h-full relative">
+          <Link
+            href={`/product/${product.slug}`}
+            prefetch={false}
+            className="absolute inset-0 block z-0"
+            aria-label={title}
+          >
+            {primaryImg ? (
               <img
                 src={getOptimizedImageUrl(primaryImg, 460, 613)}
                 alt={title}
@@ -265,10 +267,16 @@ const ProductCard = ({
                   e.currentTarget.src = PRODUCT_PLACEHOLDER;
                 }}
               />
-            </div>
-          ) : (
-            <Image src={PRODUCT_PLACEHOLDER} fill className="object-cover" alt="product placeholder" />
-          )}
+            ) : (
+              <div className="w-full h-full relative flex items-center justify-center bg-[#F8F6F2]">
+                <img
+                  src={PRODUCT_PLACEHOLDER}
+                  alt={title || "Manchanda Fabrics"}
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+            )}
+          </Link>
 
           {/* Floating Action Button: Circular shopping bag button bottom-right (exact match to image 2) */}
           {!hidePriceAndAdd && !isSoldOut && (
@@ -316,11 +324,12 @@ const ProductCard = ({
           )}
 
           <h3
-            onClick={goToProduct}
             title={title}
-            className="cursor-pointer text-[13px] sm:text-[14px] font-medium leading-snug text-[#111111] hover:text-black line-clamp-1 transition-colors"
+            className="text-[13px] sm:text-[14px] font-medium leading-snug text-[#111111] line-clamp-1 transition-colors"
           >
-            {title}
+            <Link href={`/product/${product.slug}`} prefetch={false} className="hover:text-[#9C6A5A] transition-colors">
+              {title}
+            </Link>
           </h3>
 
           {!hidePriceAndAdd && (

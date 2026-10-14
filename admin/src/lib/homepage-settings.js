@@ -85,7 +85,7 @@ export const DEFAULT_MANCHANDA_HOMEPAGE = {
     buttonText: "Start Video Shopping",
     title: "Live Video Shopping",
     subtitle: "Shop with us through a live video call.",
-    image: "/h2.jpeg",
+    image: "/Suit/s8.jpg",
   },
   marqueePhrases: [
     "Crafted from the Finest Fabrics for You",

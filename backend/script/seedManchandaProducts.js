@@ -16,11 +16,9 @@ const Brand = require("../models/Brand");
 const Setting = require("../models/Setting");
 const { withManchandaHomepage } = require("../lib/homepage-settings");
 
-const HERO_IMAGES = [1, 2, 3, 4, 5, 6].map((n) => `/h${n}.jpeg`);
-const CATALOG_IMAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(
-  (n) => `/p${n}.jpeg`
+const ALL_PRODUCT_IMAGES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(
+  (n) => `/Suit/s${n}.jpg`
 );
-const ALL_PRODUCT_IMAGES = [...HERO_IMAGES, ...CATALOG_IMAGES];
 
 const productImageAt = (index) =>
   ALL_PRODUCT_IMAGES[index % ALL_PRODUCT_IMAGES.length];

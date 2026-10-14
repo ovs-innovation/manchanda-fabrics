@@ -150,8 +150,8 @@ const Uploader = ({
               <li key={e.code}>
                 {e.code === "too-many-files"
                   ? showAlert(
-                      `Maximum ${globalSetting?.number_of_image_per_product} Image Can be Upload!`, "error"
-                    )
+                    `Maximum ${globalSetting?.number_of_image_per_product} Image Can be Upload!`, "error"
+                  )
                   : showAlert(e.message, "error")}
               </li>
             ))}
@@ -165,7 +165,7 @@ const Uploader = ({
         if (
           product &&
           normalizeImageList(imageUrl).length + files?.length >
-            globalSetting?.number_of_image_per_product
+          globalSetting?.number_of_image_per_product
         ) {
           return showAlert(
             `Maximum ${globalSetting?.number_of_image_per_product} Image Can be Upload!`, "error"
@@ -181,7 +181,7 @@ const Uploader = ({
         const safeFolder = folder && folder !== "undefined" ? folder : "manchanda";
         const name = file.name.replaceAll(/\s/g, "");
         const basePublicId = name?.substring(0, name.lastIndexOf(".")) || "image";
-        
+
         const cleanPublicId = basePublicId
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
@@ -365,20 +365,20 @@ const Uploader = ({
             </div>
           );
         })()
-        : (
-          thumbs
-        )}
+          : (
+            thumbs
+          )}
       </aside>
 
       {/* Custom Professional Notification Banner */}
       {alert.show && createPortal(
         <div className={`fixed top-12 left-1/2 -translate-x-1/2 z-[9999] max-w-sm w-full px-6 py-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex items-center gap-4 border backdrop-blur-md animate-in slide-in-from-top-10 duration-500 ${alert.type === 'success' ? 'bg-teal-600/95 border-teal-500 text-white' : 'bg-red-600/95 border-red-500 text-white'}`}>
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-             {alert.type === 'success' ? <FiCheck size={20} /> : <FiAlertCircle size={20} />}
+            {alert.type === 'success' ? <FiCheck size={20} /> : <FiAlertCircle size={20} />}
           </div>
           <div className="flex-1 text-left">
-             <p className="font-extrabold text-[15px]">{alert.type === 'success' ? 'Success ✓' : 'Action Required'}</p>
-             <p className="text-[13px] opacity-90 font-medium">{alert.message}</p>
+            <p className="font-extrabold text-[15px]">{alert.type === 'success' ? 'Success ✓' : 'Action Required'}</p>
+            <p className="text-[13px] opacity-90 font-medium">{alert.message}</p>
           </div>
         </div>,
         document.body

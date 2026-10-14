@@ -73,7 +73,7 @@ const PolicyPage = ({
 
           <p className="text-center text-[13px] text-[#8a7d74] mt-8">
             Questions? Reach us any time on the{" "}
-            <Link href="/contact-us" className="font-semibold" style={{ color: RED }}>
+            <Link href="/contact-us" className="font-semibold" style={{ color: ACCENT }}>
               Contact page
             </Link>
             .
@@ -127,7 +127,7 @@ const PolicyPage = ({
           font-size: 0.96rem;
         }
         .policy-content li::marker {
-          color: ${RED};
+          color: ${ACCENT};
         }
         .policy-content strong {
           color: #2c2320;

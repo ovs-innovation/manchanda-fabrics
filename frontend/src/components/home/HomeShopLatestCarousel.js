@@ -110,42 +110,42 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
     const dbReels =
       reelsData.reels && reelsData.reels.length > 0
         ? reelsData.reels.map((reel, index) => {
-            const product = reel.product || null;
-            const video = reel.video;
-            const title =
-              reel.title ||
-              (product ? product.title?.en || product.title || product.name : "Featured Reel");
-            let rawImage = reel.thumbnail || (product ? pickImage(product) : null);
-            if (!rawImage && isYoutubeUrl(video)) {
-              rawImage = getYoutubeThumbnail(video);
-            }
-            if (typeof rawImage === "string") {
-              if (rawImage.includes("2stydj") || rawImage.includes("thumb_red"))
-                rawImage = "/reels/thumb_red_suit.jpg";
-              else if (rawImage.includes("bpq6y6") || rawImage.includes("thumb_pink"))
-                rawImage = "/reels/thumb_pink_suit.jpg";
-              else if (rawImage.includes("6zlca") || rawImage.includes("thumb_yellow"))
-                rawImage = "/reels/thumb_yellow_suit.jpg";
-              else if (rawImage.includes("localhost:8092"))
-                rawImage = rawImage.replace(/http:\/\/localhost:8092/g, "");
-            }
-            const image =
-              rawImage && rawImage.includes("/uploads/")
-                ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(
-                    reel.updatedAt || Date.now()
-                  ).getTime()}_clean`
-                : rawImage;
-            const price = product ? (product.prices?.price ?? product.price) : null;
+          const product = reel.product || null;
+          const video = reel.video;
+          const title =
+            reel.title ||
+            (product ? product.title?.en || product.title || product.name : "Featured Reel");
+          let rawImage = reel.thumbnail || (product ? pickImage(product) : null);
+          if (!rawImage && isYoutubeUrl(video)) {
+            rawImage = getYoutubeThumbnail(video);
+          }
+          if (typeof rawImage === "string") {
+            if (rawImage.includes("2stydj") || rawImage.includes("thumb_red"))
+              rawImage = "/reels/thumb_red_suit.jpg";
+            else if (rawImage.includes("bpq6y6") || rawImage.includes("thumb_pink"))
+              rawImage = "/reels/thumb_pink_suit.jpg";
+            else if (rawImage.includes("6zlca") || rawImage.includes("thumb_yellow"))
+              rawImage = "/reels/thumb_yellow_suit.jpg";
+            else if (rawImage.includes("localhost:8092"))
+              rawImage = rawImage.replace(/http:\/\/localhost:8092/g, "");
+          }
+          const image =
+            rawImage && rawImage.includes("/uploads/")
+              ? `${rawImage}${rawImage.includes("?") ? "&" : "?"}v=${new Date(
+                reel.updatedAt || Date.now()
+              ).getTime()}_clean`
+              : rawImage;
+          const price = product ? (product.prices?.price ?? product.price) : null;
 
-            return {
-              id: reel._id || `reel-${index}`,
-              video,
-              product,
-              title,
-              image,
-              price,
-            };
-          })
+          return {
+            id: reel._id || `reel-${index}`,
+            video,
+            product,
+            title,
+            image,
+            price,
+          };
+        })
         : [];
 
     // 1. If database reels exist, render ONLY those uploaded reels!
@@ -251,10 +251,10 @@ const HomeShopLatestCarousel = ({ items = [] }) => {
             autoplay={
               carouselItems.length > 1
                 ? {
-                    delay: 3500,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }
+                  delay: 3500,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }
                 : false
             }
             onSwiper={(swiper) => {

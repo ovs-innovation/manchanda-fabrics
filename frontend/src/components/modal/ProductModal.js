@@ -45,8 +45,7 @@ const ProductModal = ({
     "+0044235234";
 
   // react hook
-  const [gajjiProducts, setGajjiProducts] = useState([]);
-  const [activeProduct, setActiveProduct] = useState(null);
+  const [activeProduct, setActiveProduct] = useState(product || null);
   const [value, setValue] = useState("");
   const [price, setPrice] = useState(0);
   const [img, setImg] = useState("");
@@ -59,26 +58,12 @@ const ProductModal = ({
   const [variants, setVariants] = useState([]);
 
   useEffect(() => {
-    if (modalOpen && gajjiProducts.length === 0) {
-      ProductServices.getShowingStoreProducts({ category: "gaji-silk" })
-        .then((res) => {
-          const list = res?.products || [];
-          setGajjiProducts(list);
-        })
-        .catch((err) => console.error("Error fetching Gaji Silk products:", err));
-    }
-  }, [modalOpen, gajjiProducts.length]);
-
-  useEffect(() => {
-    if (gajjiProducts.length > 0 && product) {
-      const productSeed = product._id || product.slug || "";
-      const seedSum = productSeed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const index = seedSum % gajjiProducts.length;
-      setActiveProduct(gajjiProducts[index]);
+    if (product) {
+      setActiveProduct(product);
     } else {
       setActiveProduct(null);
     }
-  }, [gajjiProducts, product]);
+  }, [product]);
 
   useEffect(() => {
     // console.log('value', value, activeProduct);
@@ -269,21 +254,23 @@ const ProductModal = ({
                 className="flex-shrink-0 flex items-center justify-center h-auto cursor-pointer"
               >
                 <Discount product={activeProduct} discount={discount} modal />
-                {activeProduct.image[0] ? (
-                  <Image
-                    src={img || activeProduct.image[0]}
-                    width={420}
-                    height={420}
-                    alt="product"
-                  />
-                ) : (
-                  <Image
-                    src={PRODUCT_PLACEHOLDER}
-                    width={420}
-                    height={420}
-                    alt="product Image"
-                  />
-                )}
+                <img
+                  src={
+                    img ||
+                    activeProduct?.featuredImage ||
+                    (Array.isArray(activeProduct?.image) ? activeProduct.image[0] : activeProduct?.image) ||
+                    (Array.isArray(activeProduct?.images) ? activeProduct.images[0] : activeProduct?.images) ||
+                    PRODUCT_PLACEHOLDER
+                  }
+                  width={420}
+                  height={420}
+                  alt={showingTranslateValue(activeProduct?.title) || "product"}
+                  className="w-[420px] h-[420px] object-cover"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = PRODUCT_PLACEHOLDER;
+                  }}
+                />
               </div>
             </Link>
 

@@ -8,7 +8,7 @@ export const SHOP_CATEGORIES = [
   {
     title: "Gaji Silk",
     slug: "gaji-silk",
-    image: "/p2.jpeg",
+    image: "/Suit/s2.jpg",
     isHit: true,
     tagline: "Bestseller • Heritage weave",
     video: null,

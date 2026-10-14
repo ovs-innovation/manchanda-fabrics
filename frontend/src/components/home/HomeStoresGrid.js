@@ -12,9 +12,9 @@ const HomeStoresGrid = ({ stores: storesProp }) => {
 
   // Swap the placeholder URLs with local premium suit images from /public if no custom image is uploaded
   const localImages = [
-    "/p3.jpeg",
-    "/p2.jpeg",
-    "/p14.jpeg",
+    "/Suit/s3.jpg",
+    "/Suit/s2.jpg",
+    "/Suit/s5.jpg",
   ];
 
   const isPlaceholderUrl = (url) => {

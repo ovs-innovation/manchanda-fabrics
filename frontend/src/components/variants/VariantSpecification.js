@@ -3,12 +3,12 @@ import { useMemo, useState, useEffect } from "react";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { cloudinaryImageAt } from "@utils/brandAssets";
 
-const VariantSpecification = ({ 
-  variants, 
-  variantTitle, 
+const VariantSpecification = ({
+  variants,
+  variantTitle,
   attributes,
   onVariantSelect,
-  selectedVariant 
+  selectedVariant
 }) => {
   const { showingTranslateValue, getNumber, getNumberTwo, currency, formatPrice } = useUtilsFunction();
 
@@ -26,7 +26,7 @@ const VariantSpecification = ({
         const attributeName = attributeData?.find(
           (v) => v._id === variant[att?._id]
         )?.name;
-        
+
         if (attributeName === undefined) {
           return attributeName?.en;
         } else {
@@ -61,7 +61,7 @@ const VariantSpecification = ({
     if (!selectedVariant || !variantTitle || variantTitle.length === 0) {
       return false;
     }
-    
+
     return variantTitle.every((att) => {
       const selectedValue = selectedVariant[att._id];
       if (!selectedValue) return true; // If no selection for this attribute, consider it matching
@@ -103,11 +103,11 @@ const VariantSpecification = ({
 };
 
 // Separate component for variant card with image carousel
-const VariantCard = ({ 
-  variant, 
-  variantImages, 
-  variantName, 
-  isSelected, 
+const VariantCard = ({
+  variant,
+  variantImages,
+  variantName,
+  isSelected,
   onVariantSelect,
   currency,
   getNumberTwo
@@ -134,11 +134,10 @@ const VariantCard = ({
   return (
     <div
       onClick={() => onVariantSelect && onVariantSelect(variant)}
-      className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-        isSelected
+      className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${isSelected
           ? "border-store-500 shadow-md bg-store-50"
           : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-      }`}
+        }`}
     >
       {/* Variant Image - Main Image or Carousel */}
       <div className="mb-3">
@@ -178,11 +177,10 @@ const VariantCard = ({
                   e.stopPropagation(); // Prevent variant selection when clicking thumbnail
                   handleImageChange(img);
                 }}
-                className={`flex-shrink-0 relative w-12 h-12 border-2 rounded overflow-hidden transition-all ${
-                  idx === activeImageIndex
+                className={`flex-shrink-0 relative w-12 h-12 border-2 rounded overflow-hidden transition-all ${idx === activeImageIndex
                     ? "border-store-500 ring-2 ring-store-200"
                     : "border-gray-200 hover:border-gray-400"
-                }`}
+                  }`}
               >
                 <Image
                   src={cloudinaryImageAt(img, 100, 100)}

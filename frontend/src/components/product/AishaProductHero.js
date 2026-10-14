@@ -138,10 +138,10 @@ const AishaProductHero = ({
         productImages && productImages.length > 0
           ? productImages
           : Array.isArray(product?.image)
-          ? product.image
-          : product?.image
-          ? [product.image]
-          : [];
+            ? product.image
+            : product?.image
+              ? [product.image]
+              : [];
 
       const validImages = rawImages.filter(
         (u) => u && typeof u === "string" && u.trim() !== ""
@@ -260,11 +260,10 @@ const AishaProductHero = ({
                     key={colorVar._id || colorVar.colorName || idx}
                     type="button"
                     onClick={() => setSelectedColorVar(colorVar)}
-                    className={`relative w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                      isSelected
+                    className={`relative w-9 h-9 rounded-full border flex items-center justify-center transition-all ${isSelected
                         ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"
                         : "border-neutral-300 hover:border-neutral-800 opacity-80 hover:opacity-100"
-                    } ${isSoldOut ? "opacity-60 hover:opacity-90" : ""}`}
+                      } ${isSoldOut ? "opacity-60 hover:opacity-90" : ""}`}
                     title={`${colorVar.colorName}${isSoldOut ? " (Sold Out)" : ""}`}
                   >
                     <span
@@ -366,11 +365,10 @@ const AishaProductHero = ({
             onClick={handleToggleWishlist}
             title={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
             aria-label={wishlistActive ? t("Remove from Wishlist") : t("Add to Wishlist")}
-            className={`w-12 h-12 border flex items-center justify-center transition-all duration-200 cursor-pointer ${
-              wishlistActive
+            className={`w-12 h-12 border flex items-center justify-center transition-all duration-200 cursor-pointer ${wishlistActive
                 ? "bg-[#9C6A5A] border-[#9C6A5A] text-white hover:bg-[#835648]"
                 : "border-neutral-300 text-neutral-700 hover:border-[#9C6A5A] hover:text-[#9C6A5A] bg-white"
-            }`}
+              }`}
           >
             <FiHeart
               size={20}

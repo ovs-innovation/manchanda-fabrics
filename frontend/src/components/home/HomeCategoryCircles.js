@@ -23,10 +23,10 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
         c?.slug ||
         (title
           ? String(title)
-              .toLowerCase()
-              .trim()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-|-$/g, "")
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "")
           : "");
       return { ...c, title, slug };
     })
@@ -63,45 +63,46 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8 sm:gap-10 items-start">
-            {list.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/collections/${cat.slug}`}
-                className="group flex flex-col items-center text-center"
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-white border border-[#E6D1CB] p-1.5 shadow-sm group-hover:border-[#9C6A5A] group-hover:shadow-md transition-all duration-300">
-                  <div className="relative w-full rounded-full overflow-hidden bg-neutral-100">
-                    {/* padding-bottom trick forces a perfect square */}
-                    <div className="pb-[100%]" />
-                    <img
-                      src={getOptimizedImageUrl(cat.image, 250, 250) || FALLBACK_IMAGE}
-                      alt={cat.title}
-                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        if (e.target.src !== window.location.origin + FALLBACK_IMAGE) {
-                          e.target.onerror = null;
-                          e.target.src = FALLBACK_IMAGE;
-                        }
-                      }}
-                    />
-                  </div>
+          {list.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/collections/${cat.slug}`}
+              prefetch={false}
+              className="group flex flex-col items-center text-center"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
+              <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-white border border-[#E6D1CB] p-1.5 shadow-sm group-hover:border-[#9C6A5A] group-hover:shadow-md transition-all duration-300">
+                <div className="relative w-full rounded-full overflow-hidden bg-neutral-100">
+                  {/* padding-bottom trick forces a perfect square */}
+                  <div className="pb-[100%]" />
+                  <img
+                    src={getOptimizedImageUrl(cat.image, 250, 250) || FALLBACK_IMAGE}
+                    alt={cat.title}
+                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (e.target.src !== window.location.origin + FALLBACK_IMAGE) {
+                        e.target.onerror = null;
+                        e.target.src = FALLBACK_IMAGE;
+                      }
+                    }}
+                  />
                 </div>
-                <p className="mt-5 text-[14px] sm:text-base font-medium text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors tracking-wide">
-                  {showingTranslateValue(cat.title) || t(cat.title)}
+              </div>
+              <p className="mt-5 text-[14px] sm:text-base font-medium text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors tracking-wide">
+                {showingTranslateValue(cat.title) || t(cat.title)}
+              </p>
+              {counts[cat.slug] != null && (
+                <p className="mt-1 text-[11px] sm:text-xs text-neutral-400 font-light">
+                  {counts[cat.slug]} {t(counts[cat.slug] === 1 ? "product" : "products")}
                 </p>
-                {counts[cat.slug] != null && (
-                  <p className="mt-1 text-[11px] sm:text-xs text-neutral-400 font-light">
-                    {counts[cat.slug]} {t(counts[cat.slug] === 1 ? "product" : "products")}
-                  </p>
-                )}
-              </Link>
-            ))}
-          </div>
+              )}
+            </Link>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
   );
 };
 

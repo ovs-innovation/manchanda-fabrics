@@ -7,7 +7,7 @@ const Loading = ({ loading, fullScreen = false, text = "LOADING..." }) => {
     <div
       className={`flex flex-col items-center justify-center ${
         fullScreen
-          ? "fixed inset-0 z-[9998] bg-[#FAF7F5]/95 backdrop-blur-sm"
+          ? "fixed inset-0 z-[99999] bg-[#FAF7F5]/95 backdrop-blur-sm"
           : "min-h-[40vh] w-full py-16 bg-[#FAF7F5]"
       }`}
     >

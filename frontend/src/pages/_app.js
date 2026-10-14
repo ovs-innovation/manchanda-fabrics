@@ -41,47 +41,37 @@ function MyApp({ Component, pageProps }) {
   const [storeSetting, setStoreSetting] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
 
-  // Show branded loading screen when page is opening late / loading slowly (>250ms)
+  // Show branded loading screen with logo immediately upon navigation
   useEffect(() => {
-    let timer = null;
-    let safetyTimer = null;
+    let watchdogTimer = null;
 
-    const handleStart = () => {
-      if (timer) clearTimeout(timer);
-      if (safetyTimer) clearTimeout(safetyTimer);
-      timer = setTimeout(() => {
-        setRouteLoading(true);
-        // Safety watchdog: never keep loading screen stuck for more than 3s
-        safetyTimer = setTimeout(() => {
-          setRouteLoading(false);
-        }, 3000);
-      }, 250);
+    const handleStart = (url, { shallow } = {}) => {
+      // Do not trigger loading screen for shallow query changes on the same page
+      if (shallow || url === router.asPath) return;
+      if (watchdogTimer) clearTimeout(watchdogTimer);
+      setRouteLoading(true);
+
+      // Safety watchdog: ensure loading screen clears if route fails or hangs
+      watchdogTimer = setTimeout(() => {
+        setRouteLoading(false);
+      }, 5000);
     };
 
-    const handleEnd = () => {
-      if (timer) clearTimeout(timer);
-      if (safetyTimer) clearTimeout(safetyTimer);
+    const handleComplete = () => {
+      if (watchdogTimer) clearTimeout(watchdogTimer);
       setRouteLoading(false);
     };
 
     router.events.on("routeChangeStart", handleStart);
-    router.events.on("routeChangeComplete", handleEnd);
-    router.events.on("routeChangeError", handleEnd);
-    router.events.on("beforeHistoryChange", handleEnd);
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleComplete);
 
     return () => {
-      if (timer) clearTimeout(timer);
-      if (safetyTimer) clearTimeout(safetyTimer);
+      if (watchdogTimer) clearTimeout(watchdogTimer);
       router.events.off("routeChangeStart", handleStart);
-      router.events.off("routeChangeComplete", handleEnd);
-      router.events.off("routeChangeError", handleEnd);
-      router.events.off("beforeHistoryChange", handleEnd);
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleComplete);
     };
-  }, [router]);
-
-  // Always dismiss routeLoading once the route asPath updates
-  useEffect(() => {
-    setRouteLoading(false);
   }, [router.asPath]);
 
   // Restore saved language preference (default en)
@@ -171,7 +161,7 @@ function MyApp({ Component, pageProps }) {
           </UserProvider>
         </SessionProvider>
       </QueryClientProvider>
-      {/* Global slow/late route transition loading screen */}
+      {/* Original branded loading screen with logo */}
       <Loading loading={routeLoading} fullScreen={true} />
       {/* Render TawkMessengerReact only if tawk_chat_status is enabled */}
       {storeSetting?.tawk_chat_status && (

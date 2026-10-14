@@ -130,7 +130,7 @@ const ProductImageGallery = ({
         selectedColorVar.colorName &&
         s.colorVar.colorName &&
         selectedColorVar.colorName.toLowerCase() ===
-          s.colorVar.colorName.toLowerCase()
+        s.colorVar.colorName.toLowerCase()
       );
     });
 
@@ -212,13 +212,13 @@ const ProductImageGallery = ({
           ) {
             try {
               swiperRef.current.autoplay.start();
-            } catch (e) {}
+            } catch (e) { }
           }
         } else {
           // Immediately pause autoplay when gallery is scrolled out of viewport
           try {
             swiperRef.current.autoplay.stop();
-          } catch (e) {}
+          } catch (e) { }
         }
       },
       { threshold: 0.1 }
@@ -308,13 +308,12 @@ const ProductImageGallery = ({
                 key={`thumb-${slide.id || index}`}
                 ref={(el) => (thumbRefs.current[index] = el)}
                 onClick={() => handleThumbnailClick(index)}
-                className={`flex-shrink-0 relative w-16 h-20 sm:w-[72px] sm:h-[90px] rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer ${
-                  isSlideActive
+                className={`flex-shrink-0 relative w-16 h-20 sm:w-[72px] sm:h-[90px] rounded-lg border overflow-hidden transition-all duration-200 cursor-pointer ${isSlideActive
                     ? isAisha
                       ? "border-[#111111] ring-2 ring-[#111111]/30 shadow-md scale-[1.03]"
                       : "border-[#9C6A5A] ring-2 ring-[#9C6A5A]/30 shadow-md scale-[1.03]"
                     : "border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 bg-neutral-50"
-                }`}
+                  }`}
                 type="button"
                 title={slide.colorName ? `${productTitle} - ${slide.colorName}` : `${productTitle} - ${index + 1}`}
               >
@@ -377,11 +376,10 @@ const ProductImageGallery = ({
       {/* Main Preview Slider with Full Touch-Swipe Support */}
       <div className="flex-1 order-1 lg:order-2 w-full min-w-0">
         <div
-          className={`group relative w-full aspect-[4/5] bg-white overflow-hidden rounded-xl sm:rounded-2xl select-none ${
-            isAisha
+          className={`group relative w-full aspect-[4/5] bg-white overflow-hidden rounded-xl sm:rounded-2xl select-none ${isAisha
               ? "border border-neutral-200/80 shadow-xs"
               : "border border-[#E6D1CB]/60 shadow-lg"
-          }`}
+            }`}
         >
           {/* Overlay Buttons (e.g. wishlist/share) */}
           {buttons}
@@ -443,10 +441,10 @@ const ProductImageGallery = ({
             autoplay={
               displaySlides.length > 1
                 ? {
-                    delay: 4500,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }
+                  delay: 4500,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }
                 : false
             }
             onTouchStart={() => {
@@ -534,11 +532,10 @@ const ProductImageGallery = ({
                     key={`dot-${idx}-${s.id || idx}`}
                     type="button"
                     onClick={() => handleThumbnailClick(idx)}
-                    className={`transition-all duration-300 rounded-full cursor-pointer ${
-                      idx === activeIndex
+                    className={`transition-all duration-300 rounded-full cursor-pointer ${idx === activeIndex
                         ? "w-5 h-1.5 bg-white"
                         : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
-                    }`}
+                      }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
                 ))}

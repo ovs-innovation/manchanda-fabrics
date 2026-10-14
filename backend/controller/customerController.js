@@ -588,7 +588,7 @@ const registerCustomerDirect = async (req, res) => {
     await newUser.save();
 
     // Firebase handles email verification links natively now, so no custom OTP email is sent.
-    
+
     const token = signInToken(newUser);
     res.send({
       token,
@@ -972,7 +972,7 @@ const loginCustomer = async (req, res) => {
       customer.firebaseUid = uid;
     }
 
-    
+
     // Update lastLogin timestamp
     customer.lastLogin = new Date();
     await customer.save();
@@ -2299,7 +2299,7 @@ const sendEmailOtpLogin = async (req, res) => {
           nameFromOrder = order.user_info.name;
           phoneFromOrder = order.user_info.contact || order.user_info.phone;
         }
-      } catch (_) {}
+      } catch (_) { }
 
       user = new Customer({
         name: nameFromOrder || emailNorm.split("@")[0],
@@ -2313,7 +2313,7 @@ const sendEmailOtpLogin = async (req, res) => {
       await user.save();
     } else if (avatar && !user.emailVerified) {
       user.image = avatar;
-      await user.save().catch(() => {});
+      await user.save().catch(() => { });
     }
 
     // Check resend cooldown (60 seconds)
