@@ -36,11 +36,14 @@ export const getDynamicAuthOptions = async () => {
 
   const providers = [];
 
-  if (storeSetting?.google_id && storeSetting?.google_secret) {
+  const googleClientId = storeSetting?.google_id || process.env.GOOGLE_CLIENT_ID;
+  const googleClientSecret = storeSetting?.google_secret || process.env.GOOGLE_CLIENT_SECRET;
+
+  if (googleClientId && googleClientSecret) {
     providers.push(
       Google({
-        clientId: storeSetting.google_id,
-        clientSecret: storeSetting.google_secret,
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
       })
     );
   }

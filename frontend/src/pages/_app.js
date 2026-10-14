@@ -41,15 +41,20 @@ function MyApp({ Component, pageProps }) {
   const [storeSetting, setStoreSetting] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
 
-  // Show branded loading screen with logo immediately upon navigation
+  // Show branded loading screen with logo upon navigation (with 120ms debounce to prevent jarring flashes on instant transitions)
   useEffect(() => {
     let watchdogTimer = null;
+    let startTimer = null;
 
     const handleStart = (url, { shallow } = {}) => {
       // Do not trigger loading screen for shallow query changes on the same page
       if (shallow || url === router.asPath) return;
       if (watchdogTimer) clearTimeout(watchdogTimer);
-      setRouteLoading(true);
+      if (startTimer) clearTimeout(startTimer);
+
+      startTimer = setTimeout(() => {
+        setRouteLoading(true);
+      }, 120);
 
       // Safety watchdog: ensure loading screen clears if route fails or hangs
       watchdogTimer = setTimeout(() => {
@@ -58,6 +63,7 @@ function MyApp({ Component, pageProps }) {
     };
 
     const handleComplete = () => {
+      if (startTimer) clearTimeout(startTimer);
       if (watchdogTimer) clearTimeout(watchdogTimer);
       setRouteLoading(false);
     };
@@ -67,6 +73,7 @@ function MyApp({ Component, pageProps }) {
     router.events.on("routeChangeError", handleComplete);
 
     return () => {
+      if (startTimer) clearTimeout(startTimer);
       if (watchdogTimer) clearTimeout(watchdogTimer);
       router.events.off("routeChangeStart", handleStart);
       router.events.off("routeChangeComplete", handleComplete);

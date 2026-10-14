@@ -11,7 +11,7 @@ import useCartDB from "@hooks/useCartDB";
 import useUtilsFunction, { formatPrice } from "@hooks/useUtilsFunction";
 import { SidebarContext } from "@context/SidebarContext";
 import { notifyError } from "@utils/toast";
-import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { PRODUCT_PLACEHOLDER, normalizeProductImageUrl } from "@utils/brandAssets";
 
 const CartItem = ({ item, currency: propCurrency }) => {
   const { t } = useTranslation("common");
@@ -75,9 +75,10 @@ const CartItem = ({ item, currency: propCurrency }) => {
       >
         <Image
           src={
-            (Array.isArray(item.image) ? item.image[0] : item.image) ||
-            (Array.isArray(item.images) ? item.images[0] : item.images) ||
-            PRODUCT_PLACEHOLDER
+            normalizeProductImageUrl(
+              (Array.isArray(item.image) ? item.image[0] : item.image) ||
+              (Array.isArray(item.images) ? item.images[0] : item.images)
+            ) || PRODUCT_PLACEHOLDER
           }
           alt={item.title || "Product"}
           layout="fill"

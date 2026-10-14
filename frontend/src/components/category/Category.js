@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 import useTranslation from "next-translate/useTranslation";
 import { IoClose, IoChevronDown, IoChevronForward } from "react-icons/io5";
 import {
@@ -12,22 +13,35 @@ import {
   FiUsers,
   FiPhoneCall,
   FiFileText,
+  FiUser,
+  FiLogOut,
 } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 
 //internal import
 import Loading from "@components/preloader/Loading";
 import { SidebarContext } from "@context/SidebarContext";
+import { UserContext } from "@context/UserContext";
 import CategoryServices from "@services/CategoryServices";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { buildMobileCategoryMenu, getCategorySlug } from "@utils/categoryMenu";
+import { isRetiredMediaUrl } from "@utils/brandAssets";
 
 const Category = () => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const { categoryDrawerOpen, closeCategoryDrawer } =
     useContext(SidebarContext);
+  const { state: userState, dispatch } = useContext(UserContext);
+  const userInfo = userState?.userInfo;
   const { showingTranslateValue } = useUtilsFunction();
+
+  const handleLogout = () => {
+    Cookies.remove("userInfo");
+    dispatch({ type: "USER_LOGOUT" });
+    closeCategoryDrawer();
+    router.push("/");
+  };
 
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
@@ -171,7 +185,7 @@ const Category = () => {
                                 }}
                               >
                                 <div className="flex items-center gap-2.5">
-                                  {parentCategory?.icon && (
+                                  {parentCategory?.icon && !isRetiredMediaUrl(parentCategory.icon) && (
                                     <Image
                                       src={parentCategory.icon}
                                       alt={showingTranslateValue(parentCategory?.name)}
@@ -207,7 +221,7 @@ const Category = () => {
                                       onClick={() => navigateToCategory(subcategory)}
                                       className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium text-[#3B2A25]/70 hover:text-[#9C6A5A] transition-colors text-left"
                                     >
-                                      {subcategory?.icon && (
+                                      {subcategory?.icon && !isRetiredMediaUrl(subcategory.icon) && (
                                         <Image
                                           src={subcategory.icon}
                                           alt={showingTranslateValue(subcategory?.name)}
@@ -246,6 +260,65 @@ const Category = () => {
             ))}
           </ul>
         </nav>
+
+        {/* User Account / Sign in status */}
+        <div className="p-4 mt-2 border-t border-[#E6D1CB]/60 bg-white/70">
+          {userInfo?.token ? (
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-3 px-1 py-1">
+                {userInfo.image ? (
+                  <img
+                    src={userInfo.image}
+                    alt={userInfo.name}
+                    width={36}
+                    height={36}
+                    className="w-9 h-9 rounded-full object-cover border border-[#E6D1CB]"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#FAF7F5] border border-[#E6D1CB] flex items-center justify-center text-[#9C6A5A] font-bold text-sm">
+                    {(userInfo.name || "U")[0]?.toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#3B2A25] truncate">
+                    {userInfo.name || "Valued Customer"}
+                  </p>
+                  <p className="text-[11px] text-[#3B2A25]/60 truncate">
+                    {userInfo.email || userInfo.phone || ""}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  href="/user/dashboard"
+                  onClick={closeCategoryDrawer}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#FAF7F5] border border-[#E6D1CB]/80 text-[11px] font-bold uppercase tracking-wider text-[#3B2A25] hover:border-[#9C6A5A] transition-all"
+                >
+                  <FiUser className="w-3.5 h-3.5 text-[#9C6A5A]" />
+                  <span>Dashboard</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-red-50 border border-red-200 text-[11px] font-bold uppercase tracking-wider text-red-600 hover:bg-red-100 transition-all cursor-pointer"
+                >
+                  <FiLogOut className="w-3.5 h-3.5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              onClick={closeCategoryDrawer}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#9C6A5A] text-white text-xs font-bold uppercase tracking-wider shadow-sm hover:bg-[#855749] transition-all active:scale-[0.99]"
+            >
+              <FiUser className="w-4 h-4" />
+              <span>Sign In / Register</span>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

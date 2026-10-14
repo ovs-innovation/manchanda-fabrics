@@ -53,7 +53,13 @@ const NewArrivals = ({ products, attributes }) => {
   );
 };
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async ({ res }) => {
+  if (res) {
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=120, stale-while-revalidate=300"
+    );
+  }
   try {
     const [data, attributes] = await Promise.all([
       ProductServices.getShowingStoreProducts({ tag: "new-arrival" }),

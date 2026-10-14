@@ -100,6 +100,8 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
   const { totalItems } = useCart();
   const { count: wishlistCount } = useWishlist();
   const isSidebarAction = useRef(false);
+  const hasMountedRef = useRef(false);
+  const lastFetchedQueryRef = useRef(router.query.query || "");
 
   const [mounted, setMounted] = useState(false);
 
@@ -197,12 +199,43 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
 
   // Main synchronization useEffect for products and URL params
   useEffect(() => {
+    if (!router.isReady) return;
+
+    if (!isSidebarAction.current) {
+      const catSlug = router.query.category;
+      const id = router.query._id;
+
+      if (catSlug) {
+        const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all-collections"].includes(
+          String(catSlug).toLowerCase().trim()
+        );
+        const matched = !isGeneric ? findCategoryBySlugOrId(categories, catSlug) : null;
+        if (matched?._id) {
+          setSelectedCategories([String(matched._id)]);
+        } else {
+          setSelectedCategories([]);
+        }
+      } else if (id) {
+        setSelectedCategories([String(id)]);
+      } else {
+        setSelectedCategories([]);
+      }
+    }
+    isSidebarAction.current = false;
+
+    const q = router.query.query || "";
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      lastFetchedQueryRef.current = q;
+      return;
+    }
+
+    if (q === lastFetchedQueryRef.current) return;
+    lastFetchedQueryRef.current = q;
+
     const fetchByQuery = async () => {
       setIsLoading(true);
       try {
-        const q = router.query.query;
-
-        // Fetch products without category constraint so client-side filters work on all items
         const response = await ProductServices.getShowingStoreProducts({
           category: "",
           title: q ? encodeURIComponent(q) : "",
@@ -218,34 +251,7 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
       }
     };
 
-    if (router.isReady) {
-      // Initialize selectedCategories from URL on first load or URL changes
-      // Skip this sync when the user is interacting with the sidebar (to avoid overwriting their selection)
-      if (!isSidebarAction.current) {
-        const catSlug = router.query.category;
-        const id = router.query._id;
-
-        if (catSlug) {
-          const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all-collections"].includes(
-            String(catSlug).toLowerCase().trim()
-          );
-          const matched = !isGeneric ? findCategoryBySlugOrId(categories, catSlug) : null;
-          if (matched?._id) {
-            setSelectedCategories([String(matched._id)]);
-          } else {
-            setSelectedCategories([]);
-          }
-        } else if (id) {
-          setSelectedCategories([String(id)]);
-        } else {
-          // No category in URL → show ALL (empty selection = all products in useFilter)
-          setSelectedCategories([]);
-        }
-      }
-      // Reset sidebar flag AFTER we've decided whether to sync categories
-      isSidebarAction.current = false;
-      fetchByQuery();
-    }
+    fetchByQuery();
   }, [router.isReady, router.query._id, router.query.category, router.query.query]);
 
   // Sync category if categories finish loading after router is ready
@@ -778,6 +784,12 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
 export default Search;
 
 export const getServerSideProps = async (context) => {
+  if (context.res) {
+    context.res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=120, stale-while-revalidate=300"
+    );
+  }
   const { query } = context.query;
 
   const [dataResult, attributesResult, categoriesResult] = await Promise.allSettled([

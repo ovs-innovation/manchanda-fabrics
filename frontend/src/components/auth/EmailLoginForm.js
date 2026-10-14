@@ -2,10 +2,12 @@ import { useState, useEffect, useRef, useContext } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FiMail, FiArrowLeft, FiAlertCircle, FiLock } from "react-icons/fi";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 import useEmailLogin from "@hooks/useEmailLogin";
 import useResendTimer from "@hooks/useResendTimer";
 import { UserContext } from "@context/UserContext";
-import { notifySuccess } from "@utils/toast";
+import { notifySuccess, notifyError } from "@utils/toast";
 import saveAuthSession from "@utils/saveAuthSession";
 import { getPostAuthPath } from "@utils/profileAuth";
 
@@ -113,6 +115,31 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
   const otpInputRefs = useRef([]);
   const [emailAddress, setEmailAddress] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState(isSignup ? STREETWEAR_AVATARS.boys[0].url : "");
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      const res = await fetch("/api/auth/providers");
+      const providers = await res.json().catch(() => ({}));
+      if (!providers?.google) {
+        setGoogleLoading(false);
+        notifyError(
+          "Google Login setup pending: Please add Google Client ID & Secret in Admin Panel (Settings → Store Settings)."
+        );
+        return;
+      }
+      const postAuth = getPostAuthPath(router.query);
+      await signIn("google", {
+        callbackUrl: postAuth || "/user/dashboard",
+        redirect: true,
+      });
+    } catch (err) {
+      console.error("Google sign-in error:", err);
+      notifyError(err?.message || "Unable to start Google sign-in");
+      setGoogleLoading(false);
+    }
+  };
 
   const resetOtpInputs = (len) => {
     setOtpLength(len);
@@ -328,6 +355,34 @@ const EmailLoginForm = ({ variant = "login", allowCheckoutSignup = false }) => {
               </div>
             </div>
           )}
+
+          {/* Continue with Google */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+            className="w-full h-11 sm:h-12 flex items-center justify-center gap-3 rounded-xl border border-[#E6D1CB] bg-white text-xs sm:text-sm font-bold tracking-wide text-[#3B2A25] shadow-sm hover:border-[#9C6A5A] hover:bg-neutral-50/70 hover:shadow-md transition-all duration-200 active:scale-[0.99] cursor-pointer"
+          >
+            {googleLoading ? (
+              <>
+                <Spinner />
+                <span>Connecting to Google…</span>
+              </>
+            ) : (
+              <>
+                <FcGoogle className="w-5 h-5 flex-shrink-0" />
+                <span>Continue with Google</span>
+              </>
+            )}
+          </button>
+
+          <div className="relative my-2 sm:my-3 flex items-center justify-center">
+            <div className="border-t border-[#E6D1CB]/70 w-full" />
+            <span className="bg-[#FAF7F5] px-3 text-[10px] font-bold uppercase tracking-widest text-[#3B2A25]/50 shrink-0">
+              OR WITH EMAIL OTP
+            </span>
+            <div className="border-t border-[#E6D1CB]/70 w-full" />
+          </div>
 
           <div>
             <label

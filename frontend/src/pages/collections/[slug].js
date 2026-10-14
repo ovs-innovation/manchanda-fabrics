@@ -111,6 +111,8 @@ const CollectionsSlug = ({
   const { totalItems } = useCart();
   const { count: wishlistCount } = useWishlist();
   const isSidebarAction = useRef(false);
+  const hasMountedRef = useRef(false);
+  const lastFetchedQueryRef = useRef(router.query.query || "");
 
   const [mounted, setMounted] = useState(false);
 
@@ -191,10 +193,39 @@ const CollectionsSlug = ({
   };
 
   useEffect(() => {
+    if (!router.isReady) return;
+
+    if (!isSidebarAction.current) {
+      // Base category comes from slug; if _id is provided (from category drawer), prefer _id
+      const id = router.query._id;
+      if (id) {
+        setSelectedCategories([String(id)]);
+      } else if (slug) {
+        const matched = findCategoryBySlugOrId(categories, slug);
+        if (matched?._id) {
+          setSelectedCategories([String(matched._id)]);
+        } else {
+          setSelectedCategories([String(slug)]);
+        }
+      } else {
+        setSelectedCategories([]);
+      }
+    }
+    isSidebarAction.current = false;
+
+    const q = router.query.query || "";
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      lastFetchedQueryRef.current = q;
+      return;
+    }
+
+    if (q === lastFetchedQueryRef.current) return;
+    lastFetchedQueryRef.current = q;
+
     const fetchByQuery = async () => {
       setIsLoading(true);
       try {
-        const q = router.query.query;
         const response = await ProductServices.getShowingStoreProducts({
           category: "",
           title: q ? encodeURIComponent(q) : "",
@@ -208,26 +239,7 @@ const CollectionsSlug = ({
       }
     };
 
-    if (router.isReady) {
-      if (!isSidebarAction.current) {
-        // Base category comes from slug; if _id is provided (from category drawer), prefer _id
-        const id = router.query._id;
-        if (id) {
-          setSelectedCategories([String(id)]);
-        } else if (slug) {
-          const matched = findCategoryBySlugOrId(categories, slug);
-          if (matched?._id) {
-            setSelectedCategories([String(matched._id)]);
-          } else {
-            setSelectedCategories([String(slug)]);
-          }
-        } else {
-          setSelectedCategories([]);
-        }
-      }
-      isSidebarAction.current = false;
-      fetchByQuery();
-    }
+    fetchByQuery();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, slug, router.query.query, router.query._id]);
 
@@ -710,6 +722,12 @@ const CollectionsSlug = ({
 export default CollectionsSlug;
 
 export const getServerSideProps = async (context) => {
+  if (context.res) {
+    context.res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=120, stale-while-revalidate=300"
+    );
+  }
   const { query, params } = context;
   const slug = params?.slug || query?.slug;
 

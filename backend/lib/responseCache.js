@@ -10,8 +10,8 @@ const crypto = require("crypto");
 // processes each would hold its own copy and only the one that handled the
 // write would be invalidated immediately; the others would follow at FRESH_MS.
 
-const FRESH_MS = Number(process.env.RESPONSE_CACHE_FRESH_MS) || 60 * 1000;
-const STALE_MS = Number(process.env.RESPONSE_CACHE_STALE_MS) || 10 * 60 * 1000;
+const FRESH_MS = Number(process.env.RESPONSE_CACHE_FRESH_MS) || 10 * 60 * 1000;
+const STALE_MS = Number(process.env.RESPONSE_CACHE_STALE_MS) || 60 * 60 * 1000;
 const MAX_ENTRIES = Number(process.env.RESPONSE_CACHE_MAX_ENTRIES) || 500;
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
 const WARM_KEYS = 25;
@@ -162,15 +162,26 @@ const middleware = (req, res, next) => {
   const startGeneration = generation;
   const originalSend = res.send;
   res.send = function patchedSend(body) {
+    let payload = body;
+    let contentType = res.get("Content-Type") || "application/json; charset=utf-8";
+    if (body !== null && typeof body === "object" && !Buffer.isBuffer(body)) {
+      try {
+        payload = JSON.stringify(body);
+        contentType = "application/json; charset=utf-8";
+      } catch (e) {
+        payload = null;
+      }
+    }
     if (
       res.statusCode === 200 &&
       startGeneration === generation &&
-      (typeof body === "string" || Buffer.isBuffer(body)) &&
-      Buffer.byteLength(body) <= MAX_BODY_BYTES
+      payload &&
+      (typeof payload === "string" || Buffer.isBuffer(payload)) &&
+      Buffer.byteLength(payload) <= MAX_BODY_BYTES
     ) {
       remember(key, {
-        body,
-        contentType: res.get("Content-Type") || "application/json; charset=utf-8",
+        body: payload,
+        contentType,
         storedAt: Date.now(),
       });
     }

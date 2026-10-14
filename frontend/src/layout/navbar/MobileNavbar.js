@@ -117,9 +117,13 @@ const MobileNavbar = () => {
               <LocationButton className="h-full shrink-0" />
               <div className="flex-1 relative">
                 <input
+                  id="mobile-search-field"
+                  name="search"
                   ref={searchInputRef}
                   autoFocus
                   type="text"
+                  autoComplete="off"
+                  aria-label="Search sarees, suits, fabrics"
                   value={searchText}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   placeholder="Search sarees, suits, fabrics..."

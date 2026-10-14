@@ -11,6 +11,7 @@ import {
 import { SidebarContext } from "@context/SidebarContext";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import useGetSetting from "@hooks/useGetSetting";
+import { isRetiredMediaUrl } from "@utils/brandAssets";
 
 const CategoryCard = ({ title, icon, nested, id }) => {
   const router = useRouter();
@@ -62,11 +63,11 @@ const CategoryCard = ({ title, icon, nested, id }) => {
         className={`p-2 flex items-center rounded-md hover:bg-gray-50 w-full hover:text-store-600`}
         role="button"
       >
-        {icon ? (
+        {icon && !isRetiredMediaUrl(icon) ? (
           <Image src={icon} width={24} height={24} alt="Category" />
         ) : (
           <Image
-            src="https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png"
+            src="/placeholder.png"
             width={24}
             height={24}
             alt="category"
