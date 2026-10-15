@@ -436,11 +436,11 @@ const AishaProductHero = ({
           type="button"
           onClick={handleShareToWhatsApp}
           disabled={isSharing}
-          className="w-full mt-3 h-11 border border-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] hover:text-[#075E54] text-xs sm:text-sm font-semibold rounded-none flex items-center justify-center gap-2.5 transition-all duration-200 tracking-wider uppercase cursor-pointer"
+          className="w-full mt-3 h-11 border border-[#25D366]/60 bg-[#25D366]/8 hover:bg-[#25D366]/15 text-[#075E54] text-xs sm:text-sm font-semibold rounded-none flex items-center justify-center gap-2.5 transition-all duration-200 tracking-wider uppercase cursor-pointer"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           <FaWhatsapp className="text-[#25D366] text-xl shrink-0" />
-          <span>{isSharing ? "Preparing WhatsApp Share..." : "Share on WhatsApp with Photo"}</span>
+          <span>{isSharing ? "Opening WhatsApp..." : "Share on WhatsApp"}</span>
         </button>
 
         <hr className="my-6 border-neutral-200" />
