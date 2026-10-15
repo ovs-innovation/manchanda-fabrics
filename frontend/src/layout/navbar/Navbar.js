@@ -28,6 +28,7 @@ import { notifySuccess } from "@utils/toast";
 import DesktopMenu from "@components/navbar/DesktopMenu";
 import MobileMenu from "@components/navbar/MobileMenu";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
+import SearchBar from "@components/navbar/SearchBar";
 import useTranslation from "next-translate/useTranslation";
 import useGetSetting from "@hooks/useGetSetting";
 import useWishlist from "@hooks/useWishlist";
@@ -134,13 +135,7 @@ const Navbar = () => {
         <div className="flex items-center gap-5 lg:gap-6 shrink-0 text-[#111111] pr-4">
           <LanguageSwitcher />
 
-          <Link
-            href="/search"
-            className="p-1 hover:text-[#111111]/70 transition-colors"
-            aria-label="Search"
-          >
-            <Search size={20} strokeWidth={1.75} />
-          </Link>
+          <SearchBar />
 
           {/* Wishlist Link with live heart badge */}
           <Link

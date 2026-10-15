@@ -25,7 +25,15 @@ const FloatingWhatsApp = dynamic(
   { ssr: false }
 );
 
-const Layout = ({ title, description, children, hideMobileHeader }) => {
+const Layout = ({
+  title,
+  description,
+  children,
+  hideMobileHeader,
+  image,
+  ogType = "website",
+  ogUrl,
+}) => {
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const router = useRouter();
   const isHome = router.pathname === "/";
@@ -45,6 +53,23 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
     storeCustomizationSetting?.seo?.meta_description ||
     description ||
     "Manchanda Fabrics offers premium women's ethnic fashion. Curated Banarasi, silk, and cotton sarees, suits, and fabrics crafted for traditions and celebrations.";
+
+  const siteUrl = "https://manchandafabric.in";
+  const currentUrl =
+    ogUrl ||
+    (router?.asPath ? `${siteUrl}${router.asPath.split("?")[0]}` : siteUrl);
+
+  const resolveImageUrl = (img) => {
+    if (!img) return "https://manchandafabric.in/og-image.jpg";
+    if (typeof img !== "string") return "https://manchandafabric.in/og-image.jpg";
+    if (img.startsWith("http://") || img.startsWith("https://")) return img;
+    if (img.startsWith("/")) return `${siteUrl}${img}`;
+    return `${siteUrl}/${img}`;
+  };
+
+  const shareImage = resolveImageUrl(image);
+  const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+  const pageDescription = description || defaultDescription;
 
   if (globalSetting?.maintenance_mode) {
     return (
@@ -71,11 +96,27 @@ const Layout = ({ title, description, children, hideMobileHeader }) => {
   return (
     <>
       <Head>
-        <title>{title ? `${siteTitle} | ${title}` : siteTitle}</title>
-        <meta name="description" content={description || defaultDescription} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} key="description" />
         <link rel="icon" href={favicon} />
         <link rel="shortcut icon" href={favicon} />
         <link rel="apple-touch-icon" href={favicon} />
+
+        {/* ── Open Graph / WhatsApp / Facebook Preview Tags ── */}
+        <meta property="og:type" content={ogType} key="og:type" />
+        <meta property="og:site_name" content={siteTitle} key="og:site_name" />
+        <meta property="og:url" content={currentUrl} key="og:url" />
+        <meta property="og:title" content={title || siteTitle} key="og:title" />
+        <meta property="og:description" content={pageDescription} key="og:description" />
+        <meta property="og:image" content={shareImage} key="og:image" />
+        <meta property="og:image:secure_url" content={shareImage} key="og:image:secure_url" />
+        <meta property="og:image:alt" content={title || siteTitle} key="og:image:alt" />
+
+        {/* ── Twitter Card Tags ── */}
+        <meta name="twitter:card" content="summary_large_image" key="twitter:card" />
+        <meta name="twitter:title" content={title || siteTitle} key="twitter:title" />
+        <meta name="twitter:description" content={pageDescription} key="twitter:description" />
+        <meta name="twitter:image" content={shareImage} key="twitter:image" />
       </Head>
 
       <div className="font-sans text-[#3B2A25] bg-[#FAF7F5]">

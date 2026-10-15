@@ -2,13 +2,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
   render() {
-    const metaTitle =
-      "Manchanda Fabrics - unstitched suit fabrics, chosen with care - from our family to yours";
-    const metaDescription =
-      "Unstitched suit fabrics, chosen with care — from our family to yours. Handpicked suits, silks & fabrics since 1990 from Chandni Chowk, Delhi.";
     const favicon = "/logo/logo.png";
-    const ogImage = "https://manchandafabric.in/og-image.jpg";
-    const siteUrl = "https://manchandafabric.in";
 
     return (
       <Html lang="en">
@@ -25,26 +19,6 @@ class MyDocument extends Document {
             rel="stylesheet"
           />
           <meta name="referrer" content="strict-origin-when-cross-origin" />
-          <meta name="description" content={metaDescription} />
-
-          {/* ── Open Graph / WhatsApp / Facebook Preview Tags ── */}
-          <meta property="og:type" content="website" />
-          <meta property="og:site_name" content="Manchanda Fabrics" />
-          <meta property="og:url" content={siteUrl} />
-          <meta property="og:title" content={metaTitle} />
-          <meta property="og:description" content={metaDescription} />
-          <meta property="og:image" content={ogImage} />
-          <meta property="og:image:secure_url" content={ogImage} />
-          <meta property="og:image:type" content="image/jpeg" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta property="og:image:alt" content="Manchanda Fabrics — Wholesale Ladies' Suits" />
-
-          {/* ── Twitter Card Tags ── */}
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={metaTitle} />
-          <meta name="twitter:description" content={metaDescription} />
-          <meta name="twitter:image" content={ogImage} />
           <style
             dangerouslySetInnerHTML={{
               __html: `

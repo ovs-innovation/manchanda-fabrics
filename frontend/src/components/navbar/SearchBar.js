@@ -6,10 +6,12 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
+import useTranslation from "next-translate/useTranslation";
 import SearchSuggestions from "@components/search/SearchSuggestions";
 
 const SearchBar = () => {
   const router = useRouter();
+  const { t } = useTranslation("common");
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -44,6 +46,18 @@ const SearchBar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isExpanded) {
+        setIsExpanded(false);
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isExpanded]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmed = searchText.trim();
@@ -77,11 +91,11 @@ const SearchBar = () => {
           <motion.form
             key="search-form"
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 220, opacity: 1 }}
+            animate={{ width: 240, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
             onSubmit={handleSubmit}
-            className="overflow-hidden mr-2"
+            className="overflow-hidden mr-1.5"
           >
             <div className="relative flex items-center">
               <input
@@ -90,18 +104,18 @@ const SearchBar = () => {
                 value={searchText}
                 onChange={(e) => handleChange(e.target.value)}
                 onFocus={() => searchText.length > 1 && setShowSuggestions(true)}
-                placeholder="Search fabrics, suits..."
-                className="w-full h-9 pl-3 pr-8 text-[11px] tracking-wide border border-neutral-200 rounded-none bg-white text-[#1F2937] placeholder-neutral-300 focus:outline-none focus:border-[#E35353] transition-colors duration-200"
+                placeholder={t("Search fabrics, suits...")}
+                className="w-full h-8.5 pl-3.5 pr-7 text-xs font-normal tracking-wide border border-neutral-300 rounded-full bg-white text-[#111111] placeholder:text-neutral-400 focus:outline-none focus:border-[#9C6A5A] focus:ring-1 focus:ring-[#9C6A5A] transition-colors duration-200"
                 aria-label="Search products"
               />
               {searchText && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="absolute right-2 text-neutral-400 hover:text-[#E35353] transition-colors"
+                  className="absolute right-2 text-neutral-400 hover:text-[#9C6A5A] transition-colors p-0.5"
                   aria-label="Clear search"
                 >
-                  <X size={12} />
+                  <X size={13} />
                 </button>
               )}
             </div>
@@ -110,12 +124,11 @@ const SearchBar = () => {
       </AnimatePresence>
 
       {/* Search icon toggle */}
-      <motion.button
+      <button
         type="button"
         onClick={() => setIsExpanded((v) => !v)}
-        className="p-2 text-[#1F2937] hover:text-[#E35353] transition-colors duration-300 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E35353]/40"
+        className="p-1 text-[#111111] hover:text-[#9C6A5A] transition-colors rounded-sm focus:outline-none"
         aria-label={isExpanded ? "Close search" : "Open search"}
-        whileTap={{ scale: 0.9 }}
       >
         <AnimatePresence mode="wait">
           {isExpanded ? (
@@ -124,9 +137,10 @@ const SearchBar = () => {
               initial={{ rotate: -90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center justify-center text-[#9C6A5A]"
             >
-              <X size={18} strokeWidth={1.5} />
+              <X size={20} strokeWidth={1.75} />
             </motion.span>
           ) : (
             <motion.span
@@ -134,17 +148,18 @@ const SearchBar = () => {
               initial={{ rotate: 90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center justify-center"
             >
-              <Search size={18} strokeWidth={1.5} />
+              <Search size={20} strokeWidth={1.75} />
             </motion.span>
           )}
         </AnimatePresence>
-      </motion.button>
+      </button>
 
       {/* Suggestions overlay */}
       {isExpanded && (
-        <div className="absolute top-full right-0 w-[220px] z-50">
+        <div className="absolute top-full right-0 w-[280px] sm:w-[320px] z-50">
           <SearchSuggestions
             searchText={searchText}
             showSuggestions={showSuggestions}
@@ -162,3 +177,4 @@ const SearchBar = () => {
 };
 
 export default SearchBar;
+

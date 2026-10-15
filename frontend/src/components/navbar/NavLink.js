@@ -3,7 +3,10 @@ import { useRouter } from "next/router";
 
 const NavLink = ({ href, children, className = "" }) => {
   const router = useRouter();
-  const isActive = router.pathname === href || router.asPath === href;
+  const isActive =
+    href === "/search"
+      ? (router.pathname === "/search" || router.asPath === "/search") && !router.query?.query
+      : router.pathname === href || router.asPath === href;
 
   return (
     <Link

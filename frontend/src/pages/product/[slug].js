@@ -1,4 +1,5 @@
 import useTranslation from "next-translate/useTranslation";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -257,6 +258,41 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     // Always take the real browser URL so that we include query params
     setShareUrl(window.location.href);
   }, [router.isReady, router.asPath]);
+
+  // Derive primary image and clean description for social sharing (WhatsApp/Facebook)
+  const primaryShareImage = useMemo(() => {
+    if (Array.isArray(product?.image) && product.image.length > 0) {
+      const firstValid = product.image.find((img) => img && typeof img === "string" && img.trim() !== "");
+      if (firstValid) return firstValid;
+    }
+    if (typeof product?.image === "string" && product.image.trim() !== "") {
+      return product.image;
+    }
+    if (product?.featuredImage && typeof product.featuredImage === "string") {
+      return product.featuredImage;
+    }
+    if (Array.isArray(product?.colorVariants) && product.colorVariants.length > 0) {
+      for (const cv of product.colorVariants) {
+        if (Array.isArray(cv?.images) && cv.images.length > 0 && cv.images[0]) {
+          return cv.images[0];
+        }
+      }
+    }
+    if (activeImage && typeof activeImage === "string" && activeImage.trim()) {
+      return activeImage;
+    }
+    return null;
+  }, [activeImage, product]);
+
+  const cleanProductDescription = useMemo(() => {
+    const raw = dynamicDescription || showingTranslateValue(product?.description) || "";
+    if (typeof raw !== "string") return "";
+    const clean = raw.replace(/<[^>]*>?/gm, "").replace(/\s+/g, " ").trim();
+    return clean.slice(0, 240);
+  }, [dynamicDescription, product?.description, showingTranslateValue]);
+
+  const productShareTitle = dynamicTitle || showingTranslateValue(product?.title) || "Product Details";
+  const productOgUrl = product?.slug ? `https://manchandafabric.in/product/${product.slug}` : undefined;
 
   // Auto-select first available variant on initial load
   useEffect(() => {
@@ -976,9 +1012,21 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
         <Loading loading={isLoading} />
       ) : (
         <Layout
-          title={dynamicTitle || showingTranslateValue(product?.title)}
-          description={dynamicDescription || showingTranslateValue(product.description)}
+          title={productShareTitle}
+          description={cleanProductDescription}
+          image={primaryShareImage}
+          ogType="product"
+          ogUrl={productOgUrl}
         >
+          <Head>
+            {price > 0 && (
+              <>
+                <meta property="product:price:amount" content={String(price)} key="product:price:amount" />
+                <meta property="product:price:currency" content="INR" key="product:price:currency" />
+              </>
+            )}
+            <meta property="product:availability" content={stock > 0 ? "in stock" : "out of stock"} key="product:availability" />
+          </Head>
           <div className="bg-white py-8 lg:py-12">
             <div className="mx-auto px-6 sm:px-12 lg:px-16 max-w-screen-2xl">
               <div className="flex items-center pb-6 justify-between gap-4">

@@ -565,7 +565,7 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              {t("PREMIUM SELECTIONS")}
+              {query ? t("SEARCH RESULTS") : t("PREMIUM SELECTIONS")}
             </span>
             <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
           </div>
@@ -585,6 +585,53 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               </>
             )}
           </h1>
+
+          {/* Desktop Search Input on /search page */}
+          <div className="hidden lg:block mt-6 max-w-lg mx-auto relative">
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder={t("Search fabrics, suits, sarees...")}
+                className="w-full h-11 pl-4 pr-11 rounded-full border border-[#E6D1CB] bg-white text-sm text-[#3B2A25] placeholder:text-neutral-400 focus:outline-none focus:border-[#9C6A5A] focus:ring-1 focus:ring-[#9C6A5A] shadow-xs transition-all"
+                onFocus={() => searchText.length > 0 && setShowSuggestions(true)}
+              />
+              {searchText ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchText("");
+                    setShowSuggestions(false);
+                    if (query) {
+                      const newQuery = { ...router.query };
+                      delete newQuery.query;
+                      router.push({ pathname: "/search", query: newQuery });
+                    }
+                  }}
+                  className="absolute right-10 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#9C6A5A] transition-colors p-1"
+                  aria-label="Clear search"
+                >
+                  <IoClose size={16} />
+                </button>
+              ) : null}
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#9C6A5A] text-white flex items-center justify-center hover:bg-[#86594B] transition-colors"
+                aria-label="Search"
+              >
+                <IoSearchOutline size={16} />
+              </button>
+            </form>
+            <SearchSuggestions
+              searchText={searchText}
+              showSuggestions={showSuggestions}
+              onSelect={() => {
+                setShowSuggestions(false);
+              }}
+              onClose={() => setShowSuggestions(false)}
+            />
+          </div>
         </div>
 
         <div className="flex gap-6">
