@@ -121,18 +121,39 @@ const Uploader = ({
 
     await img.decode();
 
+    // Preserve aspect ratio instead of squashing rectangular images into square
+    const origW = img.naturalWidth || img.width;
+    const origH = img.naturalHeight || img.height;
+    const maxDim = Math.max(width, height);
+
+    let finalW = origW;
+    let finalH = origH;
+
+    if (origW > maxDim || origH > maxDim) {
+      if (origW >= origH) {
+        finalW = maxDim;
+        finalH = Math.round((origH * maxDim) / origW);
+      } else {
+        finalH = maxDim;
+        finalW = Math.round((origW * maxDim) / origH);
+      }
+    } else {
+      // Image is already within target bounds; preserve original file
+      return file;
+    }
+
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = finalW;
+    canvas.height = finalH;
 
     return new Promise((resolve) => {
       pica
         .resize(img, canvas, {
-          unsharpAmount: 80,
-          unsharpRadius: 0.6,
+          unsharpAmount: 35,
+          unsharpRadius: 0.5,
           unsharpThreshold: 2,
         })
-        .then((result) => pica.toBlob(result, file.type, 0.9))
+        .then((result) => pica.toBlob(result, file.type, 0.92))
         .then((blob) => {
           const resizedFile = new File([blob], file.name, { type: file.type });
           resolve(resizedFile);

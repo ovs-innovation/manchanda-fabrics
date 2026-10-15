@@ -149,10 +149,10 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                 {/* Gold divider line: centered on mobile, left on desktop */}
                 <div className="w-12 sm:w-14 h-[1.5px] bg-[#C8A45D] mx-auto lg:mx-0" />
 
-                {/* Mobile-Only Family Photo Card (Dynamic with clean fallback, native 5:4 aspect ratio) */}
+                {/* Mobile-Only Family Photo Card (Dynamic with clean fallback, balanced 1:1 portrait) */}
                 <div className="block lg:hidden my-2 sm:my-3">
                   <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_12px_32px_rgba(59,42,37,0.12)] border border-[#E6D1CB] bg-white p-1.5 sm:p-2">
-                    <div className="relative aspect-[5/4] sm:aspect-[4/3] w-full rounded-xl overflow-hidden bg-neutral-100">
+                    <div className="relative aspect-[1/1] sm:aspect-[1/1] w-full rounded-xl overflow-hidden bg-neutral-100">
                       <Image
                         src={mobileImageSrc}
                         alt={founder.signature || "The Manchanda Family"}
@@ -160,7 +160,7 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                         priority
                         unoptimized={typeof mobileImageSrc === "string" && mobileImageSrc.startsWith("http")}
                         sizes="(max-width: 1024px) 100vw, 500px"
-                        className="object-cover object-top"
+                        className="object-cover object-center"
                       />
                       {/* Subtle luxury caption vignette */}
                       <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 via-black/25 to-transparent flex items-end justify-center pb-2 px-3">
@@ -241,9 +241,9 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                 {/* Vertical Accent Line (matching reference screenshot) */}
                 <div className="hidden lg:block absolute -left-5 lg:-left-6 top-2 w-[1.5px] h-14 bg-[#C8A45D]/50" />
 
-                {/* Main Image Frame Container (Dynamic with clean fallback) */}
+                {/* Main Image Frame Container (Dynamic with clean fallback, balanced 1:1 portrait) */}
                 <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_16px_45px_rgba(59,42,37,0.08)] border border-[#E6D1CB] bg-white p-2 sm:p-2.5">
-                  <div className="relative aspect-[6/5] sm:aspect-[6/5] lg:aspect-[6/5] xl:aspect-[6/5] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-neutral-100 group">
+                  <div className="relative aspect-[1/1] sm:aspect-[1/1] lg:aspect-[1/1] xl:aspect-[1/1] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-neutral-100 group">
                     <Image
                       src={desktopImageSrc}
                       alt={founder.signature || "The Manchanda Family"}
@@ -251,7 +251,7 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
                       priority
                       unoptimized={typeof desktopImageSrc === "string" && desktopImageSrc.startsWith("http")}
                       sizes="(max-width: 1024px) 100vw, 650px"
-                      className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.015]"
+                      className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.015]"
                     />
                   </div>
                 </div>

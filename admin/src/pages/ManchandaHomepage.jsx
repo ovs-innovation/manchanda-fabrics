@@ -226,6 +226,7 @@ const ManchandaHomepage = () => {
                 imageUrl={f.mainImage}
                 setImageUrl={(url) => updateFounder({ mainImage: url })}
                 folder="homepage"
+                useOriginalSize={true}
               />
             </div>
             <div>
@@ -244,6 +245,7 @@ const ManchandaHomepage = () => {
                 imageUrl={f.secondaryImage}
                 setImageUrl={(url) => updateFounder({ secondaryImage: url })}
                 folder="homepage"
+                useOriginalSize={true}
               />
             </div>
           </div>
@@ -336,11 +338,16 @@ const ManchandaHomepage = () => {
               next[index] = { ...next[index], address: v };
               updateStores(next);
             }} />
-            <Uploader imageUrl={store.image} setImageUrl={(url) => {
-              const next = [...stores];
-              next[index] = { ...next[index], image: url };
-              updateStores(next);
-            }} folder="homepage" />
+            <Uploader
+              imageUrl={store.image}
+              setImageUrl={(url) => {
+                const next = [...stores];
+                next[index] = { ...next[index], image: url };
+                updateStores(next);
+              }}
+              folder="homepage"
+              useOriginalSize={true}
+            />
           </div>
         ))}
         <Button type="button" onClick={() => updateStores([...stores, { name: "", address: "", image: "" }])}>
@@ -362,7 +369,7 @@ const ManchandaHomepage = () => {
             value={numbersText}
             onChange={(v) =>
               setHomepage({
-                ...homepage,
+                 ...homepage,
                 whatsappNumbers: v.split("\n").map((s) => s.trim()).filter(Boolean),
               })
             }
@@ -386,7 +393,12 @@ const ManchandaHomepage = () => {
           <Input label="WhatsApp Number" value={vs.whatsapp} onChange={(v) => updateVideoShopping({ whatsapp: v })} placeholder="919650544554" />
           <Input label="Button Text" value={vs.buttonText} onChange={(v) => updateVideoShopping({ buttonText: v })} placeholder="Start Video Shopping" />
           <p className="text-sm font-medium mb-2">Section Image (Optional)</p>
-          <Uploader imageUrl={vs.image} setImageUrl={(url) => updateVideoShopping({ image: url })} folder="homepage" />
+          <Uploader
+            imageUrl={vs.image}
+            setImageUrl={(url) => updateVideoShopping({ image: url })}
+            folder="homepage"
+            useOriginalSize={true}
+          />
         </div>
         <div className="border-t pt-6">
           <TextArea
