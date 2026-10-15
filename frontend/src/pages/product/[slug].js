@@ -1027,7 +1027,7 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
           title={productShareTitle}
           description={cleanProductDescription}
           image={primaryShareImage}
-          ogType="product"
+          ogType="website"
           ogUrl={productOgUrl}
         >
           <Head>

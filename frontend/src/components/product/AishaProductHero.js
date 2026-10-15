@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { FiMinus, FiPlus, FiHeart } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
 import ProductImageGallery from "@components/product/ProductImageGallery";
 import Price from "@components/common/Price";
 import VariantList from "@components/variants/VariantList";
 import { resolveColorHex } from "@utils/resolveColorHex";
 import { isInWishlist, addToWishlist, removeFromWishlist } from "@lib/wishlist";
 import { notifySuccess, notifyError } from "@utils/toast";
-import { PRODUCT_PLACEHOLDER } from "@utils/brandAssets";
+import { PRODUCT_PLACEHOLDER, getSocialShareImageUrl } from "@utils/brandAssets";
 
 const AishaProductHero = ({
   product,
@@ -44,6 +45,59 @@ const AishaProductHero = ({
   const sku = selectedColorVar?.sku || selectVariant?.sku || product?.sku || "—";
 
   const [wishlistActive, setWishlistActive] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShareToWhatsApp = async () => {
+    if (typeof window === "undefined") return;
+    setIsSharing(true);
+
+    const shareUrl = window.location.href.split("#")[0];
+    const shareTitle = title || product?.title?.en || "Manchanda Fabrics";
+    const shareText = `${shareTitle}\n${shareUrl}`;
+    const rawImage =
+      selectedColorVar?.images?.[0] ||
+      (Array.isArray(currentImages) && currentImages[0]) ||
+      (Array.isArray(productImages) && productImages[0]) ||
+      (Array.isArray(product?.image) ? product.image[0] : product?.image) ||
+      (Array.isArray(product?.images) ? product.images[0] : product?.images) ||
+      product?.featuredImage;
+
+    // 1. Try native Web Share API with File attachment (Mobile Android & iOS)
+    if (typeof navigator !== "undefined" && navigator.share && rawImage) {
+      try {
+        const optimizedUrl = getSocialShareImageUrl(rawImage, true);
+        const response = await fetch(optimizedUrl, { mode: "cors" });
+        if (response.ok) {
+          const blob = await response.blob();
+          const fileName = `${(product?.slug || "suit-fabric")}.jpg`;
+          const file = new File([blob], fileName, { type: "image/jpeg" });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: shareTitle,
+              text: shareText,
+            });
+            setIsSharing(false);
+            return;
+          }
+        }
+      } catch (err) {
+        if (err.name === "AbortError") {
+          setIsSharing(false);
+          return;
+        }
+        console.warn("Native file share fallback:", err);
+      }
+    }
+
+    // 2. Direct WhatsApp URL fallback (desktop / browsers without Web Share File support)
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+      `${shareTitle}\n${shareUrl}`
+    )}`;
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    setIsSharing(false);
+  };
 
   useEffect(() => {
     if (product?._id) {
@@ -376,6 +430,18 @@ const AishaProductHero = ({
             />
           </button>
         </div>
+
+        {/* WhatsApp Share Button */}
+        <button
+          type="button"
+          onClick={handleShareToWhatsApp}
+          disabled={isSharing}
+          className="w-full mt-3 h-11 border border-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] hover:text-[#075E54] text-xs sm:text-sm font-semibold rounded-none flex items-center justify-center gap-2.5 transition-all duration-200 tracking-wider uppercase cursor-pointer"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+        >
+          <FaWhatsapp className="text-[#25D366] text-xl shrink-0" />
+          <span>{isSharing ? "Preparing WhatsApp Share..." : "Share on WhatsApp with Photo"}</span>
+        </button>
 
         <hr className="my-6 border-neutral-200" />
 

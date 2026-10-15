@@ -62,9 +62,9 @@ const Layout = ({
     ogUrl ||
     (router?.asPath ? `${siteUrl}${router.asPath.split("?")[0]}` : siteUrl);
 
-  const isProduct = ogType === "product";
-  const shareWidth = imageWidth || 1200;
-  const shareHeight = imageHeight || 630;
+  const isProduct = Boolean(image && image !== "https://manchandafabric.in/og-image.jpg");
+  const shareWidth = imageWidth || (isProduct ? 800 : 1200);
+  const shareHeight = imageHeight || (isProduct ? 1067 : 630);
   const shareImage = getSocialShareImageUrl(image, isProduct);
 
   const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
@@ -100,7 +100,7 @@ const Layout = ({
         description={pageDescription}
         canonical={currentUrl}
         openGraph={{
-          type: ogType,
+          type: ogType || "website",
           locale: "en_IN",
           url: currentUrl,
           title: title || siteTitle,
@@ -130,25 +130,6 @@ const Layout = ({
         <link rel="icon" href={favicon} />
         <link rel="shortcut icon" href={favicon} />
         <link rel="apple-touch-icon" href={favicon} />
-
-        {/* ── Open Graph / WhatsApp / Facebook Preview Tags ── */}
-        <meta property="og:type" content={ogType} key="og:type" />
-        <meta property="og:site_name" content={siteTitle} key="og:site_name" />
-        <meta property="og:url" content={currentUrl} key="og:url" />
-        <meta property="og:title" content={title || siteTitle} key="og:title" />
-        <meta property="og:description" content={pageDescription} key="og:description" />
-        <meta property="og:image" content={shareImage} key="og:image" />
-        <meta property="og:image:secure_url" content={shareImage} key="og:image:secure_url" />
-        <meta property="og:image:type" content="image/jpeg" key="og:image:type" />
-        <meta property="og:image:width" content={String(shareWidth)} key="og:image:width" />
-        <meta property="og:image:height" content={String(shareHeight)} key="og:image:height" />
-        <meta property="og:image:alt" content={title || siteTitle} key="og:image:alt" />
-
-        {/* ── Twitter Card Tags ── */}
-        <meta name="twitter:card" content="summary_large_image" key="twitter:card" />
-        <meta name="twitter:title" content={title || siteTitle} key="twitter:title" />
-        <meta name="twitter:description" content={pageDescription} key="twitter:description" />
-        <meta name="twitter:image" content={shareImage} key="twitter:image" />
       </Head>
 
       <div className="font-sans text-[#3B2A25] bg-[#FAF7F5]">
