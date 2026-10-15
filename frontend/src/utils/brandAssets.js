@@ -96,14 +96,14 @@ export const getSocialShareImageUrl = (url, isProduct = true) => {
   if (!url || typeof url !== "string") return "https://manchandafabric.in/og-image.jpg";
   let clean = url.trim();
   if (!clean) return "https://manchandafabric.in/og-image.jpg";
-  if (clean.startsWith("/")) clean = `https://manchandafabric.in${clean}`;
-  if (!clean.startsWith("http")) clean = `https://manchandafabric.in/${clean}`;
-
+  if (!clean.startsWith("http")) clean = `https://manchandafabric.in${clean.startsWith("/") ? "" : "/"}${clean}`;
   if (clean.includes("res.cloudinary.com") && clean.includes("/upload/")) {
-    // For fashion products, use high-res 3:4 portrait (800x1067) filling the frame (matching Myntra)
-    // without artificial sidebars. Under 250KB JPEG for 100% WhatsApp crawler compatibility.
+    // WhatsApp Web/Desktop & Mobile require 1.91:1 aspect ratio (1200x630) under 300KB
+    // to render the LARGE FULL-WIDTH TOP CARD. Any portrait (height > width) image is
+    // automatically downgraded by WhatsApp Web to a small square thumbnail on the left!
+    // Using c_pad with b_auto:predominant keeps the entire garment visible and extends the background.
     const transform = isProduct
-      ? "c_fill,w_800,h_1067,g_auto,q_80,f_jpg"
+      ? "c_pad,w_1200,h_630,b_auto:predominant,q_80,f_jpg"
       : "c_fill,w_1200,h_630,g_auto,q_80,f_jpg";
 
     // Replace any existing transformation or inject new one right before version or path
