@@ -8,7 +8,7 @@ import ProductServices from "@services/ProductServices";
 import CategoryServices from "@services/CategoryServices";
 import Cookies from "js-cookie";
 
-const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) => {
+const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose, inline = false }) => {
   const router = useRouter();
   const { showingTranslateValue } = useUtilsFunction();
   const [suggestions, setSuggestions] = useState([]);
@@ -276,7 +276,7 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
       // Check if click is outside suggestions and not on the input
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
         // Also check if it's not the search input
-        const searchInput = event.target.closest('input[type="text"]');
+        const searchInput = event.target.closest('input');
         if (!searchInput) {
           if (onClose) onClose();
         }
@@ -302,47 +302,49 @@ const SearchSuggestions = ({ searchText, onSelect, showSuggestions, onClose }) =
   return (
     <div
       ref={suggestionsRef}
-      className="search-suggestions-container absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[100] max-h-96 overflow-y-auto"
-      style={{ position: 'absolute', zIndex: 100 }}
+      className={`search-suggestions-container ${
+        inline
+          ? "w-full max-h-[260px] overflow-y-auto mt-3 rounded-2xl border border-[#EAD6CB] bg-[#FFFCFA] divide-y divide-[#F0E2DA] shadow-xs"
+          : "absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[100] max-h-96 overflow-y-auto"
+      }`}
+      style={inline ? { zIndex: 10 } : { position: 'absolute', zIndex: 100 }}
     >
       {isLoading ? (
-        <div className="p-4 text-center text-gray-500 text-sm">Searching...</div>
+        <div className="p-4 text-center text-[#AE8B7E] text-xs tracking-wide">Searching...</div>
       ) : suggestions.length > 0 ? (
-        <div className="py-2">
+        <div className="py-1">
           {suggestions.map((suggestion, index) => (
             <button
               key={`${suggestion.type}-${suggestion.id}-${index}`}
               type="button"
               onClick={(e) => {
-                // Don't prevent default in onClick - let navigation happen
                 handleSuggestionClick(e, suggestion);
               }}
               onMouseDown={(e) => {
-                // Prevent input blur on mousedown but allow click
                 e.preventDefault();
               }}
-              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
+              className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-[#FAF2ED] transition-colors text-left cursor-pointer group"
             >
               {suggestion.image ? (
-                <span className="flex-shrink-0 w-7 h-7 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                  <img src={suggestion.image} alt={suggestion.title} className="object-contain w-7 h-7" />
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#FAF2ED] border border-[#EEDDD4] flex items-center justify-center overflow-hidden">
+                  <img src={suggestion.image} alt={suggestion.title} className="object-cover w-full h-full" />
                 </span>
               ) : (
-                <span className="text-gray-400 flex-shrink-0">{suggestion.icon}</span>
+                <span className="text-[#AE8B7E] group-hover:text-[#A36955] flex-shrink-0 transition-colors">{suggestion.icon}</span>
               )}
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-800 truncate">
+                <div className="text-sm font-medium text-[#2B211E] group-hover:text-[#A36955] transition-colors truncate">
                   {suggestion.title}
                 </div>
-                <div className="text-xs text-gray-500 capitalize">{suggestion.type}</div>
+                <div className="text-[11px] text-[#AE8B7E] uppercase tracking-wider">{suggestion.type}</div>
               </div>
-              <IoSearchOutline className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <IoSearchOutline className="w-4 h-4 text-[#C9A897] group-hover:text-[#A36955] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
             </button>
           ))}
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 text-sm">
-          No suggestions found for "{searchText}"
+        <div className="p-4 text-center text-[#AE8B7E] text-sm">
+          No matches found for &quot;{searchText}&quot;
         </div>
       )}
     </div>

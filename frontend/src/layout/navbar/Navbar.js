@@ -135,7 +135,7 @@ const Navbar = () => {
         <div className="flex items-center gap-5 lg:gap-6 shrink-0 text-[#111111] pr-4">
           <LanguageSwitcher />
 
-          <SearchBar />
+          <SearchBar logo={logo} />
 
           {/* Wishlist Link with live heart badge */}
           <Link
