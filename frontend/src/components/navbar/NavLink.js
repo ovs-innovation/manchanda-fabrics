@@ -11,7 +11,6 @@ const NavLink = ({ href, children, className = "" }) => {
   return (
     <Link
       href={href}
-      prefetch={true}
       className={`relative group inline-flex items-center py-2 text-[14px] font-normal tracking-[0.14em] uppercase transition-colors duration-200 ${
         isActive ? "text-[#111111]" : "text-[#111111] hover:text-[#111111]"
       } ${className}`}

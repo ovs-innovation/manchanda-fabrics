@@ -12,11 +12,6 @@ module.exports = {
         /^(bg|text|border)-(store|rose|pink|fuchsia|purple|violet|indigo|blue|sky|cyan|teal|emerald|green|lime|yellow|amber|orange|red|stone|neutral|zinc|gray|slate)-(100|200|300|400|500|600|700|800|900)$/,
       variants: ["hover", "focus", "sm", "md", "lg"],
     },
-    {
-      // Explicitly keep hover:bg-*-* and hover:border-*-* when built dynamically
-      pattern:
-        /^(hover:bg|hover:border)-(store|rose|pink|fuchsia|purple|violet|indigo|blue|sky|cyan|teal|emerald|green|lime|yellow|amber|orange|red|stone|neutral|zinc|gray|slate)-(100|200|300|400|500|600|700|800|900)$/,
-    },
   ],
 
   theme: {

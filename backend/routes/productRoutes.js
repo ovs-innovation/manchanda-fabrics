@@ -69,8 +69,9 @@ router.get("/store", getShowingStoreProducts);
 //get all products
 router.get("/", getAllProducts);
 
-//get a product by slug
+//get a product by slug (supports both /product/:slug and /slug/:slug)
 router.get("/product/:slug", getProductBySlug);
+router.get("/slug/:slug", getProductBySlug);
 
 //get a product by id (supports both GET and POST)
 router.get("/:id", getProductById);

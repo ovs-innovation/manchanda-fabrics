@@ -103,13 +103,22 @@ const Wishlist = ({ attributes }) => {
 
 export default Wishlist;
 
-export const getServerSideProps = async () => {
-  const attributes = await AttributeServices.getShowingAttributes({});
-
-  return {
-    props: {
-      attributes,
-    },
-  };
+export const getStaticProps = async () => {
+  try {
+    const attributes = await AttributeServices.getShowingAttributes({}).catch(() => []);
+    return {
+      props: {
+        attributes: attributes || [],
+      },
+      revalidate: 120,
+    };
+  } catch (err) {
+    return {
+      props: {
+        attributes: [],
+      },
+      revalidate: 120,
+    };
+  }
 };
 

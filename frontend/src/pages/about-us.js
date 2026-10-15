@@ -29,13 +29,12 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
 
   React.useEffect(() => {
     if (!productList || productList.length === 0) {
-      ProductServices.getShowingProducts()
+      ProductServices.getShowingStoreProducts({})
         .then((res) => {
-          if (res && res.length > 0) {
-            setProductList(res.slice(0, 4));
-          }
+          const list = res?.popularProducts || res?.products || [];
+          if (list.length > 0) setProductList(list.slice(0, 4));
         })
-        .catch((err) => console.error("Client fetch products failed:", err));
+        .catch(() => {});
     }
   }, []);
 
@@ -435,15 +434,15 @@ const AboutUs = ({ products = [], attributes = [], homepage = null }) => {
   );
 };
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   try {
-    const [products, attributes, storeCustomization] = await Promise.all([
-      ProductServices.getShowingProducts(),
-      AttributeServices.getShowingAttributes(),
+    const [storeCustomization, attributes, storeProducts] = await Promise.all([
       SettingServices.getStoreCustomizationSetting().catch(() => null),
+      AttributeServices.getShowingAttributes({}).catch(() => []),
+      ProductServices.getShowingStoreProducts({}).catch(() => null),
     ]);
 
-    const latestFour = (products || []).slice(0, 4);
+    const latestFour = (storeProducts?.popularProducts || storeProducts?.products || []).slice(0, 4);
     const homepage =
       storeCustomization?.manchandaHomepage ||
       storeCustomization?.setting?.manchandaHomepage ||
@@ -455,15 +454,17 @@ export const getServerSideProps = async () => {
         attributes: attributes || [],
         homepage: homepage,
       },
+      revalidate: 60,
     };
   } catch (err) {
-    console.error("Error in AboutUs getServerSideProps:", err);
+    console.error("Error in AboutUs getStaticProps:", err);
     return {
       props: {
         products: [],
         attributes: [],
         homepage: null,
       },
+      revalidate: 60,
     };
   }
 };

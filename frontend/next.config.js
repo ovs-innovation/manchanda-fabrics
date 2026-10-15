@@ -21,14 +21,14 @@ const nextConfig = {
   },
 
   images: {
-    domains: [
-      "res.cloudinary.com",
-      "i.postimg.cc",
-      "img.youtube.com",
-      "placehold.co",
-      "images.unsplash.com",
-      "localhost",
-      "127.0.0.1",
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "i.postimg.cc" },
+      { protocol: "https", hostname: "img.youtube.com" },
+      { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "127.0.0.1" },
     ],
     minimumCacheTTL: 604800,
   },
@@ -46,6 +46,21 @@ const nextConfig = {
       };
     }
     return config;
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/privacy-policy",
+        destination: "/terms-and-conditions",
+        permanent: true,
+      },
+      {
+        source: "/refund-return-policy",
+        destination: "/terms-and-conditions",
+        permanent: true,
+      },
+    ];
   },
 };
 

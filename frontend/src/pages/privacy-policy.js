@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
@@ -20,6 +21,11 @@ const DEFAULT_CONTENT = `<p>We value the trust you place in Manchanda Fabrics. P
 <p>For any questions about how your data is handled, or to view, correct or delete your information, please contact us on WhatsApp or through our Contact page.</p>`;
 
 const PrivacyPolicy = () => {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/terms-and-conditions");
+  }, [router]);
+
   const { storeCustomizationSetting, loading, error } = useGetSetting();
   const { showingTranslateValue } = useUtilsFunction();
 
@@ -33,7 +39,7 @@ const PrivacyPolicy = () => {
         "Privacy Policy"
       }
       intro="Your trust matters to us. Here is how we handle your information."
-      loading={loading}
+      loading={false}
       error={error}
       cmsData={
         storeCustomizationSetting?.privacy_policy?.description || DEFAULT_CONTENT
@@ -42,12 +48,10 @@ const PrivacyPolicy = () => {
   );
 };
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   return {
-    redirect: {
-      destination: "/terms-and-conditions",
-      permanent: false,
-    },
+    props: {},
+    revalidate: 3600,
   };
 };
 

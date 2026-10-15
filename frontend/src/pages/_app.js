@@ -4,7 +4,7 @@ import { CartProvider } from "react-use-cart";
 import { persistStore } from "redux-persist";
 import { Provider } from "react-redux";
 import ReactGA from "react-ga4";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -40,31 +40,38 @@ function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const [storeSetting, setStoreSetting] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const hasRestoredLocale = useRef(false);
 
-  // Show branded loading screen with logo upon navigation (with 120ms debounce to prevent jarring flashes on instant transitions)
+  // Instant top progress bar + branded full-screen preloader (debounced to 350ms so fast transitions don't flash)
   useEffect(() => {
     let watchdogTimer = null;
-    let startTimer = null;
+    let fullScreenTimer = null;
 
     const handleStart = (url, { shallow } = {}) => {
-      // Do not trigger loading screen for shallow query changes on the same page
+      // Do not trigger loading indicators for shallow query changes on the same page
       if (shallow || url === router.asPath) return;
       if (watchdogTimer) clearTimeout(watchdogTimer);
-      if (startTimer) clearTimeout(startTimer);
+      if (fullScreenTimer) clearTimeout(fullScreenTimer);
 
-      startTimer = setTimeout(() => {
+      setIsNavigating(true);
+
+      // Only show full-screen branded preloader if route takes longer than 350ms
+      fullScreenTimer = setTimeout(() => {
         setRouteLoading(true);
-      }, 120);
+      }, 350);
 
-      // Safety watchdog: ensure loading screen clears if route fails or hangs
+      // Safety watchdog: ensure loading indicators clear if route fails or hangs
       watchdogTimer = setTimeout(() => {
+        setIsNavigating(false);
         setRouteLoading(false);
-      }, 5000);
+      }, 4500);
     };
 
     const handleComplete = () => {
-      if (startTimer) clearTimeout(startTimer);
+      if (fullScreenTimer) clearTimeout(fullScreenTimer);
       if (watchdogTimer) clearTimeout(watchdogTimer);
+      setIsNavigating(false);
       setRouteLoading(false);
     };
 
@@ -73,22 +80,24 @@ function MyApp({ Component, pageProps }) {
     router.events.on("routeChangeError", handleComplete);
 
     return () => {
-      if (startTimer) clearTimeout(startTimer);
+      if (fullScreenTimer) clearTimeout(fullScreenTimer);
       if (watchdogTimer) clearTimeout(watchdogTimer);
       router.events.off("routeChangeStart", handleStart);
       router.events.off("routeChangeComplete", handleComplete);
       router.events.off("routeChangeError", handleComplete);
     };
-  }, [router.asPath]);
+  }, [router]);
 
-  // Restore saved language preference (default en)
+  // Restore saved language preference ONCE on initial app mount only.
+  // Never re-execute during in-flight page navigations to avoid route aborts or double-load flashes.
   useEffect(() => {
-    if (typeof window === "undefined" || !router.isReady) return;
+    if (typeof window === "undefined" || !router.isReady || hasRestoredLocale.current) return;
+    hasRestoredLocale.current = true;
     const saved = localStorage.getItem("locale");
     if (saved && router.locales?.includes(saved) && router.locale !== saved) {
       router.replace(router.asPath, router.asPath, { locale: saved, scroll: false });
     }
-  }, [router.isReady, router.locale, router.asPath, router.locales]);
+  }, [router.isReady]);
 
   // Dev safety: unregister any previously installed PWA service workers.
   // Old SWs can cache API/HTML and cause "backend content" to appear after refresh.
@@ -168,7 +177,28 @@ function MyApp({ Component, pageProps }) {
           </UserProvider>
         </SessionProvider>
       </QueryClientProvider>
-      {/* Original branded loading screen with logo */}
+      {/* Sleek top navigation progress bar for instant feedback without layout flash */}
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 z-[999999] h-[3px] overflow-hidden bg-transparent pointer-events-none">
+          <div className="h-full bg-gradient-to-r from-[#9C6A5A] via-[#C7A46A] to-[#9C6A5A] animate-[topNavProgress_0.9s_ease-in-out_infinite]" />
+          <style jsx>{`
+            @keyframes topNavProgress {
+              0% {
+                transform: translateX(-100%);
+                width: 35%;
+              }
+              50% {
+                width: 75%;
+              }
+              100% {
+                transform: translateX(260%);
+                width: 35%;
+              }
+            }
+          `}</style>
+        </div>
+      )}
+      {/* Original branded loading screen with logo (only shown if a transition is truly slow) */}
       <Loading loading={routeLoading} fullScreen={true} />
       {/* Render TawkMessengerReact only if tawk_chat_status is enabled */}
       {storeSetting?.tawk_chat_status && (
@@ -181,6 +211,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-import appWithI18n from "next-translate/appWithI18n";
-
-export default appWithI18n(MyApp);
+export default MyApp;

@@ -162,20 +162,31 @@ const Categories = ({ initialCategories = [], initialBestSelling = [] }) => {
   );
 };
 
-export const getServerSideProps = async () => {
-  const [categoriesResult, bestSellingResult] = await Promise.allSettled([
-    CategoryServices.getShowingCategory(),
-    ProductServices.getShowingStoreProducts({}),
-  ]);
-  const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
-  const bestSelling = bestSellingResult.status === "fulfilled" ? bestSellingResult.value : null;
+export const getStaticProps = async () => {
+  try {
+    const [categoriesResult, bestSellingResult] = await Promise.allSettled([
+      CategoryServices.getShowingCategory(),
+      ProductServices.getShowingStoreProducts({}),
+    ]);
+    const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
+    const bestSelling = bestSellingResult.status === "fulfilled" ? bestSellingResult.value : null;
 
-  return {
-    props: {
-      initialCategories: categories || [],
-      initialBestSelling: (bestSelling && (bestSelling.bestSellingProducts || bestSelling.products)) || [],
-    },
-  };
+    return {
+      props: {
+        initialCategories: categories || [],
+        initialBestSelling: (bestSelling && (bestSelling.bestSellingProducts || bestSelling.products)) || [],
+      },
+      revalidate: 60,
+    };
+  } catch (err) {
+    return {
+      props: {
+        initialCategories: [],
+        initialBestSelling: [],
+      },
+      revalidate: 60,
+    };
+  }
 };
 
 export default Categories;

@@ -60,27 +60,53 @@ All sales are final. We strictly do not accept any returns, refunds, or exchange
   <li><strong>Email:</strong> manchandafabrics@gmail.com</li>
 </ul>`;
 
-const TermAndConditions = () => {
+import SettingServices from "@services/SettingServices";
+
+const TermAndConditions = ({ initialSetting = null }) => {
   const { showingTranslateValue } = useUtilsFunction();
-  const { storeCustomizationSetting, loading, error } = useGetSetting();
+  const { storeCustomizationSetting, error } = useGetSetting();
+
+  const title =
+    showingTranslateValue(storeCustomizationSetting?.term_and_condition?.title) ||
+    showingTranslateValue(initialSetting?.title) ||
+    "Terms & Conditions";
+
+  const description =
+    storeCustomizationSetting?.term_and_condition?.description ||
+    initialSetting?.description ||
+    DEFAULT_CONTENT;
 
   return (
     <PolicyPage
       metaTitle="Terms & Conditions"
       metaDescription="Terms and conditions of Manchanda Fabrics"
       eyebrow="Legal"
-      title={
-        showingTranslateValue(storeCustomizationSetting?.term_and_condition?.title) ||
-        "Terms & Conditions"
-      }
+      title={title}
       intro="A few simple terms for shopping with Manchanda Fabrics."
-      loading={loading}
+      loading={false}
       error={error}
-      cmsData={
-        storeCustomizationSetting?.term_and_condition?.description || DEFAULT_CONTENT
-      }
+      cmsData={description}
     />
   );
+};
+
+export const getStaticProps = async () => {
+  try {
+    const storeCustomization = await SettingServices.getStoreCustomizationSetting().catch(() => null);
+    return {
+      props: {
+        initialSetting: storeCustomization?.term_and_condition || null,
+      },
+      revalidate: 60,
+    };
+  } catch (err) {
+    return {
+      props: {
+        initialSetting: null,
+      },
+      revalidate: 60,
+    };
+  }
 };
 
 export default TermAndConditions;

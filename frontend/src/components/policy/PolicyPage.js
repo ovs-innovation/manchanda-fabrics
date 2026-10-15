@@ -65,7 +65,7 @@ const PolicyPage = ({
                 count={16}
                 height={16}
                 error={error}
-                loading={loading}
+                loading={loading && !content}
                 data={content}
               />
             </div>

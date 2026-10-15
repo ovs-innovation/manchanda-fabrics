@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 
 import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
@@ -16,6 +17,11 @@ const DEFAULT_CONTENT = `<p style="background-color: #FAF7F5; border-left: 4px s
 <p>If you have any questions before placing your order, please contact us on WhatsApp or through our Contact page. We are always happy to help you choose the right product.</p>`;
 
 const RefundReturnPolicy = () => {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/terms-and-conditions");
+  }, [router]);
+
   const { storeCustomizationSetting, loading, error } = useGetSetting();
   const { showingTranslateValue } = useUtilsFunction();
 
@@ -29,7 +35,7 @@ const RefundReturnPolicy = () => {
         "No Exchange & Return"
       }
       intro="Please read our return and exchange policy carefully before ordering."
-      loading={loading}
+      loading={false}
       error={error}
       cmsData={
         storeCustomizationSetting?.refund_return_policy?.description || DEFAULT_CONTENT
@@ -38,12 +44,10 @@ const RefundReturnPolicy = () => {
   );
 };
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   return {
-    redirect: {
-      destination: "/terms-and-conditions",
-      permanent: false,
-    },
+    props: {},
+    revalidate: 3600,
   };
 };
 
