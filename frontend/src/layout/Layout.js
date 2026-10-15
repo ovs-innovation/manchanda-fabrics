@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import { NextSeo } from "next-seo";
 import { ToastContainer } from "react-toastify";
 
 import Navbar from "@layout/navbar/Navbar";
@@ -8,7 +9,7 @@ import Footer from "@layout/footer/Footer";
 import TopPromoBar from "@layout/navbar/TopPromoBar";
 import useGetSetting from "@hooks/useGetSetting";
 import useCartSync from "@hooks/useCartSync";
-import { pickBrandLogo } from "@utils/brandAssets";
+import { pickBrandLogo, getSocialShareImageUrl } from "@utils/brandAssets";
 
 import { useRouter } from "next/router";
 
@@ -33,6 +34,8 @@ const Layout = ({
   image,
   ogType = "website",
   ogUrl,
+  imageWidth,
+  imageHeight,
 }) => {
   const { storeCustomizationSetting, globalSetting } = useGetSetting();
   const router = useRouter();
@@ -59,15 +62,11 @@ const Layout = ({
     ogUrl ||
     (router?.asPath ? `${siteUrl}${router.asPath.split("?")[0]}` : siteUrl);
 
-  const resolveImageUrl = (img) => {
-    if (!img) return "https://manchandafabric.in/og-image.jpg";
-    if (typeof img !== "string") return "https://manchandafabric.in/og-image.jpg";
-    if (img.startsWith("http://") || img.startsWith("https://")) return img;
-    if (img.startsWith("/")) return `${siteUrl}${img}`;
-    return `${siteUrl}/${img}`;
-  };
+  const isProduct = ogType === "product";
+  const shareWidth = imageWidth || (isProduct ? 800 : 1200);
+  const shareHeight = imageHeight || (isProduct ? 1067 : 630);
+  const shareImage = getSocialShareImageUrl(image, isProduct);
 
-  const shareImage = resolveImageUrl(image);
   const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const pageDescription = description || defaultDescription;
 
@@ -95,6 +94,36 @@ const Layout = ({
 
   return (
     <>
+      {/* ── NextSeo overrides DefaultSeo for page-specific Open Graph / WhatsApp ── */}
+      <NextSeo
+        title={pageTitle}
+        description={pageDescription}
+        canonical={currentUrl}
+        openGraph={{
+          type: ogType,
+          locale: "en_IN",
+          url: currentUrl,
+          title: title || siteTitle,
+          description: pageDescription,
+          site_name: siteTitle,
+          images: [
+            {
+              url: shareImage,
+              secureUrl: shareImage,
+              width: shareWidth,
+              height: shareHeight,
+              alt: title || siteTitle,
+              type: "image/jpeg",
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@manchandafabrics",
+          site: "@manchandafabrics",
+          cardType: "summary_large_image",
+        }}
+      />
+
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} key="description" />
@@ -110,6 +139,9 @@ const Layout = ({
         <meta property="og:description" content={pageDescription} key="og:description" />
         <meta property="og:image" content={shareImage} key="og:image" />
         <meta property="og:image:secure_url" content={shareImage} key="og:image:secure_url" />
+        <meta property="og:image:type" content="image/jpeg" key="og:image:type" />
+        <meta property="og:image:width" content={String(shareWidth)} key="og:image:width" />
+        <meta property="og:image:height" content={String(shareHeight)} key="og:image:height" />
         <meta property="og:image:alt" content={title || siteTitle} key="og:image:alt" />
 
         {/* ── Twitter Card Tags ── */}

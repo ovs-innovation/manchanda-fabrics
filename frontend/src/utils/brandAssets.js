@@ -82,3 +82,40 @@ export const cloudinaryImageAt = (url, width, height = null) =>
   typeof url === "string" && url.includes("res.cloudinary.com") && url.includes("/image/upload/")
     ? getOptimizedImageUrl(url, width, height) || url
     : url;
+
+/**
+ * Generates an optimized OpenGraph/WhatsApp preview image URL.
+ * WhatsApp, Facebook, iMessage & Twitter crawlers require:
+ * 1. Image strictly under 300KB (otherwise WhatsApp drops preview or renders tiny 1:1)
+ * 2. Standard JPEG format (f_jpg / .jpg) - WebP fails in some crawlers
+ * 3. High resolution with explicit dimensions:
+ *    - For product pages (portrait 3:4 fashion format): 800x1067 px
+ *    - For other pages (landscape 1.91:1 format): 1200x630 px
+ */
+export const getSocialShareImageUrl = (url, isProduct = true) => {
+  if (!url || typeof url !== "string") return "https://manchandafabric.in/og-image.jpg";
+  let clean = url.trim();
+  if (!clean) return "https://manchandafabric.in/og-image.jpg";
+  if (clean.startsWith("/")) clean = `https://manchandafabric.in${clean}`;
+  if (!clean.startsWith("http")) clean = `https://manchandafabric.in/${clean}`;
+
+  if (clean.includes("res.cloudinary.com") && clean.includes("/upload/")) {
+    const transform = isProduct
+      ? "c_fill,w_800,h_1067,g_auto,q_80,f_jpg"
+      : "c_fill,w_1200,h_630,g_auto,q_80,f_jpg";
+
+    // Replace any existing transformation or inject new one right before version or path
+    if (/\/upload\/(c_|w_|h_|q_|f_|t_)[^/]+\/(v\d+\/.*)/i.test(clean)) {
+      clean = clean.replace(/\/upload\/[^/]+\/(v\d+\/.*)/i, `/upload/${transform}/$1`);
+    } else if (/\/upload\/(v\d+\/.*)/i.test(clean)) {
+      clean = clean.replace(/\/upload\/(v\d+\/.*)/i, `/upload/${transform}/$1`);
+    } else {
+      clean = clean.replace(/\/upload\//, `/upload/${transform}/`);
+    }
+
+    // Force .jpg extension so crawlers recognize it as image/jpeg
+    clean = clean.replace(/\.(webp|png|jpeg|jpg)(\?.*)?$/i, ".jpg$2");
+  }
+
+  return clean;
+};

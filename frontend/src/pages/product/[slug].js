@@ -265,8 +265,15 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
       const firstValid = product.image.find((img) => img && typeof img === "string" && img.trim() !== "");
       if (firstValid) return firstValid;
     }
+    if (Array.isArray(product?.images) && product.images.length > 0) {
+      const firstValid = product.images.find((img) => img && typeof img === "string" && img.trim() !== "");
+      if (firstValid) return firstValid;
+    }
     if (typeof product?.image === "string" && product.image.trim() !== "") {
       return product.image;
+    }
+    if (typeof product?.images === "string" && product.images.trim() !== "") {
+      return product.images;
     }
     if (product?.featuredImage && typeof product.featuredImage === "string") {
       return product.featuredImage;
@@ -284,14 +291,19 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
     return null;
   }, [activeImage, product]);
 
+  const productShareTitle = dynamicTitle || showingTranslateValue(product?.title) || "Product Details";
+
   const cleanProductDescription = useMemo(() => {
     const raw = dynamicDescription || showingTranslateValue(product?.description) || "";
-    if (typeof raw !== "string") return "";
+    if (typeof raw !== "string" || !raw.trim()) {
+      return productShareTitle
+        ? `${productShareTitle} - Shop authentic ethnic suits, fabrics & sarees at Manchanda Fabrics.`
+        : "";
+    }
     const clean = raw.replace(/<[^>]*>?/gm, "").replace(/\s+/g, " ").trim();
     return clean.slice(0, 240);
-  }, [dynamicDescription, product?.description, showingTranslateValue]);
+  }, [dynamicDescription, product?.description, productShareTitle, showingTranslateValue]);
 
-  const productShareTitle = dynamicTitle || showingTranslateValue(product?.title) || "Product Details";
   const productOgUrl = product?.slug ? `https://manchandafabric.in/product/${product.slug}` : undefined;
 
   // Auto-select first available variant on initial load
