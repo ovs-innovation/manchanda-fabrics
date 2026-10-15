@@ -29,6 +29,7 @@ import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 
 import AishaProductHero from "@components/product/AishaProductHero";
+import { isRetiredMediaUrl } from "@utils/brandAssets";
 
 const ProductScreen = ({ product, attributes, relatedProducts }) => {
   const router = useRouter();
@@ -261,37 +262,41 @@ const ProductScreen = ({ product, attributes, relatedProducts }) => {
 
   // Derive primary image and clean description for social sharing (WhatsApp/Facebook)
   const primaryShareImage = useMemo(() => {
+    const isValid = (img) => img && typeof img === "string" && img.trim() !== "" && !isRetiredMediaUrl(img);
+
     if (Array.isArray(product?.image) && product.image.length > 0) {
-      const firstValid = product.image.find((img) => img && typeof img === "string" && img.trim() !== "");
+      const firstValid = product.image.find(isValid);
       if (firstValid) return firstValid;
     }
     if (Array.isArray(product?.images) && product.images.length > 0) {
-      const firstValid = product.images.find((img) => img && typeof img === "string" && img.trim() !== "");
+      const firstValid = product.images.find(isValid);
       if (firstValid) return firstValid;
     }
-    if (typeof product?.image === "string" && product.image.trim() !== "") {
+    if (isValid(product?.image)) {
       return product.image;
     }
-    if (typeof product?.images === "string" && product.images.trim() !== "") {
+    if (isValid(product?.images)) {
       return product.images;
     }
-    if (product?.featuredImage && typeof product.featuredImage === "string") {
+    if (isValid(product?.featuredImage)) {
       return product.featuredImage;
     }
     if (Array.isArray(product?.colorVariants) && product.colorVariants.length > 0) {
       for (const cv of product.colorVariants) {
-        if (Array.isArray(cv?.images) && cv.images.length > 0 && cv.images[0]) {
-          return cv.images[0];
+        if (Array.isArray(cv?.images) && cv.images.length > 0) {
+          const firstValid = cv.images.find(isValid);
+          if (firstValid) return firstValid;
         }
       }
     }
-    if (activeImage && typeof activeImage === "string" && activeImage.trim()) {
+    if (isValid(activeImage)) {
       return activeImage;
     }
     return null;
   }, [activeImage, product]);
 
-  const productShareTitle = dynamicTitle || showingTranslateValue(product?.title) || "Product Details";
+  const baseProductTitle = dynamicTitle || showingTranslateValue(product?.title) || "Luxury Ethnic Wear";
+  const productShareTitle = `Buy ${baseProductTitle} Online | Manchanda Fabrics`;
 
   const cleanProductDescription = useMemo(() => {
     const raw = dynamicDescription || showingTranslateValue(product?.description) || "";

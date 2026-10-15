@@ -67,7 +67,11 @@ const Layout = ({
   const shareHeight = imageHeight || (isProduct ? 1067 : 630);
   const shareImage = getSocialShareImageUrl(image, isProduct);
 
-  const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+  const pageTitle = title
+    ? title.includes("Manchanda Fabrics")
+      ? title
+      : `${title} | ${siteTitle}`
+    : siteTitle;
   const pageDescription = description || defaultDescription;
 
   if (globalSetting?.maintenance_mode) {
@@ -127,6 +131,22 @@ const Layout = ({
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} key="description" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@manchandafabrics" />
+        <meta name="twitter:title" content={title || siteTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={shareImage} />
+        <meta property="og:title" content={title || siteTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:type" content={ogType || "website"} />
+        <meta property="og:site_name" content={siteTitle} />
+        <meta property="og:image" content={shareImage} />
+        <meta property="og:image:secure_url" content={shareImage} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content={String(shareWidth)} />
+        <meta property="og:image:height" content={String(shareHeight)} />
+        <meta property="og:locale" content="en_IN" />
         <link rel="icon" href={favicon} />
         <link rel="shortcut icon" href={favicon} />
         <link rel="apple-touch-icon" href={favicon} />

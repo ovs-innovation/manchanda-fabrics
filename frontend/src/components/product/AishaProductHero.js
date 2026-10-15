@@ -8,7 +8,7 @@ import VariantList from "@components/variants/VariantList";
 import { resolveColorHex } from "@utils/resolveColorHex";
 import { isInWishlist, addToWishlist, removeFromWishlist } from "@lib/wishlist";
 import { notifySuccess, notifyError } from "@utils/toast";
-import { PRODUCT_PLACEHOLDER, getSocialShareImageUrl } from "@utils/brandAssets";
+import { PRODUCT_PLACEHOLDER, getSocialShareImageUrl, isRetiredMediaUrl } from "@utils/brandAssets";
 
 const AishaProductHero = ({
   product,
@@ -47,56 +47,27 @@ const AishaProductHero = ({
   const [wishlistActive, setWishlistActive] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
-  const handleShareToWhatsApp = async () => {
+  const handleShareToWhatsApp = () => {
     if (typeof window === "undefined") return;
-    setIsSharing(true);
 
-    const shareUrl = window.location.href.split("#")[0];
     const shareTitle = title || product?.title?.en || "Manchanda Fabrics";
-    const shareText = `${shareTitle}\n${shareUrl}`;
-    const rawImage =
-      selectedColorVar?.images?.[0] ||
-      (Array.isArray(currentImages) && currentImages[0]) ||
-      (Array.isArray(productImages) && productImages[0]) ||
-      (Array.isArray(product?.image) ? product.image[0] : product?.image) ||
-      (Array.isArray(product?.images) ? product.images[0] : product?.images) ||
-      product?.featuredImage;
+    // Always use public production domain so WhatsApp crawler reaches the OpenGraph preview tags
+    const shareUrl = product?.slug
+      ? `https://manchandafabric.in/product/${product.slug}`
+      : window.location.href.split("#")[0];
 
-    // 1. Try native Web Share API with File attachment (Mobile Android & iOS)
-    if (typeof navigator !== "undefined" && navigator.share && rawImage) {
-      try {
-        const optimizedUrl = getSocialShareImageUrl(rawImage, true);
-        const response = await fetch(optimizedUrl, { mode: "cors" });
-        if (response.ok) {
-          const blob = await response.blob();
-          const fileName = `${(product?.slug || "suit-fabric")}.jpg`;
-          const file = new File([blob], fileName, { type: "image/jpeg" });
+    // Format matches Myntra exactly:
+    // Line 1: Product Title
+    // Line 2: Product Link (WhatsApp crawler uses this to generate the big top-image card)
+    const shareMessage = `${shareTitle}\n${shareUrl}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
 
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: shareTitle,
-              text: shareText,
-            });
-            setIsSharing(false);
-            return;
-          }
-        }
-      } catch (err) {
-        if (err.name === "AbortError") {
-          setIsSharing(false);
-          return;
-        }
-        console.warn("Native file share fallback:", err);
-      }
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator?.userAgent || "");
+    if (isMobile) {
+      window.location.href = whatsappUrl;
+    } else {
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     }
-
-    // 2. Direct WhatsApp URL fallback (desktop / browsers without Web Share File support)
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-      `${shareTitle}\n${shareUrl}`
-    )}`;
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    setIsSharing(false);
   };
 
   useEffect(() => {
@@ -144,23 +115,32 @@ const AishaProductHero = ({
   const allSlides = useMemo(() => {
     let list = [];
 
-    // 1. If product has colorVariants, gather every image from all variants in order
+    // 1. If product has colorVariants, gather every valid image from all variants in order
     if (product?.colorVariants && product.colorVariants.length > 0) {
       product.colorVariants.forEach((cv, cvIdx) => {
         const cvImages =
           Array.isArray(cv.images) && cv.images.length > 0 ? cv.images : [];
-        if (cvImages.length > 0) {
-          cvImages.forEach((imgUrl, imgIdx) => {
-            if (imgUrl && typeof imgUrl === "string" && imgUrl.trim() !== "") {
-              list.push({
-                url: imgUrl.trim(),
-                colorVar: cv,
-                colorName: cv.colorName,
-                id: `cv-${cv._id || cvIdx}-${imgIdx}-${imgUrl}`,
-              });
-            }
+        const validCvImages = cvImages.filter(
+          (imgUrl) =>
+            imgUrl &&
+            typeof imgUrl === "string" &&
+            imgUrl.trim() !== "" &&
+            !isRetiredMediaUrl(imgUrl)
+        );
+
+        if (validCvImages.length > 0) {
+          validCvImages.forEach((imgUrl, imgIdx) => {
+            list.push({
+              url: imgUrl.trim(),
+              colorVar: cv,
+              colorName: cv.colorName,
+              id: `cv-${cv._id || cvIdx}-${imgIdx}-${imgUrl}`,
+            });
           });
-        } else if (product.featuredImage) {
+        } else if (
+          product.featuredImage &&
+          !isRetiredMediaUrl(product.featuredImage)
+        ) {
           list.push({
             url: product.featuredImage,
             colorVar: cv,
@@ -174,7 +154,11 @@ const AishaProductHero = ({
     // 2. If list is empty and explicit currentImages array is provided
     if (list.length === 0 && currentImages && currentImages.length > 0) {
       const valid = currentImages.filter(
-        (u) => u && typeof u === "string" && u.trim() !== ""
+        (u) =>
+          u &&
+          typeof u === "string" &&
+          u.trim() !== "" &&
+          !isRetiredMediaUrl(u)
       );
       if (valid.length > 0) {
         list = valid.map((url, i) => ({
@@ -198,7 +182,11 @@ const AishaProductHero = ({
               : [];
 
       const validImages = rawImages.filter(
-        (u) => u && typeof u === "string" && u.trim() !== ""
+        (u) =>
+          u &&
+          typeof u === "string" &&
+          u.trim() !== "" &&
+          !isRetiredMediaUrl(u)
       );
 
       if (validImages.length > 0) {
