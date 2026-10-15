@@ -100,12 +100,15 @@ export const getSocialShareImageUrl = (url, isProduct = true) => {
   if (!clean.startsWith("http")) clean = `https://manchandafabric.in/${clean}`;
 
   if (clean.includes("res.cloudinary.com") && clean.includes("/upload/")) {
+    // WhatsApp requires 1.91:1 landscape (1200x630) to show the full-width large preview card.
+    // Portrait aspect ratios (like 800x1067) are demoted to a small square thumbnail.
+    // b_auto,c_pad preserves the entire product height in the center with matching background color.
     const transform = isProduct
-      ? "c_fill,w_800,h_1067,g_auto,q_80,f_jpg"
+      ? "b_auto,c_pad,w_1200,h_630,q_80,f_jpg"
       : "c_fill,w_1200,h_630,g_auto,q_80,f_jpg";
 
     // Replace any existing transformation or inject new one right before version or path
-    if (/\/upload\/(c_|w_|h_|q_|f_|t_)[^/]+\/(v\d+\/.*)/i.test(clean)) {
+    if (/\/upload\/(c_|w_|h_|q_|f_|t_|b_)[^/]+\/(v\d+\/.*)/i.test(clean)) {
       clean = clean.replace(/\/upload\/[^/]+\/(v\d+\/.*)/i, `/upload/${transform}/$1`);
     } else if (/\/upload\/(v\d+\/.*)/i.test(clean)) {
       clean = clean.replace(/\/upload\/(v\d+\/.*)/i, `/upload/${transform}/$1`);

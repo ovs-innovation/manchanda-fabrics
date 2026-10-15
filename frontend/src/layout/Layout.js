@@ -63,8 +63,8 @@ const Layout = ({
     (router?.asPath ? `${siteUrl}${router.asPath.split("?")[0]}` : siteUrl);
 
   const isProduct = ogType === "product";
-  const shareWidth = imageWidth || (isProduct ? 800 : 1200);
-  const shareHeight = imageHeight || (isProduct ? 1067 : 630);
+  const shareWidth = imageWidth || 1200;
+  const shareHeight = imageHeight || 630;
   const shareImage = getSocialShareImageUrl(image, isProduct);
 
   const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
