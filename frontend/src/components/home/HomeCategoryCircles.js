@@ -1,41 +1,87 @@
+import React, { useState } from "react";
 import Link from "next/link";
 import useTranslation from "next-translate/useTranslation";
 import useUtilsFunction from "@hooks/useUtilsFunction";
-import { normalizeProductImageUrl, getOptimizedImageUrl } from "@utils/brandAssets";
+import { getOptimizedImageUrl } from "@utils/brandAssets";
 
-const CATEGORY_FALLBACKS = {
-  organza: "/Suit/s1.jpg",
-  "khadi-cotton": "/Suit/s5.jpg",
-  crepe: "/Suit/s2.jpg",
-  "cotton-without-lining": "/Suit/s4.jpg",
-  tissue: "/Suit/s6.jpg",
-  "giraffe-silk": "/Suit/s7.jpg",
-  "shimmer-crush": "/Suit/s8.jpg",
-  velvet: "/Suit/s3.jpg",
-  muslin: "/Suit/s11.jpg",
-  "rajwada-silk": "/Suit/s9.jpg",
-  "banarsi-silk": "/Suit/s10.jpg",
-  "mul-chanderi-cotton": "/Suit/s12.jpg",
-  "linen-cotton": "/Suit/s5.jpg",
-  "shimmer-silk": "/Suit/s6.jpg",
-  "kanjivaram-silk": "/Suit/s1.jpg",
-  "maheshwari-silk": "/Suit/s7.jpg",
-  "party-wear": "/Suit/s3.jpg",
-  "gajji-silk": "/banners/gaji-silk.jpg",
-};
+const CategoryCircleItem = ({ cat, count, showingTranslateValue, t }) => {
+  const [imgFailed, setImgFailed] = useState(false);
 
-const getCategoryFallback = (slug, idx = 0) => {
-  const cleanSlug = (slug || "").toLowerCase().trim();
-  if (cleanSlug && CATEGORY_FALLBACKS[cleanSlug]) {
-    return CATEGORY_FALLBACKS[cleanSlug];
-  }
-  const suitIndex = ((idx || 0) % 12) + 1;
-  return `/Suit/s${suitIndex}.jpg`;
+  // Check if image is a real uploaded URL (not dead Cloudinary tu23xpla and not dummy Suit fallback)
+  const isDummyOrDead =
+    !cat.image ||
+    typeof cat.image !== "string" ||
+    cat.image.includes("tu23xpla") ||
+    cat.image.includes("/Suit/");
+
+  const imageSrc =
+    !isDummyOrDead && !imgFailed
+      ? getOptimizedImageUrl(cat.image, 250, 250) || cat.image
+      : null;
+
+  const titleText = showingTranslateValue(cat.title) || cat.title || "";
+
+  // Derive elegant 1-2 letter boutique monogram for categories without image
+  const initials =
+    titleText
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase())
+      .join("") || "M";
+
+  return (
+    <Link
+      href={`/collections/${cat.slug}`}
+      prefetch={false}
+      className="group flex flex-col items-center text-center"
+      style={{ fontFamily: "'Poppins', sans-serif" }}
+    >
+      <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-white border border-[#E6D1CB] p-1.5 shadow-sm group-hover:border-[#9C6A5A] group-hover:shadow-md transition-all duration-300">
+        <div className="relative w-full rounded-full overflow-hidden bg-[#FAF7F5]">
+          {/* 1:1 aspect ratio square container */}
+          <div className="pb-[100%]" />
+
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={titleText}
+              className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgFailed(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#FAF5F2] via-[#F4ECE6] to-[#EAE0D8] p-4 select-none">
+              <span
+                className="text-2xl sm:text-3xl md:text-4xl text-[#8C5848] font-serif tracking-widest uppercase transition-transform duration-500 group-hover:scale-110"
+                style={{ fontFamily: "'Cinzel', 'Playfair Display', Georgia, serif" }}
+              >
+                {initials}
+              </span>
+              <span className="w-5 h-[1px] bg-[#9C6A5A]/40 my-1.5" />
+              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-[#9C6A5A]/80 font-medium">
+                Manchanda
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+      <p className="mt-5 text-[14px] sm:text-base font-medium text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors tracking-wide">
+        {titleText}
+      </p>
+      {count != null && (
+        <p className="mt-1 text-[11px] sm:text-xs text-neutral-400 font-light">
+          {count} {t(count === 1 ? "product" : "products")}
+        </p>
+      )}
+    </Link>
+  );
 };
 
 /*
-  categories: [{ slug, title, image }] — real store categories with a
-  guaranteed image (resolved by the page from category products).
+  categories: [{ slug, title, image }] — real store categories.
+  Dummy fallback suit images removed so client can upload real images freshly.
 */
 const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
   const { t } = useTranslation("common");
@@ -97,47 +143,15 @@ const HomeCategoryCircles = ({ categories = [], counts = {} }) => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-8 sm:gap-10 items-start">
-          {list.map((cat, idx) => {
-            const fallback = getCategoryFallback(cat.slug, idx);
-            const imageSrc = (cat.image && getOptimizedImageUrl(cat.image, 250, 250)) || fallback;
-            return (
-              <Link
-                key={cat.slug || idx}
-                href={`/collections/${cat.slug}`}
-                prefetch={false}
-                className="group flex flex-col items-center text-center"
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                <div className="relative w-full max-w-[150px] sm:max-w-[200px] lg:max-w-[220px] mx-auto rounded-full overflow-hidden bg-white border border-[#E6D1CB] p-1.5 shadow-sm group-hover:border-[#9C6A5A] group-hover:shadow-md transition-all duration-300">
-                  <div className="relative w-full rounded-full overflow-hidden bg-neutral-100">
-                    {/* padding-bottom trick forces a perfect square */}
-                    <div className="pb-[100%]" />
-                    <img
-                      src={imageSrc}
-                      alt={cat.title}
-                      className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        if (e.target.src !== window.location.origin + fallback) {
-                          e.target.onerror = null;
-                          e.target.src = fallback;
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-                <p className="mt-5 text-[14px] sm:text-base font-medium text-[#3B2A25] group-hover:text-[#9C6A5A] transition-colors tracking-wide">
-                  {showingTranslateValue(cat.title) || t(cat.title)}
-                </p>
-                {counts[cat.slug] != null && (
-                  <p className="mt-1 text-[11px] sm:text-xs text-neutral-400 font-light">
-                    {counts[cat.slug]} {t(counts[cat.slug] === 1 ? "product" : "products")}
-                  </p>
-                )}
-              </Link>
-            );
-          })}
+          {list.map((cat, idx) => (
+            <CategoryCircleItem
+              key={cat.slug || idx}
+              cat={cat}
+              count={counts[cat.slug]}
+              showingTranslateValue={showingTranslateValue}
+              t={t}
+            />
+          ))}
         </div>
       </div>
     </section>
