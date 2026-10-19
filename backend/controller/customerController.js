@@ -1408,6 +1408,14 @@ const signUpWithOauthProvider = async (req, res) => {
     // console.log("signUpWithOauthProvider", req.body);
     const isAdded = await Customer.findOne({ email: req.body.email });
     if (isAdded) {
+      const isRetired = typeof isAdded.image === "string" && ["tu23xpla", "detqbiabu", "dhqcwkpzp", "ahossain", "dse9adftu"].some(c => isAdded.image.toLowerCase().includes(`res.cloudinary.com/${c}/`));
+      if (req.body.image && isAdded.image !== req.body.image) {
+        isAdded.image = req.body.image;
+        await isAdded.save().catch(() => {});
+      } else if (isRetired) {
+        isAdded.image = "";
+        await isAdded.save().catch(() => {});
+      }
       const token = signInToken(isAdded);
       res.send({
         token,

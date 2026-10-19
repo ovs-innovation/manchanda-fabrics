@@ -13,6 +13,7 @@ import { setToken } from "@services/httpServices";
 import { notifySuccess, notifyError } from "@utils/toast";
 import { cloudinaryImageAt } from "@utils/brandAssets";
 import { getDisplayEmail } from "@utils/profileAuth";
+import UserAvatar from "@components/common/UserAvatar";
 
 const MyAccount = () => {
   const userInfo = getUserSession();
@@ -195,17 +196,12 @@ const MyAccount = () => {
                 <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
                   <div className="relative group">
                     <div className="absolute inset-0 bg-store-500 rounded-full blur opacity-10 group-hover:opacity-20 transition-opacity"></div>
-                    {userInfo?.image ? (
-                      <img
-                        src={cloudinaryImageAt(userInfo.image, 200, 200)}
-                        className="relative h-24 w-24 rounded-full object-cover border-4 border-white shadow-md"
-                        alt={userInfo?.name}
-                      />
-                    ) : (
-                      <div className="relative flex items-center justify-center h-24 w-24 rounded-full bg-store-50 text-store-600 text-4xl font-bold border-4 border-white shadow-md">
-                        {userInfo?.name?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    <UserAvatar
+                      user={userInfo}
+                      className="relative h-24 w-24 rounded-full border-4 border-white shadow-md"
+                      initialsClassName="bg-store-50 text-store-600 text-4xl font-bold"
+                      iconSize={40}
+                    />
                   </div>
                   
                   <div>

@@ -16,6 +16,7 @@ import useWishlist from "@hooks/useWishlist";
 import LocationButton from "@components/location/LocationButton";
 import SearchSuggestions from "@components/search/SearchSuggestions";
 import CustomerNotificationBell from "@components/notification/CustomerNotificationBell";
+import UserAvatar from "@components/common/UserAvatar";
 import { pickBrandLogo } from "@utils/brandAssets";
 const MobileFooter = () => {
   const [mounted, setMounted] = useState(false);
@@ -110,22 +111,14 @@ const MobileFooter = () => {
         <div className="flex items-center gap-3 shrink-0">
           <CustomerNotificationBell />
           <div className="flex items-center justify-center relative">
-            {mounted && userInfo?.image ? (
+            {mounted && userInfo ? (
               <Link href="/user/dashboard" className="relative top-0.5 w-8 h-8 block">
-                <img
-                  width={32}
-                  height={32}
-                  src={userInfo.image}
-                  alt="user"
-                  className="rounded-full object-cover w-8 h-8 border border-[#E6D1CB]/60"
+                <UserAvatar
+                  user={userInfo}
+                  className="w-8 h-8 rounded-full border border-[#E6D1CB]/60"
+                  initialsClassName="bg-[#9C6A5A]/10 text-[#9C6A5A] border border-[#9C6A5A] text-xs font-bold"
+                  iconSize={15}
                 />
-              </Link>
-            ) : mounted && userInfo?.name ? (
-              <Link
-                href="/user/dashboard"
-                className="leading-none font-bold block px-3 py-2 border rounded-full border-[#9C6A5A] text-[#9C6A5A]"
-              >
-                {userInfo?.name[0]}
               </Link>
             ) : (
               <div className="relative">

@@ -28,6 +28,7 @@ import useGetSetting from "@hooks/useGetSetting";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { setToken } from "@services/httpServices";
 import { cloudinaryImageAt } from "@utils/brandAssets";
+import UserAvatar from "@components/common/UserAvatar";
 
 const Dashboard = ({ title, description, children }) => {
   const router = useRouter();
@@ -342,19 +343,12 @@ const Dashboard = ({ title, description, children }) => {
                   {/* Mobile Header */}
                   <div className="bg-white border border-[#E6D1CB]/60 p-4 rounded-xl mb-5 lg:hidden flex justify-between items-center shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded-full overflow-hidden border border-[#9C6A5A]/20 bg-[#FAF7F5] flex items-center justify-center">
-                        {userInfo?.image ? (
-                          <img
-                            src={cloudinaryImageAt(userInfo.image, 200, 200)}
-                            alt={userInfo?.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-[#9C6A5A] text-lg font-black">
-                            {userInfo?.name?.charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                      </div>
+                      <UserAvatar
+                        user={userInfo}
+                        className="w-12 h-12 rounded-full border border-[#9C6A5A]/20 bg-[#FAF7F5]"
+                        initialsClassName="text-[#9C6A5A] text-lg font-black"
+                        iconSize={20}
+                      />
                       <div>
                         <h2 className="text-base font-bold text-[#3B2A25] leading-tight">
                           {userInfo?.name}
@@ -376,18 +370,13 @@ const Dashboard = ({ title, description, children }) => {
                   <div className={`${isOpen ? 'block' : 'hidden'} lg:block bg-white border border-[#E6D1CB]/60 p-6 rounded-xl shadow-lg sticky top-32`}>
                     {/* User Profile Header (Desktop) */}
                     <div className="hidden lg:flex flex-col items-center mb-8 pb-8 border-b border-[#E6D1CB]/40">
-                      <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 shadow-lg border-2 border-[#9C6A5A]/30 bg-[#FAF7F5] flex items-center justify-center">
-                        {userInfo?.image ? (
-                          <img
-                            src={cloudinaryImageAt(userInfo.image, 200, 200)}
-                            alt={userInfo?.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-[#9C6A5A] text-3xl font-black">
-                            {userInfo?.name?.charAt(0).toUpperCase()}
-                          </span>
-                        )}
+                      <div className="mb-4 shadow-lg rounded-full">
+                        <UserAvatar
+                          user={userInfo}
+                          className="w-20 h-20 rounded-full border-2 border-[#9C6A5A]/30 bg-[#FAF7F5]"
+                          initialsClassName="text-[#9C6A5A] text-3xl font-black"
+                          iconSize={32}
+                        />
                       </div>
                       <h2 className="text-lg font-serif font-bold text-[#3B2A25] text-center line-clamp-1">
                         {userInfo?.name}

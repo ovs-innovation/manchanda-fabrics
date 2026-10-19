@@ -12,6 +12,7 @@ import { UserContext } from "@context/UserContext";
 import CategoryDrawer from "@components/drawer/CategoryDrawer";
 import useWishlist from "@hooks/useWishlist";
 import useGetSetting from "@hooks/useGetSetting";
+import UserAvatar from "@components/common/UserAvatar";
 import { pickBrandLogo } from "@utils/brandAssets";
 import { setAppLocale } from "@utils/locale";
 
@@ -234,17 +235,12 @@ const MobileNavbar = () => {
                 </Link>
                 {userInfo ? (
                   <Link href="/user/dashboard" className="p-1 xs:p-1.5 flex items-center justify-center" aria-label="Account">
-                    {userInfo.image ? (
-                      <img
-                        src={userInfo.image}
-                        alt={userInfo.name || "Account"}
-                        className="w-6 h-6 xs:w-7 xs:h-7 rounded-full object-cover border border-[#E6D1CB]"
-                      />
-                    ) : (
-                      <div className="flex h-6 w-6 xs:h-7 xs:w-7 items-center justify-center rounded-full border border-[#9C6A5A] bg-[#9C6A5A]/10 text-[#9C6A5A] text-[10px] xs:text-[11px] font-bold">
-                        {userInfo.name ? userInfo.name[0].toUpperCase() : <FiUser className="w-3.5 h-3.5" />}
-                      </div>
-                    )}
+                    <UserAvatar
+                      user={userInfo}
+                      className="w-6 h-6 xs:w-7 xs:h-7 rounded-full border border-[#E6D1CB]"
+                      initialsClassName="bg-[#9C6A5A]/10 text-[#9C6A5A] border border-[#9C6A5A] text-[10px] xs:text-[11px]"
+                      iconSize={14}
+                    />
                   </Link>
                 ) : (
                   <Link

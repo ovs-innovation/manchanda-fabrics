@@ -23,6 +23,7 @@ import { signOut } from "next-auth/react";
 import { SidebarContext } from "@context/SidebarContext";
 import { UserContext } from "@context/UserContext";
 import { setToken } from "@services/httpServices";
+import UserAvatar from "@components/common/UserAvatar";
 import { notifySuccess } from "@utils/toast";
 
 import DesktopMenu from "@components/navbar/DesktopMenu";
@@ -169,17 +170,12 @@ const Navbar = () => {
                 aria-label="User profile menu"
                 aria-expanded={dropdownOpen}
               >
-                {userInfo?.image ? (
-                  <img
-                    src={userInfo.image}
-                    alt={userInfo.name || "User"}
-                    className="w-8 h-8 rounded-full object-cover border border-[#111111]/15 shadow-sm"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#111111] text-white flex items-center justify-center text-xs font-semibold uppercase tracking-wider">
-                    {userInfo.name ? userInfo.name.charAt(0).toUpperCase() : <User size={15} />}
-                  </div>
-                )}
+                <UserAvatar
+                  user={userInfo}
+                  className="w-8 h-8 rounded-full border border-[#111111]/15 shadow-sm"
+                  initialsClassName="bg-[#111111] text-white text-xs font-semibold uppercase tracking-wider"
+                  iconSize={15}
+                />
                 <span
                   className="hidden xl:inline-block max-w-[90px] truncate text-[12px] tracking-[0.12em] font-medium uppercase text-[#111111]"
                   style={{ fontFamily: "'Poppins', sans-serif" }}

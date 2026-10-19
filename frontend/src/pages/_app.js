@@ -56,10 +56,10 @@ function MyApp({ Component, pageProps }) {
 
       setIsNavigating(true);
 
-      // Only show full-screen branded preloader if route takes longer than 350ms
+      // Only show full-screen branded preloader if route takes longer than 2000ms (slow network)
       fullScreenTimer = setTimeout(() => {
         setRouteLoading(true);
-      }, 350);
+      }, 2000);
 
       // Safety watchdog: ensure loading indicators clear if route fails or hangs
       watchdogTimer = setTimeout(() => {
@@ -168,7 +168,15 @@ function MyApp({ Component, pageProps }) {
                 <AnnouncementsProvider announcements={[]}>
                   <CartProvider>
                     <DefaultSeo />
-                    <Component {...pageProps} />
+                    <div
+                      className={`transition-all duration-200 ease-out ${
+                        isNavigating
+                          ? "opacity-60 filter blur-[0.4px] pointer-events-none"
+                          : "opacity-100 filter-none"
+                      }`}
+                    >
+                      <Component {...pageProps} />
+                    </div>
                     <LanguagePopup />
                   </CartProvider>
                 </AnnouncementsProvider>
@@ -179,20 +187,20 @@ function MyApp({ Component, pageProps }) {
       </QueryClientProvider>
       {/* Sleek top navigation progress bar for instant feedback without layout flash */}
       {isNavigating && (
-        <div className="fixed top-0 left-0 right-0 z-[999999] h-[3px] overflow-hidden bg-transparent pointer-events-none">
-          <div className="h-full bg-gradient-to-r from-[#9C6A5A] via-[#C7A46A] to-[#9C6A5A] animate-[topNavProgress_0.9s_ease-in-out_infinite]" />
+        <div className="fixed top-0 left-0 right-0 z-[999999] h-[3.5px] overflow-hidden bg-transparent pointer-events-none">
+          <div className="h-full bg-gradient-to-r from-[#9C6A5A] via-[#E8C582] to-[#9C6A5A] shadow-[0_0_12px_rgba(232,197,130,0.9)] animate-[topNavProgress_0.8s_ease-in-out_infinite]" />
           <style jsx>{`
             @keyframes topNavProgress {
               0% {
                 transform: translateX(-100%);
-                width: 35%;
+                width: 40%;
               }
               50% {
-                width: 75%;
+                width: 80%;
               }
               100% {
-                transform: translateX(260%);
-                width: 35%;
+                transform: translateX(250%);
+                width: 40%;
               }
             }
           `}</style>

@@ -36,10 +36,15 @@ export const getDynamicAuthOptions = async () => {
 
   const providers = [];
 
-  const googleClientId = storeSetting?.google_id || process.env.GOOGLE_CLIENT_ID;
-  const googleClientSecret = storeSetting?.google_secret || process.env.GOOGLE_CLIENT_SECRET;
+  const googleClientId =
+    process.env.GOOGLE_CLIENT_ID || storeSetting?.google_id;
+  const googleClientSecret =
+    process.env.GOOGLE_CLIENT_SECRET || storeSetting?.google_secret;
 
   if (googleClientId && googleClientSecret) {
+    console.log(
+      `[NextAuth] Initializing Google provider (Client ID: ...${String(googleClientId).slice(-15)}, Secret ending in: ...${String(googleClientSecret).slice(-6)})`
+    );
     providers.push(
       Google({
         clientId: googleClientId,
@@ -90,28 +95,40 @@ export const getDynamicAuthOptions = async () => {
   const authOptions = {
     providers,
     callbacks: {
-      async signIn({ user, account }) {
-        if (account.provider !== "credentials") {
+      async signIn({ user, account, profile }) {
+        console.log("[NextAuth] signIn callback triggered. Provider:", account?.provider, "User:", user?.email);
+        if (account?.provider !== "credentials") {
           try {
-            const res = await CustomerServices.signUpWithOauthProvider(user);
+            const googleAvatar = user?.image || profile?.picture || "";
+            const oauthPayload = {
+              ...user,
+              image: googleAvatar,
+            };
+            console.log("[NextAuth] Calling CustomerServices.signUpWithOauthProvider with avatar:", googleAvatar);
+            const res = await CustomerServices.signUpWithOauthProvider(oauthPayload);
+            console.log("[NextAuth] signUpWithOauthProvider response:", res ? "Received" : "None", res?.token ? "Token present" : "No token");
 
-            // if (error) {
-            //   console.error("OAuth sign-in error:", error);
-            //   return false;
-            // }
-
-            if (res.token) {
+            if (res?.token) {
               user.token = res.token;
               user._id = res._id;
               user.address = res.address;
               user.phone = res.phone;
-              user.image = res.image;
+              // If backend returned a broken/old Cloudinary URL or empty image, use the Google avatar:
+              const isBrokenCloudinary =
+                typeof res.image === "string" &&
+                ["tu23xpla", "detqbiabu", "dhqcwkpzp", "ahossain", "dse9adftu"].some((c) =>
+                  res.image.toLowerCase().includes(c)
+                );
+              user.image = (isBrokenCloudinary || !res.image) ? (googleAvatar || res.image || "") : res.image;
             } else {
-              console.error("OAuth sign-in: No token received");
+              console.error("[NextAuth] OAuth sign-in: No token received", res);
               return false;
             }
           } catch (error) {
-            console.error("OAuth sign-in exception:", error);
+            console.error(
+              "[NextAuth] OAuth sign-in exception:",
+              error?.response?.data || error?.message || error
+            );
             return false;
           }
         }
@@ -154,6 +171,7 @@ export const getDynamicAuthOptions = async () => {
       },
     },
     secret: process.env.NEXTAUTH_SECRET || "manchanda-fabrics-secret-prod-token",
+    debug: process.env.NODE_ENV === "development",
   };
 
   return authOptions;

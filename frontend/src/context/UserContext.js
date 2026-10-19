@@ -63,6 +63,17 @@ export const UserProvider = ({ children }) => {
       });
     }
     
+    if (status === "authenticated" && session?.user) {
+      setToken(session.user.token);
+      const user = {
+        ...session.user,
+        _id: session.user._id || session.user.id,
+      };
+      Cookies.set("userInfo", JSON.stringify(user), { expires: 1 });
+      dispatch({ type: "USER_LOGIN", payload: user });
+      return;
+    }
+
     if (cookieUserInfo) {
       const parsedUser = JSON.parse(cookieUserInfo);
       if (parsedUser?.token) {
@@ -72,15 +83,7 @@ export const UserProvider = ({ children }) => {
       }
     }
 
-    if (status === "authenticated" && session?.user) {
-      setToken(session.user.token);
-      const user = {
-        ...session.user,
-        _id: session.user._id || session.user.id,
-      };
-      Cookies.set("userInfo", JSON.stringify(user), { expires: 1 });
-      dispatch({ type: "USER_LOGIN", payload: user });
-    } else if (status === "unauthenticated" && !cookieUserInfo) {
+    if (status === "unauthenticated" && !cookieUserInfo) {
       setToken(null);
       Cookies.remove("userInfo");
       dispatch({ type: "USER_LOGOUT" });

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -23,6 +23,7 @@ import Loading from "@components/preloader/Loading";
 import { SidebarContext } from "@context/SidebarContext";
 import { UserContext } from "@context/UserContext";
 import CategoryServices from "@services/CategoryServices";
+import UserAvatar from "@components/common/UserAvatar";
 import useUtilsFunction from "@hooks/useUtilsFunction";
 import { buildMobileCategoryMenu, getCategorySlug } from "@utils/categoryMenu";
 import { isRetiredMediaUrl } from "@utils/brandAssets";
@@ -75,6 +76,19 @@ const Category = () => {
     { title: "Contact Us", href: "/contact-us", icon: FiPhoneCall },
     { title: "Terms & Conditions", href: "/terms-and-conditions", icon: FiFileText },
   ];
+
+  // Silently prefetch navigation targets as soon as drawer opens so clicks load instantly
+  useEffect(() => {
+    if (categoryDrawerOpen) {
+      router.prefetch("/about-us");
+      router.prefetch("/wishlist");
+      router.prefetch("/contact-us");
+      router.prefetch("/terms-and-conditions");
+      router.prefetch("/user/my-orders");
+      router.prefetch("/user/dashboard");
+      router.prefetch("/search");
+    }
+  }, [categoryDrawerOpen, router]);
 
   return (
     <div className="flex flex-col w-full h-full bg-[#FAF7F5] text-[#3B2A25] scrollbar-hide border-r border-[#E6D1CB]/60">
@@ -250,6 +264,7 @@ const Category = () => {
               <li key={item.title}>
                 <Link
                   href={item.href}
+                  prefetch={true}
                   onClick={closeCategoryDrawer}
                   className="flex items-center rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
                 >
@@ -266,19 +281,12 @@ const Category = () => {
           {userInfo?.token ? (
             <div className="space-y-2.5">
               <div className="flex items-center gap-3 px-1 py-1">
-                {userInfo.image ? (
-                  <img
-                    src={userInfo.image}
-                    alt={userInfo.name}
-                    width={36}
-                    height={36}
-                    className="w-9 h-9 rounded-full object-cover border border-[#E6D1CB]"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-[#FAF7F5] border border-[#E6D1CB] flex items-center justify-center text-[#9C6A5A] font-bold text-sm">
-                    {(userInfo.name || "U")[0]?.toUpperCase()}
-                  </div>
-                )}
+                <UserAvatar
+                  user={userInfo}
+                  className="w-9 h-9 rounded-full border border-[#E6D1CB]"
+                  initialsClassName="bg-[#FAF7F5] border border-[#E6D1CB] text-[#9C6A5A] font-bold text-sm"
+                  iconSize={16}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold text-[#3B2A25] truncate">
                     {userInfo.name || "Valued Customer"}

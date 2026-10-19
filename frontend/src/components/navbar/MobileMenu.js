@@ -2,7 +2,7 @@
    MobileMenu.js — Slide-out mobile menu drawer
    ============================================================ */
 "use client";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +23,7 @@ import { UserContext } from "@context/UserContext";
 import { setToken } from "@services/httpServices";
 import { notifySuccess } from "@utils/toast";
 import useTranslation from "next-translate/useTranslation";
+import UserAvatar from "@components/common/UserAvatar";
 import LanguageSwitcher from "@components/navbar/LanguageSwitcher";
 import { translateProductTitle } from "@utils/fashionTranslations";
 import { useQuery } from "@tanstack/react-query";
@@ -49,6 +50,20 @@ const MobileMenu = ({ isOpen, onClose }) => {
   const { t } = useTranslation("common");
   const { state: userState, dispatch } = useContext(UserContext);
   const userInfo = userState?.userInfo;
+
+  // Prefetch main destinations as soon as mobile drawer is open for instant navigation
+  useEffect(() => {
+    if (isOpen) {
+      router.prefetch("/").catch(() => {});
+      router.prefetch("/search").catch(() => {});
+      router.prefetch("/new-arrivals").catch(() => {});
+      router.prefetch("/contact-us").catch(() => {});
+      router.prefetch("/wishlist").catch(() => {});
+      router.prefetch("/about-us").catch(() => {});
+      router.prefetch("/user/my-orders").catch(() => {});
+      router.prefetch("/user/dashboard").catch(() => {});
+    }
+  }, [isOpen, router]);
 
   const { data: serverCategories } = useQuery({
     queryKey: ["mobileShowingCategories"],
@@ -135,17 +150,12 @@ const MobileMenu = ({ isOpen, onClose }) => {
               {/* User Account Card */}
               {userInfo ? (
                 <div className="mt-5 p-3.5 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center gap-3">
-                  {userInfo.image ? (
-                    <img
-                      src={userInfo.image}
-                      alt={userInfo.name || "User"}
-                      className="w-10 h-10 rounded-full object-cover border border-[#111111]/15"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#111111] text-white flex items-center justify-center font-bold text-sm uppercase">
-                      {userInfo.name ? userInfo.name.charAt(0).toUpperCase() : <User size={16} />}
-                    </div>
-                  )}
+                  <UserAvatar
+                    user={userInfo}
+                    className="w-10 h-10 rounded-full border border-[#111111]/15"
+                    initialsClassName="bg-[#111111] text-white font-bold text-sm uppercase"
+                    iconSize={16}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-[#111111] truncate uppercase tracking-wider">
                       {userInfo.name || t("My Account")}

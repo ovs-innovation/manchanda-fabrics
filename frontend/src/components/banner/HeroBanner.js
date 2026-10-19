@@ -49,40 +49,6 @@ const HeroBanner = ({ homepage: homepageProp }) => {
     }
   };
 
-  const handleDesktopMetadata = () => {
-    if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {
-      desktopVideoRef.current.currentTime = 2.5;
-    }
-  };
-
-  const handleDesktopTimeUpdate = () => {
-    if (desktopVideoRef.current && desktopVideoRef.current.duration > 3) {
-      if (
-        desktopVideoRef.current.currentTime >=
-        desktopVideoRef.current.duration - 0.4
-      ) {
-        desktopVideoRef.current.currentTime = 2.5;
-      }
-    }
-  };
-
-  const handleMobileMetadata = () => {
-    if (mobileVideoRef.current && mobileVideoRef.current.duration > 3) {
-      mobileVideoRef.current.currentTime = 2.5;
-    }
-  };
-
-  const handleMobileTimeUpdate = () => {
-    if (mobileVideoRef.current && mobileVideoRef.current.duration > 3) {
-      if (
-        mobileVideoRef.current.currentTime >=
-        mobileVideoRef.current.duration - 0.4
-      ) {
-        mobileVideoRef.current.currentTime = 2.5;
-      }
-    }
-  };
-
   return (
     <div
       id="hero-section"
@@ -96,8 +62,6 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         muted
         playsInline
         preload="auto"
-        onLoadedMetadata={handleDesktopMetadata}
-        onTimeUpdate={handleDesktopTimeUpdate}
         onError={handleDesktopError}
         className={`${sharedVideo ? "block" : "hidden md:block"} absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none`}
         src={desktopSrc}
@@ -112,8 +76,6 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           muted
           playsInline
           preload="auto"
-          onLoadedMetadata={handleMobileMetadata}
-          onTimeUpdate={handleMobileTimeUpdate}
           onError={handleMobileError}
           className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
           src={mobileSrc}
