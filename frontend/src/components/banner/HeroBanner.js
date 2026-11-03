@@ -6,7 +6,16 @@ import { mergeHomepage } from "@utils/homepageDefaults";
 import { isRetiredMediaUrl } from "@utils/brandAssets";
 
 const FALLBACK_HERO_VIDEO = "/main1.mp4";
-const usableVideo = (src) => (src && !isRetiredMediaUrl(src) ? src : null);
+// Never stream raw Cloudinary videos for the homepage hero banner.
+// Cloudinary Free tier has strict bandwidth (25 GB/mo); streaming a raw video exhausts credits rapidly.
+// Local video /main1.mp4 is 2.6 MB, loads instantly, and costs 0 Cloudinary bandwidth.
+const usableVideo = (src) => {
+  if (!src || typeof src !== "string") return null;
+  const trimmed = src.trim();
+  if (trimmed.includes("res.cloudinary.com")) return null;
+  if (isRetiredMediaUrl(trimmed)) return null;
+  return trimmed;
+};
 
 const HeroBanner = ({ homepage: homepageProp }) => {
   const homepage = mergeHomepage(homepageProp);
@@ -61,7 +70,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
         loop
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
         onError={handleDesktopError}
         className={`${sharedVideo ? "block" : "hidden md:block"} absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none`}
         src={desktopSrc}
@@ -75,7 +84,7 @@ const HeroBanner = ({ homepage: homepageProp }) => {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           onError={handleMobileError}
           className="block md:hidden absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none"
           src={mobileSrc}
