@@ -5,7 +5,7 @@ import useTranslation from "next-translate/useTranslation";
 import { mergeHomepage } from "@utils/homepageDefaults";
 import { isRetiredMediaUrl } from "@utils/brandAssets";
 
-const FALLBACK_HERO_VIDEO = "/main1.mp4";
+const FALLBACK_HERO_VIDEO = "/v1.mp4";
 // Never stream raw Cloudinary videos for the homepage hero banner.
 // Cloudinary Free tier has strict bandwidth (25 GB/mo); streaming a raw video exhausts credits rapidly.
 // Local video /main1.mp4 is 2.6 MB, loads instantly, and costs 0 Cloudinary bandwidth.
