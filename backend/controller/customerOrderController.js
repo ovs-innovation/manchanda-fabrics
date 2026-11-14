@@ -27,6 +27,7 @@ const { newOrderAdminEmailBody } = require("../lib/email-sender/templates/order-
 const { sendSMS } = require("../lib/sms-sender/sender");
 const { populateCartTaxFields } = require("../utils/cartTaxUtils");
 const { calculateShipping } = require("../utils/shippingRules");
+const responseCache = require("../lib/responseCache");
 
 const PLACEHOLDER_EMAIL_DOMAIN = "phone.Manchanda Fabrics.com";
 const isPlaceholderEmail = (email) =>
@@ -410,8 +411,13 @@ const addOrder = async (req, res) => {
       user: customerUserId,
     });
     const order = await newOrder.save();
+    try {
+      await handleProductQuantity(order.cart);
+    } catch (stockErr) {
+      console.error("[addOrder Stock Error]", stockErr);
+    }
+    responseCache.invalidate?.();
     res.status(201).send(order);
-    handleProductQuantity(order.cart);
 
     // Send notifications after order is created (non-blocking)
     sendOrderNotifications(order);
@@ -641,8 +647,13 @@ const addRazorpayOrder = async (req, res) => {
       user: customerUserId,
     });
     const order = await newOrder.save();
+    try {
+      await handleProductQuantity(order.cart);
+    } catch (stockErr) {
+      console.error("[addOrder Stock Error]", stockErr);
+    }
+    responseCache.invalidate?.();
     res.status(201).send(order);
-    handleProductQuantity(order.cart);
 
     // Send notifications after order is created (non-blocking)
     sendOrderNotifications(order);
@@ -949,6 +960,15 @@ const createPhonePeOrder = async (req, res) => {
 
     const orderData = req.body;
 
+    const outOfStockItems = await checkStock(orderData.cart);
+    if (outOfStockItems && outOfStockItems.length > 0) {
+      return res.status(400).send({
+        success: false,
+        message: "Some items in your cart are out of stock.",
+        outOfStockItems,
+      });
+    }
+
     const resellerError = validateResellerOrder(orderData);
     if (resellerError) {
       return res.status(400).send({
@@ -1106,6 +1126,7 @@ const handlePhonePeCallback = async (req, res) => {
         } catch (stockErr) {
           console.error("[PhonePe Stock Error]", stockErr);
         }
+        responseCache.invalidate?.();
         sendOrderNotifications(targetOrder);
 
         return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
@@ -1180,6 +1201,7 @@ const handlePhonePeWebhook = async (req, res) => {
             } catch (stockErr) {
               console.error("[PhonePe Webhook Stock Error]", stockErr);
             }
+            responseCache.invalidate?.();
             sendOrderNotifications(order);
           }
         } else if (code === "PAYMENT_ERROR" || code === "PAYMENT_DECLINED") {

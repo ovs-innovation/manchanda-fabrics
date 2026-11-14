@@ -165,17 +165,26 @@ const handleProductQuantity = async (cart) => {
 
       if (hasColorVariants && selectedColor) {
         const colorVar = product.colorVariants.find(
-          (cv) => cv.colorName.toLowerCase() === selectedColor.toLowerCase()
+          (cv) => (cv.colorName || "").trim().toLowerCase() === (selectedColor || "").trim().toLowerCase()
         );
         if (colorVar) {
-          colorVar.stock = Math.max(0, colorVar.stock - p.quantity);
-          product.stock = Math.max(0, (product.stock || 0) - p.quantity);
+          colorVar.stock = Math.max(0, Number(colorVar.stock || 0) - p.quantity);
+          product.stock = product.colorVariants.reduce(
+            (sum, cv) => sum + Math.max(0, Number(cv.stock || 0)),
+            0
+          );
           product.sales = Number(product.sales || 0) + p.quantity;
           product.markModified("colorVariants");
           await product.save();
         } else {
           console.error(`Failed to decrease stock for color variant: ${selectedColor}`);
         }
+      } else if (hasColorVariants && !selectedColor && product.colorVariants.length === 1) {
+        product.colorVariants[0].stock = Math.max(0, Number(product.colorVariants[0].stock || 0) - p.quantity);
+        product.stock = product.colorVariants[0].stock;
+        product.sales = Number(product.sales || 0) + p.quantity;
+        product.markModified("colorVariants");
+        await product.save();
       } else if (hasVariantSelection(p)) {
         const available = getVariantQuantity(product, p.variant);
         if (available === null || available < p.quantity) {
@@ -254,7 +263,7 @@ const checkStock = async (cart) => {
 
       if (hasColorVariants && selectedColor) {
         const colorVar = product.colorVariants.find(
-          (cv) => cv.colorName.toLowerCase() === selectedColor.toLowerCase()
+          (cv) => (cv.colorName || "").trim().toLowerCase() === (selectedColor || "").trim().toLowerCase()
         );
         if (!colorVar) {
           outOfStockItems.push({

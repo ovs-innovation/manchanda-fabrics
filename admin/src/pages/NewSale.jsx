@@ -172,7 +172,7 @@ const NewSale = () => {
 
   const addToCart = (product) => {
     const existingItem = cart.find(item => item._id === product._id);
-    const price = Math.max(0, product.prices?.price || product.prices?.originalPrice || 0);
+    const price = Math.max(0, product.prices?.price || product.prices?.originalPrice || product.price || 0);
     
     // Stock Check
     const availableStock = product.stock || 0;
@@ -181,6 +181,8 @@ const NewSale = () => {
     if (availableStock <= currentQtyInCart) {
       return;
     }
+
+    const selectedColor = product.color || product.defaultColorName || (product.colorVariants && product.colorVariants.find(c => c.stock > 0)?.colorName) || product.colorVariants?.[0]?.colorName || "";
 
     if (existingItem) {
       setCart(cart.map(item => 
@@ -193,9 +195,11 @@ const NewSale = () => {
         _id: product._id,
         title: product.title?.en || product.title,
         price: price,
-        image: Array.isArray(product.image) ? product.image[0] : product.image,
+        image: Array.isArray(product.image) ? product.image[0] : (product.image || ""),
         quantity: 1,
-        stock: availableStock // Store stock to check during quantity update
+        stock: availableStock, // Store stock to check during quantity update
+        color: selectedColor,
+        variant: product.variant || {},
       }]);
     }
   };
@@ -257,6 +261,8 @@ const NewSale = () => {
           price: item.price,
           quantity: item.quantity,
           image: item.image,
+          color: item.color || "",
+          variant: item.variant || {},
         })),
         subTotal: subtotal,
         total: total,

@@ -744,22 +744,12 @@ const updateProduct = async (req, res) => {
       product.colorVariants = req.body.colorVariants;
       product.defaultColorName = req.body.defaultColorName;
       product.defaultColorCode = req.body.defaultColorCode;
-      const updatedStockVal = typeof req.body.stock === "number" ? req.body.stock : Number(req.body.stock || 0);
-      product.stock = updatedStockVal;
-
       if (Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
         const cvStockTotal = product.colorVariants.reduce((sum, cv) => sum + Number(cv.stock || 0), 0);
-        if (cvStockTotal === 0 && updatedStockVal > 0) {
-          if (product.colorVariants.length === 1) {
-            product.colorVariants[0].stock = updatedStockVal;
-          } else {
-            const perVar = Math.floor(updatedStockVal / product.colorVariants.length);
-            const rem = updatedStockVal % product.colorVariants.length;
-            product.colorVariants.forEach((cv, idx) => {
-              cv.stock = perVar + (idx === 0 ? rem : 0);
-            });
-          }
-        }
+        product.stock = cvStockTotal;
+      } else {
+        const updatedStockVal = typeof req.body.stock === "number" ? req.body.stock : Number(req.body.stock || 0);
+        product.stock = updatedStockVal;
       }
       product.prices = req.body.prices;
       product.image = req.body.image;

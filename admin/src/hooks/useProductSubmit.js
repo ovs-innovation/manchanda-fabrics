@@ -380,11 +380,11 @@ const useProductSubmit = (id) => {
       const inputStock = Number(data.stock !== undefined && data.stock !== "" ? data.stock : 0);
 
       // Determine final product stock:
-      // 1. If colorVariants have positive stock, sum them.
+      // 1. If colorVariants exist, product stock is strictly the sum of its color variants (even if 0)
       // 2. If simple variants have positive stock, sum them.
-      // 3. Otherwise, use the stock value entered by the admin in the main Stock field!
+      // 3. Otherwise, use the stock value entered by the admin in the main Stock field.
       let finalStock = inputStock;
-      if (colorVariantsTotalStock > 0) {
+      if (colorVariants && colorVariants.length > 0) {
         finalStock = colorVariantsTotalStock;
       } else if (computedTotalStock > 0) {
         finalStock = computedTotalStock;
@@ -440,18 +440,6 @@ const useProductSubmit = (id) => {
         };
       });
 
-      if (normalizedColorVariants.length > 0 && colorVariantsTotalStock === 0 && finalStock > 0) {
-        if (normalizedColorVariants.length === 1) {
-          normalizedColorVariants[0].stock = finalStock;
-        } else {
-          const perVar = Math.floor(finalStock / normalizedColorVariants.length);
-          const rem = finalStock % normalizedColorVariants.length;
-          normalizedColorVariants = normalizedColorVariants.map((cv, idx) => ({
-            ...cv,
-            stock: perVar + (idx === 0 ? rem : 0),
-          }));
-        }
-      }
 
       const hasColorVariants = updatedVariants.length > 0;
 
@@ -964,11 +952,9 @@ const useProductSubmit = (id) => {
               0
             );
             const resolvedLoadedStock =
-              Number(res.stock) > 0
-                ? Number(res.stock)
-                : loadedCvStock > 0
-                  ? loadedCvStock
-                  : (Number(res.stock) || 0);
+              res.colorVariants && res.colorVariants.length > 0
+                ? loadedCvStock
+                : (Number(res.stock) || 0);
 
             setValue("stock", resolvedLoadedStock);
             setValue("productId", res.productId);
@@ -1000,18 +986,6 @@ const useProductSubmit = (id) => {
             setValue("status", mapStatusForForm(res.status));
             setValue("lowStockAlert", res.lowStockAlert || 5);
             let loadedColorVariants = res.colorVariants || [];
-            if (loadedColorVariants.length > 0 && loadedCvStock === 0 && Number(res.stock) > 0) {
-              if (loadedColorVariants.length === 1) {
-                loadedColorVariants = [{ ...loadedColorVariants[0], stock: Number(res.stock) }];
-              } else {
-                const perVar = Math.floor(Number(res.stock) / loadedColorVariants.length);
-                const rem = Number(res.stock) % loadedColorVariants.length;
-                loadedColorVariants = loadedColorVariants.map((cv, idx) => ({
-                  ...cv,
-                  stock: perVar + (idx === 0 ? rem : 0),
-                }));
-              }
-            }
             setColorVariants(loadedColorVariants);
             setValue("defaultColorName", res.defaultColorName || "");
             setValue("defaultColorCode", res.defaultColorCode || "");
