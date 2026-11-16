@@ -19,7 +19,7 @@ const HEAD_BG = "#f3f4f6";
 const ARIAL_REGULAR_URL =
   "https://cdn.jsdelivr.net/npm/@canvas-fonts/arial@1.0.4/Arial.ttf";
 const ARIAL_BOLD_URL =
-  "https://cdn.jsdelivr.net/npm/@canvas-fonts/arial-bold@1.0.4/Arial-Bold.ttf";
+  "https://cdn.jsdelivr.net/npm/@canvas-fonts/arial-bold@1.0.4/Arial%20Bold.ttf";
 
 let arialFontsPromise = null;
 
@@ -40,19 +40,32 @@ const downloadFont = (url) =>
   });
 
 const ensureArialFonts = async () => {
+  const dir = path.join(os.tmpdir(), "manchanda-invoice-fonts");
+  const regularPath = path.join(dir, "arial.ttf");
+  const boldPath = path.join(dir, "arial-bold.ttf");
+
+  if (fs.existsSync(regularPath) && fs.existsSync(boldPath)) {
+    return { regularPath, boldPath };
+  }
+
   if (!arialFontsPromise) {
     arialFontsPromise = Promise.all([
       downloadFont(ARIAL_REGULAR_URL),
       downloadFont(ARIAL_BOLD_URL),
-    ]).then(([regular, bold]) => {
-      const dir = path.join(os.tmpdir(), "manchanda-invoice-fonts");
-      fs.mkdirSync(dir, { recursive: true });
-      const regularPath = path.join(dir, "arial.ttf");
-      const boldPath = path.join(dir, "arial-bold.ttf");
-      fs.writeFileSync(regularPath, regular);
-      fs.writeFileSync(boldPath, bold);
-      return { regularPath, boldPath };
-    });
+    ])
+      .then(([regular, bold]) => {
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(regularPath, regular);
+        fs.writeFileSync(boldPath, bold);
+        return { regularPath, boldPath };
+      })
+      .catch((err) => {
+        console.warn(
+          "[Invoice PDF] Arial font download failed, using built-in Helvetica fallback:",
+          err.message
+        );
+        return null;
+      });
   }
   return arialFontsPromise;
 };
@@ -150,8 +163,18 @@ const handleCreateInvoice = async (order) => {
 
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 40 });
-    doc.registerFont(FONT, fonts.regularPath);
-    doc.registerFont(FONT_BOLD, fonts.boldPath);
+    if (fonts?.regularPath && fonts?.boldPath) {
+      try {
+        doc.registerFont(FONT, fonts.regularPath);
+        doc.registerFont(FONT_BOLD, fonts.boldPath);
+      } catch (fontErr) {
+        doc.registerFont(FONT, "Helvetica");
+        doc.registerFont(FONT_BOLD, "Helvetica-Bold");
+      }
+    } else {
+      doc.registerFont(FONT, "Helvetica");
+      doc.registerFont(FONT_BOLD, "Helvetica-Bold");
+    }
     const buffers = [];
     doc.on("data", buffers.push.bind(buffers));
     doc.on("end", () => resolve(Buffer.concat(buffers)));
