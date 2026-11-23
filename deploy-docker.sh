@@ -7,10 +7,14 @@ echo "========================================="
 
 cd /var/www/manchanda-fabrics
 
-# 1. Pull latest code
+# 1. Pull latest code (force sync with GitHub main)
 echo ""
-echo "📥 Pulling latest code from GitHub..."
-git pull origin main
+echo "📥 Fetching and syncing latest code from GitHub..."
+git fetch origin main
+git checkout main 2>/dev/null || true
+git reset --hard origin/main
+echo "📌 Current commit on server:"
+git log -1 --oneline
 
 # 2. Stop old containers (keep volumes!)
 echo ""
@@ -22,10 +26,11 @@ echo ""
 echo "🧹 Removing old Docker images to force clean rebuild..."
 docker rmi manchanda-fabrics-backend manchanda-fabrics-frontend manchanda-fabrics-admin 2>/dev/null || true
 
-# 4. Rebuild and start fresh
+# 4. Rebuild and start fresh with no cache
 echo ""
-echo "🔨 Building and starting containers..."
-docker compose up -d --build --force-recreate
+echo "🔨 Building and starting containers (no-cache)..."
+docker compose build --no-cache
+docker compose up -d --force-recreate
 
 # 5. Wait a moment for containers to start
 echo ""
