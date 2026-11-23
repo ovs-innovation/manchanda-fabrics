@@ -34,12 +34,20 @@ echo ""
 echo "🚀 Starting fresh containers..."
 docker compose up -d --force-recreate
 
-# 4. Wait a moment for containers to start
+# 4. Ensure Nginx reverse proxy is linked and reloaded
+echo ""
+echo "🌐 Ensuring Nginx reverse proxy configuration is active..."
+if [ -f /etc/nginx/sites-available/manchandafabric.in ]; then
+    ln -sf /etc/nginx/sites-available/manchandafabric.in /etc/nginx/sites-enabled/
+    nginx -t && systemctl reload nginx || echo "⚠️ Nginx reload warning"
+fi
+
+# 5. Wait a moment for containers to start
 echo ""
 echo "⏳ Waiting for containers to initialize..."
-sleep 8
+sleep 5
 
-# 5. Show status
+# 6. Show status
 echo ""
 echo "📊 Container Status:"
 docker compose ps
