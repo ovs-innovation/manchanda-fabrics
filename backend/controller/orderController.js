@@ -5,6 +5,10 @@ const Product = require("../models/Product");
 const Admin = require("../models/Admin");
 const Brand = require("../models/Brand");
 const { populateCartTaxFields } = require("../utils/cartTaxUtils");
+const {
+  handleProductQuantity,
+  restoreProductQuantity,
+} = require("../lib/stock-controller/others");
 
 const getAllOrders = async (req, res) => {
   const {
@@ -512,6 +516,27 @@ const updateOrder = async (req, res) => {
       { new: true }
     );
 
+    // Automatic Inventory Stock Management on status transitions
+    if (status && previousStatus !== status && Array.isArray(order.cart) && order.cart.length > 0) {
+      const cancelStatuses = ["Cancel", "Cancelled", "Refunded"];
+      const isNowCancelled = cancelStatuses.includes(status);
+      const wasCancelled = cancelStatuses.includes(previousStatus);
+
+      if (isNowCancelled && !wasCancelled) {
+        try {
+          await restoreProductQuantity(order.cart);
+        } catch (stockErr) {
+          console.error("[Order Cancel Stock Restore Error]", stockErr);
+        }
+      } else if (!isNowCancelled && wasCancelled) {
+        try {
+          await handleProductQuantity(order.cart);
+        } catch (stockErr) {
+          console.error("[Order Reactivate Stock Deduct Error]", stockErr);
+        }
+      }
+    }
+
     // Customer notification on status change (email if real email else SMS)
     if (status && previousStatus !== status) {
       (async () => {
@@ -602,6 +627,14 @@ const updateOrder = async (req, res) => {
 
 const deleteOrder = async (req, res) => {
   try {
+    const order = await Order.findById(req.params.id);
+    if (order && !["Cancel", "Cancelled", "Refunded"].includes(order.status) && Array.isArray(order.cart)) {
+      try {
+        await restoreProductQuantity(order.cart);
+      } catch (stockErr) {
+        console.error("[deleteOrder Stock Restore Error]", stockErr);
+      }
+    }
     await Order.deleteOne({ _id: req.params.id });
     res.status(200).send({
       message: "Order Deleted Successfully!",
