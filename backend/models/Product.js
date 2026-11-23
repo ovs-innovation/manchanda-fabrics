@@ -312,7 +312,10 @@ const productSchema = new mongoose.Schema(
     colorVariants: [
       {
         colorName: { type: String, required: true },
-        colorCode: { type: String, required: true },
+        colorCode: { type: String, required: false, default: "#111111" },
+        variantType: { type: String, default: "color" },
+        designName: { type: String, default: "" },
+        swatchType: { type: String, default: "color" },
         images: { type: [String], default: [] },
         stock: { type: Number, required: true, default: 0 },
         sku: { type: String, default: "" },

@@ -910,37 +910,147 @@ const ColorVariantManager = ({
 
                   {/* Right Column: Spacious Form Fields */}
                   <div className="md:col-span-8 lg:col-span-9 space-y-4 sm:pr-8">
-                    {/* Row 1: Color Name & Delete Button */}
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
-                        Color Name *
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 min-w-0">
-                          <ColorPickerInput
-                            simple={true}
-                            colorName={row.colorName || ""}
-                            colorCode={row.colorCode || ""}
-                            onChange={({ colorName, colorCode }) =>
-                              updateColorBoth(index, colorName, colorCode)
-                            }
-                            onPickFromPhoto={() => handleStartPickColor(index)}
-                            placeholder="Type or search shade (e.g. Rani Pink, Bottle Green, Wine)..."
-                            required
-                          />
-                        </div>
-                        {/* Delete Button (Directly After Color Dropdown Arrow) */}
+                    {/* Variant Mode: Color vs Design/Pattern */}
+                    <div className="flex items-center justify-between pb-1">
+                      <div className="flex items-center gap-1.5 p-1 bg-gray-100 dark:bg-gray-700/60 rounded-xl">
                         <button
                           type="button"
-                          onClick={() => removeRow(index)}
-                          className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-red-50 hover:border-red-200 text-red-500 hover:text-red-600 dark:hover:bg-red-950/40 transition-colors shrink-0 flex items-center justify-center"
-                          title="Delete this suit"
-                          aria-label="Delete this suit"
+                          onClick={() => {
+                            updateRow(index, "variantType", "color");
+                            updateRow(index, "swatchType", "color");
+                          }}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                            (row.variantType || "color") === "color"
+                              ? "bg-white dark:bg-gray-800 text-teal-700 dark:text-teal-400 shadow-xs ring-1 ring-black/5"
+                              : "text-gray-500 hover:text-gray-800 dark:text-gray-400"
+                          }`}
                         >
-                          <FiTrash2 size={16} />
+                          🎨 Color Variant
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateRow(index, "variantType", "design");
+                            updateRow(index, "swatchType", "image");
+                            if (!row.designName && row.colorName && row.colorName !== "Suit Color") {
+                              updateRow(index, "designName", row.colorName);
+                            }
+                          }}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                            row.variantType === "design"
+                              ? "bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-400 shadow-xs ring-1 ring-black/5"
+                              : "text-gray-500 hover:text-gray-800 dark:text-gray-400"
+                          }`}
+                        >
+                          🌸 Design / Pattern (फूल, पत्ती आदि)
                         </button>
                       </div>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeRow(index)}
+                        className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-red-50 hover:border-red-200 text-red-500 hover:text-red-600 dark:hover:bg-red-950/40 transition-colors shrink-0 flex items-center justify-center"
+                        title="Delete this suit/design"
+                        aria-label="Delete this suit/design"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
                     </div>
+
+                    {/* Form Fields: Color Mode vs Design Mode */}
+                    {row.variantType === "design" ? (
+                      <div className="space-y-2.5 p-3.5 bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 rounded-2xl">
+                        <div>
+                          <label className="block text-xs font-bold uppercase text-purple-900 dark:text-purple-300 mb-1">
+                            Design / Pattern Name * (जैसे Flower, Leaf, Buti)
+                          </label>
+                          <Input
+                            type="text"
+                            value={row.designName || row.colorName || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const updated = rows.map((r, i) => {
+                                if (i !== index) return r;
+                                return {
+                                  ...r,
+                                  designName: val,
+                                  colorName: val || "Design",
+                                  variantType: "design",
+                                  swatchType: "image",
+                                };
+                              });
+                              setColorVariants(updated);
+                            }}
+                            placeholder="Type design name (e.g. Flower Print, Leaf Pattern, Jaal Buti, Design 1)..."
+                            className="w-full text-sm font-semibold rounded-xl border-purple-200 focus:border-purple-500"
+                          />
+                        </div>
+
+                        {/* Quick Suggestion Chips */}
+                        <div className="flex flex-wrap gap-1.5 pt-0.5">
+                          {["Flower Print", "Leaf Pattern", "Jaal / Buti", "Geometric", "Stripes", "Design 1", "Design 2", "Design 3", "Design 4"].map((chip) => (
+                            <button
+                              key={chip}
+                              type="button"
+                              onClick={() => {
+                                const updated = rows.map((r, i) => {
+                                  if (i !== index) return r;
+                                  return {
+                                    ...r,
+                                    designName: chip,
+                                    colorName: chip,
+                                    variantType: "design",
+                                    swatchType: "image",
+                                  };
+                                });
+                                setColorVariants(updated);
+                              }}
+                              className="px-2.5 py-1 text-[11px] font-semibold bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-300 rounded-lg border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors shadow-2xs"
+                            >
+                              + {chip}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Optional Base Color */}
+                        <div className="pt-1.5">
+                          <label className="block text-[11px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1">
+                            Base Fabric Color (Optional):
+                          </label>
+                          <div className="max-w-xs">
+                            <ColorPickerInput
+                              simple={true}
+                              colorName={row.baseColor || (row.colorCode && row.colorCode !== "#111111" ? row.colorName : "")}
+                              colorCode={row.colorCode || ""}
+                              onChange={({ colorName: bName, colorCode: bCode }) => {
+                                updateRow(index, "colorCode", bCode);
+                                updateRow(index, "baseColor", bName);
+                              }}
+                              onPickFromPhoto={() => handleStartPickColor(index)}
+                              placeholder="Base color (e.g. Royal Blue, White)..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
+                          Color Name *
+                        </label>
+                        <ColorPickerInput
+                          simple={true}
+                          colorName={row.colorName || ""}
+                          colorCode={row.colorCode || ""}
+                          onChange={({ colorName, colorCode }) =>
+                            updateColorBoth(index, colorName, colorCode)
+                          }
+                          onPickFromPhoto={() => handleStartPickColor(index)}
+                          placeholder="Type or search shade (e.g. Rani Pink, Bottle Green, Wine)..."
+                          required
+                        />
+                      </div>
+                    )}
 
                     {/* Row 3: Stock Quantity & SKU (Comfortable 2-Column Grid) */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">

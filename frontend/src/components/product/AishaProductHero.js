@@ -275,55 +275,107 @@ const AishaProductHero = ({
 
         <hr className="my-6 border-neutral-200" />
 
-        {/* Color Variants */}
+        {/* Color & Design Variants */}
         {product.colorVariants && product.colorVariants.length > 0 && (
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <p
-                className="text-sm font-medium text-[#111111] flex items-center"
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                Color: <span className="font-semibold text-neutral-800 ml-1">{selectedColorVar?.colorName}</span>
-                {Number(selectedColorVar?.stock || 0) <= 0 && (
-                  <span className="text-red-600 font-semibold text-[11px] ml-2 uppercase tracking-wider bg-red-50 border border-red-200 px-2 py-0.5 rounded">
-                    Sold Out
-                  </span>
-                )}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2.5">
-              {product.colorVariants.map((colorVar, idx) => {
-                const isSelected = (selectedColorVar?._id && colorVar?._id)
-                  ? String(selectedColorVar._id) === String(colorVar._id)
-                  : (selectedColorVar?.colorName && colorVar?.colorName && selectedColorVar.colorName.toLowerCase() === colorVar.colorName.toLowerCase());
-                const isSoldOut = Number(colorVar.stock || 0) <= 0;
-                return (
-                  <button
-                    key={colorVar._id || colorVar.colorName || idx}
-                    type="button"
-                    onClick={() => setSelectedColorVar(colorVar)}
-                    className={`relative w-9 h-9 rounded-full border flex items-center justify-center transition-all ${isSelected
-                        ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"
-                        : "border-neutral-300 hover:border-neutral-800 opacity-80 hover:opacity-100"
-                      } ${isSoldOut ? "opacity-60 hover:opacity-90" : ""}`}
-                    title={`${colorVar.colorName}${isSoldOut ? " (Sold Out)" : ""}`}
-                  >
-                    <span
-                      className="w-7 h-7 rounded-full block border border-neutral-200/50 shadow-xs"
-                      style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
-                    />
-                    {isSoldOut && (
-                      <span
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                        aria-hidden="true"
-                      >
-                        <span className="w-8 h-[1.5px] bg-red-600 -rotate-45 block shadow-xs" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            {(() => {
+              const isDesignBased = product.colorVariants.some(
+                (cv) => cv.variantType === "design" || Boolean(cv.designName) || cv.swatchType === "image"
+              );
+              const sectionTitle = isDesignBased ? "Design / Pattern:" : "Color:";
+              const activeLabel = selectedColorVar?.designName || selectedColorVar?.colorName;
+
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p
+                      className="text-sm font-medium text-[#111111] flex items-center"
+                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                    >
+                      {sectionTitle} <span className="font-bold text-neutral-900 ml-1.5">{activeLabel}</span>
+                      {Number(selectedColorVar?.stock || 0) <= 0 && (
+                        <span className="text-red-600 font-semibold text-[11px] ml-2 uppercase tracking-wider bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+                          Sold Out
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2.5 items-center">
+                    {product.colorVariants.map((colorVar, idx) => {
+                      const isSelected = (selectedColorVar?._id && colorVar?._id)
+                        ? String(selectedColorVar._id) === String(colorVar._id)
+                        : (selectedColorVar?.colorName && colorVar?.colorName && selectedColorVar.colorName.toLowerCase() === colorVar.colorName.toLowerCase());
+                      const isSoldOut = Number(colorVar.stock || 0) <= 0;
+                      const hasImageThumb = colorVar.variantType === "design" || colorVar.swatchType === "image" || Boolean(colorVar.designName) || (isDesignBased && colorVar.images?.[0]);
+
+                      if (hasImageThumb && colorVar.images?.[0]) {
+                        return (
+                          <button
+                            key={colorVar._id || colorVar.designName || colorVar.colorName || idx}
+                            type="button"
+                            onClick={() => setSelectedColorVar(colorVar)}
+                            className={`group relative rounded-xl border-2 flex flex-col items-center p-1 transition-all ${
+                              isSelected
+                                ? "border-[#111111] ring-2 ring-neutral-400/40 shadow-sm scale-105 bg-neutral-50"
+                                : "border-neutral-200 hover:border-neutral-800 opacity-85 hover:opacity-100 bg-white"
+                            } ${isSoldOut ? "opacity-50" : ""}`}
+                            title={`${colorVar.designName || colorVar.colorName}${isSoldOut ? " (Sold Out)" : ""}`}
+                          >
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-neutral-100 relative shadow-2xs">
+                              <img
+                                src={colorVar.images[0]}
+                                alt={colorVar.designName || colorVar.colorName}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                              {colorVar.colorCode && colorVar.colorCode !== "#111111" && (
+                                <span
+                                  className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full border border-white shadow-xs"
+                                  style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
+                                />
+                              )}
+                            </div>
+                            <span className="text-[10px] font-bold text-neutral-800 mt-1 max-w-[60px] truncate text-center leading-tight">
+                              {colorVar.designName || colorVar.colorName}
+                            </span>
+                            {isSoldOut && (
+                              <span className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl">
+                                <span className="w-10 h-[1.5px] bg-red-600 -rotate-45 block shadow-xs" />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={colorVar._id || colorVar.colorName || idx}
+                          type="button"
+                          onClick={() => setSelectedColorVar(colorVar)}
+                          className={`relative w-9 h-9 rounded-full border flex items-center justify-center transition-all ${isSelected
+                              ? "border-[#111111] ring-2 ring-neutral-300 scale-105 shadow-sm"
+                              : "border-neutral-300 hover:border-neutral-800 opacity-80 hover:opacity-100"
+                            } ${isSoldOut ? "opacity-60 hover:opacity-90" : ""}`}
+                          title={`${colorVar.colorName}${isSoldOut ? " (Sold Out)" : ""}`}
+                        >
+                          <span
+                            className="w-7 h-7 rounded-full block border border-neutral-200/50 shadow-xs"
+                            style={{ backgroundColor: resolveColorHex(colorVar.colorCode, colorVar.colorName) }}
+                          />
+                          {isSoldOut && (
+                            <span
+                              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                              aria-hidden="true"
+                            >
+                              <span className="w-8 h-[1.5px] bg-red-600 -rotate-45 block shadow-xs" />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
