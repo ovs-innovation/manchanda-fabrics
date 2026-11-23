@@ -101,18 +101,25 @@ export const getSocialShareImageUrl = (url, isProduct = true) => {
     // WhatsApp Web/Desktop & Mobile require 1.91:1 aspect ratio (1200x630) under 300KB
     // to render the LARGE FULL-WIDTH TOP CARD. Any portrait (height > width) image is
     // automatically downgraded by WhatsApp Web to a small square thumbnail on the left!
-    // Using c_pad with b_auto:predominant keeps the entire garment visible and extends the background.
+    // Using c_pad with b_rgb:FFFFFF keeps the entire garment clearly visible on a clean luxury white background.
+    // Keep the large 1200x630 full-width banner with clean white padding and optimal weight (<250KB) so WhatsApp always renders the BIG top card.
     const transform = isProduct
-      ? "c_pad,w_1200,h_630,b_auto:predominant,q_80,f_jpg"
-      : "c_fill,w_1200,h_630,g_auto,q_80,f_jpg";
+      ? "c_pad,w_1200,h_630,b_rgb:FFFFFF,q_auto:good,f_jpg,fl_lossy"
+      : "c_fill,w_1200,h_630,g_auto,q_auto:good,f_jpg,fl_lossy";
 
-    // Replace any existing transformation or inject new one right before version or path
-    if (/\/upload\/(c_|w_|h_|q_|f_|t_|b_)[^/]+\/(v\d+\/.*)/i.test(clean)) {
-      clean = clean.replace(/\/upload\/[^/]+\/(v\d+\/.*)/i, `/upload/${transform}/$1`);
-    } else if (/\/upload\/(v\d+\/.*)/i.test(clean)) {
-      clean = clean.replace(/\/upload\/(v\d+\/.*)/i, `/upload/${transform}/$1`);
-    } else {
-      clean = clean.replace(/\/upload\//, `/upload/${transform}/`);
+    const uploadIdx = clean.indexOf("/upload/");
+    if (uploadIdx !== -1) {
+      const prefix = clean.substring(0, uploadIdx + "/upload/".length);
+      const remainder = clean.substring(uploadIdx + "/upload/".length);
+      const segments = remainder.split("/");
+      // Strip any existing transformation segments (c_, w_, h_, b_, q_, f_, etc.)
+      while (
+        segments.length > 1 &&
+        /^(?:c_|w_|h_|q_|f_|t_|b_|g_|e_|d_|l_|u_|r_|ar_|bo_|co_)/i.test(segments[0])
+      ) {
+        segments.shift();
+      }
+      clean = prefix + transform + "/" + segments.join("/");
     }
 
     // Force .jpg extension so crawlers recognize it as image/jpeg

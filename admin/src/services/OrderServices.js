@@ -92,6 +92,14 @@ const OrderServices = {
     return requests.get("/orders/dashboard-amount");
   },
 
+  getSalesProfitReport: async ({ year, margin } = {}) => {
+    const params = new URLSearchParams();
+    if (year) params.append("year", year);
+    if (margin) params.append("margin", margin);
+    const qs = params.toString();
+    return requests.get(`/orders/sales-profit-report${qs ? `?${qs}` : ""}`);
+  },
+
   getDashboardCount: async () => {
     return requests.get("/orders/dashboard-count");
   },

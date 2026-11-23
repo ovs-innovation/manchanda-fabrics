@@ -30,7 +30,7 @@ const ColorPickerInput = ({
   const [isOpen, setIsOpen] = useState(false); // Full palette popover
   const [isSearchOpen, setIsSearchOpen] = useState(false); // Live autocomplete dropdown
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [activeFamily, setActiveFamily] = useState("Pink");
+  const [activeFamily, setActiveFamily] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const containerRef = useRef(null);

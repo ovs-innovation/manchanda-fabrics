@@ -946,6 +946,149 @@ const getDashboardAmount = async (req, res) => {
   }
 };
 
+/**
+ * Net Sales and Profit Analytics
+ * Provides executive summary, 12-month breakdown, and day-wise breakdown.
+ */
+const getSalesProfitReport = async (req, res) => {
+  try {
+    const targetYear = parseInt(req.query.year) || new Date().getFullYear();
+    const marginPercent = Math.max(0, Math.min(100, parseFloat(req.query.margin) || 30));
+    const profitMargin = marginPercent / 100;
+
+    const startOfYear = new Date(targetYear, 0, 1, 0, 0, 0, 0);
+    const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+
+    const orders = await Order.find({
+      $or: [
+        { createdAt: { $gte: startOfYear, $lte: endOfYear } },
+        { updatedAt: { $gte: startOfYear, $lte: endOfYear } },
+      ],
+    }).select("invoice subTotal total discount shippingCost status createdAt updatedAt paymentMethod");
+
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthlyReport = monthNames.map((name, index) => ({
+      month: name,
+      monthIndex: index,
+      year: targetYear,
+      orderCount: 0,
+      completedOrders: 0,
+      cancelledOrders: 0,
+      grossSales: 0,
+      discounts: 0,
+      netSales: 0,
+      estimatedProfit: 0,
+    }));
+
+    const dailyMap = {};
+    let totalGrossSales = 0;
+    let totalNetSales = 0;
+    let totalDiscount = 0;
+    let totalOrders = 0;
+    let totalCompleted = 0;
+    let totalCancelled = 0;
+
+    orders.forEach((order) => {
+      const orderDate = new Date(order.createdAt || order.updatedAt || Date.now());
+      const mIdx = orderDate.getMonth();
+      const dateStr = orderDate.toISOString().split("T")[0];
+
+      const isCancelled = /cancel|refund|fail/i.test(String(order.status || ""));
+      const grossAmount = Math.max(0, Number(order.total) || 0);
+      const subTotal = Math.max(0, Number(order.subTotal) || 0);
+      const discount = Math.max(0, Number(order.discount) || 0);
+
+      totalOrders += 1;
+      monthlyReport[mIdx].orderCount += 1;
+
+      if (!dailyMap[dateStr]) {
+        dailyMap[dateStr] = {
+          date: dateStr,
+          day: orderDate.toLocaleDateString("en-IN", { weekday: "short" }),
+          formattedDate: orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          monthIndex: mIdx,
+          orderCount: 0,
+          completedOrders: 0,
+          cancelledOrders: 0,
+          grossSales: 0,
+          discounts: 0,
+          netSales: 0,
+          estimatedProfit: 0,
+        };
+      }
+      dailyMap[dateStr].orderCount += 1;
+      dailyMap[dateStr].grossSales += grossAmount;
+      monthlyReport[mIdx].grossSales += grossAmount;
+      totalGrossSales += grossAmount;
+
+      if (isCancelled) {
+        totalCancelled += 1;
+        monthlyReport[mIdx].cancelledOrders += 1;
+        dailyMap[dateStr].cancelledOrders += 1;
+      } else {
+        totalCompleted += 1;
+        monthlyReport[mIdx].completedOrders += 1;
+        dailyMap[dateStr].completedOrders += 1;
+
+        const netAmount = Math.max(0, subTotal > 0 ? (subTotal - discount) : (grossAmount - discount));
+        const profitAmount = netAmount * profitMargin;
+
+        totalNetSales += netAmount;
+        totalDiscount += discount;
+
+        monthlyReport[mIdx].discounts += discount;
+        monthlyReport[mIdx].netSales += netAmount;
+        monthlyReport[mIdx].estimatedProfit += profitAmount;
+
+        dailyMap[dateStr].discounts += discount;
+        dailyMap[dateStr].netSales += netAmount;
+        dailyMap[dateStr].estimatedProfit += profitAmount;
+      }
+    });
+
+    monthlyReport.forEach((m) => {
+      m.grossSales = Math.round(m.grossSales * 100) / 100;
+      m.netSales = Math.round(m.netSales * 100) / 100;
+      m.discounts = Math.round(m.discounts * 100) / 100;
+      m.estimatedProfit = Math.round(m.estimatedProfit * 100) / 100;
+    });
+
+    const dailyReport = Object.values(dailyMap).sort((a, b) => new Date(b.date) - new Date(a.date));
+    dailyReport.forEach((d) => {
+      d.grossSales = Math.round(d.grossSales * 100) / 100;
+      d.netSales = Math.round(d.netSales * 100) / 100;
+      d.discounts = Math.round(d.discounts * 100) / 100;
+      d.estimatedProfit = Math.round(d.estimatedProfit * 100) / 100;
+    });
+
+    const totalProfit = Math.round(totalNetSales * profitMargin * 100) / 100;
+    const averageOrderValue = totalCompleted > 0 ? Math.round((totalNetSales / totalCompleted) * 100) / 100 : 0;
+
+    res.send({
+      summary: {
+        grossSales: Math.round(totalGrossSales * 100) / 100,
+        netSales: Math.round(totalNetSales * 100) / 100,
+        totalProfit,
+        profitMarginPercent: marginPercent,
+        totalDiscount: Math.round(totalDiscount * 100) / 100,
+        totalOrders,
+        completedOrders: totalCompleted,
+        cancelledOrders: totalCancelled,
+        averageOrderValue,
+        year: targetYear,
+      },
+      monthlyReport,
+      dailyReport,
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
 const getBestSellerProductChart = async (req, res) => {
   try {
     // console.log("getBestSellerProductChart");
@@ -1199,4 +1342,5 @@ module.exports = {
   getDashboardRecentOrder,
   getDashboardCount,
   getDashboardAmount,
+  getSalesProfitReport,
 };

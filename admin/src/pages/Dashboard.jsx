@@ -25,6 +25,7 @@ import PieChart from "@/components/chart/Pie/PieChart";
 // import CardItemTwo from "@/components/dashboard/CardItemTwo";
 import ModernStats from "@/components/dashboard/ModernStats";
 import DetailedOrderStatus from "@/components/dashboard/DetailedOrderStatus";
+import NetSalesProfitSection from "@/components/dashboard/NetSalesProfitSection";
 import GrossSaleChart from "@/components/dashboard/GrossSaleChart";
 import UserStatisticsChart from "@/components/dashboard/UserStatisticsChart";
 import TopPopularSelling from "@/components/dashboard/TopPopularSelling";
@@ -266,6 +267,9 @@ const Dashboard = () => {
 
           {/* Detailed Status Cards beneath Main Stats */}
           <DetailedOrderStatus dashboardOrderCount={dashboardOrderCount} />
+
+          {/* Net Sales & Profit Analytics (Monthly & Day-Wise Breakdown) */}
+          <NetSalesProfitSection fallbackOrders={dashboardOrderAmount?.ordersData} />
 
           {/* Charts area */}
           <section className="mt-8">

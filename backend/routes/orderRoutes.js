@@ -14,10 +14,14 @@ const {
   getBestSellerProductChart,
   getDashboardCount,
   getDashboardAmount,
+  getSalesProfitReport,
 } = require("../controller/orderController");
 
 //get all orders
 router.get("/", isAuth, isAdmin, getAllOrders);
+
+// get sales and profit report (monthly & day-wise)
+router.get("/sales-profit-report", isAuth, isAdmin, getSalesProfitReport);
 
 // get dashboard orders data
 router.get("/dashboard", isAuth, isAdmin, getDashboardOrders);

@@ -7,6 +7,7 @@ import {
   FiShoppingCart,
   FiLayers,
   FiPackage,
+  FiTrendingUp,
 } from "react-icons/fi";
 
 /**
@@ -28,6 +29,11 @@ const sidebar = [
       { path: "/orders/on-the-way", name: "Shipped" },
       { path: "/orders/delivered", name: "Delivered" },
     ],
+  },
+  {
+    path: "/reports/sales-profit",
+    icon: FiTrendingUp,
+    name: "Sales & Profit",
   },
   {
     icon: FiLayers,
