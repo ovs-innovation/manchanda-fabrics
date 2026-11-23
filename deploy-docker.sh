@@ -16,35 +16,41 @@ git reset --hard origin/main
 echo "📌 Current commit on server:"
 git log -1 --oneline
 
-# 2. Stop old containers (keep volumes!)
+# 2. Build services sequentially to avoid network congestion and ECONNRESET
 echo ""
-echo "🛑 Stopping old containers (keeping data volumes)..."
-docker compose down --remove-orphans
+echo "🔨 Building Backend..."
+docker compose build backend
 
-# 3. Clear old images to force full rebuild
 echo ""
-echo "🧹 Removing old Docker images to force clean rebuild..."
-docker rmi manchanda-fabrics-backend manchanda-fabrics-frontend manchanda-fabrics-admin 2>/dev/null || true
+echo "🔨 Building Admin..."
+docker compose build admin
 
-# 4. Rebuild and start fresh with no cache
 echo ""
-echo "🔨 Building and starting containers (no-cache)..."
-docker compose build --no-cache
+echo "🔨 Building Frontend..."
+docker compose build frontend
+
+# 3. Start or update containers
+echo ""
+echo "🚀 Starting fresh containers..."
 docker compose up -d --force-recreate
 
-# 5. Wait a moment for containers to start
+# 4. Wait a moment for containers to start
 echo ""
-echo "⏳ Waiting for containers to start..."
-sleep 10
+echo "⏳ Waiting for containers to initialize..."
+sleep 8
 
-# 6. Show status
+# 5. Show status
 echo ""
 echo "📊 Container Status:"
 docker compose ps
 
 echo ""
-echo "📜 Recent backend logs:"
-docker logs manchanda-backend --tail=20
+echo "🔍 Verifying Admin build inside container:"
+docker exec manchanda-admin ls /usr/share/nginx/html/@/assets/ | grep -i sales || true
+
+echo ""
+echo "🔍 Verifying Frontend hero video inside container:"
+docker exec manchanda-frontend ls -lh /app/public/v1.mp4 || true
 
 echo ""
 echo "========================================="
