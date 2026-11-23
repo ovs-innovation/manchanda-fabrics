@@ -66,7 +66,7 @@ export const DEFAULT_FOOTER = {
 };
 
 export const DEFAULT_MANCHANDA_HOMEPAGE = {
-  heroVideo: "/main.mp4",
+  heroVideo: "/v1.mp4",
   heroWelcome: "Welcome to",
   heroBrandName: "Manchanda Fabrics",
   heroTagline: "Luxury Indian Ethnic Boutique",

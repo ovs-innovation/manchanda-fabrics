@@ -14,6 +14,8 @@ const usableVideo = (src) => {
   const trimmed = src.trim();
   if (trimmed.includes("res.cloudinary.com")) return null;
   if (isRetiredMediaUrl(trimmed)) return null;
+  // Always use the new Sanjana Manchanda video (/v1.mp4) instead of the old legacy video (/main.mp4)
+  if (trimmed === "/main.mp4") return "/v1.mp4";
   return trimmed;
 };
 

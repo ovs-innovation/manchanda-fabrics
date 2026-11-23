@@ -929,7 +929,10 @@ const DEFAULT_LIST_LIMIT = 500;
 const HOMEPAGE_SECTION_LIMIT = 20;
 
 const buildManchandaHomepagePayload = (homepageSettings) => ({
-  heroVideo: homepageSettings.heroVideo || "/main.mp4",
+  heroVideo:
+    homepageSettings.heroVideo && homepageSettings.heroVideo !== "/main.mp4"
+      ? homepageSettings.heroVideo
+      : "/v1.mp4",
   heroWelcome:
     !homepageSettings.heroWelcome || homepageSettings.heroWelcome === "Welcome"
       ? "Welcome to"
