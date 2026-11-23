@@ -36,6 +36,17 @@ const CategoryTable = ({
     }
   };
 
+  const handleOrderChange = async (id, newOrder) => {
+    try {
+      const parsedOrder = Number(newOrder) || 0;
+      const res = await CategoryServices.updateCategory(id, { order: parsedOrder });
+      setIsUpdate(true);
+      showAlert(`Order set to ${parsedOrder} successfully!`, "success");
+    } catch (err) {
+      showAlert(err ? err?.response?.data?.message : err?.message, "error");
+    }
+  };
+
   return (
     <>
       <TableBody>
@@ -77,6 +88,28 @@ const CategoryTable = ({
                   </TableCell>
                 </>
             )}
+
+            <TableCell className="text-center">
+              <input
+                type="number"
+                min="0"
+                key={category._id + "_" + (category.order || 0)}
+                defaultValue={category.order !== undefined && category.order !== null ? category.order : 0}
+                onBlur={(e) => {
+                  const val = Number(e.target.value) || 0;
+                  if (val !== (category.order || 0)) {
+                    handleOrderChange(category._id, val);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.target.blur();
+                  }
+                }}
+                className="w-16 h-8 text-center text-xs font-bold rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 text-gray-800 dark:text-gray-200 shadow-xs"
+                title="Display order sequence (1 = Top, 2 = 2nd...)"
+              />
+            </TableCell>
 
             <TableCell>
               <ShowHideButton

@@ -172,6 +172,24 @@ const CategoryDrawer = ({ id, data }) => {
             </div>
 
             <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+              <LabelArea label="Display Order (क्रम)" />
+              <div className="col-span-8 sm:col-span-4">
+                <InputArea
+                  required={false}
+                  register={register}
+                  label="Display Order"
+                  name="order"
+                  type="number"
+                  placeholder="e.g. 1, 2, 3... (1 = Top/First)"
+                />
+                <span className="text-[11px] text-gray-400 mt-1 block">
+                  Numbers set the exact line sequence (1 = Top, 2 = 2nd, etc.)
+                </span>
+                <Error errorName={errors.order} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
               <LabelArea label={t("ParentCategory")} />
               <div className="col-span-8 sm:col-span-4 relative">
                 <Input

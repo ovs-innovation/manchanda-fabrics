@@ -67,6 +67,7 @@ const Category = () => {
   // local state for form
   const [name, setName] = useState({ default: "", en: "", ar: "" });
   const [priority, setPriority] = useState("Normal");
+  const [order, setOrder] = useState("");
   const [image, setImage] = useState([]);
   const [activeTab, setActiveTab] = useState("Default");
 
@@ -81,6 +82,7 @@ const Category = () => {
   const handleResetField = () => {
     setName({ default: "", en: "", ar: "" });
     setPriority("Normal");
+    setOrder("");
     setImage([]);
   };
 
@@ -106,6 +108,7 @@ const Category = () => {
         parentId: "Root",
         parentName: "Home",
         priority,
+        order: order !== "" ? Number(order) : 0,
         icon: image?.length > 0 ? image[0] : "https://res.cloudinary.com/ahossain/image/upload/v1655097002/placeholder_kvepfp.png",
         images: image || [],
         status: "show"
@@ -157,7 +160,7 @@ const Category = () => {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="flex flex-col gap-2 relative">
                       <label className="text-[11px] font-extrabold uppercase text-gray-500 dark:text-gray-400 tracking-wider">
                         Name ({activeTab}) <span className="text-rose-500">*</span>
@@ -175,6 +178,20 @@ const Category = () => {
                         }}
                         className="w-full h-12 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm px-4 dark:text-gray-200"
                         placeholder={`Category name in ${activeTab}`}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-2 relative">
+                      <label className="text-[11px] font-extrabold uppercase text-gray-500 dark:text-gray-400 tracking-wider">
+                        Display Order (क्रम)
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={order}
+                        onChange={(e) => setOrder(e.target.value)}
+                        className="w-full h-12 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm px-4 dark:text-gray-200"
+                        placeholder="e.g. 1, 2, 3... (1 = First)"
                       />
                     </div>
 
@@ -268,6 +285,7 @@ const Category = () => {
                     <TableCell className="py-4">Id</TableCell>
                     <TableCell className="py-4 text-center">Icon</TableCell>
                     <TableCell className="py-4">Name</TableCell>
+                    <TableCell className="py-4 text-center">Order (क्रम)</TableCell>
                     <TableCell className="py-4">Status</TableCell>
                     <TableCell className="py-4">Featured</TableCell>
                     <TableCell className="py-4">Priority</TableCell>

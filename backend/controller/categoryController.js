@@ -25,6 +25,13 @@ const getCategoryRawName = (nameObj) => {
   return nameObj.en || nameObj.default || Object.values(nameObj)[0] || "";
 };
 
+const sortCategories = (a, b) => {
+  const orderA = a.order !== undefined && a.order !== null && Number(a.order) > 0 ? Number(a.order) : 999999;
+  const orderB = b.order !== undefined && b.order !== null && Number(b.order) > 0 ? Number(b.order) : 999999;
+  if (orderA !== orderB) return orderA - orderB;
+  return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+};
+
 const addCategory = async (req, res) => {
   try {
     if (req.body.name) {
@@ -44,6 +51,9 @@ const addCategory = async (req, res) => {
     }
     if (!req.body.parentName) {
       req.body.parentName = "Home";
+    }
+    if (req.body.order !== undefined) {
+      req.body.order = Number(req.body.order) || 0;
     }
     const newCategory = new Category(req.body);
     await newCategory.save();
@@ -96,9 +106,8 @@ const addAllCategory = async (req, res) => {
 // get status show category
 const getShowingCategory = async (req, res) => {
   try {
-    const categories = await Category.find({ status: "show" }).sort({
-      createdAt: -1,
-    });
+    const categories = await Category.find({ status: "show" });
+    categories.sort(sortCategories);
     const categoryList = readyToParentAndChildrenCategory(categories);
     const filtered = (categoryList || []).filter((c) => {
       const name = String(c.name?.en || c.name || "").toLowerCase().trim();
@@ -116,7 +125,8 @@ const getShowingCategory = async (req, res) => {
 // get all category parent and child
 const getAllCategory = async (req, res) => {
   try {
-    const categories = await Category.find({}).sort({ createdAt: -1 });
+    const categories = await Category.find({});
+    categories.sort(sortCategories);
     const categoryList = readyToParentAndChildrenCategory(categories);
     res.send(categoryList);
   } catch (err) {
@@ -128,7 +138,8 @@ const getAllCategory = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find({}).sort({ createdAt: -1 });
+    const categories = await Category.find({});
+    categories.sort(sortCategories);
     res.send(categories);
   } catch (err) {
     res.status(500).send({
@@ -178,6 +189,9 @@ const updateCategory = async (req, res) => {
       category.featured = req.body.featured !== undefined ? req.body.featured : category.featured;
       category.priority = req.body.priority || category.priority;
       category.banner = req.body.banner;
+      if (req.body.order !== undefined) {
+        category.order = Number(req.body.order) || 0;
+      }
       if (req.body.slug) {
         category.slug = slugify(req.body.slug);
       } else if (!category.slug) {
@@ -333,7 +347,7 @@ const readyToParentAndChildrenCategory = (categories, parentId = null) => {
     );
   };
 
-  return categories.filter(matchesParent).map((item) => {
+  const result = categories.filter(matchesParent).map((item) => {
     const rawName = getCategoryRawName(item.name);
     return {
       _id: item._id,
@@ -348,9 +362,12 @@ const readyToParentAndChildrenCategory = (categories, parentId = null) => {
       status: item.status,
       featured: item.featured,
       priority: item.priority,
+      order: item.order !== undefined && item.order !== null ? item.order : 0,
       children: readyToParentAndChildrenCategory(categories, item._id),
     };
   });
+  result.sort(sortCategories);
+  return result;
 };
 
 

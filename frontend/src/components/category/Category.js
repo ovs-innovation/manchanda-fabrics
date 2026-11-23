@@ -123,9 +123,9 @@ const Category = () => {
               <Link
                 href="/"
                 onClick={closeCategoryDrawer}
-                className="flex items-center rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
+                className="flex items-center rounded-lg px-3.5 py-3 text-sm font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
               >
-                <FiHome className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
+                <FiHome className="flex-shrink-0 h-4.5 w-4.5 mr-3 text-[#9C6A5A]" />
                 <span>{t("Home")}</span>
               </Link>
             </li>
@@ -135,18 +135,18 @@ const Category = () => {
               <button
                 type="button"
                 onClick={() => setCategoryDropdownOpen((prev) => !prev)}
-                className={`w-full flex items-center justify-between rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider transition-all duration-150 ${
+                className={`w-full flex items-center justify-between rounded-lg px-3.5 py-3 text-sm font-bold uppercase tracking-wider transition-all duration-150 ${
                   categoryDropdownOpen
                     ? "bg-white text-[#9C6A5A] shadow-sm"
                     : "text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A]"
                 }`}
               >
                 <div className="flex items-center">
-                  <FiLayers className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
+                  <FiLayers className="flex-shrink-0 h-4.5 w-4.5 mr-3 text-[#9C6A5A]" />
                   <span>{t("Category")}</span>
                 </div>
                 <IoChevronDown
-                  className={`text-sm transition-transform duration-200 ${
+                  className={`text-base transition-transform duration-200 ${
                     categoryDropdownOpen ? "rotate-180 text-[#9C6A5A]" : "text-[#3B2A25]/50"
                   }`}
                 />
@@ -154,14 +154,14 @@ const Category = () => {
 
               {/* Sub-list of Categories */}
               {categoryDropdownOpen && (
-                <div className="ml-5 pl-4 pr-2 py-2 my-1 border-l-2 border-[#9C6A5A]/30 space-y-1 animate-fadeIn">
+                <div className="ml-3 pl-3 pr-2 py-2 my-1 border-l-2 border-[#9C6A5A]/30 space-y-1 animate-fadeIn">
                   {isLoading ? (
-                    <div className="py-2 text-xs text-[#3B2A25]/60 flex items-center gap-2">
+                    <div className="py-2 text-sm text-[#3B2A25]/60 flex items-center gap-2">
                       <Loading loading={true} />
                       <span>{t("Loading categories...")}</span>
                     </div>
                   ) : error ? (
-                    <p className="text-xs text-red-500 py-1">
+                    <p className="text-sm text-red-500 py-1">
                       {error?.response?.data?.message || error?.message}
                     </p>
                   ) : (
@@ -170,17 +170,17 @@ const Category = () => {
                       <Link
                         href="/search"
                         onClick={closeCategoryDrawer}
-                        className="flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider text-[#9C6A5A] hover:bg-white hover:text-[#3B2A25] transition-colors group"
+                        className="flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-bold uppercase tracking-wide text-[#9C6A5A] hover:bg-white hover:text-[#3B2A25] transition-colors group"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <FiGrid className="w-4 h-4 flex-shrink-0 text-[#9C6A5A] group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-3">
+                          <FiGrid className="w-4.5 h-4.5 flex-shrink-0 text-[#9C6A5A] group-hover:scale-110 transition-transform" />
                           <span>{t("View All")}</span>
                         </div>
-                        <IoChevronForward className="text-xs text-[#9C6A5A]/60 group-hover:translate-x-0.5 transition-transform" />
+                        <IoChevronForward className="text-sm text-[#9C6A5A]/60 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
 
                       {menuCategories.length === 0 ? (
-                        <p className="text-xs text-[#3B2A25]/60 py-2">{t("No categories found.")}</p>
+                        <p className="text-sm text-[#3B2A25]/60 py-2">{t("No categories found.")}</p>
                       ) : (
                         menuCategories.map((parentCategory) => {
                           const hasChildren = parentCategory.children?.length > 0;
@@ -189,7 +189,7 @@ const Category = () => {
                           return (
                             <div key={parentCategory._id} className="rounded-md">
                               <div
-                                className="flex items-center justify-between px-3 py-2.5 rounded-md text-xs font-semibold uppercase tracking-wider text-[#3B2A25]/80 hover:bg-white hover:text-[#9C6A5A] transition-colors cursor-pointer"
+                                className="flex items-center justify-between px-3.5 py-3 rounded-lg text-[15px] font-bold uppercase tracking-wide text-[#2D1F1B] hover:bg-white hover:text-[#9C6A5A] transition-colors cursor-pointer"
                                 onClick={() => {
                                   if (hasChildren) {
                                     toggleCategoryExpansion(parentCategory._id);
@@ -198,21 +198,21 @@ const Category = () => {
                                   }
                                 }}
                               >
-                                <div className="flex items-center gap-2.5">
+                                <div className="flex items-center gap-3">
                                   {parentCategory?.icon && !isRetiredMediaUrl(parentCategory.icon) && (
                                     <Image
                                       src={parentCategory.icon}
                                       alt={showingTranslateValue(parentCategory?.name)}
-                                      width={16}
-                                      height={16}
-                                      className="object-contain flex-shrink-0"
+                                      width={22}
+                                      height={22}
+                                      className="object-contain flex-shrink-0 rounded-sm"
                                     />
                                   )}
-                                  <span>{showingTranslateValue(parentCategory?.name)}</span>
+                                  <span className="font-bold">{showingTranslateValue(parentCategory?.name)}</span>
                                 </div>
                                 {hasChildren && (
                                   <IoChevronDown
-                                    className={`text-xs text-[#3B2A25]/50 transition-transform duration-200 ${
+                                    className={`text-sm text-[#3B2A25]/60 transition-transform duration-200 ${
                                       isExpanded ? "rotate-180" : ""
                                     }`}
                                   />
@@ -220,11 +220,11 @@ const Category = () => {
                               </div>
 
                               {hasChildren && isExpanded && (
-                                <div className="ml-4 pl-3 py-1 space-y-1 border-l border-[#E6D1CB]">
+                                <div className="ml-4 pl-3 py-1 space-y-1.5 border-l-2 border-[#E6D1CB]">
                                   <button
                                     type="button"
                                     onClick={() => navigateToCategory(parentCategory)}
-                                    className="w-full text-left px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-[#9C6A5A] hover:underline"
+                                    className="w-full text-left px-3 py-2 text-[13px] sm:text-[14px] font-bold uppercase tracking-wide text-[#9C6A5A] hover:underline"
                                   >
                                     {t("All")} {showingTranslateValue(parentCategory?.name)}
                                   </button>
@@ -233,15 +233,15 @@ const Category = () => {
                                       key={subcategory._id}
                                       type="button"
                                       onClick={() => navigateToCategory(subcategory)}
-                                      className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium text-[#3B2A25]/70 hover:text-[#9C6A5A] transition-colors text-left"
+                                      className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] sm:text-[14px] font-semibold text-[#3B2A25]/90 hover:text-[#9C6A5A] transition-colors text-left"
                                     >
                                       {subcategory?.icon && !isRetiredMediaUrl(subcategory.icon) && (
                                         <Image
                                           src={subcategory.icon}
                                           alt={showingTranslateValue(subcategory?.name)}
-                                          width={14}
-                                          height={14}
-                                          className="object-contain flex-shrink-0"
+                                          width={20}
+                                          height={20}
+                                          className="object-contain flex-shrink-0 rounded-sm"
                                         />
                                       )}
                                       <span>{showingTranslateValue(subcategory?.name)}</span>
@@ -266,9 +266,9 @@ const Category = () => {
                   href={item.href}
                   prefetch={true}
                   onClick={closeCategoryDrawer}
-                  className="flex items-center rounded-lg px-3 py-3 text-xs font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
+                  className="flex items-center rounded-lg px-3.5 py-3 text-sm font-bold uppercase tracking-wider text-[#3B2A25]/90 hover:bg-white hover:text-[#9C6A5A] transition-all duration-150"
                 >
-                  <item.icon className="flex-shrink-0 h-4 w-4 mr-3 text-[#9C6A5A]" />
+                  <item.icon className="flex-shrink-0 h-4.5 w-4.5 mr-3 text-[#9C6A5A]" />
                   <span>{t(item.title)}</span>
                 </Link>
               </li>

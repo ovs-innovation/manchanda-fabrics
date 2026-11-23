@@ -35,7 +35,7 @@ const useCategorySubmit = (id, data) => {
 
   // console.log("resData", resData);
 
-  const onSubmit = async ({ name, description }) => {
+  const onSubmit = async ({ name, description, order }) => {
     try {
       setIsSubmitting(true);
       const nameTranslates = await handlerTextTranslateHandler(
@@ -69,6 +69,7 @@ const useCategorySubmit = (id, data) => {
         slug: resData?.slug || categorySlug,
         parentId: checked ? checked : "Root",
         parentName: selectCategoryName ? selectCategoryName : "Home",
+        order: order !== undefined && order !== "" ? Number(order) : 0,
 
         icon: imageUrl?.length > 0 ? imageUrl[0] : "",
         images: imageUrl || [],
@@ -117,6 +118,7 @@ const useCategorySubmit = (id, data) => {
       setValue("parentId");
       setValue("parentName");
       setValue("description");
+      setValue("order", 0);
       setValue("icon");
       setImageUrl([]);
       setBannerUrl([]);
@@ -147,6 +149,7 @@ const useCategorySubmit = (id, data) => {
             setValue("language", language);
             setValue("parentId", res.parentId);
             setValue("parentName", res.parentName);
+            setValue("order", res.order !== undefined && res.order !== null ? res.order : 0);
             setSelectCategoryName(res.parentName);
             setChecked(res.parentId);
             setImageUrl(res.images?.length > 0 ? res.images : (res.icon ? [res.icon] : []));

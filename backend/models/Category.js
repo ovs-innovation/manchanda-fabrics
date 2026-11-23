@@ -53,6 +53,10 @@ const categorySchema = new mongoose.Schema(
       enum: ['Normal', 'Medium', 'High', 'Low'],
       default: 'Normal',
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
