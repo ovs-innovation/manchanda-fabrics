@@ -107,7 +107,7 @@ const Layout = ({
           type: ogType || "website",
           locale: "en_IN",
           url: currentUrl,
-          title: title || siteTitle,
+          title: pageTitle,
           description: pageDescription,
           site_name: siteTitle,
           images: [
@@ -116,7 +116,7 @@ const Layout = ({
               secureUrl: shareImage,
               width: shareWidth,
               height: shareHeight,
-              alt: title || siteTitle,
+              alt: pageTitle,
               type: "image/jpeg",
             },
           ],
@@ -133,10 +133,10 @@ const Layout = ({
         <meta name="description" content={pageDescription} key="description" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@manchandafabrics" />
-        <meta name="twitter:title" content={title || siteTitle} />
+        <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
         <meta name="twitter:image" content={shareImage} />
-        <meta property="og:title" content={title || siteTitle} />
+        <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:type" content={ogType || "website"} />

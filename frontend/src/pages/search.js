@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
@@ -90,7 +90,103 @@ const findCategoryBySlugOrId = (catList, slugOrId) => {
   return null;
 };
 
-const Search = ({ products, attributes, categories: serverCategories = [] }) => {
+const formatCategorySlug = (slug) => {
+  if (!slug || typeof slug !== "string") return "";
+  return slug
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim();
+};
+
+const resolveSearchSeo = (queryObj = {}, categoriesList = []) => {
+  const catSlug = queryObj.category;
+  const catId = queryObj._id;
+  const searchWord = queryObj.query || queryObj.q;
+
+  let matchedCategory = null;
+  if (catId) {
+    matchedCategory = findCategoryBySlugOrId(categoriesList, catId);
+  }
+  if (!matchedCategory && catSlug) {
+    const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all-collections"].includes(
+      String(catSlug).toLowerCase().trim()
+    );
+    if (!isGeneric) {
+      matchedCategory = findCategoryBySlugOrId(categoriesList, catSlug);
+    }
+  }
+
+  // 1. If Category is matched or present in URL
+  if (matchedCategory || catSlug) {
+    const rawCatName =
+      matchedCategory?.name?.en ||
+      matchedCategory?.name?.default ||
+      (typeof matchedCategory?.name === "string" ? matchedCategory.name : "") ||
+      formatCategorySlug(catSlug);
+
+    const isGeneric = ["fabrics", "suits", "fabric", "suit", "all", "all collections"].includes(
+      String(rawCatName).toLowerCase().trim()
+    );
+
+    const categoryName = isGeneric
+      ? String(rawCatName).toLowerCase().includes("fabric")
+        ? "Fabrics"
+        : String(rawCatName).toLowerCase().includes("suit")
+        ? "Suits"
+        : "All Collections"
+      : rawCatName;
+
+    const rawDesc =
+      matchedCategory?.description?.en ||
+      matchedCategory?.description?.default ||
+      (typeof matchedCategory?.description === "string" ? matchedCategory.description : "");
+    const cleanDesc = rawDesc ? rawDesc.replace(/<[^>]*>?/gm, "").replace(/\s+/g, " ").trim() : "";
+
+    const title = categoryName
+      ? `${categoryName} | Manchanda Fabrics`
+      : "Luxury Ethnic Wear | Manchanda Fabrics";
+
+    const description =
+      cleanDesc && cleanDesc.length > 20
+        ? cleanDesc.slice(0, 240)
+        : `Explore our exclusive collection of authentic ${categoryName || "handcrafted"} suits and fabrics at Manchanda Fabrics. Premium quality, traditional craftsmanship, and timeless designs.`;
+
+    const image =
+      matchedCategory?.banner ||
+      matchedCategory?.icon ||
+      (Array.isArray(matchedCategory?.images) && matchedCategory.images[0]) ||
+      "";
+
+    return { title, description, image, categoryName };
+  }
+
+  // 2. If Text Search Query is present
+  if (searchWord && typeof searchWord === "string" && searchWord.trim()) {
+    const trimmed = searchWord.trim();
+    return {
+      title: `Search: "${trimmed}" | Manchanda Fabrics`,
+      description: `Explore search results for "${trimmed}" at Manchanda Fabrics. Premium women's ethnic suits, sarees, and luxury fabrics.`,
+      image: "",
+      categoryName: "",
+    };
+  }
+
+  // 3. Fallback / Default Search Page
+  return {
+    title: "All Collections | Manchanda Fabrics",
+    description:
+      "Explore Manchanda Fabrics' curated collections of luxury ladies suits, unstitched dress materials, and premium ethnic fabrics.",
+    image: "",
+    categoryName: "",
+  };
+};
+
+const Search = ({
+  products,
+  attributes,
+  categories: serverCategories = [],
+  initialSeo,
+}) => {
   const { t } = useTranslation("common");
   const router = useRouter();
   const { query } = router.query;
@@ -113,6 +209,38 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
   // Maintain local products state so we can refetch when query params change (category/_id etc.)
   const [initialProducts, setInitialProducts] = useState(products || []);
   const [categories, setCategories] = useState(serverCategories || []);
+
+  const activeSeo = useMemo(() => {
+    const hasCategoryOrQuery = Boolean(
+      router.query.category ||
+      router.query._id ||
+      router.query.query ||
+      router.query.q
+    );
+
+    if (router.isReady && hasCategoryOrQuery) {
+      const computed = resolveSearchSeo(router.query, categories);
+      const computedOgUrl = router.asPath
+        ? `https://manchandafabric.in${router.asPath}`
+        : initialSeo?.ogUrl;
+      return {
+        ...computed,
+        ogUrl: computedOgUrl,
+      };
+    }
+
+    if (initialSeo) {
+      return initialSeo;
+    }
+
+    const fallback = resolveSearchSeo(router.query || {}, categories);
+    return {
+      ...fallback,
+      ogUrl: router.asPath
+        ? `https://manchandafabric.in${router.asPath}`
+        : "https://manchandafabric.in/search",
+    };
+  }, [router.isReady, router.query, categories, initialSeo, router.asPath]);
 
   // Fetch categories for useFilter name-based matching if not provided from server
   useEffect(() => {
@@ -419,7 +547,13 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
 
 
   return (
-    <Layout title="Search" description="This is search page" hideMobileHeader={true}>
+    <Layout
+      title={activeSeo.title}
+      description={activeSeo.description}
+      image={activeSeo.image}
+      ogUrl={activeSeo.ogUrl}
+      hideMobileHeader={true}
+    >
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-[#E6D1CB]/50 px-4 py-3">
         {isSearchOpen ? (
@@ -497,16 +631,7 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
                   />
                 </div>
                 <h1 className="text-lg font-semibold text-gray-800 capitalize truncate max-w-[120px]">
-                  {query ||
-                    (router.query.category
-                      ? ["fabrics", "suits", "fabric", "suit"].includes(
-                        String(router.query.category).toLowerCase()
-                      )
-                        ? String(router.query.category).toLowerCase().includes("fabric")
-                          ? "Fabrics"
-                          : "Suits"
-                        : router.query.category
-                      : "All Collections")}
+                  {query || activeSeo.categoryName || "All Collections"}
                 </h1>
               </div>
             </div>
@@ -565,7 +690,11 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-[#9C6A5A]"
               style={{ fontFamily: "'Poppins', sans-serif" }}
             >
-              {query ? t("SEARCH RESULTS") : t("PREMIUM SELECTIONS")}
+              {query
+                ? t("SEARCH RESULTS")
+                : activeSeo.categoryName
+                ? activeSeo.categoryName.toUpperCase()
+                : t("PREMIUM SELECTIONS")}
             </span>
             <span className="w-6 sm:w-8 h-[1px] bg-[#9C6A5A]" />
           </div>
@@ -577,6 +706,11 @@ const Search = ({ products, attributes, categories: serverCategories = [] }) => 
               <>
                 {t("Search Results for")}{" "}
                 <em className="not-italic font-normal italic text-[#9C6A5A]">“{query}”</em>
+              </>
+            ) : activeSeo.categoryName ? (
+              <>
+                {t("Explore")}{" "}
+                <em className="not-italic font-normal italic text-[#9C6A5A]">{activeSeo.categoryName}</em>
               </>
             ) : (
               <>
@@ -854,11 +988,23 @@ export const getServerSideProps = async (context) => {
   const categories =
     categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
 
+  const initialSeoData = resolveSearchSeo(context.query || {}, categories || []);
+  const initialOgUrl = context.resolvedUrl
+    ? `https://manchandafabric.in${context.resolvedUrl}`
+    : "https://manchandafabric.in/search";
+
   return {
     props: {
       attributes: attributes || [],
       products: data?.products || [],
       categories: categories || [],
+      initialSeo: {
+        title: initialSeoData.title,
+        description: initialSeoData.description,
+        image: initialSeoData.image,
+        ogUrl: initialOgUrl,
+        categoryName: initialSeoData.categoryName || "",
+      },
     },
   };
 };
