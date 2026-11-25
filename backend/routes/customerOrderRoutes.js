@@ -33,6 +33,7 @@ router.post("/create/razorpay", isAuthOptional, createOrderByRazorPay);
 
 // PhonePe Payment Routes
 router.post("/create-phonepe-payment", isAuthOptional, createPhonePeOrder);
+router.all("/phonepe-callback/:orderId", handlePhonePeCallback);
 router.all("/phonepe-callback", handlePhonePeCallback);
 router.post("/phonepe-webhook", handlePhonePeWebhook);
 router.get("/phonepe-status/:transactionId", isAuthOptional, getPhonePeStatusApi);

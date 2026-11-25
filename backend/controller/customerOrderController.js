@@ -131,7 +131,7 @@ const sendOrderNotifications = async (order) => {
       }
     }
 
-    if (!customerEmail && !order.confirmationSmsSent && order.user_info.contact) {
+    if (order.user_info?.contact && !order.confirmationSmsSent) {
       const smsMessage = `Hi ${order.user_info.name}, your order #${order.invoice} of ${currency}${order.total} has been placed successfully at ${shopName}. Track here: ${process.env.STORE_URL}/user/dashboard`;
 
       const variables = {
@@ -385,6 +385,13 @@ const addOrder = async (req, res) => {
     if (req.body.paymentMethod === "Cash" || req.body.paymentMethod === "COD") {
       return res.status(400).send({
         message: "Cash on Delivery is disabled. Please complete payment online via PhonePe.",
+      });
+    }
+
+    const orderEmail = req.body.user_info?.email || req.body.email;
+    if (!orderEmail || !String(orderEmail).trim()) {
+      return res.status(400).send({
+        message: "Email address is mandatory for placing an order.",
       });
     }
 
@@ -826,6 +833,48 @@ const getOrderById = async (req, res) => {
       });
     }
 
+    // Auto-verify and sync PhonePe payment status if order is still Pending
+    if (order.paymentMethod === "PhonePe" && order.status === "Pending") {
+      const txId =
+        order.merchantTransactionId ||
+        order.paymentDetails?.merchantTransactionId;
+      if (txId) {
+        try {
+          const statusRes = await checkPhonePeStatus(txId);
+          const state = String(
+            statusRes?.state || statusRes?.data?.state || statusRes?.code || ""
+          ).toUpperCase();
+          if (
+            state === "COMPLETED" ||
+            state === "PAYMENT_SUCCESS" ||
+            statusRes?.success === true
+          ) {
+            order.status = "Processing";
+            order.paymentDetails = {
+              ...order.paymentDetails,
+              merchantTransactionId: txId,
+              providerReferenceId:
+                statusRes?.paymentId ||
+                statusRes?.data?.providerReferenceId ||
+                `PE_${Date.now()}`,
+              paymentStatus: "COMPLETED",
+              completedAt: new Date(),
+            };
+            await order.save();
+            try {
+              await handleProductQuantity(order.cart);
+            } catch (stockErr) {
+              console.error("[getOrderById Stock Error]", stockErr);
+            }
+            responseCache.invalidate?.();
+            sendOrderNotifications(order);
+          }
+        } catch (syncErr) {
+          console.warn("[getOrderById PhonePe Sync Warning]:", syncErr.message);
+        }
+      }
+    }
+
     let orderWithBrandNames = await populateBrandNames(order.toObject());
     orderWithBrandNames.cart = await populateCartTaxFields(orderWithBrandNames.cart);
 
@@ -976,6 +1025,13 @@ const createPhonePeOrder = async (req, res) => {
       });
     }
 
+    const customerEmail = orderData.user_info?.email || orderData.email;
+    if (!customerEmail || !String(customerEmail).trim()) {
+      return res.status(400).send({
+        message: "Email address is mandatory for placing an order.",
+      });
+    }
+
     let shippingCost = orderData.shippingCost;
     if (shippingCost == null || isNaN(shippingCost)) {
       const totalQty = (orderData.cart || []).reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
@@ -997,6 +1053,7 @@ const createPhonePeOrder = async (req, res) => {
       shippingCost: Number(shippingCost || 0),
       status: "Pending",
       paymentMethod: "PhonePe",
+      merchantTransactionId,
       user: customerUserId,
       paymentDetails: {
         merchantTransactionId,
@@ -1015,7 +1072,7 @@ const createPhonePeOrder = async (req, res) => {
       .trim()
       .replace(/\/+$/, "");
 
-    const redirectUrl = `${backendDomain}/api/order/phonepe-callback?transactionId=${merchantTransactionId}&orderId=${savedOrder._id}`;
+    const redirectUrl = `${backendDomain}/api/order/phonepe-callback/${savedOrder._id}?transactionId=${merchantTransactionId}`;
     const callbackUrl = `${backendDomain}/api/order/phonepe-webhook`;
 
     const phonepeResponse = await initiatePhonePePayment({
@@ -1044,12 +1101,15 @@ const createPhonePeOrder = async (req, res) => {
 // Handle PhonePe Redirect Callback from user browser
 const handlePhonePeCallback = async (req, res) => {
   const transactionId =
+    req.params.transactionId ||
     req.query.transactionId ||
     req.query.merchantTransactionId ||
+    req.query.merchantOrderId ||
     req.body?.transactionId ||
-    req.body?.merchantTransactionId;
+    req.body?.merchantTransactionId ||
+    req.body?.merchantOrderId;
 
-  const orderId = req.query.orderId || req.body?.orderId;
+  const orderId = req.params.orderId || req.query.orderId || req.body?.orderId;
 
   const frontendDomain = (
     process.env.NEXT_PUBLIC_STORE_DOMAIN ||
@@ -1062,13 +1122,21 @@ const handlePhonePeCallback = async (req, res) => {
     .replace(/\/+$/, "");
 
   try {
-    if (!transactionId && !orderId) {
-      return res.redirect(302, `${frontendDomain}/checkout?error=invalid_transaction`);
+    let targetOrder = null;
+    if (orderId && mongoose.Types.ObjectId.isValid(orderId)) {
+      targetOrder = await Order.findById(orderId);
     }
 
-    const targetOrder = orderId
-      ? await Order.findById(orderId)
-      : await Order.findOne({ "paymentDetails.merchantTransactionId": transactionId });
+    if (!targetOrder && transactionId) {
+      targetOrder = await Order.findOne({
+        $or: [
+          { "paymentDetails.merchantTransactionId": transactionId },
+          { merchantTransactionId: transactionId },
+          { "paymentDetails.providerReferenceId": transactionId },
+          mongoose.Types.ObjectId.isValid(transactionId) ? { _id: transactionId } : null,
+        ].filter(Boolean),
+      });
+    }
 
     if (targetOrder) {
       // If already processing or completed, redirect straight to order invoice page
@@ -1080,26 +1148,45 @@ const handlePhonePeCallback = async (req, res) => {
         return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
       }
 
+      const activeTxId =
+        transactionId ||
+        targetOrder.merchantTransactionId ||
+        targetOrder.paymentDetails?.merchantTransactionId;
+
       let isSuccess = false;
+      let isExplicitFail = false;
       let statusResult = null;
 
-      if (transactionId) {
+      if (activeTxId) {
         try {
-          statusResult = await checkPhonePeStatus(transactionId);
-          const state = statusResult?.state || statusResult?.data?.state || statusResult?.code;
-          isSuccess =
+          statusResult = await checkPhonePeStatus(activeTxId);
+          const state = String(
+            statusResult?.state ||
+            statusResult?.data?.state ||
+            statusResult?.code ||
+            ""
+          ).toUpperCase();
+          if (
             state === "COMPLETED" ||
             state === "PAYMENT_SUCCESS" ||
-            statusResult?.success === true;
+            statusResult?.success === true
+          ) {
+            isSuccess = true;
+          } else if (
+            state === "FAILED" ||
+            state === "PAYMENT_ERROR" ||
+            state === "PAYMENT_DECLINED"
+          ) {
+            isExplicitFail = true;
+          }
         } catch (statusErr) {
           console.warn("[PhonePe Callback Warning] Status check error:", statusErr.message);
-          // If status check fails but order exists and is pending, assume success to show invoice page
+          // If status check fails but user returned from PhonePe, assume success to avoid cancelling a paid order!
           if (targetOrder.status !== "Cancel") {
             isSuccess = true;
           }
         }
       } else {
-        // If order exists without transactionId in query, assume order placement succeeded
         if (targetOrder.status !== "Cancel") {
           isSuccess = true;
         }
@@ -1109,7 +1196,7 @@ const handlePhonePeCallback = async (req, res) => {
         targetOrder.status = "Processing";
         targetOrder.paymentDetails = {
           ...targetOrder.paymentDetails,
-          merchantTransactionId: transactionId || targetOrder.paymentDetails?.merchantTransactionId,
+          merchantTransactionId: activeTxId || targetOrder.merchantTransactionId,
           providerReferenceId:
             statusResult?.paymentId ||
             statusResult?.data?.providerReferenceId ||
@@ -1130,16 +1217,19 @@ const handlePhonePeCallback = async (req, res) => {
         sendOrderNotifications(targetOrder);
 
         return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
-      } else {
+      } else if (isExplicitFail) {
         targetOrder.status = "Cancel";
         targetOrder.paymentDetails = {
           ...targetOrder.paymentDetails,
-          merchantTransactionId: transactionId || targetOrder.paymentDetails?.merchantTransactionId,
+          merchantTransactionId: activeTxId || targetOrder.merchantTransactionId,
           paymentStatus: "FAILED",
           failedAt: new Date(),
         };
         await targetOrder.save();
         return res.redirect(302, `${frontendDomain}/checkout?error=payment_failed`);
+      } else {
+        // Status is still pending on PhonePe end - redirect to order page so customer can view invoice
+        return res.redirect(302, `${frontendDomain}/order/${targetOrder._id}`);
       }
     }
 
@@ -1173,13 +1263,24 @@ const handlePhonePeWebhook = async (req, res) => {
       decoded = JSON.parse(jsonString);
     }
 
-    const merchantTransactionId = decoded?.data?.merchantTransactionId;
-    const code = decoded?.code;
+    const merchantTransactionId =
+      decoded?.data?.merchantTransactionId ||
+      decoded?.merchantOrderId ||
+      decoded?.data?.merchantOrderId ||
+      decoded?.transactionId;
+    const code = String(decoded?.code || decoded?.data?.state || "").toUpperCase();
 
     if (merchantTransactionId) {
-      const order = await Order.findOne({ "paymentDetails.merchantTransactionId": merchantTransactionId });
+      const order = await Order.findOne({
+        $or: [
+          { "paymentDetails.merchantTransactionId": merchantTransactionId },
+          { merchantTransactionId: merchantTransactionId },
+          mongoose.Types.ObjectId.isValid(merchantTransactionId) ? { _id: merchantTransactionId } : null,
+        ].filter(Boolean),
+      });
+
       if (order) {
-        if (code === "PAYMENT_SUCCESS") {
+        if (code === "PAYMENT_SUCCESS" || code === "COMPLETED") {
           const wasAlreadyProcessed =
             order.status === "Processing" ||
             order.status === "Delivered" ||
@@ -1189,7 +1290,10 @@ const handlePhonePeWebhook = async (req, res) => {
           order.paymentDetails = {
             ...order.paymentDetails,
             merchantTransactionId,
-            providerReferenceId: decoded?.data?.providerReferenceId,
+            providerReferenceId:
+              decoded?.data?.providerReferenceId ||
+              decoded?.data?.paymentId ||
+              order.paymentDetails?.providerReferenceId,
             paymentStatus: "COMPLETED",
             completedAt: new Date(),
           };
@@ -1204,11 +1308,16 @@ const handlePhonePeWebhook = async (req, res) => {
             responseCache.invalidate?.();
             sendOrderNotifications(order);
           }
-        } else if (code === "PAYMENT_ERROR" || code === "PAYMENT_DECLINED") {
+        } else if (
+          code === "PAYMENT_ERROR" ||
+          code === "PAYMENT_DECLINED" ||
+          code === "FAILED"
+        ) {
           order.status = "Cancel";
           order.paymentDetails = {
             ...order.paymentDetails,
             paymentStatus: "FAILED",
+            failedAt: new Date(),
           };
           await order.save();
         }
@@ -1317,4 +1426,5 @@ module.exports = {
   handlePhonePeWebhook,
   getPhonePeStatusApi,
   linkEmailToOrder,
+  sendOrderNotifications,
 };

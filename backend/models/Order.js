@@ -127,6 +127,19 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    paymentDetails: {
+      merchantTransactionId: { type: String, index: true },
+      providerReferenceId: { type: String },
+      paymentStatus: { type: String, default: "Pending" },
+      paymentMode: { type: String },
+      completedAt: { type: Date },
+      failedAt: { type: Date },
+      rawResponse: { type: Object },
+    },
+    merchantTransactionId: {
+      type: String,
+      index: true,
+    },
     cardInfo: {
       type: Object,
       required: false,
