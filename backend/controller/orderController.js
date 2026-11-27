@@ -9,6 +9,8 @@ const {
   handleProductQuantity,
   restoreProductQuantity,
 } = require("../lib/stock-controller/others");
+const { checkPhonePeStatus } = require("../lib/phonepe/phonepe");
+const responseCache = require("../lib/responseCache");
 
 const getAllOrders = async (req, res) => {
   const {
@@ -113,6 +115,81 @@ const getAllOrders = async (req, res) => {
           methodTotals: [],
         });
       }
+    }
+
+    // Auto-reconcile recent Pending PhonePe orders (last 48 hours)
+    try {
+      const pendingCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
+      const pendingPhonePeOrders = await Order.find({
+        status: "Pending",
+        paymentMethod: "PhonePe",
+        createdAt: { $gte: pendingCutoff },
+      }).limit(10);
+
+      if (pendingPhonePeOrders && pendingPhonePeOrders.length > 0) {
+        const { sendOrderNotifications } = require("./customerOrderController");
+        for (const pOrder of pendingPhonePeOrders) {
+          const txId = pOrder.merchantTransactionId || pOrder.paymentDetails?.merchantTransactionId;
+          if (txId) {
+            try {
+              const statusRes = await checkPhonePeStatus(txId);
+              const state = String(
+                statusRes?.state ||
+                statusRes?.data?.state ||
+                statusRes?.code ||
+                ""
+              ).toUpperCase();
+
+              if (
+                state === "COMPLETED" ||
+                state === "PAYMENT_SUCCESS" ||
+                statusRes?.success === true
+              ) {
+                pOrder.status = "Processing";
+                pOrder.paymentDetails = {
+                  ...pOrder.paymentDetails,
+                  merchantTransactionId: txId,
+                  providerReferenceId:
+                    statusRes?.paymentId ||
+                    statusRes?.data?.providerReferenceId ||
+                    `PE_${Date.now()}`,
+                  paymentStatus: "COMPLETED",
+                  completedAt: new Date(),
+                  rawResponse: statusRes,
+                };
+                await pOrder.save();
+                try {
+                  await handleProductQuantity(pOrder.cart);
+                } catch (stkErr) {
+                  console.error("[getAllOrders PhonePe Sync Stock Error]:", stkErr.message);
+                }
+                responseCache.invalidate?.();
+                sendOrderNotifications(pOrder).catch((err) =>
+                  console.error("[getAllOrders PhonePe Sync Notification Error]:", err.message)
+                );
+              } else if (
+                state === "FAILED" ||
+                state === "PAYMENT_ERROR" ||
+                state === "PAYMENT_DECLINED"
+              ) {
+                pOrder.status = "Cancel";
+                pOrder.paymentDetails = {
+                  ...pOrder.paymentDetails,
+                  merchantTransactionId: txId,
+                  paymentStatus: "FAILED",
+                  failedAt: new Date(),
+                  rawResponse: statusRes,
+                };
+                await pOrder.save();
+              }
+            } catch (pCheckErr) {
+              // Non-blocking for individual orders
+            }
+          }
+        }
+      }
+    } catch (syncErr) {
+      console.warn("[getAllOrders Auto-Sync Error]:", syncErr.message);
     }
 
     // total orders count
@@ -277,9 +354,73 @@ const getOrderCustomer = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    // console.log("getOrderById");
-
     const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).send({ message: "Order not found" });
+    }
+
+    // Auto-verify and sync PhonePe payment status if order is still Pending
+    if (order.paymentMethod === "PhonePe" && order.status === "Pending") {
+      const txId = order.merchantTransactionId || order.paymentDetails?.merchantTransactionId;
+      if (txId) {
+        try {
+          const statusRes = await checkPhonePeStatus(txId);
+          const state = String(
+            statusRes?.state ||
+            statusRes?.data?.state ||
+            statusRes?.code ||
+            ""
+          ).toUpperCase();
+
+          if (
+            state === "COMPLETED" ||
+            state === "PAYMENT_SUCCESS" ||
+            statusRes?.success === true
+          ) {
+            order.status = "Processing";
+            order.paymentDetails = {
+              ...order.paymentDetails,
+              merchantTransactionId: txId,
+              providerReferenceId:
+                statusRes?.paymentId ||
+                statusRes?.data?.providerReferenceId ||
+                `PE_${Date.now()}`,
+              paymentStatus: "COMPLETED",
+              completedAt: new Date(),
+              rawResponse: statusRes,
+            };
+            await order.save();
+            try {
+              await handleProductQuantity(order.cart);
+            } catch (stockErr) {
+              console.error("[Admin getOrderById Stock Error]", stockErr);
+            }
+            responseCache.invalidate?.();
+            const { sendOrderNotifications } = require("./customerOrderController");
+            sendOrderNotifications(order).catch((err) =>
+              console.error("[Admin getOrderById Notification Error]:", err.message)
+            );
+          } else if (
+            state === "FAILED" ||
+            state === "PAYMENT_ERROR" ||
+            state === "PAYMENT_DECLINED"
+          ) {
+            order.status = "Cancel";
+            order.paymentDetails = {
+              ...order.paymentDetails,
+              merchantTransactionId: txId,
+              paymentStatus: "FAILED",
+              failedAt: new Date(),
+              rawResponse: statusRes,
+            };
+            await order.save();
+          }
+        } catch (syncErr) {
+          console.warn("[Admin getOrderById PhonePe Sync Warning]:", syncErr.message);
+        }
+      }
+    }
     
     // Populate brand names in cart items
     if (order && order.cart && order.cart.length > 0) {

@@ -990,7 +990,6 @@ const requestRefund = async (req, res) => {
 const {
   initiatePhonePePayment,
   checkPhonePeStatus,
-  verifyWebhookChecksum,
 } = require("../lib/phonepe/phonepe");
 
 // Create PhonePe Payment (Creates order in DB with status "Pending" and returns PhonePe pay page URL)
@@ -1246,88 +1245,146 @@ const handlePhonePeCallback = async (req, res) => {
 // Handle PhonePe Server-to-Server Webhook
 const handlePhonePeWebhook = async (req, res) => {
   try {
-    const xVerifyHeader = req.headers["x-verify"];
-    const responsePayload = req.body.response;
+    let decoded = req.body || {};
 
-    if (xVerifyHeader && responsePayload) {
-      const isValid = verifyWebhookChecksum(responsePayload, xVerifyHeader);
-      if (!isValid) {
-        console.warn("Invalid PhonePe webhook checksum header.");
-        return res.status(400).send({ message: "Invalid signature checksum" });
+    // If payload is base64 encoded in response field (PhonePe legacy / v1)
+    if (typeof req.body?.response === "string") {
+      try {
+        const jsonString = Buffer.from(req.body.response, "base64").toString("utf-8");
+        decoded = JSON.parse(jsonString);
+      } catch (parseErr) {
+        console.warn("[PhonePe Webhook] Base64 parse fallback:", parseErr.message);
       }
     }
 
-    let decoded = {};
-    if (responsePayload) {
-      const jsonString = Buffer.from(responsePayload, "base64").toString("utf-8");
-      decoded = JSON.parse(jsonString);
-    }
-
+    // Extract transaction/order ID from all possible PhonePe payload schemas
     const merchantTransactionId =
+      decoded?.payload?.merchantOrderId ||
+      decoded?.payload?.merchantTransactionId ||
       decoded?.data?.merchantTransactionId ||
-      decoded?.merchantOrderId ||
       decoded?.data?.merchantOrderId ||
-      decoded?.transactionId;
-    const code = String(decoded?.code || decoded?.data?.state || "").toUpperCase();
+      decoded?.merchantOrderId ||
+      decoded?.merchantTransactionId ||
+      decoded?.transactionId ||
+      req.body?.payload?.merchantOrderId ||
+      req.body?.data?.merchantOrderId ||
+      req.body?.merchantTransactionId;
 
-    if (merchantTransactionId) {
-      const order = await Order.findOne({
-        $or: [
-          { "paymentDetails.merchantTransactionId": merchantTransactionId },
-          { merchantTransactionId: merchantTransactionId },
-          mongoose.Types.ObjectId.isValid(merchantTransactionId) ? { _id: merchantTransactionId } : null,
-        ].filter(Boolean),
-      });
+    if (!merchantTransactionId) {
+      console.warn("[PhonePe Webhook] No merchantTransactionId found in webhook payload:", req.body);
+      return res.status(200).send({ success: true, message: "No transaction ID identified" });
+    }
 
-      if (order) {
-        if (code === "PAYMENT_SUCCESS" || code === "COMPLETED") {
-          const wasAlreadyProcessed =
-            order.status === "Processing" ||
-            order.status === "Delivered" ||
-            order.paymentDetails?.paymentStatus === "COMPLETED";
+    console.log(`[PhonePe Webhook] Processing webhook for transaction: ${merchantTransactionId}`);
 
-          order.status = "Processing";
-          order.paymentDetails = {
-            ...order.paymentDetails,
-            merchantTransactionId,
-            providerReferenceId:
-              decoded?.data?.providerReferenceId ||
-              decoded?.data?.paymentId ||
-              order.paymentDetails?.providerReferenceId,
-            paymentStatus: "COMPLETED",
-            completedAt: new Date(),
-          };
-          await order.save();
+    const order = await Order.findOne({
+      $or: [
+        { "paymentDetails.merchantTransactionId": merchantTransactionId },
+        { merchantTransactionId: merchantTransactionId },
+        mongoose.Types.ObjectId.isValid(merchantTransactionId) ? { _id: merchantTransactionId } : null,
+      ].filter(Boolean),
+    });
 
-          if (!wasAlreadyProcessed) {
-            try {
-              await handleProductQuantity(order.cart);
-            } catch (stockErr) {
-              console.error("[PhonePe Webhook Stock Error]", stockErr);
-            }
-            responseCache.invalidate?.();
-            sendOrderNotifications(order);
-          }
-        } else if (
-          code === "PAYMENT_ERROR" ||
-          code === "PAYMENT_DECLINED" ||
-          code === "FAILED"
-        ) {
-          order.status = "Cancel";
-          order.paymentDetails = {
-            ...order.paymentDetails,
-            paymentStatus: "FAILED",
-            failedAt: new Date(),
-          };
-          await order.save();
-        }
+    if (!order) {
+      console.warn(`[PhonePe Webhook] Order not found for tx: ${merchantTransactionId}`);
+      return res.status(200).send({ success: true, message: "Order not found" });
+    }
+
+    // Direct authoritative verification against PhonePe v2 Status API
+    let isSuccess = false;
+    let isFail = false;
+    let statusResult = null;
+
+    try {
+      statusResult = await checkPhonePeStatus(merchantTransactionId);
+      const state = String(
+        statusResult?.state ||
+        statusResult?.data?.state ||
+        statusResult?.code ||
+        ""
+      ).toUpperCase();
+
+      if (
+        state === "COMPLETED" ||
+        state === "PAYMENT_SUCCESS" ||
+        statusResult?.success === true
+      ) {
+        isSuccess = true;
+      } else if (
+        state === "FAILED" ||
+        state === "PAYMENT_ERROR" ||
+        state === "PAYMENT_DECLINED"
+      ) {
+        isFail = true;
+      }
+    } catch (statusErr) {
+      console.warn(`[PhonePe Webhook] Status API error: ${statusErr.message}. Fallback to payload.`);
+      const payloadCode = String(
+        decoded?.code ||
+        decoded?.data?.state ||
+        decoded?.payload?.state ||
+        decoded?.state ||
+        ""
+      ).toUpperCase();
+
+      if (payloadCode === "PAYMENT_SUCCESS" || payloadCode === "COMPLETED") {
+        isSuccess = true;
+      } else if (
+        payloadCode === "PAYMENT_ERROR" ||
+        payloadCode === "PAYMENT_DECLINED" ||
+        payloadCode === "FAILED"
+      ) {
+        isFail = true;
       }
     }
 
-    res.send({ success: true });
+    if (isSuccess) {
+      const wasAlreadyProcessed =
+        order.status === "Processing" ||
+        order.status === "Delivered" ||
+        order.paymentDetails?.paymentStatus === "COMPLETED";
+
+      order.status = "Processing";
+      order.paymentDetails = {
+        ...order.paymentDetails,
+        merchantTransactionId,
+        providerReferenceId:
+          statusResult?.paymentId ||
+          statusResult?.data?.providerReferenceId ||
+          decoded?.data?.providerReferenceId ||
+          order.paymentDetails?.providerReferenceId ||
+          `PE_${Date.now()}`,
+        paymentStatus: "COMPLETED",
+        completedAt: new Date(),
+        rawResponse: statusResult || decoded,
+      };
+      await order.save();
+
+      if (!wasAlreadyProcessed) {
+        try {
+          await handleProductQuantity(order.cart);
+        } catch (stockErr) {
+          console.error("[PhonePe Webhook Stock Error]", stockErr);
+        }
+        responseCache.invalidate?.();
+        sendOrderNotifications(order);
+      }
+    } else if (isFail) {
+      order.status = "Cancel";
+      order.paymentDetails = {
+        ...order.paymentDetails,
+        merchantTransactionId,
+        paymentStatus: "FAILED",
+        failedAt: new Date(),
+        rawResponse: statusResult || decoded,
+      };
+      await order.save();
+    }
+
+    return res.status(200).send({ success: true });
   } catch (err) {
     console.error("PhonePe webhook error:", err);
-    res.status(500).send({ message: err.message });
+    return res.status(200).send({ success: false, message: err.message });
   }
 };
 
